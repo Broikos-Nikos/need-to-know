@@ -1,0 +1,11 @@
+# Every text file is stored and checked out with LF, whatever core.autocrlf says
+# on the machine. A file size or a hash that changes with the checkout is a
+# number that is true on one machine only.
+* text=auto eol=lf
+
+*.png binary
+*.gif binary
+*.webm binary
+*.webp binary
+*.docx binary
+*.woff2 binary
