@@ -1,0 +1,22 @@
+# Keys. Only .env.example, which holds no values, is tracked.
+.env
+
+# Generated data: the corpus, the LLM cache, the manifest, the index, logs.
+# On the author's machine NTK_DATA_DIR points outside the repository entirely.
+data/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# The page
+node_modules/
+dist/
+.vite/
+.capture/
+
+.DS_Store
+*.local
