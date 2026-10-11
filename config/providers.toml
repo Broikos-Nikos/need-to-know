@@ -1,0 +1,65 @@
+# The providers the answer layer can call. Model ids and prices live here, never
+# in code, so changing a model is a one line diff. Prices are USD per million
+# tokens, read from the provider's own pricing page on the date in `as_of`.
+
+[deepseek]
+base_url = "https://api.deepseek.com"
+key_env = "DEEPSEEK_API_KEY"
+model = "deepseek-flash"
+# A top level request field. Thinking is the API's default, so it is turned off
+# explicitly; an extra_body wrapper in raw JSON is silently ignored.
+thinking = "disabled"
+status = "evaluated"
+
+[deepseek.models.deepseek-flash]
+version = "DeepSeek-V4.1-Flash"
+context_tokens = 1_000_000
+max_output_tokens = 384_000
+concurrency_limit = 2500
+
+[deepseek.models.deepseek-flash.price]
+as_of = "2026-10-12"
+source = "https://api-docs.deepseek.com/quick_start/pricing"
+off_peak = { input_hit = 0.003, input_miss = 0.15, output = 0.60 }
+peak = { input_hit = 0.006, input_miss = 0.30, output = 1.20 }
+
+[deepseek.models.deepseek-v4-pro]
+# Its own model again: the pricing page of 2026-10-12 lists this version and
+# these prices, where on 2026-09-14 the name was served by Flash at Flash prices.
+version = "DeepSeek-V4-Pro-0813"
+context_tokens = 1_000_000
+max_output_tokens = 384_000
+concurrency_limit = 500
+
+[deepseek.models.deepseek-v4-pro.price]
+as_of = "2026-10-12"
+source = "https://api-docs.deepseek.com/quick_start/pricing"
+off_peak = { input_hit = 0.022, input_miss = 0.66, output = 1.98 }
+peak = { input_hit = 0.044, input_miss = 1.32, output = 3.96 }
+
+[deepseek.peak]
+# Peak is 01:00 to 04:00 and 06:00 to 10:00 UTC, Monday to Friday, at double the
+# off peak price. Chinese public holidays are off peak all day; this table does
+# not know them, so on those days it overestimates, which is the safe direction
+# for a budget cap. Windows are [start hour, end hour) in UTC; weekdays count
+# Monday as 0.
+weekdays = [0, 1, 2, 3, 4]
+windows_utc = [[1, 4], [6, 10]]
+
+[openai]
+base_url = "https://api.openai.com/v1"
+key_env = "OPENAI_API_KEY"
+model = ""
+status = "adapter only, never run"
+
+[anthropic]
+base_url = "https://api.anthropic.com"
+key_env = "ANTHROPIC_API_KEY"
+model = ""
+status = "adapter only, never run"
+
+[gemini]
+base_url = "https://generativelanguage.googleapis.com"
+key_env = "GEMINI_API_KEY"
+model = ""
+status = "adapter only, never run"
