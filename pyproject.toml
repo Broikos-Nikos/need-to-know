@@ -1,0 +1,28 @@
+[project]
+name = "need-to-know"
+version = "0.1.0"
+description = "A vector database RAG project where every section of a document names who may read it"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Nikos Broikos", email = "broikos.nikolaos@gmail.com" }]
+requires-python = ">=3.12,<3.13"
+dependencies = []
+
+[project.scripts]
+ntk = "needtoknow.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.12,<0.13"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "needtoknow"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
