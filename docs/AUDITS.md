@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**65 findings, 34 closed, 31 open**, from 11 reviews. Each audit pass took one perspective and nothing else.
+**69 findings, 34 closed, 35 open**, from 12 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -104,6 +104,17 @@ An audit pass of three minutes, on whether the author ships, measures and says s
 | `HE-F1` | medium | fixed, tick 37 | The README says nothing is measured while the repository proves a clone rebuilds the corpus, kills recover and every block resolves: a What works today list, each item with its command |
 | `HE-F2` | medium | fixed, tick 37 | The README never says the documents are synthetic or who the writers are: one sentence on provenance where the documents first appear |
 | `HE-F3` | high | fixed, tick 37 | The README says none of the run section needs a GPU, a key or a network, but uv sync downloads the dependencies: say the rest runs without them once uv sync has fetched them |
+
+## `AC`, the access control red team
+
+An audit pass that tried to make restricted text readable by the wrong role. 4 findings, 0 closed.
+
+| id | severity | status | finding |
+|---|---|---|---|
+| `AC-F1` | high | open | A second audience line inside a section relabels the rest of it, so one line opens a Legal section to everyone: only the line under a heading sets the audience, a later one may only narrow |
+| `AC-F2` | high | open | An audience line in another case or with another separator is ignored and the section falls back to the document owner: recognise any case, accents and separator |
+| `AC-F3` | high | open | In html an audience line overrides a narrower data-audience: take the intersection when they disagree, and count it |
+| `AC-F4` | medium | open | A heading path carries restricted headings into text everyone may read: a path keeps only headings that every reader of the element may read |
 
 ## `KB1`, the plan, reviewed against a knowledge base
 
