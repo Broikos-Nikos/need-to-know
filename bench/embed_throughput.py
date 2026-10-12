@@ -28,9 +28,8 @@ import time
 import numpy as np
 
 from needtoknow.embed import model
-from needtoknow.embed.cache import passage
 from needtoknow.ingest.manifest import opened
-from needtoknow.ingest.units import estimate_tokens
+from needtoknow.ingest.units import estimate_tokens, passage
 
 STEP = 20000
 

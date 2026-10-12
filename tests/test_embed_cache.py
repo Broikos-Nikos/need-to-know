@@ -8,6 +8,7 @@ import pytest
 
 from needtoknow.embed import cache, model
 from needtoknow.ingest.manifest import opened as manifest_opened
+from needtoknow.ingest.units import passage
 
 
 def fake_tokenize(texts, cut=False):
@@ -55,9 +56,9 @@ def stored():
 
 
 def test_a_passage_is_the_heading_path_on_a_line_above_the_text():
-    assert cache.passage(["Procedure: Sales", "SECTION 5  Annex A"], "Date | Shop") == \
+    assert passage(["Procedure: Sales", "SECTION 5  Annex A"], "Date | Shop") == \
         "Procedure: Sales > SECTION 5  Annex A\nDate | Shop"
-    assert cache.passage([], "Date | Shop") == "Date | Shop"
+    assert passage([], "Date | Shop") == "Date | Shop"
 
 
 def test_a_run_embeds_each_missing_passage_once_and_the_next_run_nothing(gpu):
@@ -74,7 +75,7 @@ def test_a_run_embeds_each_missing_passage_once_and_the_next_run_nothing(gpu):
 def test_read_gives_back_exactly_the_normalised_state_that_was_stored(gpu):
     manifest([("u1", ["finance"], ["Policy"], "Text A"), ("u2", ["finance"], ["Policy"], "Text B")])
     cache.fill()
-    texts = [cache.passage(["Policy"], "Text B"), cache.passage(["Policy"], "Text A")]
+    texts = [passage(["Policy"], "Text B"), passage(["Policy"], "Text A")]
     with cache.opened() as db:
         rows = cache.read(db, [cache.passage_key(text) for text in texts])
     expected = model.normalise(np.vstack([fake_state(ids) for ids in fake_tokenize(texts)]))

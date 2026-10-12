@@ -24,6 +24,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 from needtoknow.embed import model
+from needtoknow.ingest.units import passage
 from needtoknow.settings import data_dir
 
 SCHEMA_VERSION = 1
@@ -48,11 +49,6 @@ def model_key(config: dict) -> str:
 def cache_path(config: dict) -> Path:
     name = config["repo"].rsplit("/", 1)[-1]
     return data_dir() / "embed" / f"{name}-{config['revision'][:12]}-{config['dtype']}-{RECIPE}.db"
-
-
-def passage(path, text: str) -> str:
-    """What is embedded for a unit: its heading path on a line above its text."""
-    return " > ".join(path) + "\n" + text if path else text
 
 
 def passage_key(text: str) -> bytes:

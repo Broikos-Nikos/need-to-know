@@ -67,6 +67,11 @@ class Unit:
     language: str
 
 
+def passage(path, text: str) -> str:
+    """What a unit is searched as, by both encoders: its heading path on a line above its text."""
+    return " > ".join(path) + "\n" + text if path else text
+
+
 def section_key(doc_id: str, path: tuple[str, ...]) -> str:
     return digest(doc_id, *path, size=16)
 

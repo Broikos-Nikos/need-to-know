@@ -58,3 +58,28 @@ corpus and a manifest, which `ntk ingest build` makes.
 ```
 uv run python bench/freshness.py
 ```
+
+## embed_throughput.py
+
+Counts every unit's passage in BGE-M3 tokens, by layer and language, against the
+model's limit and against the estimate the units step cuts by; then times a fixed
+sample of 4096 units embedded in batches of 32 by count, as before T3.1, and in
+batches cut by padded tokens at five budgets, and each language alone. It needs a
+manifest, the `embed` extra and a CUDA GPU, and writes nothing. Commit `8336c0d`
+quotes it: 26,434 tokens/s by count, 30,791 at 32768 padded tokens, the longest
+passage 486 tokens.
+
+```
+uv run python bench/embed_throughput.py
+```
+
+## lexical_corpus.py
+
+Runs the lexical analyser over every unit's passage, against plain lower case words:
+terms per passage, distinct terms, stopwords dropped, terms by the stemmer that made
+them, hash collisions among term ids, the time to build every sparse vector, and
+RS-F3's question against its planted sentence. It needs a manifest and no GPU.
+
+```
+uv run python bench/lexical_corpus.py
+```
