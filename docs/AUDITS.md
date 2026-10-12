@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**87 findings, 56 closed, 31 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
+**91 findings, 56 closed, 35 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -74,7 +74,7 @@ An audit pass that killed the pipeline mid build and mid change. 5 findings, 5 c
 
 ## `MA`, the measurement auditor
 
-An audit pass on whether every number can be produced again. 5 findings, 3 closed.
+An audit pass on whether every number can be produced again. 9 findings, 3 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -83,6 +83,10 @@ An audit pass on whether every number can be produced again. 5 findings, 3 close
 | `MA-F3` | low | open | The doctor's 15 GB floor has no measurement behind it (the data directory holds 415 MB): measure the full build's peak disk use and set the floor from it |
 | `MA-F4` | low | fixed, tick 39 | 35974c7 states the plan's 22 percent as what hr's filter sends (measured about 5 percent), and labels.toml promises an `ntk corpus verify` that does not exist: the coverage report prints planned and measured shares and the comment names it |
 | `MA-F5` | low | fixed, tick 26 | Finding ids in commits and code resolve to no document in the repository (D20): docs/AUDITS.md lists every cited id, and a gate fails on any it lacks |
+| `MA-F6` | medium | open | c079ead says a revocation lands inside 5 s; at HEAD it takes 5.2 to 5.6 s, and a grant waits for the watcher's start up catch up |
+| `MA-F7` | low | open | 7772c46 quotes 16 of 17 (94 percent) from documents_v1, which no committed command can rebuild now |
+| `MA-F8` | low | open | The sync's printed seconds leave out the reading that is most of a quiet sync, and its docstring's quarter of a minute has no command |
+| `MA-F9` | low | open | docs/AUDITS.md quotes auditors' probes that the repository does not hold |
 
 ## `MT`, the maintainer in six months
 
