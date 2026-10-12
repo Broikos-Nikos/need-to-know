@@ -101,6 +101,10 @@ def opened(path: Path | None = None):
             db.execute(f"PRAGMA user_version = {SCHEMA_VERSION}")
         elif version != SCHEMA_VERSION:
             raise ManifestError(f"{path} has schema version {version}, this code reads {SCHEMA_VERSION}: delete it and build again")
+        # A hit's segment, for the expansion: found by its own index rather than by reading its whole document through
+        # units_by_doc, 2,034 units at the median and 17,369 in the largest (PF-F5). Made once, in a manifest without it.
+        if not db.execute("SELECT 1 FROM sqlite_master WHERE type = 'index' AND name = 'units_by_segment'").fetchone():
+            db.execute("CREATE INDEX units_by_segment ON units(doc_id, section_key, labels, start)")
         yield db
         db.commit()
     finally:

@@ -107,15 +107,22 @@ def cross_encoder():
 
 
 def cross_scores(question: str, passages: list[str], batch: int = 16) -> list[float]:
-    """The cross encoder's relevance of each passage to the question."""
+    """The cross encoder's relevance of each passage to the question, in the order given. The pairs are scored
+    shortest first, so each batch pads to its own longest pair rather than to the longest the rank order happened to
+    put beside it: on 10 questions, 572 ms a question instead of 843, the same top 8 (PF-F4)."""
     import torch
 
     tokenizer, scorer = cross_encoder()
-    scores: list[float] = []
+    limit = load_config()["max_length"]
+    pairs = [[question, p] for p in passages]
+    lengths = [len(ids) for ids in tokenizer(pairs, truncation=True, max_length=limit)["input_ids"]]
+    order = sorted(range(len(pairs)), key=lengths.__getitem__)
+    scores = [0.0] * len(pairs)
     with torch.inference_mode():
-        for start in range(0, len(passages), batch):
-            pairs = [[question, p] for p in passages[start:start + batch]]
-            inputs = tokenizer(pairs, padding=True, truncation=True, max_length=load_config()["max_length"],
+        for start in range(0, len(order), batch):
+            part = order[start:start + batch]
+            inputs = tokenizer([pairs[i] for i in part], padding=True, truncation=True, max_length=limit,
                                return_tensors="pt").to(scorer.device)
-            scores += scorer(**inputs).logits.view(-1).float().tolist()
+            for i, score in zip(part, scorer(**inputs).logits.view(-1).float().tolist()):
+                scores[i] = score
     return scores

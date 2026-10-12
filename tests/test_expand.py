@@ -48,3 +48,11 @@ def test_overlapping_hits_merge_inside_a_segment_and_nowhere_else(manifest):
 def test_only_the_top_hits_are_widened_and_a_hit_the_manifest_lost_is_left_out(manifest):
     found = excerpts([hit("gone", 1), hit("a", 2), hit("y", 3)], top=2)
     assert [e["units"] for e in found] == [["a", "b"]]
+
+
+def test_a_hits_segment_is_found_through_its_own_index_not_its_whole_document(manifest):
+    # PF-F5: the segment was read through units_by_doc, every unit of the document, 31 to 43 ms for the top 8.
+    from needtoknow.index.expand import SEGMENT
+    with opened() as db:
+        plan = " ".join(row[3] for row in db.execute("EXPLAIN QUERY PLAN " + SEGMENT, ("DOC", "key", "[]")))
+    assert "USING INDEX units_by_segment" in plan

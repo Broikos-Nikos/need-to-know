@@ -34,3 +34,32 @@ def test_each_reranker_puts_the_answer_first_in_either_language(mode, language):
     out = rerank.rerank(QUESTION[language], HITS, [*OTHERS, ANSWER], mode)
     assert out[0]["unit_id"] == "answer" and sorted(h["unit_id"] for h in out) == ["answer", "ledger", "pallets"]
     assert [h["rank"] for h in out] == [1, 2, 3]
+
+
+def test_the_cross_encoder_scores_the_shortest_pairs_together_and_answers_in_the_order_given(monkeypatch):
+    # PF-F4: batches of 16 in rank order, each padded to its longest pair; sorted by length a question took 572 ms
+    # instead of 843 on 10 questions, the same top 8.
+    import torch
+    batches = []
+
+    class Inputs(dict):
+        def to(self, _device):
+            return self
+
+    def tokenizer(pairs, padding=False, truncation=True, max_length=None, return_tensors=None):
+        ids = [list(range(len(passage) // 4 + 1)) for _, passage in pairs]
+        if return_tensors is None:
+            return {"input_ids": ids}
+        batches.append([len(i) for i in ids])
+        return Inputs(lengths=torch.tensor([float(len(passage)) for _, passage in pairs]))
+
+    class Scorer:
+        device = "cpu"
+
+        def __call__(self, lengths):
+            return type("Out", (), {"logits": lengths.view(-1, 1)})()
+
+    monkeypatch.setattr(rerank, "cross_encoder", lambda: (tokenizer, Scorer()))
+    passages = ["x" * n for n in (900, 40, 400, 8, 2000, 120) * 6]
+    assert rerank.cross_scores("q", passages, batch=16) == [float(len(p)) for p in passages]
+    assert len(batches) == 3 and all(max(b) <= min(c) for b, c in zip(batches, batches[1:]))

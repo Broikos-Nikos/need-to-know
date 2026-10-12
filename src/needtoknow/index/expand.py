@@ -18,6 +18,8 @@ from needtoknow.ingest.manifest import opened
 
 TOP = 8
 WINDOW = 1
+# A segment's units in document order, through the manifest's units_by_segment index (PF-F5).
+SEGMENT = 'SELECT unit_id FROM units WHERE doc_id = ? AND section_key = ? AND labels = ? ORDER BY start, unit_id'
 
 
 def excerpts(hits: list[dict], top: int = TOP, window: int = WINDOW) -> list[dict]:
@@ -30,8 +32,7 @@ def excerpts(hits: list[dict], top: int = TOP, window: int = WINDOW) -> list[dic
             if row is None:
                 continue
             doc_id, key, labels, path = row
-            segment = [u for (u,) in db.execute('SELECT unit_id FROM units WHERE doc_id = ? AND section_key = ? AND labels = ? '
-                                                'ORDER BY start, unit_id', (doc_id, key, labels))]
+            segment = [u for (u,) in db.execute(SEGMENT, (doc_id, key, labels))]
             at = segment.index(hit["unit_id"])
             span = segment[max(0, at - window):at + window + 1]
             same = next((e for e in found if (e["doc_id"], e["section_key"], e["labels"]) == (doc_id, key, json.loads(labels))

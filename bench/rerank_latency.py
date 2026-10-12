@@ -6,7 +6,8 @@ Needs the index on the running server, the manifest, the embed extra and both pi
 models. It asks planted fact sentences, half of them in each language, as the role, at
 each position of the switch, after one warm up per mode, and prints for each mode the
 seconds a question takes from text to final order, at the median and the 95th percentile,
-and in how many questions the first unit differs from the fused order's first.
+and in how many questions the first unit differs from the fused order's first; then the
+median seconds of widening the top 8 into excerpts (T3.7), the answer path's next step.
 """
 
 from __future__ import annotations
@@ -18,7 +19,7 @@ import time
 
 import numpy as np
 
-from needtoknow.index import server
+from needtoknow.index import expand, server
 from needtoknow.index.rerank import MODES
 from needtoknow.index.search import search
 from needtoknow.policy import load_policy
@@ -37,16 +38,20 @@ def main() -> int:
     first = {}
     for mode in MODES:
         search(client, "warm up", args.role, policy, rerank=mode)
-        seconds, tops = [], []
+        seconds, tops, widening = [], [], []
         for question in questions:
             began = time.perf_counter()
             hits = search(client, question, args.role, policy, rerank=mode)
             seconds.append(time.perf_counter() - began)
             tops.append(hits[0]["unit_id"] if hits else None)
+            began = time.perf_counter()
+            expand.excerpts(hits)
+            widening.append(time.perf_counter() - began)
         first[mode] = tops
         changed = sum(a != b for a, b in zip(tops, first["none"]))
         print(f"{mode:<12} {len(questions)} questions as {args.role}, 100 candidates: median {np.median(seconds):.2f} s, "
-              f"p95 {np.percentile(seconds, 95):.2f} s; first unit changed from the fused order in {changed}", flush=True)
+              f"p95 {np.percentile(seconds, 95):.2f} s; first unit changed from the fused order in {changed}; "
+              f"widening the top 8, median {np.median(widening) * 1000:.0f} ms", flush=True)
     return 0
 
 
