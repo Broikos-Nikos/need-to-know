@@ -112,12 +112,15 @@ uv run python bench/revocation.py --doc CUS_MAN_003
 The lexical side channel attack of AC-F5, run as a role through the retrieval API:
 pairs of words the role sees equally rarely, one of them frequent in text it may not
 read, asked together; the share whose hidden-frequent word's unit ranks below the other,
-against the same share in pairs where neither word occurs in hidden text. With weights
-counted over the whole collection the shares part; with weights over the role's view
-they must not. It needs the manifest and the index on the running server.
+against the same share in pairs where neither word occurs in hidden text, in the fused
+order, before any reranking. `--global-idf` gives the weights as they were before N50,
+counted over the whole collection, and the shares part; over the role's view, the ranks
+depend on readable text alone. It needs the manifest and the index on the running
+server.
 
 ```
 uv run python bench/idf_attack.py --role sales
+uv run python bench/idf_attack.py --role sales --global-idf
 ```
 
 ## rerank_latency.py

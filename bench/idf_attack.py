@@ -1,7 +1,7 @@
 """The lexical side channel attack (AC-F5, KB1-F4): can a role tell, from ranks alone, which words are common in
 text it may not read?
 
-    uv run python bench/idf_attack.py [--role sales] [--pairs 60] [--seed 60]
+    uv run python bench/idf_attack.py [--role sales] [--pairs 60] [--seed 60] [--global-idf]
 
 Needs the manifest and the index on the running server, with the embed extra. It analyses
 every passage as the index does and keeps the words the role sees one to three times. A
@@ -10,9 +10,16 @@ one that no such passage holds and that the role sees exactly as often; a null p
 two of the latter, matched the same way. Each pair is asked as
 the role, its two words in random order, through the retrieval API, and the pair counts
 when both words' units come back: the share of test pairs whose hidden-frequent word's unit
-ranks below the other, against the same share in the null pairs. With weights over the
-whole collection the two shares part (tick 60: 94 against 45 percent); with weights over
-the role's view (N50) they must not.
+ranks below the other, against the same share in the null pairs, in the fused order,
+where the weights act. `--global-idf` asks with the weights as they were before N50, when
+Qdrant's IDF modifier counted every point whatever the role: the same BM25 IDF over every
+label set's frequencies, on today's index (MA-F7), since the collection that had the
+modifier is gone. With those weights the two shares part. With the role's view (N50) the
+ranks are a function of text the role may read and one average length, so a gap that
+remains measures how such words sit in the role's own text, since a null pair matches
+how often the role sees a word, not the units that hold it. Tick 74, as sales, hr and
+returns: 82 to 88 percent over the whole collection, 58 to 65 over the view, 45 to 50 for
+null pairs; as hr on the sparse side alone, 97, 55 and 44.
 """
 
 from __future__ import annotations
@@ -38,7 +45,13 @@ def main() -> int:
     parser.add_argument("--pairs", type=int, default=60)
     parser.add_argument("--seed", type=int, default=60)
     parser.add_argument("--sides", default="dense,sparse", help="the searches to run; sparse alone shows the weights")
+    parser.add_argument("--global-idf", action="store_true",
+                        help="weights over the whole collection, as before N50, to show the attack the view stops")
     args = parser.parse_args()
+    if args.global_idf:  # every label set, whatever the role reads: what the IDF modifier did before N50
+        from needtoknow.index import frequencies
+        real = frequencies.weights
+        frequencies.weights = lambda db, terms, _view: real(db, terms, [s for (s,) in db.execute("SELECT label_set FROM sets")])
     sys.stdout.reconfigure(encoding="utf-8")
     policy = load_policy()
     reads = readable(policy, args.role)
@@ -54,14 +67,17 @@ def main() -> int:
                     entry[2] = unit_id
     heavy = sorted(t for t, (v, h, _) in seen.items() if 1 <= v <= 3 and h >= 30)
     clean = sorted(t for t, (v, h, _) in seen.items() if 1 <= v <= 3 and h == 0)
-    print(f"as {args.role}, searching {args.sides}: words seen 1 to 3 times, frequent in hidden text {len(heavy)}, "
+    over = "the whole collection" if args.global_idf else "the role's view"
+    print(f"as {args.role}, searching {args.sides}, weights over {over}: words seen 1 to 3 times, frequent in hidden text {len(heavy)}, "
           f"absent from it {len(clean)}")
     rng = random.Random(args.seed)
     client = server.client()
 
     def lower(t: str, u: str) -> int | None:
         question = f"{t} {u}" if rng.random() < 0.5 else f"{u} {t}"
-        hits = search(client, question, args.role, policy, limit=100, sides=tuple(args.sides.split(",")))
+        # The fused order, where the weights act: since T3.6 the search reranks by default, and the cross encoder,
+        # which reads no weight, would decide the order the attack reads (tick 74).
+        hits = search(client, question, args.role, policy, limit=100, sides=tuple(args.sides.split(",")), rerank="none")
         rank = {h["unit_id"]: h["rank"] for h in hits}
         rt, ru = rank.get(seen[t][2]), rank.get(seen[u][2])
         return None if rt is None or ru is None or seen[t][2] == seen[u][2] else int(rt > ru)

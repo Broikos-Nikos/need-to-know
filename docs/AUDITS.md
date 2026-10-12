@@ -2,9 +2,11 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**93 findings, 66 closed, 27 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
+**93 findings, 68 closed, 25 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
+
+A finding's numbers are what its audit measured when it filed it, by that audit's own probes, which stay with the loop's records rather than in this repository (MA-F9). Where a command in this repository measures the same thing, the row names it; run today, it gives today's figure, which a fixed finding has moved.
 
 ## `HS`, the hostile stranger
 
@@ -66,7 +68,7 @@ An audit pass that killed the pipeline mid build and mid change. 5 findings, 5 c
 
 | id | severity | status | finding |
 |---|---|---|---|
-| `OP-F1` | medium | fixed, tick 21 | A killed build leaves a partial corpus, and the check named 1 of 9 missing files: build into a sibling folder and swap; the check compares full/ with the catalogue |
+| `OP-F1` | medium | fixed, tick 21 | A killed build leaves a partial corpus, and the check named 1 of 9 missing files: build into a sibling folder and swap; the check compares full/ with the catalogue Measured by `bench/operator_probes.py`, at 074907c's code (`bench/README.md`). |
 | `OP-F2` | medium | fixed, tick 22 | A change is written before its journal line, so a crash leaves it unexplained: journal pending, write, mark applied |
 | `OP-F3` | low | fixed, tick 22 | Two simulators at once would share sequence numbers: a lock for the run |
 | `OP-F4` | high | fixed, tick 65 | A watcher that starts late, or restarts after dying between its scan and its sync, never catches up: a revocation made then stays served |
@@ -74,19 +76,19 @@ An audit pass that killed the pipeline mid build and mid change. 5 findings, 5 c
 
 ## `MA`, the measurement auditor
 
-An audit pass on whether every number can be produced again. 9 findings, 6 closed.
+An audit pass on whether every number can be produced again. 9 findings, 8 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
-| `MA-F1` | medium | fixed, tick 25 | Two commit messages carry numbers that no command in the repository produces (5547561: 24, 15, 9, 1; fbd9532: one file changed, 42 writes): commit the probes as a bench script, before numbers runnable on the parent commit, and only numbers a committed command prints go into commit messages |
-| `MA-F2` | low | open | 'N tests pass' counts this machine: 135 passed as built, 129 passed and 6 skipped without the GPU and the Qdrant binary; give passed and skipped and say which tests need what |
-| `MA-F3` | low | fixed, tick 71 | The doctor's 15 GB floor has no measurement behind it (the data directory holds 415 MB): measure the full build's peak disk use and set the floor from it |
+| `MA-F1` | medium | fixed, tick 25 | Two commit messages carry numbers that no command in the repository produces (5547561: 24, 15, 9, 1; fbd9532: one file changed, 42 writes): commit the probes as a bench script, before numbers runnable on the parent commit, and only numbers a committed command prints go into commit messages Measured by `bench/operator_probes.py` and `bench/crash_points.py`. |
+| `MA-F2` | low | open | 'N tests pass' counts this machine: 135 passed as built, 129 passed and 6 skipped without the GPU and the Qdrant binary; give passed and skipped and say which tests need what Measured by `uv run pytest`, with and without the GPU. |
+| `MA-F3` | low | fixed, tick 71 | The doctor's 15 GB floor has no measurement behind it (the data directory holds 415 MB): measure the full build's peak disk use and set the floor from it Measured by `bench/full_build.py --fresh`. |
 | `MA-F4` | low | fixed, tick 39 | 35974c7 states the plan's 22 percent as what hr's filter sends (measured about 5 percent), and labels.toml promises an `ntk corpus verify` that does not exist: the coverage report prints planned and measured shares and the comment names it |
 | `MA-F5` | low | fixed, tick 26 | Finding ids in commits and code resolve to no document in the repository (D20): docs/AUDITS.md lists every cited id, and a gate fails on any it lacks |
-| `MA-F6` | medium | fixed, tick 73 | c079ead says a revocation lands inside 5 s; at HEAD it takes 5.2 to 5.6 s, and a grant waits for the watcher's start up catch up |
-| `MA-F7` | low | open | 7772c46 quotes 16 of 17 (94 percent) from documents_v1, which no committed command can rebuild now |
+| `MA-F6` | medium | fixed, tick 73 | c079ead says a revocation lands inside 5 s; at HEAD it takes 5.2 to 5.6 s, and a grant waits for the watcher's start up catch up Measured by `bench/revocation.py --doc CUS_MAN_003`. |
+| `MA-F7` | low | fixed, tick 74 | 7772c46 quotes 16 of 17 (94 percent) from documents_v1, which no committed command can rebuild now Measured by `bench/idf_attack.py --global-idf`. |
 | `MA-F8` | low | fixed, tick 71 | The sync's printed seconds leave out the reading that is most of a quiet sync, and its docstring's quarter of a minute has no command |
-| `MA-F9` | low | open | docs/AUDITS.md quotes auditors' probes that the repository does not hold |
+| `MA-F9` | low | fixed, tick 74 | docs/AUDITS.md quotes auditors' probes that the repository does not hold |
 
 ## `MT`, the maintainer in six months
 
@@ -129,7 +131,7 @@ An audit pass that tried to make restricted text readable by the wrong role. 7 f
 | `AC-F2` | high | fixed, tick 41 | An audience line in another case or with another separator is ignored and the section falls back to the document owner: recognise any case, accents and separator |
 | `AC-F3` | high | fixed, tick 41 | In html an audience line overrides a narrower data-audience: take the intersection when they disagree, and count it |
 | `AC-F4` | medium | fixed, tick 43 | A heading path carries restricted headings into text everyone may read: a path keeps only headings that every reader of the element may read |
-| `AC-F5` | high | fixed, tick 63 | The IDF side channel works in the fused ranks: a word frequent in hidden text ranked lower in 16 of 17 pairs (94 percent) against 45 percent for null pairs |
+| `AC-F5` | high | fixed, tick 63 | The IDF side channel works in the fused ranks: a word frequent in hidden text ranked lower in 16 of 17 pairs (94 percent) against 45 percent for null pairs Measured by `bench/idf_attack.py --global-idf`. |
 | `AC-F6` | high | fixed, tick 62 | A narrowed audience reaches the manifest in seconds and the index never: nothing runs the sync after the watcher's scan |
 | `AC-F7` | low | open | ntk search --as takes the role on the caller's word; the README should say ntk is the operator's tool and served paths take the role from the session |
 
@@ -148,9 +150,9 @@ An audit pass on time, memory and disk, its page half waiting for the page. 5 fi
 
 | id | severity | status | finding |
 |---|---|---|---|
-| `PF-F1` | medium | fixed, tick 70 | More than half of ingestion is spent copying row objects (segments 35 percent, structure 20): labels and safe paths in one pass and one copy, measured again before the full build |
-| `PF-F2` | low | fixed, tick 71 | The manifest is 1.7 times the corpus, its paths repeated on every unit: paths once per section, and the manifest counted in the disk floor |
-| `PF-F3` | low | fixed, tick 70 | Memory peaks at 19 times the size of the file being cut (158 MB for 8.43 MB): say the limit, stream by section if larger files arrive |
+| `PF-F1` | medium | fixed, tick 70 | More than half of ingestion is spent copying row objects (segments 35 percent, structure 20): labels and safe paths in one pass and one copy, measured again before the full build Measured by `bench/ingest_steps.py`, at 4659edd's code. |
+| `PF-F2` | low | fixed, tick 71 | The manifest is 1.7 times the corpus, its paths repeated on every unit: paths once per section, and the manifest counted in the disk floor Measured by `bench/full_build.py` and `bench/ingest_steps.py`. |
+| `PF-F3` | low | fixed, tick 70 | Memory peaks at 19 times the size of the file being cut (158 MB for 8.43 MB): say the limit, stream by section if larger files arrive Measured by `bench/ingest_steps.py`, at 4659edd's code. |
 | `PF-F4` | medium | open | The cross encoder pads each batch of 16, in rank order, to its longest pair: sorted by length it scores a question in 572 ms instead of 843, the same top 8 |
 | `PF-F5` | low | open | Expansion finds each hit's segment by reading its whole document through the doc_id index: 31 to 43 ms for the top 8 |
 
@@ -193,6 +195,6 @@ The same session's review of the generated corpus. 5 findings, 2 closed.
 |---|---|---|---|
 | `KB3-K3` | medium | fixed, tick 69 | The annex mass is 1,164 row shapes and its glossary six definitions repeated 602,893 times: named columns with a header in every table, one glossary per document, revisions dated in order; the dense intrusion rate of annex units measured at P3 |
 | `KB3-K4` | medium | open | An overlap cap stated as a share of the question still lets it carry every word that decides retrieval: items rewritten without the planted sentence in view, overlap capped on the three rarest stems, about 20 dev items with a paraphrase twin |
-| `KB3-K5` | low | fixed, tick 39 | Label shares by unit follow annex bytes, not the registered shares (general 0.0 against 0.20, hr 4.7 against 0.02): shop directories under general, annex rows budgeted per label; the coverage report prints registered and measured shares |
+| `KB3-K5` | low | fixed, tick 39 | Label shares by unit follow annex bytes, not the registered shares (general 0.0 against 0.20, hr 4.7 against 0.02): shop directories under general, annex rows budgeted per label; the coverage report prints registered and measured shares Measured by `ntk corpus coverage`. |
 | `KB3-K6` | low | open | The prose cannot compare paragraph and section units (685 of 900 sections are one paragraph): the README and any units claim say so |
 | `KB3-K7` | low | open | Templated tells: a capital letter after the date frame in 14 sentences, one effective date for all versioned facts, and N39's stale canary count (corrected at tick 23) |

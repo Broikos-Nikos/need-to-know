@@ -30,3 +30,24 @@ def test_every_cited_finding_id_has_a_row_in_docs_audits():
         cited.setdefault(fid, "the commit log")
     missing = {fid: where for fid, where in cited.items() if fid not in listed}
     assert cited and not missing, f"cited but not listed in docs/AUDITS.md: {missing}"
+
+
+def test_the_page_says_where_a_findings_numbers_come_from_and_every_command_it_names_is_here():
+    # MA-F9: rows quoted probes the repository does not hold, as if they were its claims. The page now says whose
+    # numbers they are, and where a command here measures the same thing, the row names it: it must be here.
+    import shlex
+
+    from needtoknow.cli import build_parser
+    text = (repo_root() / "docs" / "AUDITS.md").read_text(encoding="utf-8")
+    assert "A finding's numbers are what its audit measured when it filed it" in text
+    clauses = re.findall(r"Measured by ([^|]*)[|]", text)
+    assert len(clauses) >= 10
+    for clause in clauses:
+        for command in re.findall(r"`([^`]+)`", clause):
+            words = shlex.split(command)
+            if words[0] == "ntk":
+                build_parser().parse_args(words[1:])
+            elif words[:2] == ["uv", "run"]:
+                assert words[2:3] == ["pytest"], command
+            else:
+                assert (repo_root() / words[0]).exists(), command
