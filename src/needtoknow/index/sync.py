@@ -9,7 +9,9 @@ moment the section is missing instead, which fails closed.
 
 Vectors come from the cache by passage (DR-F10): a relabel that keeps its passage costs
 no embedding, and one whose safe path lost a heading costs one. Sparse vectors are
-written at the frozen average length (KB1-F15). Being a comparison of states rather
+written at the frozen average length (KB1-F15), and every point's terms are counted
+into the frequency table per label set as it goes in, and out, read from the point
+itself, before it is deleted (N50). Being a comparison of states rather
 than a replay of a log, a sync killed at any point is finished by the next one, and
 two in a row change nothing. Given the documents a scan changed, it compares those
 alone, through the payload index on `doc_id`, which is what the watcher asks for: a
@@ -24,7 +26,8 @@ from pathlib import Path
 
 from needtoknow import lexical
 from needtoknow.embed import cache
-from needtoknow.index.collection import COLLECTION, DENSE, SPARSE, payload, point_id
+from needtoknow.index import frequencies
+from needtoknow.index.collection import COLLECTION, DENSE, SPARSE, label_set, payload, point_id
 from needtoknow.ingest.units import passage
 
 BATCH = 256
@@ -67,9 +70,13 @@ def sync(client, manifest: Path | None = None, report=None, doc_ids: list[str] |
     summary = {"units": len(wanted), "points_before": len(present), "deleted": len(stale), "upserted": 0,
                "embedded": 0, "seconds": 0.0}
     started = time.perf_counter()
-    for start in range(0, len(stale), BATCH * 16):
-        client.delete(COLLECTION, points_selector=models.PointIdsList(points=stale[start:start + BATCH * 16]), wait=True)
-    with cache.opened() as vectors:
+    with frequencies.opened(COLLECTION) as counts, cache.opened() as vectors:
+        for start in range(0, len(stale), BATCH * 4):
+            part = stale[start:start + BATCH * 4]
+            gone = client.retrieve(COLLECTION, ids=part, with_payload=["label_set"], with_vectors=[SPARSE])
+            client.delete(COLLECTION, points_selector=models.PointIdsList(points=part), wait=True)
+            frequencies.count(counts, [(r.payload["label_set"], r.vector[SPARSE].indices) for r in gone], -1)
+            counts.commit()
         texts = [passage(json.loads(row[5]), row[6]) for row in todo]
         keys = [cache.passage_key(text) for text in texts]
         absent = cache.missing(vectors, keys)
@@ -89,6 +96,8 @@ def sync(client, manifest: Path | None = None, report=None, doc_ids: list[str] |
                          SPARSE: [models.SparseVector(indices=i, values=v) for i, v in sparse]},
                 payloads=[payload(row[0], row[1], row[2], row[3], json.loads(row[4]), json.loads(row[5]), row[7], row[8],
                                   row[9]) for row in part]))
+            frequencies.count(counts, [(label_set(json.loads(row[4])), indices) for row, (indices, _) in zip(part, sparse)], 1)
+            counts.commit()
             summary["upserted"] += len(part)
             if report and (summary["upserted"] % (BATCH * 200) == 0 or summary["upserted"] == len(todo)):
                 report(f"upserted {summary['upserted']} of {len(todo)} points, {time.perf_counter() - started:.0f} s")

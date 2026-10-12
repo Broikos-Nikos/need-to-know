@@ -14,16 +14,17 @@ stemmed BM25 is what made fusion pay in Greek in the base's M9c (same doc, secti
 A unit is analysed as its passage, the same text the dense side embeds. A term's id is
 four bytes of its blake2b hash, the u32 that Qdrant's sparse indices are; terms that
 collide share one weight. A passage's value for a term is BM25's term frequency part,
-tf (k1 + 1) / (tf + k1 (1 - b + b dl / avgdl)); Qdrant multiplies it by the term's IDF
-over the collection, and a question sends 1 for each of its terms. avgdl is measured
+tf (k1 + 1) / (tf + k1 (1 - b + b dl / avgdl)); a question sends each of its terms
+once, weighed by its IDF over the asking role's view (`needtoknow.index.frequencies`,
+N50), never over the whole collection. avgdl is measured
 once per index and frozen with the analyser's version (KB1-F15): vectors written on a
 moving average would drift from every vector written before them. The version is this
 file's own digest and the stemmer's release, not a number bumped by hand, so a changed
 analyser can never write vectors beside its predecessor's (DR-F7's shape).
 
-IDF counts restricted text too, a side channel stated rather than hidden (architecture
-section 7, KB1-F4). The encoder reads one passage and no label, so moving the lexical
-side to one collection per role view, should P6's attack work, changes nothing here.
+An IDF over the whole collection counted restricted text too, and tick 60's attack read
+it from the ranks (AC-F5), so the weights are counted per role view; the encoder still
+reads one passage and no label.
 """
 
 from __future__ import annotations

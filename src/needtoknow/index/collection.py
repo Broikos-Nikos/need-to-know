@@ -2,10 +2,12 @@
 
 The settings are the architecture's (section 8): the dense vector, 1024 dimensions and
 cosine, HNSW with m 16, int8 scalar quantization kept in RAM with the float32 originals
-on disk, which a query rescores against; the sparse vector `bm25`, which Qdrant weighs
-with its IDF modifier; and keyword payload indexes on `label_set`, the tenant key that
-keeps each set's points together, and on `labels`, `doc_id` and `lang`. Filters may name
-`labels` or `label_set`, and the filter bench measures both (KB1-F3).
+on disk, which a query rescores against; the sparse vector `bm25`, holding BM25's term
+frequency part, without Qdrant's IDF modifier, which would count every label set: the
+question brings IDF weights over the asking role's view instead (N50, AC-F5); and
+keyword payload indexes on `label_set`, the tenant key that keeps each set's points
+together, and on `labels`, `doc_id` and `lang`. Filters may name `labels` or
+`label_set`, and the filter bench measures both (KB1-F3).
 
 A point's id is a UUID made from its unit id, so an upsert replays over itself. Its
 payload holds what a filter, a citation or a delete needs and never the text, which
@@ -13,7 +15,7 @@ stays in the manifest.
 
 `ensure` creates the collection when it is missing, and freezes the lexical statistics
 over the passages with it, since an index's sparse vectors are written at one average
-length (KB1-F15). Otherwise it checks that the collection is the one this code builds
+length (KB1-F15), and starts its frequency table afresh. Otherwise it checks that the collection is the one this code builds
 and refuses any other, so no run writes into an index of another shape; payload
 indexes are asserted every time, which is a no op when they exist.
 """
@@ -24,8 +26,10 @@ import hashlib
 import uuid
 
 from needtoknow import lexical
+from needtoknow.index import frequencies
 
-COLLECTION = "documents_v1"
+# v2 since tick 63: the sparse vector lost the IDF modifier (N50).
+COLLECTION = "documents_v2"
 DENSE, SPARSE = "dense", "bm25"
 DIMENSIONS = 1024
 HNSW_M = 16
@@ -57,7 +61,7 @@ def config():
         size=DIMENSIONS, distance=models.Distance.COSINE, on_disk=True, hnsw_config=models.HnswConfigDiff(m=HNSW_M),
         quantization_config=models.ScalarQuantization(
             scalar=models.ScalarQuantizationConfig(type=models.ScalarType.INT8, always_ram=True)))
-    return {DENSE: dense}, {SPARSE: models.SparseVectorParams(modifier=models.Modifier.IDF)}
+    return {DENSE: dense}, {SPARSE: models.SparseVectorParams()}
 
 
 def indexes() -> dict:
@@ -85,8 +89,10 @@ def problems(info) -> list[str]:
     if not dense.on_disk or scalar is None or scalar.type != models.ScalarType.INT8 or not scalar.always_ram:
         found.append(f"{DENSE} is not int8 in RAM over float32 originals on disk")
     sparse = (info.config.params.sparse_vectors or {}).get(SPARSE)
-    if sparse is None or sparse.modifier != models.Modifier.IDF:
-        found.append(f"no sparse vector {SPARSE!r} with the IDF modifier")
+    if sparse is None:
+        found.append(f"no sparse vector {SPARSE!r}")
+    elif sparse.modifier not in (None, models.Modifier.NONE):
+        found.append(f"{SPARSE} carries Qdrant's IDF modifier, which counts every label set (AC-F5)")
     return found
 
 
@@ -98,6 +104,8 @@ def ensure(client, passages) -> dict:
     created = not client.collection_exists(COLLECTION)
     if created:  # the statistics first: a run killed in between leaves no collection without them
         lexical.freeze(lexical.measure(passages()))
+        for leftover in frequencies.table_path().parent.glob(frequencies.table_path().name + "*"):
+            leftover.unlink()  # the new collection holds no point, and its table counts none
         vectors, sparse = config()
         client.create_collection(COLLECTION, vectors_config=vectors, sparse_vectors_config=sparse)
     else:

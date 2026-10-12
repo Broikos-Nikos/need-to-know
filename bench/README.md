@@ -96,3 +96,16 @@ Commit "Let the watcher carry every change into the index" quotes it.
 ```
 uv run python bench/revocation.py
 ```
+
+## idf_attack.py
+
+The lexical side channel attack of AC-F5, run as a role through the retrieval API:
+pairs of words the role sees equally rarely, one of them frequent in text it may not
+read, asked together; the share whose hidden-frequent word's unit ranks below the other,
+against the same share in pairs where neither word occurs in hidden text. With weights
+counted over the whole collection the shares part; with weights over the role's view
+they must not. It needs the manifest and the index on the running server.
+
+```
+uv run python bench/idf_attack.py --role sales
+```

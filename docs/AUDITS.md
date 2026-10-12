@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**85 findings, 51 closed, 34 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
+**85 findings, 53 closed, 32 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -115,7 +115,7 @@ An audit pass of three minutes, on whether the author ships, measures and says s
 
 ## `AC`, the access control red team
 
-An audit pass that tried to make restricted text readable by the wrong role. 7 findings, 5 closed.
+An audit pass that tried to make restricted text readable by the wrong role. 7 findings, 6 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -123,7 +123,7 @@ An audit pass that tried to make restricted text readable by the wrong role. 7 f
 | `AC-F2` | high | fixed, tick 41 | An audience line in another case or with another separator is ignored and the section falls back to the document owner: recognise any case, accents and separator |
 | `AC-F3` | high | fixed, tick 41 | In html an audience line overrides a narrower data-audience: take the intersection when they disagree, and count it |
 | `AC-F4` | medium | fixed, tick 43 | A heading path carries restricted headings into text everyone may read: a path keeps only headings that every reader of the element may read |
-| `AC-F5` | high | open | The IDF side channel works in the fused ranks: a word frequent in hidden text ranked lower in 16 of 17 pairs (94 percent) against 45 percent for null pairs |
+| `AC-F5` | high | fixed, tick 63 | The IDF side channel works in the fused ranks: a word frequent in hidden text ranked lower in 16 of 17 pairs (94 percent) against 45 percent for null pairs |
 | `AC-F6` | high | fixed, tick 62 | A narrowed audience reaches the manifest in seconds and the index never: nothing runs the sync after the watcher's scan |
 | `AC-F7` | low | open | ntk search --as takes the role on the caller's word; the README should say ntk is the operator's tool and served paths take the role from the session |
 
@@ -148,14 +148,14 @@ An audit pass on time, memory and disk, its page half waiting for the page. 3 fi
 
 ## `KB1`, the plan, reviewed against a knowledge base
 
-A separate session's review of the plan against the author's research notes. 15 findings, 6 closed.
+A separate session's review of the plan against the author's research notes. 15 findings, 7 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `KB1-F1` | high | fixed, tick 5 | The headline is tuned on its own test set: freeze the 50, decide P8 on a separate dev set of about 100, register experiment order, adoption rule and a non inferiority margin, run the 50 once per release |
 | `KB1-F2` | high | fixed, tick 6 | The filtered recall gate never reaches the selective case: every role reads general, so role filters are about 22 percent or more; gate per role filter as sent, in domain and off topic split, overlap@10 against an exact float32 scan on all probes at two or three ef values, a bench only view for a role without general |
 | `KB1-F3` | medium | open | Filter on label_set, the tenant key, by computing each role's readable label sets at query time; keep labels for audit and display; measure both filters in the F2 bench |
-| `KB1-F4` | medium | open | BM25 IDF side channel: raw lexical scores never leave the server; P6 runs a term existence attack and publishes its success rate; if it works, per role view sparse collections |
+| `KB1-F4` | medium | fixed, tick 63 | BM25 IDF side channel: raw lexical scores never leave the server; P6 runs a term existence attack and publishes its success rate; if it works, per role view sparse collections |
 | `KB1-F5` | medium | open | Publish answerable accuracy, refusal correctness and leaks as separate figures; the overall rate only as a fourth |
 | `KB1-F6` | medium | open | Golden set needs near misses, multi hop across two documents and answers spanning a unit boundary; score near misses like J |
 | `KB1-F7` | medium | open | Headline says synthetic; a closed book run with empty excerpts published beside it; planted values mostly non default, deliberate defaults flagged in the registry |

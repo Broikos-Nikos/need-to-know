@@ -5,7 +5,8 @@ import numpy as np
 import pytest
 from qdrant_client import QdrantClient, models
 
-from needtoknow.index.collection import COLLECTION, DENSE, SPARSE, ensure, payload, point_id
+from needtoknow.index import frequencies
+from needtoknow.index.collection import COLLECTION, DENSE, SPARSE, ensure, label_set, payload, point_id
 from needtoknow.index.search import FORMS, RRF_K, role_filter, search
 from needtoknow.lexical import document, frozen
 from needtoknow.policy import PolicyError, load_policy, readable
@@ -41,6 +42,8 @@ def client(monkeypatch, tmp_path):
                                          SPARSE: models.SparseVector(indices=indices, values=values)},
                                          payload=payload(unit, "DOC", "key", "prose", labels, (), 0, 1, "en")))
     client.upsert(COLLECTION, points=points)
+    with frequencies.opened(COLLECTION) as db:  # as the sync counts them (N50)
+        frequencies.count(db, [(label_set(labels), document(text, avgdl)[0]) for _, labels, text, _ in UNITS], 1)
     return client
 
 
@@ -114,3 +117,21 @@ def test_ntk_search_prints_what_the_role_may_read_and_refuses_an_unknown_role(cl
     lines = capsys.readouterr().out.splitlines()
     assert len(lines) == 2 and "sales" in lines[0] and "settlement ceiling" in lines[0] and "general" in lines[1]
     assert cmd_search(argparse.Namespace(question="x", role="board", form="labels", limit=10), client=client) == 1
+
+
+def test_a_questions_lexical_weights_are_counted_over_the_roles_view_alone(client, monkeypatch):
+    # AC-F5, N50: weights counted over the whole collection let ranks tell which words hidden text holds.
+    sent = {}
+    real = client.query_points
+    monkeypatch.setattr(client, "query_points", lambda *args, **kwargs: sent.update(kwargs) or real(*args, **kwargs))
+    ask(client, question="settlement ceiling", role="sales")
+    sparse = sent["prefetch"][1].query
+    with frequencies.opened(COLLECTION) as db:
+        assert sparse.values == pytest.approx(frequencies.weights(db, sparse.indices, ["general", "sales"]))
+        assert sparse.values != pytest.approx(frequencies.weights(db, sparse.indices, ["general", "legal", "sales",
+                                                                                         "unlabelled"]))
+
+
+def test_one_side_alone_runs_inside_the_roles_filter_too(client):
+    assert [hit["unit_id"] for hit in ask(client, role="sales", sides=("sparse",))] == ["sales"]
+    assert [hit["unit_id"] for hit in ask(client, role="sales", sides=("dense",))] == ["open", "sales"]

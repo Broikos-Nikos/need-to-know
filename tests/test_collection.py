@@ -43,11 +43,12 @@ def test_a_collection_of_another_shape_is_refused_by_what_differs(client, change
         ensure(client, lambda: iter(PASSAGES))
 
 
-def test_a_collection_without_the_idf_modifier_is_refused(client):
+def test_a_collection_whose_sparse_vector_counts_idf_over_everything_is_refused(client):
+    # N50, AC-F5: Qdrant's IDF modifier counts every label set; the weights come from the role's view instead.
     vectors, _ = collection.config()
     client.create_collection(COLLECTION, vectors_config=vectors,
-                             sparse_vectors_config={collection.SPARSE: models.SparseVectorParams()})
-    with pytest.raises(CollectionError, match="IDF modifier"):
+                             sparse_vectors_config={collection.SPARSE: models.SparseVectorParams(modifier=models.Modifier.IDF)})
+    with pytest.raises(CollectionError, match="IDF modifier, which counts every label set"):
         ensure(client, lambda: iter(PASSAGES))
 
 
@@ -64,7 +65,7 @@ def test_ntk_index_create_freezes_the_statistics_over_the_manifest(client, capsy
         db.execute("INSERT INTO files VALUES ('DOC_1', 'doc.md', 1, 1, 1, 1, 'h', 'md', 'utf-8', 'en', 'v', 1)")
         db.execute("""INSERT INTO units VALUES ('u1', 'DOC_1', 's', 'prose', '["sales"]', '["Title"]', 'cat dog dog', 0, 1, 'en', 1)""")
     assert cmd_index(None, client=client) == 0
-    assert "documents_v1: created; lexical statistics frozen over 1 passages, avgdl 4.00" in capsys.readouterr().out
+    assert "documents_v2: created; lexical statistics frozen over 1 passages, avgdl 4.00" in capsys.readouterr().out
     assert cmd_index(None, client=client) == 0
     assert "already there, and of this shape" in capsys.readouterr().out
 
