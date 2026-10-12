@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**91 findings, 65 closed, 26 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
+**93 findings, 65 closed, 28 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -144,13 +144,15 @@ An audit pass of ten seconds on the first screen, by someone who hires but does 
 
 ## `PF`, the performance auditor
 
-An audit pass on time, memory and disk, its page half waiting for the page. 3 findings, 3 closed.
+An audit pass on time, memory and disk, its page half waiting for the page. 5 findings, 3 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `PF-F1` | medium | fixed, tick 70 | More than half of ingestion is spent copying row objects (segments 35 percent, structure 20): labels and safe paths in one pass and one copy, measured again before the full build |
 | `PF-F2` | low | fixed, tick 71 | The manifest is 1.7 times the corpus, its paths repeated on every unit: paths once per section, and the manifest counted in the disk floor |
 | `PF-F3` | low | fixed, tick 70 | Memory peaks at 19 times the size of the file being cut (158 MB for 8.43 MB): say the limit, stream by section if larger files arrive |
+| `PF-F4` | medium | open | The cross encoder pads each batch of 16, in rank order, to its longest pair: sorted by length it scores a question in 572 ms instead of 843, the same top 8 |
+| `PF-F5` | low | open | Expansion finds each hit's segment by reading its whole document through the doc_id index: 31 to 43 ms for the top 8 |
 
 ## `KB1`, the plan, reviewed against a knowledge base
 
