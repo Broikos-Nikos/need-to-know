@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**105 findings, 80 closed, 25 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
+**105 findings, 81 closed, 24 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -49,7 +49,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 
 ## `DR`, the deep reviewer
 
-An audit pass on correctness, read in the logic rather than the comments. 15 findings, 14 closed.
+An audit pass on correctness, read in the logic rather than the comments. 15 findings, 15 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -67,7 +67,7 @@ An audit pass on correctness, read in the logic rather than the comments. 15 fin
 | `DR-F12` | low | fixed, tick 67 | A split paragraph's pieces all carry the whole paragraph's offsets |
 | `DR-F13` | low | fixed, tick 54 | An unknown html data-audience is reported folded, not as written |
 | `DR-F14` | low | fixed, tick 54 | HTML text outside h1 to h6, p, li and tr is dropped without a word (0 characters on this corpus) |
-| `DR-F15` | medium | open | A hit the manifest has dropped, between a scan and its sync, crashes the reranked search (KeyError) and ntk search (TypeError) |
+| `DR-F15` | medium | fixed, tick 85 | A hit the manifest has dropped, between a scan and its sync, crashes the reranked search (KeyError) and ntk search (TypeError) |
 
 ## `OP`, the pipeline operator
 

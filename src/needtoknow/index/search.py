@@ -98,12 +98,30 @@ def search(client, question: str, role: str, policy: dict | None = None, form: s
                                         filter=flt, limit=limit))
     found = client.query_points(COLLECTION, prefetch=prefetch, query=models.RrfQuery(rrf=models.Rrf(k=RRF_K + 1)),
                                 query_filter=flt, limit=limit, with_payload=["unit_id"]).points
-    hits = [{"unit_id": point.payload["unit_id"], "rank": rank, "score": point.score} for rank, point in enumerate(found, 1)]
+    # A point whose unit the manifest no longer holds awaits its sync, and its labels may be the ones a relabel has
+    # just narrowed: the manifest decides what exists, so such a point is dropped here, before the reranker reads
+    # passages, and a narrowing takes effect at the scan (DR-F15).
+    kept = in_manifest([point.payload["unit_id"] for point in found])
+    hits = [{"unit_id": unit, "rank": rank, "score": score} for rank, (unit, score) in
+            enumerate(((p.payload["unit_id"], p.score) for p in found if p.payload["unit_id"] in kept), 1)]
     from needtoknow.index import rerank as second
     mode = rerank or second.load_config()["mode"]
     if mode == "none" or not hits:
         return hits
     return second.rerank(question, hits, passages_of([hit["unit_id"] for hit in hits]), mode)
+
+
+def in_manifest(unit_ids: list[str]) -> set[str]:
+    """Those of the given units the manifest holds."""
+    from needtoknow.ingest.manifest import opened
+
+    held: set[str] = set()
+    with opened() as db:
+        for start in range(0, len(unit_ids), 900):
+            part = unit_ids[start:start + 900]
+            held.update(u for (u,) in db.execute(
+                f"SELECT unit_id FROM units WHERE unit_id IN ({','.join('?' * len(part))})", part))
+    return held
 
 
 def passages_of(unit_ids: list[str]) -> list[str]:

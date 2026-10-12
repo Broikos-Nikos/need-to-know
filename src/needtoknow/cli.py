@@ -237,8 +237,10 @@ def cmd_search(args: argparse.Namespace, out=None, client=None) -> int:
         raise
     with opened() as db:
         for hit in hits:
-            doc_id, labels, text = db.execute("SELECT doc_id, labels, text FROM units WHERE unit_id = ?",
-                                              (hit["unit_id"],)).fetchone()
+            row = db.execute("SELECT doc_id, labels, text FROM units WHERE unit_id = ?", (hit["unit_id"],)).fetchone()
+            if row is None:  # a scan between the search and this line dropped it (DR-F15)
+                continue
+            doc_id, labels, text = row
             line = " ".join(text.split())
             print(f"{hit['rank']:>3} {hit['score']:.4f} {doc_id:<12} {'+'.join(json.loads(labels)):<14} {line[:90]}",
                   file=out, flush=True)

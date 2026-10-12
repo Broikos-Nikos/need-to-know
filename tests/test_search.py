@@ -1,6 +1,8 @@
 """The query (T3.5) in Qdrant's local mode, with a stand in for the question encoder: every role's filter in both
 forms, the filter inside each search rather than after it, fusion by reciprocal rank, and nothing but ranks out."""
 
+import json
+
 import numpy as np
 import pytest
 from qdrant_client import QdrantClient, models
@@ -8,6 +10,7 @@ from qdrant_client import QdrantClient, models
 from needtoknow.index import frequencies
 from needtoknow.index.collection import COLLECTION, DENSE, SPARSE, ensure, label_set, payload, point_id
 from needtoknow.index.search import FORMS, RRF_K, role_filter, search
+from needtoknow.ingest.manifest import opened
 from needtoknow.lexical import document, frozen
 from needtoknow.policy import PolicyError, load_policy, readable
 
@@ -42,6 +45,10 @@ def client(monkeypatch, tmp_path):
                                          SPARSE: models.SparseVector(indices=indices, values=values)},
                                          payload=payload(unit, "DOC", "key", "prose", labels, (), "en")))
     client.upsert(COLLECTION, points=points)
+    with opened() as db:  # the manifest holds what the index holds, as a sync leaves them (DR-F15)
+        db.execute("INSERT INTO files VALUES ('DOC', 'doc.md', 1, 1, 1, 1, 'h', 'md', 'utf-8', 'en', 'v', 1)")
+        db.executemany("INSERT INTO units VALUES (?, 'DOC', 'key', 'prose', ?, ?, ?, 0, 1, 'en', 1)",
+                       [(unit, json.dumps(labels), json.dumps(["Policy"]), text) for unit, labels, text, _ in UNITS])
     with frequencies.opened(COLLECTION) as db:  # as the sync counts them (N50)
         frequencies.count(db, [(label_set(labels), document(text, avgdl)[0]) for _, labels, text, _ in UNITS], 1)
     return client
@@ -108,10 +115,6 @@ def test_ntk_search_prints_what_the_role_may_read_and_refuses_an_unknown_role(cl
     from needtoknow.cli import cmd_search
     from needtoknow.embed import model
     from needtoknow.ingest.manifest import opened
-    with opened() as db:
-        db.execute("INSERT INTO files VALUES ('DOC', 'doc.md', 1, 1, 1, 1, 'h', 'md', 'utf-8', 'en', 'v', 1)")
-        db.executemany("INSERT INTO units VALUES (?, 'DOC', 'key', 'prose', ?, '[]', ?, 0, 1, 'en', 1)",
-                       [(unit, json.dumps(labels), text) for unit, labels, text, _ in UNITS])
     monkeypatch.setattr(model, "encode", lambda texts: np.vstack([QUESTION] * len(texts)))
     question = argparse.Namespace(question="settlement ceiling", role="sales", form="labels", limit=10, rerank="none")
     assert cmd_search(question, client=client) == 0
@@ -161,10 +164,6 @@ def test_the_rerank_switch_hands_the_reranker_the_candidates_own_passages(client
 
     from needtoknow.index import rerank
     from needtoknow.ingest.manifest import opened
-    with opened() as db:
-        db.execute("INSERT INTO files VALUES ('DOC', 'doc.md', 1, 1, 1, 1, 'h', 'md', 'utf-8', 'en', 'v', 1)")
-        db.executemany("INSERT INTO units VALUES (?, 'DOC', 'key', 'prose', ?, '[\"Policy\"]', ?, 0, 1, 'en', 1)",
-                       [(unit, json.dumps(labels), text) for unit, labels, text, _ in UNITS])
     seen = []
     monkeypatch.setattr(rerank, "cross_scores", lambda question, passages: seen.append(passages) or [0.0, 1.0])
     hits = search(client, "settlement ceiling", "sales", encode=lambda texts: np.vstack([QUESTION] * len(texts)), rerank="cross")
@@ -226,3 +225,36 @@ def test_numbers_out_of_range_are_refused_by_the_parser():
         with pytest.raises(SystemExit):
             build_parser().parse_args(args)
     assert build_parser().parse_args(["search", "q", "--as", "sales", "--limit", "100"]).limit == 100
+
+
+def test_a_point_the_manifest_has_dropped_is_never_returned_reranked_or_printed(client, monkeypatch, capsys):
+    # DR-F15: between a scan that drops a unit and the sync that deletes its point, the index still returned it, the
+    # reranked search raised KeyError and ntk search TypeError. A unit's id holds its labels, so the point that
+    # outlives its unit is the one a relabel narrowed.
+    import argparse
+
+    from needtoknow.cli import cmd_search
+    from needtoknow.embed import model
+    from needtoknow.index import rerank
+    with opened() as db:
+        db.execute("DELETE FROM units WHERE unit_id = 'open'")  # the scan has run, the sync has not
+    monkeypatch.setattr(rerank, "cross_scores", lambda question, passages: [0.0] * len(passages))
+    for mode in ("none", "cross"):
+        hits = ask(client, role="sales", rerank=mode)
+        assert "open" not in {h["unit_id"] for h in hits}
+        assert [h["rank"] for h in hits] == list(range(1, len(hits) + 1)) and hits
+    monkeypatch.setattr(model, "encode", lambda texts: np.vstack([QUESTION] * len(texts)))
+    question = argparse.Namespace(question="settlement ceiling", role="sales", form="labels", limit=10, rerank="none")
+    assert cmd_search(question, client=client) == 0
+    assert "Shops open at nine" not in capsys.readouterr().out
+
+
+def test_ntk_search_skips_a_hit_a_scan_dropped_between_the_search_and_its_printing(client, monkeypatch, capsys):
+    # DR-F15's race: the search kept to the manifest, and a scan dropped the unit before the line was printed.
+    import argparse
+
+    from needtoknow.cli import cmd_search
+    from needtoknow.index import search as retrieval
+    monkeypatch.setattr(retrieval, "search", lambda *a, **k: [{"unit_id": "ghost", "rank": 1, "score": 0.1}])
+    question = argparse.Namespace(question="settlement ceiling", role="sales", form="labels", limit=1, rerank="none")
+    assert cmd_search(question, client=client) == 0 and "ghost" not in capsys.readouterr().out

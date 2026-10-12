@@ -185,7 +185,7 @@ def test_a_watcher_syncs_every_document_first_since_a_dead_one_may_have_left_one
     from test_embed_cache import Gpu
 
     from needtoknow.embed import model
-    from needtoknow.index.collection import ensure
+    from needtoknow.index.collection import COLLECTION, ensure
     from needtoknow.index.search import search
     from needtoknow.index.sync import sync
     from needtoknow.ingest.manifest import scan
@@ -212,10 +212,18 @@ def test_a_watcher_syncs_every_document_first_since_a_dead_one_may_have_left_one
             texts = [db.execute("SELECT text FROM units WHERE unit_id = ?", (h["unit_id"],)).fetchone() for h in found]
         return any(t is None or "the outcome" in t[0] for t in texts)
 
-    assert section_served_to_legal()
+    def stale_points() -> int:
+        """Points the manifest no longer holds, the narrowed section's old ones among them."""
+        records, _ = client.scroll(COLLECTION, limit=10_000, with_payload=["unit_id"])
+        with opened() as db:
+            held = {u for (u,) in db.execute("SELECT unit_id FROM units")}
+        return sum(1 for record in records if record.payload["unit_id"] not in held)
+
+    # DR-F15: the search keeps to the manifest, so the narrowing holds from the scan on, before any sync.
+    assert stale_points() > 0 and not section_served_to_legal()
     steps = Script([lambda: None])
     watch(full, stop=steps.stop, sleep=steps.sleep, sync_fn=lambda docs: sync(client, doc_ids=docs))
-    assert not section_served_to_legal()
+    assert stale_points() == 0 and not section_served_to_legal()  # OP-F4: the catch up's sync deletes them
 
 
 def test_a_watcher_scans_first_what_changed_while_none_ran(monkeypatch, tmp_path):
