@@ -96,3 +96,13 @@ def test_a_units_path_holds_no_heading_its_readers_may_not_read():
             "### 1.1 Shop notice\n\nAudience: All staff\n\nShops stay open.\n")
     notice = next(u for u in cut(text) if "Shops stay open" in u.text)
     assert notice.labels == ("general",) and notice.path == ("1.1 Shop notice",)
+
+
+def test_the_pieces_of_a_long_paragraph_carry_their_own_offsets():
+    # DR-F12: every piece carried the whole paragraph's span, so nothing could order or cite them.
+    long = " ".join([SENTENCE] * 20)
+    text = f"# T@@## SECTION 1  Desk@@Audience: Returns@@{long}~"
+    text = text.replace("@@", "\n\n").replace("~", "\n")
+    pieces = [u for u in cut(text) if u.path[-1:] == ("SECTION 1  Desk",)]
+    assert len(pieces) >= 2 and all(text[u.start:u.end] == u.text for u in pieces)
+    assert [u.start for u in pieces] == sorted(u.start for u in pieces) and len({u.start for u in pieces}) == len(pieces)

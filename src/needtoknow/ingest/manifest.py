@@ -125,6 +125,10 @@ def replace_units(db: sqlite3.Connection, run_id: int, doc_id: str, found: list[
     removed = old - set(new)
     added = [u for uid, u in new.items() if uid not in old]
     db.executemany("DELETE FROM units WHERE unit_id = ?", [(uid,) for uid in removed])
+    # Offsets are not in the id: a paragraph inserted above a unit moves it and keeps its id, so a surviving unit's
+    # offsets are written again, or the expansion and the citations would read where it used to be (T3.7).
+    db.executemany('UPDATE units SET start = ?, "end" = ? WHERE unit_id = ? AND (start != ? OR "end" != ?)',
+                   [(u.start, u.end, u.unit_id, u.start, u.end) for uid, u in new.items() if uid in old])
     db.executemany("INSERT INTO units VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                    [(u.unit_id, u.doc_id, u.section_key, u.layer, json.dumps(u.labels), json.dumps(u.path, ensure_ascii=False),
                      u.text, u.start, u.end, u.language, run_id) for u in added])

@@ -206,3 +206,22 @@ def test_a_missing_corpus_folder_is_refused_and_the_manifest_kept(corpus, capsys
         scan()
     assert main(["ingest", "scan"]) == 1
     assert "ingest: " in capsys.readouterr().out and len(all_units()) == total
+
+
+def test_a_unit_moved_by_an_insertion_keeps_its_id_and_gets_its_new_offsets(corpus):
+    # T3.7: offsets are not in the id, so a unit that only moved kept the offsets of where it used to be.
+    base, docs = corpus
+    doc = docs[0]
+    file = base / "full" / f"{doc['id']}.txt"
+    before = {uid: v for uid, v in doc_units(doc["id"]).items()}
+    first = PROSE["en"].replace("records", "notes")
+    extra = ("An inserted paragraph moves everything after it in the file, and it is long enough to stand as a unit of "
+             "its own here, with no short neighbour to join.")
+    file.write_bytes(file.read_bytes().replace(first.encode(), (extra + "\n\n" + first).encode(), 1))
+    scan()
+    source = file.read_bytes().decode("utf-8")
+    with opened() as db:
+        rows = db.execute('SELECT unit_id, text, start, "end" FROM units WHERE doc_id = ? AND layer = ?',
+                          (doc["id"], "prose")).fetchall()  # a table unit repeats its header, so its text is no span
+    kept = [row for row in rows if row[0] in before]
+    assert len(kept) >= 2 and all(source[start:end] == text for _, text, start, end in kept)

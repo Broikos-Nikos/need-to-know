@@ -55,8 +55,9 @@ def test_a_collection_whose_sparse_vector_counts_idf_over_everything_is_refused(
 def test_ids_and_payloads():
     assert point_id("abc") == point_id("abc") != point_id("abc#1")
     assert label_set(["returns", "legal"]) == label_set(["legal", "returns"]) == "legal+returns"
-    body = payload("abc", "DOC", "key", "prose", ("returns", "legal"), ("Title", "Section"), 0, 9, "en")
-    assert body["label_set"] == "legal+returns" and body["labels"] == ["returns", "legal"] and "text" not in body
+    body = payload("abc", "DOC", "key", "prose", ("returns", "legal"), ("Title", "Section"), "en")
+    assert body["label_set"] == "legal+returns" and body["labels"] == ["returns", "legal"]
+    assert not {"text", "start", "end"} & set(body)  # the manifest keeps them current (T3.7)
 
 
 def test_ntk_index_create_freezes_the_statistics_over_the_manifest(client, capsys):

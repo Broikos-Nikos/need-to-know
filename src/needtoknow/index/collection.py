@@ -10,8 +10,8 @@ together, and on `labels`, `doc_id` and `lang`. Filters may name `labels` or
 `label_set`, and the filter bench measures both (KB1-F3).
 
 A point's id is a UUID made from its unit id, so an upsert replays over itself. Its
-payload holds what a filter, a citation or a delete needs and never the text, which
-stays in the manifest.
+payload holds what a filter or a delete needs; the text and the offsets stay in the
+manifest, which keeps them current, since offsets move without the id changing.
 
 `ensure` creates the collection when it is missing, and freezes the lexical statistics
 over the passages with it, since an index's sparse vectors are written at one average
@@ -48,10 +48,9 @@ def point_id(unit_id: str) -> str:
     return str(uuid.UUID(hashlib.sha256(unit_id.encode("utf-8")).hexdigest()[:32]))
 
 
-def payload(unit_id: str, doc_id: str, section_key: str, layer: str, labels, path, start: int, end: int,
-            language: str) -> dict:
+def payload(unit_id: str, doc_id: str, section_key: str, layer: str, labels, path, language: str) -> dict:
     return {"unit_id": unit_id, "doc_id": doc_id, "section_key": section_key, "layer": layer, "labels": list(labels),
-            "label_set": label_set(labels), "lang": language, "path": list(path), "start": start, "end": end}
+            "label_set": label_set(labels), "lang": language, "path": list(path)}
 
 
 def config():

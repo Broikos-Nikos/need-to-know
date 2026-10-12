@@ -107,8 +107,8 @@ def _sync(client, manifest: Path | None, report, doc_ids: list[str] | None) -> d
                 ids=[point_id(row[0]) for row in part],
                 vectors={DENSE: dense.tolist(),
                          SPARSE: [models.SparseVector(indices=i, values=v) for i, v in sparse]},
-                payloads=[payload(row[0], row[1], row[2], row[3], json.loads(row[4]), json.loads(row[5]), row[7], row[8],
-                                  row[9]) for row in part]))
+                payloads=[payload(row[0], row[1], row[2], row[3], json.loads(row[4]), json.loads(row[5]), row[9])
+                          for row in part]))
             frequencies.count(counts, [(label_set(json.loads(row[4])), indices) for row, (indices, _) in zip(part, sparse)], 1)
             counts.commit()
             summary["upserted"] += len(part)

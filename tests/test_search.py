@@ -40,7 +40,7 @@ def client(monkeypatch, tmp_path):
         indices, values = document(text, avgdl)
         points.append(models.PointStruct(id=point_id(unit), vector={DENSE: vector.tolist(),
                                          SPARSE: models.SparseVector(indices=indices, values=values)},
-                                         payload=payload(unit, "DOC", "key", "prose", labels, (), 0, 1, "en")))
+                                         payload=payload(unit, "DOC", "key", "prose", labels, (), "en")))
     client.upsert(COLLECTION, points=points)
     with frequencies.opened(COLLECTION) as db:  # as the sync counts them (N50)
         frequencies.count(db, [(label_set(labels), document(text, avgdl)[0]) for _, labels, text, _ in UNITS], 1)

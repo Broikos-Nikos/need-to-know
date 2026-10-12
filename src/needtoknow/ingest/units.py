@@ -85,18 +85,20 @@ def make_unit(doc_id: str, layer: str, text: str, run: tuple[tuple[str, ...], tu
 
 
 def prose_pieces(e: Element, language: str) -> list[tuple[str, int, int]]:
-    """A paragraph as one piece, or as sentences packed up to MAX_TOKENS when it is longer."""
+    """A paragraph as one piece, or as sentences packed up to MAX_TOKENS when it is longer, each piece with its own
+    offsets (DR-F12): exact in txt and markdown, whose element text is its span; in html the element's start plus the
+    piece's place in the unescaped text, which orders the pieces though it does not resolve to them."""
     if estimate_tokens(e.text, language) <= MAX_TOKENS:
         return [(e.text, e.start, e.end)]
     pieces: list[tuple[str, int, int]] = []
     current: list[tuple[int, int]] = []
     for s, t in sentence_spans(e.text):
         if current and estimate_tokens(e.text[current[0][0]:t], language) > MAX_TOKENS:
-            pieces.append((e.text[current[0][0]:current[-1][1]], e.start, e.end))
+            pieces.append((e.text[current[0][0]:current[-1][1]], e.start + current[0][0], e.start + current[-1][1]))
             current = []
         current.append((s, t))
     if current:
-        pieces.append((e.text[current[0][0]:current[-1][1]], e.start, e.end))
+        pieces.append((e.text[current[0][0]:current[-1][1]], e.start + current[0][0], e.start + current[-1][1]))
     return pieces
 
 
