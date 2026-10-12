@@ -1,0 +1,52 @@
+"""The prompt (T4.1): fixed rules first and holding no document's text, numbered excerpts, the question last; and the
+reply read back as the evaluation scores it, citations only of what was shown, one refusal for missing and withheld."""
+
+import json
+
+from needtoknow.answer.prompt import NOT_FOUND, SYSTEM, build, language, parse
+
+EXCERPTS = [{"doc_id": "RET_POL_011", "path": ["Returns policy", "SECTION 2  Window"],
+             "text": "A customer may return a device within 30 days of purchase."},
+            {"doc_id": "SAL_PRO_033", "path": ["Sales procedure", "SECTION 4  Authorisation"],
+             "text": "Return authorisation is issued by the returns team."}]
+
+
+def reply(**fields) -> str:
+    return json.dumps({"status": "answered", "answer": "Within 30 days.", "citations": [1], **fields})
+
+
+def test_the_rules_come_first_unchanged_and_the_question_last():
+    first, user = build("How many days does a customer have?", EXCERPTS)
+    second, _ = build("Ποιος εκδίδει την εξουσιοδότηση;", EXCERPTS[:1])
+    assert first == second == SYSTEM  # a stable prefix, cached at a fiftieth of the price
+    assert not any(e["text"] in SYSTEM or e["doc_id"] in SYSTEM for e in EXCERPTS)  # no document reaches the rules
+    assert user.index("[1] Document RET_POL_011, section: Returns policy > SECTION 2  Window") < user.index("[2] Document")
+    assert user.endswith("Question: How many days does a customer have?")
+
+
+def test_citations_name_only_the_excerpts_shown_in_the_order_cited_once_each():
+    answer = parse(reply(citations=[2, "1", 2, 9, 0, True, "x"]), EXCERPTS, "How many days?")
+    assert answer == {"status": "answered", "answer": "Within 30 days.",
+                      "citations": [{"doc_id": "SAL_PRO_033", "section": "Sales procedure > SECTION 4  Authorisation"},
+                                    {"doc_id": "RET_POL_011", "section": "Returns policy > SECTION 2  Window"}]}
+
+
+def test_not_found_is_one_fixed_sentence_in_the_questions_language_whatever_the_model_wrote():
+    # Section 9 item 7: a fact that does not exist and one the role may not read get the same words.
+    talkative = json.dumps({"status": "not_found", "answer": "There is a legal note on this I cannot show.",
+                            "citations": [1]})
+    assert parse(talkative, EXCERPTS, "Is there a settlement ceiling?") == {
+        "status": "not_found", "answer": NOT_FOUND["en"], "citations": []}
+    assert parse(talkative, EXCERPTS, "Υπάρχει ανώτατο όριο διακανονισμού;")["answer"] == NOT_FOUND["el"]
+
+
+def test_a_reply_that_is_not_the_asked_json_is_invalid_with_its_reason_and_a_fenced_one_is_read():
+    assert parse("Within 30 days.", EXCERPTS, "q")["status"] == "invalid"
+    assert parse(json.dumps({"status": "maybe"}), EXCERPTS, "q")["error"] == "no status of answered or not_found"
+    assert parse(reply(answer="  "), EXCERPTS, "q")["error"] == "answered with no answer"
+    assert parse("```json\n" + reply() + "\n```", EXCERPTS, "q")["status"] == "answered"
+
+
+def test_the_language_is_greek_when_the_question_holds_a_greek_letter():
+    assert language("Πόσες ημέρες έχει ο πελάτης;") == "el" and language("ἀρχή") == "el"
+    assert language("How many days, RMA 12?") == "en"
