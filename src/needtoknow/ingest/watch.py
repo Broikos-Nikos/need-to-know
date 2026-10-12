@@ -21,7 +21,7 @@ import time
 from pathlib import Path
 from typing import Callable
 
-from needtoknow.ingest.manifest import scan
+from needtoknow.ingest.manifest import ManifestError, scan
 
 
 def fingerprint(full: Path) -> frozenset[tuple[str, int, int]]:
@@ -50,7 +50,10 @@ def watch(full: Path, interval: float = 1.0, stop: Callable[[], bool] = lambda: 
             last, pending = current, True  # still moving: wait for one quiet interval
             continue
         if pending:
-            report(scan_fn(full))
+            try:
+                report(scan_fn(full))
+            except ManifestError as error:  # the folder gone, say: said, and the watch goes on (DR-F11)
+                report({"error": str(error)})
             runs += 1
             pending = False
     return runs

@@ -49,6 +49,9 @@ def build_parser() -> argparse.ArgumentParser:
 
 def report_run(summary: dict, out) -> None:
     from needtoknow.ingest.manifest import manifest_path
+    if "error" in summary:
+        print(f"ingest: {summary['error']}", file=out, flush=True)
+        return
     changes = ", ".join(f"{k} {n}" for k, n in sorted(summary["changes"].items())) or "none"
     print(f"{summary['kind']} run {summary['run']}: files {summary['files']}, read {summary['files_read']}, "
           f"changed {summary['files_changed']}, removed {summary['files_removed']}; units added {summary['units_added']}, "
@@ -59,7 +62,7 @@ def report_run(summary: dict, out) -> None:
 
 
 def cmd_ingest(args: argparse.Namespace, out=None) -> int:
-    from needtoknow.ingest.manifest import build, scan
+    from needtoknow.ingest.manifest import ManifestError, build, scan
     from needtoknow.settings import data_dir
     out = out or sys.stdout
     if args.action == "watch":
@@ -71,7 +74,11 @@ def cmd_ingest(args: argparse.Namespace, out=None) -> int:
         except KeyboardInterrupt:
             pass
         return 0
-    summary = build() if args.action == "build" else scan()
+    try:
+        summary = build() if args.action == "build" else scan()
+    except ManifestError as error:
+        report_run({"error": str(error)}, out)
+        return 1
     report_run(summary, out)
     return 1 if summary["unknown_audiences"] else 0
 

@@ -8,10 +8,13 @@ addressed id (architecture section 3), so a run that finds nothing new changes n
 
 The scan reads a file again only when its size or mtime, its sidecar's, or the steps'
 versions have changed; the hash then decides. Same hash at a new path is a rename,
-recorded without cutting; same hash at the same path is a touch. A version bump marks
-every file. Deletions come from comparing the full set of doc_ids on disk with the
-manifest's, which no timestamp ever shows. `build` is the scan with the shortcut off.
-Every run records, per file, what changed.
+recorded without cutting; same hash at the same path is a touch. The steps' version
+covers the code of every step that decides text or labels, so a change to it marks
+every file (DR-F7). Deletions come from comparing the full set of doc_ids on disk with
+the manifest's, which no timestamp ever shows; a corpus folder that is not there is
+refused rather than read as every document deleted (DR-F11). `build` reads and cuts
+every file and keeps whatever the fresh cut gives, whatever the hashes say: it is the
+run that verifies. Every run records, per file, what changed.
 """
 
 from __future__ import annotations
@@ -131,6 +134,9 @@ def replace_units(db: sqlite3.Connection, run_id: int, doc_id: str, found: list[
 def scan(full: Path | None = None, path: Path | None = None, force: bool = False) -> dict:
     """Bring the manifest up to date with the corpus, reading only what may have changed unless forced."""
     full = full or data_dir() / "corpus" / "full"
+    if not full.is_dir():
+        raise ManifestError(f"{full} is not there, so every document would read as deleted: nothing scanned. A swap "
+                            f"killed between its renames leaves it so, and the next ntk corpus assemble settles it")
     kind = "build" if force else "scan"
     with opened(path) as db:
         run_id = db.execute("INSERT INTO runs (kind, started) VALUES (?, ?)", (kind, now())).lastrowid
@@ -159,10 +165,9 @@ def scan(full: Path | None = None, path: Path | None = None, force: bool = False
             text, cut = pipeline.document_units(file, meta, unknown)
             summary["files_read"] += 1
             digest = content_hash(text, meta)
-            if row is not None and row[5] == digest and row[6] == pipeline.VERSIONS:
+            if not force and row is not None and row[5] == digest and row[6] == pipeline.VERSIONS:
                 file_row(db, run_id, rel, file, sidecar, meta, digest)
-                if row[0] != rel or not force:
-                    note(doc_id, "renamed" if row[0] != rel else "touched")
+                note(doc_id, "renamed" if row[0] != rel else "touched")
                 continue
             file_row(db, run_id, rel, file, sidecar, meta, digest)
             added, removed = replace_units(db, run_id, doc_id, cut)
@@ -171,7 +176,9 @@ def scan(full: Path | None = None, path: Path | None = None, force: bool = False
             if added or removed or row is None:
                 summary["files_changed"] += 1
                 note(doc_id, "added" if row is None else "changed", added, removed)
-            else:
+            elif row[0] != rel:
+                note(doc_id, "renamed")
+            elif not force:
                 note(doc_id, "touched")
         for doc_id in sorted(set(known) - set(found)):
             removed = db.execute("SELECT count(*) FROM units WHERE doc_id = ?", (doc_id,)).fetchone()[0]

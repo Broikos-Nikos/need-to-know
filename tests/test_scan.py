@@ -3,12 +3,13 @@ cut, a version bump marks every file, and every kind of change the simulator mak
 
 import json
 import os
+from pathlib import Path
 
 import pytest
 
 from needtoknow.corpus import assemble, mutate
 from needtoknow.corpus.plan import header
-from needtoknow.ingest import manifest, pipeline
+from needtoknow.ingest import manifest, pipeline, segments
 from needtoknow.ingest.manifest import build, opened, scan
 
 FACT = {"en": "Returned items are inspected within 3 working days of arrival at the warehouse.",
@@ -143,3 +144,50 @@ def test_every_kind_of_change_gives_exactly_its_unit_diff(corpus):
         elif kind == "delete_file":
             assert removed and not after and summary["changes"] == {"removed": 1}
     assert checked == mutate.KINDS  # every kind, each as asked, none as a fallback
+
+
+def test_every_ingest_module_that_cuts_is_in_the_version_the_scan_compares():
+    here = Path(pipeline.__file__).parent
+    cutting = {p.name for p in here.glob("*.py")} - {"__init__.py", "manifest.py", "watch.py"}
+    assert cutting == set(pipeline.STEP_FILES)
+
+
+def test_the_version_moves_with_any_step_or_label_name_and_not_with_the_manifest(tmp_path):
+    here = Path(pipeline.__file__).parent
+    for name in pipeline.STEP_FILES + ("manifest.py",):
+        (tmp_path / name).write_bytes((here / name).read_bytes())
+    before = pipeline.code_digest(tmp_path)
+    assert before == pipeline.code_digest()
+    (tmp_path / "manifest.py").write_bytes(b"# a change outside the steps")
+    assert pipeline.code_digest(tmp_path) == before
+    (tmp_path / "segments.py").write_bytes((here / "segments.py").read_bytes() + b"# an access rule changed")
+    assert pipeline.code_digest(tmp_path) != before
+    renamed = dict(pipeline.LABEL_EN, sales="Sales Department")
+    assert pipeline.code_digest(names=(renamed, pipeline.LABEL_EL, "unlabelled")) != pipeline.code_digest()
+
+
+def test_a_rule_change_relabels_through_scan_and_through_build(corpus, monkeypatch):
+    base, docs = corpus
+    returns = docs[0]["id"]
+    assert any(labels == ["returns"] for _, labels, _, _ in doc_units(returns).values())
+    monkeypatch.setitem(segments.NAMES, segments.fold("Returns"), "legal")  # the same line now names legal
+    assert scan()["units_added"] == 0  # the code on disk is unchanged, so the version is too
+    monkeypatch.setattr(pipeline, "VERSIONS", pipeline.VERSIONS + " with the rule changed")  # as the new code gives it
+    moved = scan()
+    assert moved["units_added"] == moved["units_removed"] > 0
+    assert not any(labels == ["returns"] for _, labels, _, _ in doc_units(returns).values())
+    monkeypatch.setitem(segments.NAMES, segments.fold("Returns"), "returns")
+    again = build()  # build alone, with the version left where it is: it trusts the fresh cut, not the hashes
+    assert again["units_added"] == again["units_removed"] == moved["units_added"]
+    assert any(labels == ["returns"] for _, labels, _, _ in doc_units(returns).values())
+
+
+def test_a_missing_corpus_folder_is_refused_and_the_manifest_kept(corpus, capsys):
+    from needtoknow.cli import main
+    base, docs = corpus
+    total = len(all_units())
+    (base / "full").rename(base / "full.retired")  # as a swap killed between its renames leaves it
+    with pytest.raises(manifest.ManifestError, match="is not there"):
+        scan()
+    assert main(["ingest", "scan"]) == 1
+    assert "ingest: " in capsys.readouterr().out and len(all_units()) == total

@@ -97,3 +97,12 @@ def test_an_edit_reaches_the_manifest_within_a_few_intervals(monkeypatch, tmp_pa
         done.set()
         thread.join(5)
     assert elapsed < 3, elapsed
+
+
+def test_the_watcher_reports_a_refused_scan_and_keeps_watching(monkeypatch, tmp_path):
+    full = make_corpus(monkeypatch, tmp_path)
+    reports = []
+    gone = Script([lambda: full.rename(full.with_name("full.retired")), lambda: None,
+                   lambda: full.with_name("full.retired").rename(full), lambda: None, lambda: None])
+    runs = watch(full, stop=gone.stop, sleep=gone.sleep, report=reports.append)
+    assert runs == 2 and "is not there" in reports[0]["error"] and reports[1]["files"] == 1
