@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**85 findings, 50 closed, 35 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
+**85 findings, 51 closed, 34 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -115,7 +115,7 @@ An audit pass of three minutes, on whether the author ships, measures and says s
 
 ## `AC`, the access control red team
 
-An audit pass that tried to make restricted text readable by the wrong role. 7 findings, 4 closed.
+An audit pass that tried to make restricted text readable by the wrong role. 7 findings, 5 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -124,7 +124,7 @@ An audit pass that tried to make restricted text readable by the wrong role. 7 f
 | `AC-F3` | high | fixed, tick 41 | In html an audience line overrides a narrower data-audience: take the intersection when they disagree, and count it |
 | `AC-F4` | medium | fixed, tick 43 | A heading path carries restricted headings into text everyone may read: a path keeps only headings that every reader of the element may read |
 | `AC-F5` | high | open | The IDF side channel works in the fused ranks: a word frequent in hidden text ranked lower in 16 of 17 pairs (94 percent) against 45 percent for null pairs |
-| `AC-F6` | high | open | A narrowed audience reaches the manifest in seconds and the index never: nothing runs the sync after the watcher's scan |
+| `AC-F6` | high | fixed, tick 62 | A narrowed audience reaches the manifest in seconds and the index never: nothing runs the sync after the watcher's scan |
 | `AC-F7` | low | open | ntk search --as takes the role on the caller's word; the README should say ntk is the operator's tool and served paths take the role from the session |
 
 ## `RC`, the recruiter

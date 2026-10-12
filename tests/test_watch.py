@@ -5,6 +5,8 @@ import json
 import threading
 import time
 
+import pytest
+
 from needtoknow.corpus import assemble
 from needtoknow.corpus.plan import header
 from needtoknow.ingest.manifest import build, opened
@@ -106,3 +108,70 @@ def test_the_watcher_reports_a_refused_scan_and_keeps_watching(monkeypatch, tmp_
                    lambda: full.with_name("full.retired").rename(full), lambda: None, lambda: None])
     runs = watch(full, stop=gone.stop, sleep=gone.sleep, report=reports.append)
     assert runs == 2 and "is not there" in reports[0]["error"] and reports[1]["files"] == 1
+
+
+def test_a_scan_that_changed_a_unit_is_followed_by_a_sync_and_a_touch_is_not(monkeypatch, tmp_path):
+    full = make_corpus(monkeypatch, tmp_path)
+    synced = []
+    steps = Script([edit(full, b"notes", b"logs"), lambda: None, lambda: None,
+                    lambda: (full / "RET_PRO_001.txt").touch(), lambda: None, lambda: None])
+    reports = []
+    watch(full, stop=steps.stop, sleep=steps.sleep, report=reports.append,
+          sync_fn=lambda docs: synced.append(docs) or {"upserted": 1})
+    assert synced == [["RET_PRO_001"]] and len([r for r in reports if "kind" in r]) == 2
+
+
+def test_a_failed_sync_is_tried_again_every_interval_until_one_succeeds(monkeypatch, tmp_path):
+    full = make_corpus(monkeypatch, tmp_path)
+    tries = []
+
+    def flaky(docs):
+        tries.append(docs)
+        if len(tries) < 3:
+            raise ConnectionError("the server is down")
+        return {"upserted": 1}
+
+    steps = Script([edit(full, b"notes", b"logs")] + [lambda: None] * 5)
+    reports = []
+    watch(full, stop=steps.stop, sleep=steps.sleep, report=reports.append, sync_fn=flaky)
+    errors = [r["error"] for r in reports if "error" in r]
+    assert tries == [["RET_PRO_001"]] * 3 and len(errors) == 2 and "ConnectionError: the server is down" in errors[0]
+    assert reports[-1] == {"upserted": 1}
+
+
+@pytest.mark.filterwarnings("ignore:Payload indexes have no effect in the local Qdrant")
+def test_a_narrowed_audience_stops_reaching_its_old_readers_through_the_watcher(monkeypatch, tmp_path):
+    # AC-F6: the narrowing reached the manifest and the index went on serving the section.
+    import numpy as np
+    from qdrant_client import QdrantClient
+    from test_embed_cache import Gpu
+
+    from needtoknow.embed import model
+    from needtoknow.index.collection import ensure
+    from needtoknow.index.search import search
+    from needtoknow.index.sync import sync
+    from needtoknow.ingest.units import passage
+
+    full = make_corpus(monkeypatch, tmp_path)
+    monkeypatch.setattr(model, "tokenize", lambda texts, cut=False: [[0] + [len(w) + 3 for w in t.split()] + [2] for t in texts])
+    monkeypatch.setattr(model, "states", Gpu().states)
+    client = QdrantClient(location=":memory:")
+    with opened() as db:
+        passages = [passage(json.loads(p), t) for p, t in db.execute("SELECT path, text FROM units")]
+    ensure(client, lambda: iter(passages))
+    sync(client)
+    question = np.ones(1024, dtype=np.float32) / 32
+
+    def legal_sees_the_section():
+        hits = search(client, "outcome", "legal", encode=lambda texts: np.vstack([question] * len(texts)))
+        with opened() as db:
+            texts = [db.execute("SELECT text FROM units WHERE unit_id = ?", (h["unit_id"],)).fetchone() for h in hits]
+        return any(t is None or "records the outcome" in t[0] for t in texts)
+
+    seen = []
+    steps = Script([edit(full, b"Audience: Returns", b"Audience: Returns; Legal"), lambda: None,
+                    lambda: seen.append(legal_sees_the_section()),
+                    edit(full, b"Audience: Returns; Legal", b"Audience: Returns"), lambda: None,
+                    lambda: seen.append(legal_sees_the_section())])
+    watch(full, stop=steps.stop, sleep=steps.sleep, sync_fn=lambda docs: sync(client, doc_ids=docs))
+    assert seen == [True, False]

@@ -42,6 +42,8 @@ def build_parser() -> argparse.ArgumentParser:
     ingest = commands.add_parser("ingest", help="cut the assembled corpus into units and record them in the manifest")
     ingest.add_argument("action", choices=("build", "scan", "watch"))
     ingest.add_argument("--interval", type=float, default=1.0, help="watch: seconds between looks at the corpus folder")
+    ingest.add_argument("--manifest-only", action="store_true",
+                        help="watch: keep the manifest current and leave the index alone")
     index = commands.add_parser("index", help="create the Qdrant collection, or bring it to the manifest")
     index.add_argument("action", choices=("create", "sync"))
     find = commands.add_parser("search", help="the candidates a role's question finds, fused, best first")
@@ -58,6 +60,10 @@ def report_run(summary: dict, out) -> None:
     from needtoknow.ingest.manifest import manifest_path
     if "error" in summary:
         print(f"ingest: {summary['error']}", file=out, flush=True)
+        return
+    if "upserted" in summary:
+        print(f"index: deleted {summary['deleted']}, embedded {summary['embedded']}, upserted {summary['upserted']}; "
+              f"points {summary['points_after']} for {summary['units']} units", file=out, flush=True)
         return
     changes = ", ".join(f"{k} {n}" for k, n in sorted(summary["changes"].items())) or "none"
     print(f"{summary['kind']} run {summary['run']}: files {summary['files']}, read {summary['files_read']}, "
@@ -76,8 +82,14 @@ def cmd_ingest(args: argparse.Namespace, out=None) -> int:
         from needtoknow.ingest.watch import watch
         full = data_dir() / "corpus" / "full"
         print(f"watching {full} every {args.interval:g} s; Ctrl+C stops", file=out, flush=True)
+
+        def sync_index(doc_ids: list[str]) -> dict:
+            from needtoknow.index.sync import sync
+            return sync(server.client(), doc_ids=doc_ids)
+
         try:
-            watch(full, interval=args.interval, report=lambda summary: report_run(summary, out))
+            watch(full, interval=args.interval, report=lambda summary: report_run(summary, out),
+                  sync_fn=None if args.manifest_only else sync_index)
         except KeyboardInterrupt:
             pass
         return 0

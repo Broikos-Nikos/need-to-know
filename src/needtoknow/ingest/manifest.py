@@ -141,7 +141,7 @@ def scan(full: Path | None = None, path: Path | None = None, force: bool = False
     with opened(path) as db:
         run_id = db.execute("INSERT INTO runs (kind, started) VALUES (?, ?)", (kind, now())).lastrowid
         summary = {"run": run_id, "kind": kind, "files": 0, "files_read": 0, "files_changed": 0, "files_removed": 0,
-                   "units_added": 0, "units_removed": 0, "changes": {}}
+                   "units_added": 0, "units_removed": 0, "changes": {}, "changed_docs": []}
         known = {row[0]: row[1:] for row in db.execute(
             "SELECT doc_id, path, size, mtime_ns, sidecar_size, sidecar_mtime_ns, content_hash, versions FROM files")}
         unknown: list[str] = []
@@ -150,6 +150,8 @@ def scan(full: Path | None = None, path: Path | None = None, force: bool = False
         def note(doc_id: str, change: str, added: int = 0, removed: int = 0) -> None:
             db.execute("INSERT INTO changes VALUES (?, ?, ?, ?, ?)", (run_id, doc_id, change, added, removed))
             summary["changes"][change] = summary["changes"].get(change, 0) + 1
+            if added or removed:  # a document whose units the index must follow
+                summary["changed_docs"].append(doc_id)
 
         for doc_id, (file, sidecar, meta) in sorted(found.items()):
             summary["files"] += 1

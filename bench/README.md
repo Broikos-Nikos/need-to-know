@@ -83,3 +83,16 @@ RS-F3's question against its planted sentence. It needs a manifest and no GPU.
 ```
 uv run python bench/lexical_corpus.py
 ```
+
+## revocation.py
+
+Widens one section's audience to a second label, as the simulator's relabel does, then
+puts the file back, which narrows it again, with the watcher running and syncing the
+index; it times how long a reader of the second label takes to find the section, and how
+long until it can no longer. It needs the corpus, the manifest, the vector cache, the
+`embed` extra and the index on the running server, and leaves the corpus as it found it.
+Commit "Let the watcher carry every change into the index" quotes it.
+
+```
+uv run python bench/revocation.py
+```

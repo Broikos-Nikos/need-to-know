@@ -123,6 +123,19 @@ def test_ntk_index_sync_says_what_it_did_and_fails_when_the_counts_disagree(worl
     client, _, _ = world
     assert cmd_index(argparse.Namespace(action="sync"), client=client) == 0
     assert "synced: units 2, points 0 before and 2 after; deleted 0, embedded 2, upserted 2" in capsys.readouterr().out
-    monkeypatch.setattr(loader, "held", lambda client: set())  # a collection that seems empty: every unit upserted again
+    monkeypatch.setattr(loader, "held", lambda client, doc_ids=None: set())  # a collection that seems empty: every unit upserted again
     monkeypatch.setattr(client, "count", lambda *a, **k: type("Count", (), {"count": 3})())
     assert cmd_index(argparse.Namespace(action="sync"), client=client) == 1
+
+
+def test_a_sync_of_some_documents_compares_those_alone(world):
+    client, _, _ = world
+    with manifest_opened() as db:
+        db.execute("INSERT INTO files VALUES ('DOC_2', 'two.md', 1, 1, 1, 1, 'h', 'md', 'utf-8', 'en', 'v', 1)")
+        db.execute("""INSERT INTO units VALUES ('u3', 'DOC_2', 's', 'prose', '["hr"]', '[]', 'Pay bands', 0, 1, 'en', 1)""")
+    assert loader.sync(client)["points_after"] == 3
+    with manifest_opened() as db:
+        db.execute("DELETE FROM units WHERE doc_id = 'DOC_2'")
+    untouched = loader.sync(client, doc_ids=["DOC_1"])
+    assert (untouched["deleted"], untouched["points_after"], untouched["documents"]) == (0, 3, 1)
+    assert loader.sync(client, doc_ids=["DOC_2"])["deleted"] == 1
