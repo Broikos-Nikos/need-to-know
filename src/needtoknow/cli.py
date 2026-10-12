@@ -50,14 +50,21 @@ def cmd_corpus(args: argparse.Namespace, out=None) -> int:
         return 0
     if args.action == "assemble":
         from needtoknow.corpus.assemble import ROWS_PER_UNIT, assemble
+        from needtoknow.settings import data_dir
         report = assemble()
-        print(f"assembled {report['written']} files, {report['bytes'] / 2**20:.1f} MB; "
-              f"missing narrative: {', '.join(report['missing']) or 'none'}", file=out)
+        if report["missing"]:
+            print(f"nothing assembled: {len(report['missing'])} of {report['documents']} documents have no narrative in "
+                  f"{data_dir() / 'corpus' / 'narrative'}, such as {', '.join(report['missing'][:3])}. "
+                  f"The corpus in place, if any, is unchanged.", file=out)
+            return 1
+        print(f"assembled {report['written']} files, {report['bytes'] / 2**20:.1f} MB", file=out)
         units = sum(report["units"].values())
-        shares = ", ".join(f"{label} {report['units'][label] / units:.3f} ({share:.2f})" for label, share in report["registered"].items())
-        print(f"units {units}, a prose section or {ROWS_PER_UNIT} table rows each; share by label, registered in "
-              f"brackets: {shares}", file=out)
-        return 0 if not report["missing"] else 1
+        if units:
+            shares = ", ".join(f"{label} {report['units'][label] / units:.3f} ({share:.2f})"
+                               for label, share in report["registered"].items())
+            print(f"units {units}, a prose section or {ROWS_PER_UNIT} table rows each; share by label, registered in "
+                  f"brackets: {shares}", file=out)
+        return 0
     if args.action == "samples":
         from needtoknow.corpus.assemble import samples
         from needtoknow.settings import repo_root

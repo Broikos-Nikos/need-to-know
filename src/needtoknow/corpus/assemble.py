@@ -246,26 +246,28 @@ def render(fmt: str, title: str, meta_line: str, sections: list[tuple[list[str],
 def assemble(profile: str = "full") -> dict:
     """A fresh build of the whole corpus, swapped in only once every document is written (OP-F1).
 
-    The files go to a sibling folder first, so a build killed halfway leaves the
-    previous corpus and its journal as they were. The swap is three renames, and a
-    kill between two of them is finished or undone by `settle` before the next build.
+    Nothing is built while any document lacks its narrative, so the corpus in place and
+    its journal stay as they were (MT-F1). The files go to a sibling folder first, so a
+    build killed halfway leaves the previous corpus and its journal as they were. The
+    swap is three renames, and a kill between two of them is finished or undone by
+    `settle` before the next build.
     """
     base = data_dir() / "corpus"
     docs = json.loads((base / "plan" / "catalogue.json").read_text(encoding="utf-8"))
+    shares = {label: entry["target_share"] for label, entry in load_labels().items()}
+    missing = [doc["id"] for doc in docs if not (base / "narrative" / f"{doc['id']}.txt").is_file()]
+    report = {"documents": len(docs), "written": 0, "missing": missing, "bytes": 0, "units": Counter(), "registered": shares}
+    if missing:
+        return report
     w = world()
     place = places(base, profile)
-    shares = {label: entry["target_share"] for label, entry in load_labels().items()}
     budget = budgets(docs, shares, w)
-    report = {"written": 0, "missing": [], "bytes": 0, "units": Counter(), "registered": shares}
     legacy = legacy_id(docs)
     with exclusive(base):
         settle(place)
         place["building"].mkdir(parents=True)
         for doc in docs:
             source = base / "narrative" / f"{doc['id']}.txt"
-            if not source.is_file():
-                report["missing"].append(doc["id"])
-                continue
             size, units = assemble_doc(doc, source, w, place["building"], legacy, budget[doc["id"]])
             report["bytes"] += size
             report["units"] += units
@@ -360,7 +362,8 @@ def samples(out: Path) -> list[Path]:
     w, by_id = world(), {d["id"]: d for d in docs}
     out.mkdir(parents=True, exist_ok=True)
     for stale in out.glob("*"):
-        stale.unlink()
+        if stale.name.split(".", 1)[0] in by_id:  # a file of a document, never one added by hand (MT-F4)
+            stale.unlink()
     legacy = legacy_id(docs)
     for doc_id in sample_ids(docs):
         rng = random.Random(f"{SEED}:{doc_id}:sample")
