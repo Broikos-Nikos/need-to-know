@@ -17,7 +17,9 @@ collide share one weight. A passage's value for a term is BM25's term frequency 
 tf (k1 + 1) / (tf + k1 (1 - b + b dl / avgdl)); Qdrant multiplies it by the term's IDF
 over the collection, and a question sends 1 for each of its terms. avgdl is measured
 once per index and frozen with the analyser's version (KB1-F15): vectors written on a
-moving average would drift from every vector written before them.
+moving average would drift from every vector written before them. The version is this
+file's own digest and the stemmer's release, not a number bumped by hand, so a changed
+analyser can never write vectors beside its predecessor's (DR-F7's shape).
 
 IDF counts restricted text too, a side channel stated rather than hidden (architecture
 section 7, KB1-F4). The encoder reads one passage and no label, so moving the lexical
@@ -27,6 +29,7 @@ side to one collection per role view, should P6's attack work, changes nothing h
 from __future__ import annotations
 
 import hashlib
+import importlib.metadata
 import json
 import re
 import unicodedata
@@ -38,7 +41,8 @@ import snowballstemmer
 
 from needtoknow.settings import data_dir
 
-ANALYSER_VERSION = 1
+ANALYSER_VERSION = (hashlib.sha256(Path(__file__).read_bytes()).hexdigest()[:16]
+                    + " snowballstemmer " + importlib.metadata.version("snowballstemmer"))
 K1 = 1.2
 B = 0.75
 WORD = re.compile(r"\w+")

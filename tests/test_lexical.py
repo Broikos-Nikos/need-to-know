@@ -1,6 +1,10 @@
 """The lexical analyser and BM25 vectors (T3.2): folding, stopwords, stemming by script, the
 values Qdrant gets, and statistics frozen per index (KB1-F15, RS-F3)."""
 
+import hashlib
+import importlib.metadata
+from pathlib import Path
+
 import pytest
 
 from needtoknow import lexical
@@ -66,6 +70,11 @@ def test_statistics_are_measured_once_and_refused_when_another_analyser_wrote_th
     assert (stats["passages"], stats["avgdl"]) == (3, 1.0)
     freeze(stats, path)
     assert frozen(path) == stats
-    path.write_bytes(path.read_bytes().replace(b'"analyser": 1', b'"analyser": 0'))
+    path.write_bytes(path.read_bytes().replace(lexical.ANALYSER_VERSION.encode(), b"an older analyser"))
     with pytest.raises(LexicalError, match="rebuild the sparse side"):
         frozen(path)
+
+
+def test_the_analyser_version_is_its_code_and_its_stemmer_release():
+    digest = hashlib.sha256(Path(lexical.__file__).read_bytes()).hexdigest()[:16]
+    assert lexical.ANALYSER_VERSION == f"{digest} snowballstemmer {importlib.metadata.version('snowballstemmer')}"
