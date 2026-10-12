@@ -1,0 +1,41 @@
+# The audiences written on sections, with the name the files themselves use. A
+# section's audience line names one or more of these; a section with none is
+# "unlabelled", and only a role that lists "unlabelled" reads it. Target shares are
+# what the corpus generator aims for, as a share of units; they are plans, and
+# `ntk corpus verify` will report the real shares.
+
+[labels.general]
+el = "Όλο το προσωπικό"
+target_share = 0.20
+
+[labels.sales]
+el = "Πωλήσεις"
+target_share = 0.14
+
+[labels.logistics]
+el = "Εφοδιαστική"
+target_share = 0.14
+
+[labels.returns]
+el = "Επιστροφές"
+target_share = 0.12
+
+[labels.customer-care]
+el = "Εξυπηρέτηση Πελατών"
+target_share = 0.12
+
+[labels.legal]
+el = "Νομικό Τμήμα"
+target_share = 0.10
+
+[labels.finance]
+el = "Οικονομικά"
+target_share = 0.08
+
+[labels.network-ops]
+el = "Λειτουργία Δικτύου"
+target_share = 0.08
+
+[labels.hr]
+el = "Ανθρώπινο Δυναμικό"
+target_share = 0.02

@@ -1,0 +1,37 @@
+# Who reads what. Roles are people; labels are audiences (config/labels.toml). A
+# section is visible to a role when any of its labels is one the role reads, and
+# the labels a role reads are exactly the filter its queries send. The
+# administrator reads everything because this file lists everything for it: its
+# queries run the same filter as everyone else's, and no code path skips it.
+# A change here takes effect at the next query; nothing is re indexed.
+
+[roles.legal]
+reads = ["general", "legal"]
+
+[roles.logistics]
+reads = ["general", "logistics"]
+
+[roles.sales]
+# The owner's rule: sales also reads returns.
+reads = ["general", "sales", "returns"]
+
+[roles.returns]
+reads = ["general", "returns"]
+
+[roles.customer-care]
+reads = ["general", "customer-care"]
+
+[roles.finance]
+reads = ["general", "finance"]
+
+[roles.hr]
+reads = ["general", "hr"]
+
+[roles.network-ops]
+reads = ["general", "network-ops"]
+
+[roles.admin]
+reads = [
+  "general", "sales", "logistics", "returns", "customer-care",
+  "legal", "finance", "network-ops", "hr", "unlabelled",
+]
