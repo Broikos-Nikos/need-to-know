@@ -92,6 +92,15 @@ def weights(db: sqlite3.Connection, terms: list[int], label_sets: list[str]) -> 
     return [math.log(1 + (total - held.get(term, 0) + 0.5) / (held.get(term, 0) + 0.5)) for term in terms]
 
 
+def drift(db: sqlite3.Connection, client, collection: str) -> dict[str, tuple[int, int]]:
+    """Label sets whose passages in the table differ from the points the index holds: (index, table) for each."""
+    hits = client.facet(collection, key="label_set", limit=100_000, exact=True).hits
+    index = {hit.value: hit.count for hit in hits}
+    table = {label_set: n for label_set, n in db.execute("SELECT label_set, passages FROM sets") if n}
+    return {s: (index.get(s, 0), table.get(s, 0)) for s in sorted(set(index) | set(table))
+            if index.get(s, 0) != table.get(s, 0)}
+
+
 def recount(db: sqlite3.Connection, client, collection: str) -> int:
     """Rebuild the table from every point of the collection; the points counted."""
     from needtoknow.index.collection import SPARSE

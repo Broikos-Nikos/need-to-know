@@ -8,8 +8,10 @@ which decides what changed. Polling rather than filesystem events (N48): no new
 dependency, the same behaviour on every platform, and a freshness of two intervals
 plus one scan.
 
-When the scan changed a unit, the watcher syncs the index too, for the documents it
-changed (AC-F6): a narrowed audience that reached only the manifest would go on being
+It begins by catching up: a scan, for whatever changed while no watcher ran, and a
+sync of every document, for whatever a watcher that died between its scan and its
+sync left behind; only then does it watch (OP-F4). When a scan changes a unit, the
+watcher syncs the index too, for the documents it changed (AC-F6): a narrowed audience that reached only the manifest would go on being
 served from the index. The sync deletes before it upserts, so a revocation lands even
 when a later step fails, and a sync that fails is tried again every interval, with the
 documents of every scan since, until one succeeds.
@@ -46,15 +48,21 @@ def fingerprint(full: Path) -> frozenset[tuple[str, int, int]]:
 
 def watch(full: Path, interval: float = 1.0, stop: Callable[[], bool] = lambda: False,
           report: Callable[[dict], None] = lambda summary: None, sleep: Callable[[float], None] = time.sleep,
-          scan_fn: Callable[[Path], dict] = scan, sync_fn: Callable[[list[str]], dict] | None = None) -> int:
-    """Scan after every change once it has settled, then sync the documents it changed, until `stop`; the scans run."""
-    last, pending, unsynced, runs = fingerprint(full), False, set(), 0
+          scan_fn: Callable[[Path], dict] = scan, sync_fn: Callable[[list[str] | None], dict] | None = None,
+          catch_up: bool = True) -> int:
+    """Catch up, then scan after every change once it has settled and sync the documents it changed, until `stop`;
+    the scans run, the catch up's included."""
+    last, unsynced, runs = fingerprint(full), set(), 0
+    # The catch up: a scan at once, and a sync of every document, since what a dead watcher left unsynced died with it.
+    pending = everything = first = catch_up
     while not stop():
-        sleep(interval)
-        current = fingerprint(full)
-        if current != last:
-            last, pending = current, True  # still moving: wait for one quiet interval
-            continue
+        if not first:
+            sleep(interval)
+            current = fingerprint(full)
+            if current != last:
+                last, pending = current, True  # still moving: wait for one quiet interval
+                continue
+        first = False
         if pending:
             try:
                 summary = scan_fn(full)
@@ -64,10 +72,10 @@ def watch(full: Path, interval: float = 1.0, stop: Callable[[], bool] = lambda: 
                 report({"error": str(error)})
             runs += 1
             pending = False
-        if unsynced and sync_fn is not None:
+        if (unsynced or everything) and sync_fn is not None:
             try:
-                report(sync_fn(sorted(unsynced)))
-                unsynced = set()
+                report(sync_fn(None if everything else sorted(unsynced)))
+                unsynced, everything = set(), False
             except Exception as error:  # the server down, say: said, and tried again next interval (AC-F6)
                 report({"error": f"index not synced, trying again: {type(error).__name__}: {error}"})
     return runs

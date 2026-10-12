@@ -13,7 +13,11 @@ written at the frozen average length (KB1-F15), and every point's terms are coun
 into the frequency table per label set as it goes in, and out, read from the point
 itself, before it is deleted (N50). Being a comparison of states rather
 than a replay of a log, a sync killed at any point is finished by the next one, and
-two in a row change nothing. Given the documents a scan changed, it compares those
+two in a row change nothing. One sync writes at a time, under an operating system
+lock, and every sync ends by checking the frequency table's passages per label set
+against the index's own counts, recounting from the index when they differ: a sync
+killed between the two stores leaves the table wrong otherwise, and no later sync,
+finding index and manifest agreed, would notice (OP-F5). Given the documents a scan changed, it compares those
 alone, through the payload index on `doc_id`, which is what the watcher asks for: a
 whole comparison reads every unit and every point id, a quarter of a minute.
 """
@@ -25,8 +29,10 @@ import time
 from pathlib import Path
 
 from needtoknow import lexical
+from needtoknow.corpus import exclusive
 from needtoknow.embed import cache
 from needtoknow.index import frequencies
+from needtoknow.settings import data_dir
 from needtoknow.index.collection import COLLECTION, DENSE, SPARSE, label_set, payload, point_id
 from needtoknow.ingest.units import passage
 
@@ -51,7 +57,14 @@ def held(client, doc_ids: list[str] | None = None) -> set[str]:
 
 def sync(client, manifest: Path | None = None, report=None, doc_ids: list[str] | None = None) -> dict:
     """Delete the points the manifest no longer explains, then upsert the units the collection lacks; in every
-    document, or in the given ones."""
+    document, or in the given ones. One sync at a time."""
+    folder = data_dir() / "index"
+    folder.mkdir(parents=True, exist_ok=True)
+    with exclusive(folder):
+        return _sync(client, manifest, report, doc_ids)
+
+
+def _sync(client, manifest: Path | None, report, doc_ids: list[str] | None) -> dict:
     from qdrant_client import models
 
     from needtoknow.ingest.manifest import opened as manifest_opened
@@ -101,6 +114,9 @@ def sync(client, manifest: Path | None = None, report=None, doc_ids: list[str] |
             summary["upserted"] += len(part)
             if report and (summary["upserted"] % (BATCH * 200) == 0 or summary["upserted"] == len(todo)):
                 report(f"upserted {summary['upserted']} of {len(todo)} points, {time.perf_counter() - started:.0f} s")
+    with frequencies.opened(COLLECTION) as counts:
+        summary["drift"] = frequencies.drift(counts, client, COLLECTION)
+        summary["recounted"] = frequencies.recount(counts, client, COLLECTION) if summary["drift"] else 0
     summary["seconds"] = time.perf_counter() - started
     summary["points_after"] = client.count(COLLECTION, exact=True).count
     if doc_ids is not None:

@@ -139,3 +139,27 @@ def test_a_sync_of_some_documents_compares_those_alone(world):
     untouched = loader.sync(client, doc_ids=["DOC_1"])
     assert (untouched["deleted"], untouched["points_after"], untouched["documents"]) == (0, 3, 1)
     assert loader.sync(client, doc_ids=["DOC_2"])["deleted"] == 1
+
+
+def test_one_sync_writes_at_a_time(world):
+    # OP-F5: two syncs at once both counted the same new points in.
+    from needtoknow.corpus import CorpusBusy, exclusive
+    from needtoknow.settings import data_dir
+    client, _, _ = world
+    (data_dir() / "index").mkdir(parents=True, exist_ok=True)
+    with exclusive(data_dir() / "index"):
+        with pytest.raises(CorpusBusy, match="writer.lock is held"):
+            loader.sync(client)
+
+
+def test_a_table_a_killed_sync_left_wrong_is_recounted_by_the_next(world):
+    # OP-F5: a sync killed between the index and the table left ghosts no later sync noticed.
+    from needtoknow.index import frequencies
+    client, _, _ = world
+    loader.sync(client)
+    with frequencies.opened(COLLECTION) as db:
+        frequencies.count(db, [("sales", [1, 2, 3])] * 6, 1)  # six ghosts, as the probe left them
+    summary = loader.sync(client)
+    assert summary["drift"] == {"sales": (1, 7)} and summary["recounted"] == 2
+    with frequencies.opened(COLLECTION) as db:
+        assert frequencies.drift(db, client, COLLECTION) == {}

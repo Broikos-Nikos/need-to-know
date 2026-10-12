@@ -60,9 +60,9 @@ def edit(full, old, new):
 def test_no_scan_while_nothing_moves_and_one_per_settled_change(monkeypatch, tmp_path):
     full = make_corpus(monkeypatch, tmp_path)
     idle = Script([lambda: None] * 5)
-    assert watch(full, stop=idle.stop, sleep=idle.sleep, scan_fn=idle.scan) == 0
+    assert watch(full, catch_up=False, stop=idle.stop, sleep=idle.sleep, scan_fn=idle.scan) == 0
     once = Script([edit(full, b"notes", b"logs"), lambda: None, lambda: None, lambda: None])
-    assert watch(full, stop=once.stop, sleep=once.sleep, scan_fn=once.scan) == 1
+    assert watch(full, catch_up=False, stop=once.stop, sleep=once.sleep, scan_fn=once.scan) == 1
 
 
 def test_a_burst_of_writes_is_scanned_once_after_it_settles(monkeypatch, tmp_path):
@@ -70,7 +70,7 @@ def test_a_burst_of_writes_is_scanned_once_after_it_settles(monkeypatch, tmp_pat
     # Each write changes the size: two writes in one clock tick with one size would look like one (see watch.py).
     burst = Script([edit(full, b"notes", b"logs"), edit(full, b"logs", b"files"), edit(full, b"files", b"record"),
                     lambda: None, lambda: None, lambda: None])
-    assert watch(full, stop=burst.stop, sleep=burst.sleep, scan_fn=burst.scan) == 1
+    assert watch(full, catch_up=False, stop=burst.stop, sleep=burst.sleep, scan_fn=burst.scan) == 1
     assert burst.scans == [2]  # after the third write and one quiet look, not during the burst
 
 
@@ -106,7 +106,7 @@ def test_the_watcher_reports_a_refused_scan_and_keeps_watching(monkeypatch, tmp_
     reports = []
     gone = Script([lambda: full.rename(full.with_name("full.retired")), lambda: None,
                    lambda: full.with_name("full.retired").rename(full), lambda: None, lambda: None])
-    runs = watch(full, stop=gone.stop, sleep=gone.sleep, report=reports.append)
+    runs = watch(full, catch_up=False, stop=gone.stop, sleep=gone.sleep, report=reports.append)
     assert runs == 2 and "is not there" in reports[0]["error"] and reports[1]["files"] == 1
 
 
@@ -116,7 +116,7 @@ def test_a_scan_that_changed_a_unit_is_followed_by_a_sync_and_a_touch_is_not(mon
     steps = Script([edit(full, b"notes", b"logs"), lambda: None, lambda: None,
                     lambda: (full / "RET_PRO_001.txt").touch(), lambda: None, lambda: None])
     reports = []
-    watch(full, stop=steps.stop, sleep=steps.sleep, report=reports.append,
+    watch(full, catch_up=False, stop=steps.stop, sleep=steps.sleep, report=reports.append,
           sync_fn=lambda docs: synced.append(docs) or {"upserted": 1})
     assert synced == [["RET_PRO_001"]] and len([r for r in reports if "kind" in r]) == 2
 
@@ -133,7 +133,7 @@ def test_a_failed_sync_is_tried_again_every_interval_until_one_succeeds(monkeypa
 
     steps = Script([edit(full, b"notes", b"logs")] + [lambda: None] * 5)
     reports = []
-    watch(full, stop=steps.stop, sleep=steps.sleep, report=reports.append, sync_fn=flaky)
+    watch(full, catch_up=False, stop=steps.stop, sleep=steps.sleep, report=reports.append, sync_fn=flaky)
     errors = [r["error"] for r in reports if "error" in r]
     assert tries == [["RET_PRO_001"]] * 3 and len(errors) == 2 and "ConnectionError: the server is down" in errors[0]
     assert reports[-1] == {"upserted": 1}
@@ -175,3 +175,54 @@ def test_a_narrowed_audience_stops_reaching_its_old_readers_through_the_watcher(
                     lambda: seen.append(legal_sees_the_section())])
     watch(full, stop=steps.stop, sleep=steps.sleep, sync_fn=lambda docs: sync(client, doc_ids=docs))
     assert seen == [True, False]
+
+
+@pytest.mark.filterwarnings("ignore:Payload indexes have no effect in the local Qdrant")
+def test_a_watcher_syncs_every_document_first_since_a_dead_one_may_have_left_one_unsynced(monkeypatch, tmp_path):
+    # OP-F4: a narrowing scanned by a watcher that died before its sync stayed served after a restart.
+    import numpy as np
+    from qdrant_client import QdrantClient
+    from test_embed_cache import Gpu
+
+    from needtoknow.embed import model
+    from needtoknow.index.collection import ensure
+    from needtoknow.index.search import search
+    from needtoknow.index.sync import sync
+    from needtoknow.ingest.manifest import scan
+    from needtoknow.ingest.units import passage
+
+    full = make_corpus(monkeypatch, tmp_path)
+    monkeypatch.setattr(model, "tokenize", lambda texts, cut=False: [[0] + [len(w) + 3 for w in t.split()] + [2] for t in texts])
+    monkeypatch.setattr(model, "states", Gpu().states)
+    client = QdrantClient(location=":memory:")
+    edit(full, b"Audience: Returns", b"Audience: Returns; Legal")()
+    scan(full)
+    with opened() as db:
+        passages = [passage(json.loads(p), t) for p, t in db.execute("SELECT path, text FROM units")]
+    ensure(client, lambda: iter(passages))
+    sync(client)
+    edit(full, b"Audience: Returns; Legal", b"Audience: Returns")()
+    scan(full)  # the dead watcher's last act: the manifest narrowed, the index not
+    question = np.ones(1024, dtype=np.float32) / 32
+
+    def section_served_to_legal() -> bool:
+        """Whether legal gets a unit of the narrowed section, or a point the manifest no longer holds."""
+        found = search(client, "outcome", "legal", encode=lambda texts: np.vstack([question] * len(texts)))
+        with opened() as db:
+            texts = [db.execute("SELECT text FROM units WHERE unit_id = ?", (h["unit_id"],)).fetchone() for h in found]
+        return any(t is None or "the outcome" in t[0] for t in texts)
+
+    assert section_served_to_legal()
+    steps = Script([lambda: None])
+    watch(full, stop=steps.stop, sleep=steps.sleep, sync_fn=lambda docs: sync(client, doc_ids=docs))
+    assert not section_served_to_legal()
+
+
+def test_a_watcher_scans_first_what_changed_while_none_ran(monkeypatch, tmp_path):
+    # OP-F4: an edit made while no watcher ran was never scanned, until some other file changed.
+    full = make_corpus(monkeypatch, tmp_path)
+    edit(full, b"notes the outcome", b"files the outcome")()
+    steps = Script([lambda: None])
+    assert watch(full, stop=steps.stop, sleep=steps.sleep) == 1
+    with opened() as db:
+        assert db.execute("SELECT count(*) FROM units WHERE text LIKE '%files the outcome%'").fetchone()[0] == 1

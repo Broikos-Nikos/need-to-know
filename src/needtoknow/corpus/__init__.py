@@ -30,7 +30,8 @@ def narrative_dir(base: Path) -> Path:
 
 @contextmanager
 def exclusive(base: Path):
-    """One writer of the corpus at a time, assembly or the change simulator (OP-F3).
+    """One writer at a time of what lives under `base`: the corpus, assembly or the change simulator (OP-F3), or
+    the index, every sync (OP-F5).
 
     The lock is the operating system's, on one byte of `writer.lock`, so it ends with
     the process that holds it, and a crash never leaves a stale lock behind.
@@ -40,7 +41,7 @@ def exclusive(base: Path):
         try:
             _lock(handle)
         except OSError:
-            raise CorpusBusy(f"another process is writing the corpus: {base / 'writer.lock'} is held") from None
+            raise CorpusBusy(f"another process is writing here: {base / 'writer.lock'} is held") from None
         try:
             yield
         finally:

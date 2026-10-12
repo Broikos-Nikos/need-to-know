@@ -63,7 +63,9 @@ def report_run(summary: dict, out) -> None:
         return
     if "upserted" in summary:
         print(f"index: deleted {summary['deleted']}, embedded {summary['embedded']}, upserted {summary['upserted']}; "
-              f"points {summary['points_after']} for {summary['units']} units", file=out, flush=True)
+              f"points {summary['points_after']} for {summary['units']} units"
+              + (f"; frequency table recounted from {summary['recounted']} points" if summary.get("recounted") else ""),
+              file=out, flush=True)
         return
     changes = ", ".join(f"{k} {n}" for k, n in sorted(summary["changes"].items())) or "none"
     print(f"{summary['kind']} run {summary['run']}: files {summary['files']}, read {summary['files_read']}, "
@@ -83,7 +85,7 @@ def cmd_ingest(args: argparse.Namespace, out=None) -> int:
         full = data_dir() / "corpus" / "full"
         print(f"watching {full} every {args.interval:g} s; Ctrl+C stops", file=out, flush=True)
 
-        def sync_index(doc_ids: list[str]) -> dict:
+        def sync_index(doc_ids: list[str] | None) -> dict:
             from needtoknow.index.sync import sync
             return sync(server.client(), doc_ids=doc_ids)
 
