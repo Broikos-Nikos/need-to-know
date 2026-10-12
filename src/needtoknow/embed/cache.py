@@ -122,26 +122,42 @@ def fill(manifest: Path | None = None, budget: int | None = None, shard: int = S
             if key not in have:
                 todo.setdefault(key, (unit_id, text))
         items = list(todo.items())
-        summary = {"units": len(units), "cached": len(have), "missing": len(items), "embedded": 0, "tokens": 0,
-                   "seconds": 0.0, "model": model_key(config), "path": str(cache_path(config))}
+        summary = {"units": len(units), "cached": len(have), "missing": len(items),
+                   "model": model_key(config), "path": str(cache_path(config))}
         del units, todo
-        started = time.perf_counter()
-        for start in range(0, len(items), shard):
-            part = items[start:start + shard]
-            ids = model.tokenize([text for _, (_, text) in part])
-            over = [(unit_id, len(x)) for (_, (unit_id, _)), x in zip(part, ids) if len(x) > config["max_length"]]
-            if over:
-                raise model.EmbedError(f"{len(over)} passages are longer than max_length {config['max_length']} "
-                                       f"tokens, the first unit {over[0][0]} at {over[0][1]}: refused rather than cut")
-            states = model.states(ids, budget)
-            cache.executemany("INSERT INTO vectors (key, state) VALUES (?, ?)",
-                              ((key, row.tobytes()) for (key, _), row in zip(part, states)))
-            cache.commit()
-            summary["embedded"] += len(part)
-            summary["tokens"] += sum(map(len, ids))
-            summary["seconds"] = time.perf_counter() - started
-            if report:
-                rate = summary["tokens"] / summary["seconds"]
-                report(f"embedded {summary['embedded']} of {len(items)} passages, {summary['tokens']} tokens, "
-                       f"{rate:,.0f} tokens/s")
+        summary.update(embed(cache, items, budget, shard, report))
     return summary
+
+
+def embed(cache: sqlite3.Connection, items: list, budget: int | None = None, shard: int = SHARD, report=None) -> dict:
+    """Embed (key, (unit_id, passage)) items into an open cache, a shard per commit; what it took."""
+    config = model.load_config()
+    done = {"embedded": 0, "tokens": 0, "seconds": 0.0}
+    started = time.perf_counter()
+    for start in range(0, len(items), shard):
+        part = items[start:start + shard]
+        ids = model.tokenize([text for _, (_, text) in part])
+        over = [(unit_id, len(x)) for (_, (unit_id, _)), x in zip(part, ids) if len(x) > config["max_length"]]
+        if over:
+            raise model.EmbedError(f"{len(over)} passages are longer than max_length {config['max_length']} "
+                                   f"tokens, the first unit {over[0][0]} at {over[0][1]}: refused rather than cut")
+        states = model.states(ids, budget)
+        cache.executemany("INSERT INTO vectors (key, state) VALUES (?, ?)",
+                          ((key, row.tobytes()) for (key, _), row in zip(part, states)))
+        cache.commit()
+        done["embedded"] += len(part)
+        done["tokens"] += sum(map(len, ids))
+        done["seconds"] = time.perf_counter() - started
+        if report:
+            report(f"embedded {done['embedded']} of {len(items)} passages, {done['tokens']} tokens, "
+                   f"{done['tokens'] / done['seconds']:,.0f} tokens/s")
+    return done
+
+
+def missing(cache: sqlite3.Connection, keys: list[bytes]) -> set[bytes]:
+    """The keys the cache does not hold."""
+    found: set[bytes] = set()
+    for start in range(0, len(keys), 900):
+        part = keys[start:start + 900]
+        found.update(k for (k,) in cache.execute(f"SELECT key FROM vectors WHERE key IN ({','.join('?' * len(part))})", part))
+    return set(keys) - found

@@ -42,8 +42,8 @@ def build_parser() -> argparse.ArgumentParser:
     ingest = commands.add_parser("ingest", help="cut the assembled corpus into units and record them in the manifest")
     ingest.add_argument("action", choices=("build", "scan", "watch"))
     ingest.add_argument("--interval", type=float, default=1.0, help="watch: seconds between looks at the corpus folder")
-    index = commands.add_parser("index", help="create the Qdrant collection, or check the one there")
-    index.add_argument("action", choices=("create",))
+    index = commands.add_parser("index", help="create the Qdrant collection, or bring it to the manifest")
+    index.add_argument("action", choices=("create", "sync"))
     embed = commands.add_parser("embed", help="embed every unit of the manifest whose passage the vector cache lacks")
     embed.add_argument("--budget", type=int, help="padded tokens per batch; config/models.toml sets the default")
     return parser
@@ -102,7 +102,8 @@ def cmd_embed(args: argparse.Namespace, out=None) -> int:
 
 
 def cmd_index(args: argparse.Namespace, out=None, client=None) -> int:
-    """Create the collection, freezing the lexical statistics over the manifest, or check the one there (T3.3)."""
+    """Create the collection, freezing the lexical statistics over the manifest, or check the one there (T3.3);
+    then, for sync, delete what the manifest no longer explains and upsert what the collection lacks (T3.4)."""
     import json
 
     from needtoknow.index.collection import COLLECTION, CollectionError, ensure
@@ -119,6 +120,13 @@ def cmd_index(args: argparse.Namespace, out=None, client=None) -> int:
     stats = result["lexical"]
     print(f"{COLLECTION}: {'created' if result['created'] else 'already there, and of this shape'}; lexical statistics "
           f"frozen over {stats['passages']} passages, avgdl {stats['avgdl']:.2f}", file=out, flush=True)
+    if getattr(args, "action", "create") == "sync":
+        from needtoknow.index.sync import sync
+        done = sync(client, report=lambda line: print(line, file=out, flush=True))
+        print(f"synced: units {done['units']}, points {done['points_before']} before and {done['points_after']} after; "
+              f"deleted {done['deleted']}, embedded {done['embedded']}, upserted {done['upserted']} in {done['seconds']:.0f} s",
+              file=out, flush=True)
+        return 0 if done["points_after"] == done["units"] else 1
     return 0
 
 

@@ -208,7 +208,8 @@ def client(config: dict | None = None):
     key = setting(config["key_env"])
     if not key:
         raise ServerError(f"{config['key_env']} is not set; ntk qdrant start writes one into .env")
-    with warnings.catch_warnings():  # the key travels over http, on the loopback interface only
+    with warnings.catch_warnings():  # the key travels unencrypted, on the loopback interface only
         warnings.filterwarnings("ignore", message="Api key is used with an insecure connection")
-        return QdrantClient(url=f"http://{config['host']}:{config['http_port']}", api_key=key, prefer_grpc=False,
-                            timeout=120)
+        # gRPC, since a bulk upsert of float vectors spends most of its time encoding them, and JSON is the slower.
+        return QdrantClient(host=config["host"], port=config["http_port"], grpc_port=config["grpc_port"],
+                            prefer_grpc=True, https=False, api_key=key, timeout=120)
