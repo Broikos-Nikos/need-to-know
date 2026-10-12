@@ -54,7 +54,9 @@ def pid_file() -> Path:
 
 def check_binary(path: Path, expected_sha256: str) -> None:
     if not path.is_file():
-        raise ServerError(f"no Qdrant binary at {path}; unpack qdrant.exe there from the asset in config/qdrant.toml")
+        config = load_config()
+        raise ServerError(f"no Qdrant binary at {path}; download {config['asset']}, check that its sha256 is "
+                          f"{config['asset_sha256']}, and unpack qdrant.exe there")
     digest = hashlib.sha256(path.read_bytes()).hexdigest()
     if digest != expected_sha256:
         raise ServerError(f"{path} has sha256 {digest[:12]}, not the pinned {expected_sha256[:12]}; refusing to run it")

@@ -10,6 +10,8 @@ import subprocess
 import sys
 from collections import namedtuple
 
+import pytest
+
 from needtoknow import doctor
 
 FAKE_KEY = "sk-test-doctor-0123456789abcdef"
@@ -48,3 +50,13 @@ def test_too_little_free_disk_fails_the_data_check(monkeypatch):
     monkeypatch.setattr(doctor.shutil, "disk_usage", lambda _path: usage(100 * 2**30, 99 * 2**30, 1 * 2**30))
     ok, detail = doctor.check_data({})
     assert not ok and f"under the {doctor.MIN_FREE_GB} GB" in detail
+
+
+def test_a_missing_model_comes_with_the_command_that_fetches_its_pinned_revision(monkeypatch):
+    # SC-F3: the doctor names what is missing and how to get exactly that.
+    hub = pytest.importorskip("huggingface_hub")
+    monkeypatch.setattr(hub, "try_to_load_from_cache", lambda *a, **k: None)
+    from needtoknow.embed.model import load_config
+    ok, line = doctor.check_model({})
+    config = load_config()
+    assert not ok and line.endswith(f"uv run hf download {config['repo']} --revision {config['revision']}")

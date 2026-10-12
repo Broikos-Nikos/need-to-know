@@ -93,7 +93,10 @@ def check_model(_context: dict) -> tuple[bool, str]:
     except ImportError:
         return False, "huggingface_hub is not installed: uv sync --extra embed"
     found = isinstance(try_to_load_from_cache(config["repo"], "config.json", revision=config["revision"]), str)
-    return found, f"{config['repo']} at {config['revision'][:8]} " + ("in the local cache" if found else "is not in the local cache")
+    if found:
+        return True, f"{config['repo']} at {config['revision'][:8]} in the local cache"
+    return False, (f"{config['repo']} at {config['revision'][:8]} is not in the local cache: "
+                   f"uv run hf download {config['repo']} --revision {config['revision']}")
 
 
 def check_deepseek(context: dict) -> tuple[bool, str]:

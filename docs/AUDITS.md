@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**62 findings, 24 closed, 38 open**, from 10 reviews. Each audit pass took one perspective and nothing else.
+**62 findings, 27 closed, 35 open**, from 10 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -87,13 +87,13 @@ An audit pass on whether a fresh clone can be rebuilt and changed safely. 4 find
 
 ## `SC`, the supply chain auditor
 
-An audit pass on every dependency, pin and download, and anything committed by accident. 3 findings, 0 closed.
+An audit pass on every dependency, pin and download, and anything committed by accident. 3 findings, 3 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
-| `SC-F1` | medium | open | No advisory check reads uv.lock: the workspace gate selects projects by package-lock.json; pip-audit found no known vulnerabilities once, by hand, and cannot reach torch 2.14.1+cu130 |
-| `SC-F2` | low | open | qdrant-client is a runtime dependency that no module imports before P3: say so beside the line, or move it to the dev group |
-| `SC-F3` | low | open | The pinned model and Qdrant binary have no command that fetches them: the doctor prints the exact commands with the revision and digest |
+| `SC-F1` | medium | fixed, tick 33 | No advisory check reads uv.lock: the workspace gate selects projects by package-lock.json; pip-audit found no known vulnerabilities once, by hand, and cannot reach torch 2.14.1+cu130 |
+| `SC-F2` | low | fixed, tick 33 | qdrant-client is a runtime dependency that no module imports before P3: say so beside the line, or move it to the dev group |
+| `SC-F3` | low | fixed, tick 33 | The pinned model and Qdrant binary have no command that fetches them: the doctor prints the exact commands with the revision and digest |
 
 ## `KB1`, the plan, reviewed against a knowledge base
 

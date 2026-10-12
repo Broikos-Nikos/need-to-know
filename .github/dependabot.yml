@@ -1,0 +1,7 @@
+version: 2
+updates:
+  # uv.lock, read by Dependabot for uv: every pinned package and its hash.
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"

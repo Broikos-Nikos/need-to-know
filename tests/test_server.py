@@ -61,9 +61,11 @@ def test_a_binary_with_another_hash_is_refused(tmp_path):
         server.check_binary(fake, CONFIG["exe_sha256"])
 
 
-def test_a_missing_binary_says_where_it_looked(tmp_path):
-    with pytest.raises(server.ServerError, match="no Qdrant binary at"):
+def test_a_missing_binary_says_where_it_looked_and_how_to_get_it(tmp_path):
+    with pytest.raises(server.ServerError, match="no Qdrant binary at") as error:
         server.check_binary(tmp_path / "qdrant.exe", CONFIG["exe_sha256"])
+    # SC-F3: the asset to download and the digest it is checked against.
+    assert CONFIG["asset"] in str(error.value) and CONFIG["asset_sha256"] in str(error.value)
 
 
 def test_a_missing_key_is_written_to_env_once(monkeypatch, tmp_path):
