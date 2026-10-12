@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**55 findings, 20 closed, 35 open**, from 8 reviews. Each audit pass took one perspective and nothing else.
+**59 findings, 20 closed, 39 open**, from 9 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -73,6 +73,17 @@ An audit pass on whether every number can be produced again. 5 findings, 2 close
 | `MA-F3` | low | open | The doctor's 15 GB floor has no measurement behind it (the data directory holds 415 MB): measure the full build's peak disk use and set the floor from it |
 | `MA-F4` | low | open | 35974c7 states the plan's 22 percent as what hr's filter sends (measured about 5 percent), and labels.toml promises an `ntk corpus verify` that does not exist: the coverage report prints planned and measured shares and the comment names it |
 | `MA-F5` | low | fixed, tick 26 | Finding ids in commits and code resolve to no document in the repository (D20): docs/AUDITS.md lists every cited id, and a gate fails on any it lacks |
+
+## `MT`, the maintainer in six months
+
+An audit pass on whether a fresh clone can be rebuilt and changed safely. 4 findings, 0 closed.
+
+| id | severity | status | finding |
+|---|---|---|---|
+| `MT-F1` | high | open | ntk corpus assemble crashes on a fresh clone (ZeroDivisionError in the share line), and a missing narrative swaps an empty corpus in for a good one: swap only a complete build, guard the share line, test the corpus commands through the CLI |
+| `MT-F2` | medium | open | The writers' narrative (160 files, 1.7 MB) exists only on this machine, so no one else can rebuild the corpus and a lost disk loses it: make it fetchable and verifiable from the repository |
+| `MT-F3` | medium | open | The README says nothing about installing or running the project: a short run section with uv sync, ntk doctor, the corpus commands and the benches |
+| `MT-F4` | low | open | ntk corpus samples deletes every file in samples/ before writing, a hand added note included: delete only files named for a document |
 
 ## `KB1`, the plan, reviewed against a knowledge base
 
