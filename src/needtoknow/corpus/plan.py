@@ -15,6 +15,7 @@ import random
 import tomllib
 from pathlib import Path
 
+from needtoknow.corpus import dump_json
 from needtoknow.settings import data_dir, repo_root
 
 SEED = 20261012
@@ -406,10 +407,10 @@ def build(writers: int = 4, seed: int = SEED) -> Path:
     docs = make_catalogue(rng, facts)
     out = data_dir() / "corpus" / "plan"
     out.mkdir(parents=True, exist_ok=True)
-    (out / "facts.json").write_text(json.dumps(facts, ensure_ascii=False, indent=1), encoding="utf-8")
-    (out / "catalogue.json").write_text(json.dumps(docs, ensure_ascii=False, indent=1), encoding="utf-8")
+    dump_json(out / "facts.json", facts)
+    dump_json(out / "catalogue.json", docs)
     for k, part in enumerate(assignments(docs, facts, writers), 1):
-        (out / f"writer-{k}.json").write_text(json.dumps(part, ensure_ascii=False, indent=1), encoding="utf-8")
+        dump_json(out / f"writer-{k}.json", part)
     return out
 
 

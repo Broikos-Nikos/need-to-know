@@ -14,6 +14,7 @@ import random
 import re
 from pathlib import Path
 
+from needtoknow.corpus import dump_json
 from needtoknow.corpus.plan import LABEL_EL, LABEL_EN, MIXES
 from needtoknow.settings import data_dir
 
@@ -151,7 +152,7 @@ def apply(kind: str, doc_id: str, found: tuple[Path, Path, dict], facts: list[di
             new_encoding = "utf-8-sig"
         meta["encoding"] = new_encoding
         write(file, meta, text)
-        meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=1), encoding="utf-8")
+        dump_json(meta_path, meta)
         entry.update(encoding=new_encoding, expected="nothing changes: the decoded text is the same")
     elif kind == "annex_refresh":
         rows = [m for m in re.finditer(r"(?m)^.*\| (\d+) (units on hand|τεμάχια σε απόθεμα) \|.*$", text)]
@@ -173,7 +174,7 @@ def apply(kind: str, doc_id: str, found: tuple[Path, Path, dict], facts: list[di
         new_file.write_bytes("\n".join([title, new_id, ""] + head + ["", body, ""]).encode("utf-8"))
         new_meta = {"doc_id": new_id, "title": title, "owner": "general", "language": lang, "version": "1.0", "type": "CIR",
                     "default_audience": "general", "classification": "internal", "format": "txt", "encoding": "utf-8"}
-        (full / f"{new_id}.meta.json").write_text(json.dumps(new_meta, ensure_ascii=False, indent=1), encoding="utf-8")
+        dump_json(full / f"{new_id}.meta.json", new_meta)
         entry.update(doc_id=new_id, file=rel(new_file), expected="its units are added; nothing else changes")
     elif kind == "delete_file":
         lost = [f["id"] for f in facts if f.get("placements") == [doc_id]]

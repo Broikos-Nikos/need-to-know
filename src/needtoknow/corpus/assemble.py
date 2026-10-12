@@ -14,6 +14,7 @@ import random
 import shutil
 from pathlib import Path
 
+from needtoknow.corpus import dump_json
 from needtoknow.corpus.plan import LABEL_EL, LABEL_EN, SEED, world
 from needtoknow.settings import data_dir
 
@@ -172,7 +173,7 @@ def assemble_doc(doc: dict, source: Path, w: dict, out: Path, legacy: str | None
     meta = {"doc_id": doc["id"], "title": title, "owner": doc["owner"], "language": lang, "version": doc["version"],
             "type": doc["type"], "default_audience": doc["owner"], "classification": "internal",
             "format": doc["format"], "encoding": encoding}
-    (out / f"{doc['id']}.meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1), encoding="utf-8")
+    dump_json(out / f"{doc['id']}.meta.json", meta)
     return path.stat().st_size
 
 

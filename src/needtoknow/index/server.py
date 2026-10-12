@@ -161,7 +161,7 @@ def start(config: dict, popen=subprocess.Popen, timeout: float = 30.0) -> tuple[
     with open(logs / "qdrant.log", "ab") as log:
         process = popen([str(binary)], cwd=storage, env=server_env(config, key, storage), stdin=subprocess.DEVNULL,
                         stdout=log, stderr=subprocess.STDOUT, creationflags=DETACHED, close_fds=True)
-    pid_file().write_text(str(process.pid))
+    pid_file().write_bytes(str(process.pid).encode("ascii"))
     while http_status(config, "/readyz") != 200:
         if time.perf_counter() - began > timeout:
             stop(config)
