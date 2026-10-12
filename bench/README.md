@@ -36,3 +36,14 @@ uv run python bench/crash_points.py
 
 `tests/test_bench.py` runs both, so a change that breaks either property, or the
 scripts themselves, fails the suite.
+
+## parse_corpus.py
+
+Parses every file of the assembled corpus, each in its declared encoding, and checks
+that every block's span gives its text back. It prints the blocks by kind, the header
+rows, the blocks that do not resolve, and the seconds spent parsing alone. It needs an
+assembled corpus, which `ntk corpus assemble` builds from a clone in under a minute.
+
+```
+uv run python bench/parse_corpus.py
+```
