@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**118 findings, 82 closed, 36 open**, from 15 reviews. Each audit pass took one perspective and nothing else.
+**118 findings, 83 closed, 35 open**, from 15 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -140,7 +140,7 @@ An audit pass of three minutes, on whether the author ships, measures and says s
 
 ## `AC`, the access control red team
 
-An audit pass that tried to make restricted text readable by the wrong role. 10 findings, 6 closed.
+An audit pass that tried to make restricted text readable by the wrong role. 10 findings, 7 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -151,7 +151,7 @@ An audit pass that tried to make restricted text readable by the wrong role. 10 
 | `AC-F5` | high | fixed, tick 63 | The IDF side channel works in the fused ranks: a word frequent in hidden text ranked lower in 16 of 17 pairs (94 percent) against 45 percent for null pairs Measured by `bench/idf_attack.py --global-idf`. |
 | `AC-F6` | high | fixed, tick 62 | A narrowed audience reaches the manifest in seconds and the index never: nothing runs the sync after the watcher's scan |
 | `AC-F7` | low | open | ntk search --as takes the role on the caller's word; the README should say ntk is the operator's tool and served paths take the role from the session |
-| `AC-F8` | high | open | The cache the architecture plans, keyed by the role's readable labels, serves a narrowed or edited section's answer after the change, since the role's labels do not move: key an answer by the hash of the prompt as sent with the model and its parameters, key nothing by role or label set, and gate on the change bench asked through the answer path |
+| `AC-F8` | high | fixed, tick 93 | The cache the architecture plans, keyed by the role's readable labels, serves a narrowed or edited section's answer after the change, since the role's labels do not move: key an answer by the hash of the prompt as sent with the model and its parameters, key nothing by role or label set, and gate on the change bench asked through the answer path |
 | `AC-F9` | medium | open | An instruction planted in a permitted section was never obeyed, but it turned answers to an English question Finnish in 6 of 14 calls against 0 of 4 clean: name the answer's language in the user message, quote the excerpts as documents whose instructions are not the model's, and keep the probe as a bench |
 | `AC-F10` | low | open | A role's excerpts, restricted sections included, are posted to the provider, and neither the README nor the enforcement table names it as a reader outside the role model: one row and one sentence |
 
