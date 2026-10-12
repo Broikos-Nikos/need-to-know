@@ -40,17 +40,18 @@ def build_parser() -> argparse.ArgumentParser:
     corpus.add_argument("--count", type=int, default=9, help="mutate: how many changes to apply")
     corpus.add_argument("--seed", type=int, default=1, help="mutate: the seed that picks documents and values")
     ingest = commands.add_parser("ingest", help="cut the assembled corpus into units and record them in the manifest")
-    ingest.add_argument("action", choices=("build",))
+    ingest.add_argument("action", choices=("build", "scan"))
     return parser
 
 
 def cmd_ingest(args: argparse.Namespace, out=None) -> int:
-    from needtoknow.ingest.manifest import build, manifest_path
+    from needtoknow.ingest.manifest import build, manifest_path, scan
     out = out or sys.stdout
-    summary = build()
-    print(f"run {summary['run']}: files {summary['files']}, changed {summary['files_changed']}, removed "
+    summary = build() if args.action == "build" else scan()
+    changes = ", ".join(f"{k} {n}" for k, n in sorted(summary["changes"].items())) or "none"
+    print(f"{summary['kind']} run {summary['run']}: files {summary['files']}, read {summary['files_read']}, changed {summary['files_changed']}, removed "
           f"{summary['files_removed']}; units added {summary['units_added']}, removed {summary['units_removed']}, "
-          f"in the manifest {summary['units_total']} ({manifest_path()})", file=out)
+          f"in the manifest {summary['units_total']} ({manifest_path()}); changes by kind: {changes}", file=out)
     if summary["unknown_audiences"]:
         print(f"audience names no label knows: {', '.join(summary['unknown_audiences'])}", file=out)
     return 1 if summary["unknown_audiences"] else 0

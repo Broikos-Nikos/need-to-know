@@ -99,4 +99,5 @@ def test_a_manifest_of_another_schema_version_is_refused(corpus):
 def test_the_ingest_command_prints_its_run(corpus, capsys):
     assert main(["ingest", "build"]) == 0
     out = capsys.readouterr().out
-    assert out.startswith("run 1: files 6, changed 6, removed 0; units added ") and "manifest.db" in out
+    assert out.startswith("build run 1: files 6, read 6, changed 6, removed 0; units added ") and "manifest.db" in out
+    assert out.rstrip().endswith("changes by kind: added 6")
