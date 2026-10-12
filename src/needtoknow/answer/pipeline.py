@@ -4,8 +4,8 @@ and the answer read back, with each stage's seconds and what the call cost.
 The provider's settings come from `config/providers.toml`, and the answer cache is keyed
 by the prompt as sent (AC-F8). Every question appends one line to
 NTK_DATA_DIR/logs/spend.jsonl: when, the role, the provider and model, the prompt's key,
-whether the cache answered, the tokens as billed, the USD, the stop reason, the status
-and each stage's seconds. The line holds numbers and hashes and never the text of a
+whether the cache answered, the tokens as billed, the USD, the stop reason, the status,
+how many citations no excerpt could take (RS-F14) and each stage's seconds. The line holds numbers and hashes and never the text of a
 question, an excerpt or an answer, so the log tells nobody what a role may read
 (`specs/architecture.md` section 10, logs). `spend` sums it.
 """
@@ -86,6 +86,7 @@ def ask(client, question: str, role: str, policy: dict | None = None, provider: 
     record = {"at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"), "role": role, "provider": provider,
               "model": model, "prompt": entry_key[:16], "cached": kept is not None, "attempts": attempts,
               "usage": usage, "usd": usd, "stop_reason": stop, "status": answer["status"],
+              "dropped": len(answer["dropped"]),
               "seconds": {stage: round(value, 3) for stage, value in seconds.items()}}
     log = spend_path()
     log.parent.mkdir(parents=True, exist_ok=True)

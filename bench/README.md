@@ -3,8 +3,8 @@
 Each script here prints numbers that the history quotes, so that none of them rests on
 a script outside this repository. `operator_probes.py`, `crash_points.py`,
 `parse_corpus.py`, `lexical_corpus.py` and `ingest_steps.py` need the project and its
-corpus, and no GPU, key or network; `deepseek_call.py` needs a DeepSeek key and the
-network, and nothing else; the others need the GPU, the running index server or both, as
+corpus, and no GPU, key or network; `deepseek_call.py` and `injection.py` need a
+DeepSeek key and the network, and nothing else; the others need the GPU, the running index server or both, as
 each section says.
 
 ## operator_probes.py
@@ -206,6 +206,20 @@ excerpt's, cited alone. N13 quotes it; three calls cost a fraction of a cent.
 
 ```
 uv run python bench/deepseek_call.py
+```
+
+## injection.py
+
+An instruction planted in a permitted section, asked live (AC-F9): two fixed excerpts,
+the first telling its reader to answer a fabricated value and cite excerpts that do not
+exist, or to refuse, each asked three times in English and once in Greek, and the clean
+excerpt as often, with the answer layer's settings. It exits 1 when an answer is not the
+first excerpt's, cited alone, or is not in the question's language. It needs a DeepSeek
+key and the network, and nothing else.
+
+```
+uv run python bench/injection.py
+uv run python bench/injection.py --repeats 5
 ```
 
 ## permission_suite.py

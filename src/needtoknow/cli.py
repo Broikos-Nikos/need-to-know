@@ -58,6 +58,14 @@ def build_parser() -> argparse.ArgumentParser:
     find.add_argument("--limit", type=ranged(int, 1, LIMIT), default=10, help=f"candidates to print, 1 to {LIMIT}")
     find.add_argument("--rerank", choices=("none", "multivector", "cross"), help="the second stage; config/models.toml "
                                                                                  "sets the default")
+    reply = commands.add_parser("ask", help="a role's question answered from what it may read, with its citations, "
+                                            "what the call cost and how long each stage took")
+    reply.add_argument("question")
+    reply.add_argument("--as", dest="role", required=True,
+                       help="a role of config/policy.toml, on the caller's word: ntk is the operator's tool (AC-F7)")
+    reply.add_argument("--provider", choices=("deepseek", "openai", "anthropic", "gemini"), default="deepseek",
+                       help="the provider of config/providers.toml to ask; only DeepSeek has been run")
+    reply.add_argument("--no-cache", action="store_true", help="ask the provider even when the cache holds the answer")
     embed = commands.add_parser("embed", help="embed every unit of the manifest whose passage the vector cache lacks")
     embed.add_argument("--budget", type=int, help="padded tokens per batch; config/models.toml sets the default")
     return parser
@@ -249,6 +257,47 @@ def cmd_search(args: argparse.Namespace, out=None, client=None) -> int:
     return 0
 
 
+def cmd_ask(args: argparse.Namespace, out=None, client=None) -> int:
+    """A role's question answered from what it may read (T4.5): the answer, its citations, any citation no excerpt could
+    take (RS-F14), and the model, the tokens, the cost and each stage's seconds. The role is the caller's word, as for
+    search: a served path takes it from the session, never from the request (AC-F7)."""
+    import json
+
+    from needtoknow.answer.pipeline import ask
+    from needtoknow.embed.model import EmbedError
+    from needtoknow.index.search import QuestionError
+    from needtoknow.policy import PolicyError
+    from needtoknow.providers.call import ProviderError
+    out = out or sys.stdout
+    try:
+        result = ask(client or server.client(), args.question, args.role, provider=args.provider,
+                     use_cache=not args.no_cache)
+    except (PolicyError, server.ServerError, QuestionError, EmbedError, ProviderError) as error:
+        print(f"ask: {error}", file=out, flush=True)
+        return 1
+    except Exception as error:
+        if server_down(error, out, "ask"):
+            return 1
+        raise
+    if result["status"] == "invalid":
+        print(f"the reply could not be read: {result['error']}", file=out)
+    else:
+        print(f"{result['status']}: {result['answer']}", file=out)
+    for number, citation in enumerate(result["citations"], 1):
+        print(f"  [{number}] {citation['doc_id']}, {citation['section']}", file=out)
+    if result["dropped"]:
+        print(f"  cited, but no excerpt shown could take it: {', '.join(json.dumps(d) for d in result['dropped'])}",
+              file=out)
+    used, took = result["usage"], result["seconds"]
+    source = ("from the cache" if result["cached"] else
+              f"{used['input_hit'] + used['input_miss']} tokens in, {used['input_hit']} of them cached, "
+              f"{used['output']} out")
+    cost = "no price configured" if result["cost_usd"] is None else f"{result['cost_usd']:.6f} USD"
+    print(f"{result['model']}, {result['stop_reason']}; {source}; {cost}; search {took['search']:.2f} s, provider "
+          f"{took['provider']:.2f} s, in all {took['total']:.2f} s", file=out, flush=True)
+    return 1 if result["status"] == "invalid" else 0
+
+
 def cmd_coverage(out) -> int:
     """Units by label as ingestion reads them, against config/labels.toml (T2.4, KB3-K5, RS-F10)."""
     from needtoknow.ingest.segments import corpus_coverage
@@ -404,6 +453,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_index(args)
     if args.command == "search":
         return cmd_search(args)
+    if args.command == "ask":
+        return cmd_ask(args)
     parser.print_help()
     return 0
 
