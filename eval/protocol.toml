@@ -1,0 +1,84 @@
+# The evaluation protocol, registered on 2026-10-12, before any question, probe,
+# answer or score existed. It fixes what may decide and what may only report:
+# development and every optimisation experiment see the dev split alone, and the
+# test split runs once per release and is published whatever it shows.
+#
+# Code reads this file through needtoknow.eval.protocol, which refuses any use of a
+# split that is not registered here. tests/test_protocol.py holds the file to the
+# newest hash in eval/protocol_history.toml, so a change is a new dated entry there
+# with its reason, never a quiet edit.
+
+version = 1
+registered = 2026-10-12
+
+[splits]
+# The unit of the split is the fact family: a planted fact with its versions and
+# its regional or product variants. Every golden item and probe takes the split of
+# the families it asks about, so no fact is asked in both splits. Drawn at random
+# within each stratum, never by any score.
+unit = "fact family"
+seed = 20261012
+test_share = 0.5
+stratify_by = ["label", "kind"]
+
+[splits.test]
+# The published accuracy. The baseline is the first release.
+golden = 50
+probes = 600
+purposes = ["baseline", "release"]
+
+[splits.dev]
+# Four times the test set, because a decision needs a paired comparison with power,
+# and a release needs only an honest estimate.
+golden = 200
+probes = 600
+purposes = ["development", "baseline", "experiment", "parity"]
+
+[baseline]
+# deepseek-flash on both splits, three repeats; an item whose verdict changes between
+# repeats is marked unstable. If dev and test accuracy differ beyond noise (the 95
+# percent interval of the difference excludes zero), the split is drawn again with
+# the next seed before any experiment, and both draws are recorded.
+repeats = 3
+
+[decision]
+# One variable per experiment, against the incumbent, paired by item on dev. Never
+# adopted with a leak in the permission suite, the canaries or any dev answer.
+# Otherwise adopted by exactly one of these arms:
+#   up     more dev items fixed than broken, and the paired test under alpha
+#   cost   USD per question or p95 seconds down by cost_cut or more, and the lower
+#          end of the interval for the accuracy difference above minus the margin
+#   probe  dev probe recall@10 up by the paired test under alpha, and accuracy non
+#          inferior as for cost
+test = "McNemar mid-p, two sided"
+interval = "Tango score interval for paired proportions, 95 percent, two sided"
+alpha = 0.05
+non_inferiority_margin = 0.05
+cost_cut = 0.20
+arms = ["up", "cost", "probe"]
+
+[release]
+# Before each test run, a parity check on the exact build that will run it: the
+# retrieved unit ids and scores for every dev item equal those of the last dev run
+# of the same configuration hash. The test result never chooses, reverts or tunes
+# anything. A defect found after a test run, and visible without looking at any
+# outcome, allows one rerun per test set, with both runs published and the defect
+# named; a second such defect costs a new test set.
+parity = "retrieval for every dev item equals the last dev run of the same configuration"
+reruns_per_test_set = 1
+published = "the latest release, with every release listed"
+
+[experiments]
+# The order is fixed here. Each experiment changes one variable.
+order = [
+  "E1 rerank: none, BGE-M3 multi vector, bge-reranker-v2-m3",
+  "E2 fusion: dense only, BM25 only, RRF",
+  "E3 excerpts: 4, 8 or 12; one paragraph or with two neighbours",
+  "E4 thinking: enabled or disabled",
+  "E5 heading prefix: full path, title only, none, a shuffled placebo",
+  "E6 units: paragraph, or sentence returning its paragraph",
+  "E7 prompt rules for versions, regional variants and refusals",
+  "E8 query rewriting, after the hybrid baseline is measured",
+  "E9 temperature 0 or 0.3, and max tokens",
+  "E10 deepseek-v4-pro, only when the owner opens the model comparison",
+]

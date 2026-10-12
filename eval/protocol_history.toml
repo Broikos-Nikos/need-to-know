@@ -1,0 +1,9 @@
+# Every version of eval/protocol.toml, oldest first. tests/test_protocol.py fails
+# until the newest entry carries the protocol's current sha256, taken over its
+# bytes with LF line ends, so every change to the protocol is dated and explained
+# here and none is made after the fact without a trace.
+
+[[version]]
+date = 2026-10-12
+sha256 = "d300e13df357b49921862d68dbee3df3117463e7e97c01ecf173b5a416835646"
+reason = "Registered before any question, probe, answer or score existed."
