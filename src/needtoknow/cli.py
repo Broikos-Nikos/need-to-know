@@ -61,6 +61,8 @@ def cmd_coverage(out) -> int:
         print(f"  {label:<14} first {coverage.first[label] / max(units, 1):.3f}  registered {target}  "
               f"readable {coverage.readable[label] / max(units, 1):.3f}", file=out)
     print(f"audience names no label knows: {', '.join(sorted(set(coverage.unknown))) or 'none'}", file=out)
+    for note, count in sorted(coverage.notes.items()):
+        print(f"{note}: {count}", file=out)
     return 1 if coverage.unknown else 0
 
 

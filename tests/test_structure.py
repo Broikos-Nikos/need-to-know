@@ -37,7 +37,7 @@ def test_every_sample_gets_its_title_its_sections_and_a_path_for_everything_unde
 @pytest.mark.parametrize("line, level", [
     ("SECTION 3  Returns at the counter", 2), ("ΕΝΟΤΗΤΑ 12  Επιστροφές", 2), ("ANNEX B: Stock list", 2),
     ("2 Scope", 2), ("2.1 Who may approve", 3), ("2.1.4 Exceptions", 4), ("RETURNS AT THE COUNTER", 2),
-    ("ΕΠΙΣΤΡΟΦΕΣ ΣΤΟ ΚΑΤΑΣΤΗΜΑ", 2),
+    ("ΕΠΙΣΤΡΟΦΕΣ ΣΤΟ ΚΑΤΑΣΤΗΜΑ", 2), ("ΚΟΙΝΟ: ΑΝΘΡΩΠΙΝΟ ΔΥΝΑΜΙΚΟ", 0), ("CLASSIFICATION: INTERNAL", 0),
     ("1. Check the parcel against its authorisation.", 0), ("Audience: Returns", 0), ("Κοινό: Επιστροφές", 0),
     ("A | B | C", 0), ("SKU", 0), ("30 days after the purchase the advisor checks the receipt and the box", 0),
     ("The returns desk checks each parcel against its authorisation and records the result before moving on", 0),

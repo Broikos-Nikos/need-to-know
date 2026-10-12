@@ -52,7 +52,8 @@ def heading_level(line: str) -> int:
     if numbered and 1 < len(words) <= 10 and words[1][:1].isupper():
         return 1 + numbered.group(1).count(".") + 1
     letters = [c for c in line if c.isalpha()]
-    if len(words) <= 8 and len(letters) >= 4 and all(c.isupper() for c in letters):
+    # A short line in capitals, but not a field such as "KOINO: ...", whose colon marks a name and a value.
+    if len(words) <= 8 and len(letters) >= 4 and ":" not in line and all(c.isupper() for c in letters):
         return 2
     return 0
 
