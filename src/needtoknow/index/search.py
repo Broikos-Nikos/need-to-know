@@ -29,6 +29,13 @@ from needtoknow.index.collection import COLLECTION, DENSE, SPARSE
 from needtoknow.policy import load_policy, readable
 
 CANDIDATES = 100
+# The longest question asked: the encoder reads 512 tokens of it, and the lexical side would weigh every term of a
+# megabyte, one SQL variable each, until SQLite refused (HS-F10).
+MAX_QUESTION = 4000
+
+
+class QuestionError(ValueError):
+    """A question the retrieval API will not ask: empty, or too long."""
 # The base's k, with ranks counted from 1. Qdrant counts them from 0, so it is sent as RRF_K + 1.
 RRF_K = 60
 FORMS = ("labels", "label_set")
@@ -65,6 +72,10 @@ def search(client, question: str, role: str, policy: dict | None = None, form: s
     """
     from qdrant_client import models
 
+    if not any(c.isalnum() for c in question):  # a blank form answered with whatever lies nearest nothing (HS-F13)
+        raise QuestionError("a question needs at least one word")
+    if len(question) > MAX_QUESTION:
+        raise QuestionError(f"a question is at most {MAX_QUESTION:,} characters; this one has {len(question):,}")
     if encode is None:
         from needtoknow.embed.model import encode
     policy = policy or load_policy()

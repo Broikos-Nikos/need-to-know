@@ -43,7 +43,8 @@ def build_parser() -> argparse.ArgumentParser:
     ingest = commands.add_parser("ingest", help="cut the assembled corpus into units and record them in the manifest")
     ingest.add_argument("action", choices=("build", "scan", "watch"))
     # Half a second: a change waits two intervals before its scan, and a look costs 9 ms (N53).
-    ingest.add_argument("--interval", type=float, default=0.5, help="watch: seconds between looks at the corpus folder")
+    ingest.add_argument("--interval", type=ranged(float, 0.1, 60.0), default=0.5,
+                        help="watch: seconds between looks at the corpus folder, 0.1 to 60")
     ingest.add_argument("--manifest-only", action="store_true",
                         help="watch: keep the manifest current and leave the index alone")
     index = commands.add_parser("index", help="create the Qdrant collection, or bring it to the manifest")
@@ -52,12 +53,38 @@ def build_parser() -> argparse.ArgumentParser:
     find.add_argument("question")
     find.add_argument("--as", dest="role", required=True, help="a role of config/policy.toml")
     find.add_argument("--form", choices=("labels", "label_set"), default="labels", help="the filter's form (KB1-F3)")
-    find.add_argument("--limit", type=int, default=10)
+    find.add_argument("--limit", type=ranged(int, 1, LIMIT), default=10, help=f"candidates to print, 1 to {LIMIT}")
     find.add_argument("--rerank", choices=("none", "multivector", "cross"), help="the second stage; config/models.toml "
                                                                                  "sets the default")
     embed = commands.add_parser("embed", help="embed every unit of the manifest whose passage the vector cache lacks")
     embed.add_argument("--budget", type=int, help="padded tokens per batch; config/models.toml sets the default")
     return parser
+
+
+LIMIT = 100  # the search's CANDIDATES: no more come back to print
+
+
+def ranged(kind, low, high):
+    """An argument type that refuses a value outside low to high, by name, instead of taking it (HS-F12)."""
+    def parse(text: str):
+        value = kind(text)
+        if not low <= value <= high:
+            raise argparse.ArgumentTypeError(f"{text} is outside {low:g} to {high:g}")
+        return value
+    parse.__name__ = kind.__name__
+    return parse
+
+
+def server_down(error: Exception, out, command: str) -> bool:
+    """Whether an error came from the index's server not running, said in one line when it did (HS-F11)."""
+    try:
+        down = server.running(server.load_config()) is None
+    except Exception:  # the pid file unreadable, say: the error stands as it came
+        return False
+    if down:
+        print(f"{command}: the index's server is not running, so nothing reached it: ntk qdrant start "
+              f"({type(error).__name__})", file=out, flush=True)
+    return down
 
 
 def report_run(summary: dict, out) -> None:
@@ -142,6 +169,7 @@ def cmd_index(args: argparse.Namespace, out=None, client=None) -> int:
     from needtoknow.index.collection import COLLECTION, CollectionError, ensure
     from needtoknow.ingest.manifest import opened
     from needtoknow.ingest.units import passage
+    from needtoknow.embed.model import EmbedError
     out = out or sys.stdout
     try:
         client = client or server.client()
@@ -150,12 +178,24 @@ def cmd_index(args: argparse.Namespace, out=None, client=None) -> int:
     except (CollectionError, server.ServerError) as error:
         print(f"index: {error}", file=out, flush=True)
         return 1
+    except Exception as error:
+        if server_down(error, out, "index"):
+            return 1
+        raise
     stats = result["lexical"]
     print(f"{COLLECTION}: {'created' if result['created'] else 'already there, and of this shape'}; lexical statistics "
           f"frozen over {stats['passages']} passages, avgdl {stats['avgdl']:.2f}", file=out, flush=True)
     if getattr(args, "action", "create") == "sync":
         from needtoknow.index.sync import sync
-        done = sync(client, report=lambda line: print(line, file=out, flush=True))
+        try:
+            done = sync(client, report=lambda line: print(line, file=out, flush=True))
+        except EmbedError as error:
+            print(f"index: {error}", file=out, flush=True)
+            return 1
+        except Exception as error:
+            if server_down(error, out, "index"):
+                return 1
+            raise
         print(f"synced: units {done['units']}, points {done['points_before']} before and {done['points_after']} after; "
               f"deleted {done['deleted']}, embedded {done['embedded']}, upserted {done['upserted']} in {done['seconds']:.1f} s "
               f"(" + ", ".join(f"{part} {seconds:.1f}" for part, seconds in done["parts"].items()) + ")",
@@ -168,16 +208,21 @@ def cmd_search(args: argparse.Namespace, out=None, client=None) -> int:
     """A role's question through the retrieval API: rank, fused score, document, labels and the start of the unit."""
     import json
 
-    from needtoknow.index.search import search
+    from needtoknow.embed.model import EmbedError
+    from needtoknow.index.search import QuestionError, search
     from needtoknow.ingest.manifest import opened
     from needtoknow.policy import PolicyError
     out = out or sys.stdout
     try:
         hits = search(client or server.client(), args.question, args.role, form=args.form,
                       rerank=getattr(args, "rerank", None))[:args.limit]
-    except (PolicyError, server.ServerError) as error:
+    except (PolicyError, server.ServerError, QuestionError, EmbedError) as error:
         print(f"search: {error}", file=out, flush=True)
         return 1
+    except Exception as error:
+        if server_down(error, out, "search"):
+            return 1
+        raise
     with opened() as db:
         for hit in hits:
             doc_id, labels, text = db.execute("SELECT doc_id, labels, text FROM units WHERE unit_id = ?",
@@ -185,6 +230,8 @@ def cmd_search(args: argparse.Namespace, out=None, client=None) -> int:
             line = " ".join(text.split())
             print(f"{hit['rank']:>3} {hit['score']:.4f} {doc_id:<12} {'+'.join(json.loads(labels)):<14} {line[:90]}",
                   file=out, flush=True)
+    if len(hits) < args.limit:  # said, so a short list is not read as a cut (HS-F12)
+        print(f"{len(hits)} candidates in all, fewer than the {args.limit} asked", file=out, flush=True)
     return 0
 
 

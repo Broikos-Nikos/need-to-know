@@ -138,5 +138,11 @@ def run(offline: bool = False, out=None, opener=urllib.request.urlopen) -> int:
             ok, detail = False, f"{type(error).__name__}: {error}"
         passed += ok
         print(f"{'ok' if ok else 'FAIL':<5} {name:<9} {detail}", file=out)
-    print(f"doctor: {passed} of {len(CHECKS)} ok", file=out)
+    note = ""
+    try:  # every check can pass with the server stopped, and then nothing can be searched (HS-F14)
+        if server.running(server.load_config()) is None:
+            note = "; the index's server is stopped, so nothing can be searched until ntk qdrant start"
+    except Exception:
+        pass
+    print(f"doctor: {passed} of {len(CHECKS)} ok{note}", file=out)
     return 0 if passed == len(CHECKS) else 1

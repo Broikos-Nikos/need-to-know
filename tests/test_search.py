@@ -116,7 +116,8 @@ def test_ntk_search_prints_what_the_role_may_read_and_refuses_an_unknown_role(cl
     question = argparse.Namespace(question="settlement ceiling", role="sales", form="labels", limit=10, rerank="none")
     assert cmd_search(question, client=client) == 0
     lines = capsys.readouterr().out.splitlines()
-    assert len(lines) == 2 and "sales" in lines[0] and "settlement ceiling" in lines[0] and "general" in lines[1]
+    assert len(lines) == 3 and "sales" in lines[0] and "settlement ceiling" in lines[0] and "general" in lines[1]
+    assert lines[2] == "2 candidates in all, fewer than the 10 asked"  # HS-F12: a short list is not a cut
     assert cmd_search(argparse.Namespace(question="x", role="board", form="labels", limit=10, rerank="none"),
                       client=client) == 1
 
@@ -170,3 +171,58 @@ def test_the_rerank_switch_hands_the_reranker_the_candidates_own_passages(client
     assert [h["unit_id"] for h in hits] == ["open", "sales"]  # the reranker preferred the fused second
     assert seen == [["Policy\nThe settlement ceiling for sales claims is set each quarter.",
                      "Policy\nShops open at nine on weekdays."]]
+
+
+def test_a_blank_or_a_megabyte_question_is_refused_by_name_and_a_question_of_stopwords_is_not(client):
+    # HS-F13: a blank question returned three shop directory rows. HS-F10: a megabyte of distinct words ended in
+    # "too many SQL variables" after 12 s.
+    from needtoknow.index.search import MAX_QUESTION, QuestionError
+    for blank in ("", "   ", "?! ..."):
+        with pytest.raises(QuestionError, match="at least one word"):
+            ask(client, question=blank)
+    long = " ".join(f"word{n}" for n in range(MAX_QUESTION))
+    with pytest.raises(QuestionError, match="at most 4,000 characters"):
+        ask(client, question=long)
+    assert ask(client, question="the and of", role="sales")  # stopwords alone still ask the dense side
+
+
+def test_the_weights_of_more_terms_than_sqlite_takes_in_one_statement_are_counted_every_one(tmp_path):
+    # HS-F10's second half: one SQL variable a term, and a statement holds 32,766 here, 999 in older SQLite. A term
+    # far past the first chunk must weigh what its count says, not what an absent term would.
+    import math
+    with frequencies.opened("chunks", path=tmp_path / "chunks.db") as db:
+        frequencies.count(db, [("general", [1, 35000]), ("general", [35000]), ("general", [2])], 1)
+        values = frequencies.weights(db, list(range(1, 40001)), ["general"])
+    assert len(values) == 40000
+    assert values[35000 - 1] == pytest.approx(math.log(1 + 1.5 / 2.5))  # in 2 of 3 passages
+    assert values[1 - 1] == pytest.approx(math.log(1 + 2.5 / 1.5)) and values[3 - 1] == pytest.approx(math.log(8))
+
+
+def test_a_stopped_server_or_a_missing_gpu_is_one_line_not_a_traceback(client, monkeypatch, capsys):
+    # HS-F11: both ended ntk search in a traceback, the gRPC one 1 KB long.
+    import argparse
+
+    from needtoknow import cli
+    from needtoknow.embed import model
+    question = argparse.Namespace(question="settlement ceiling", role="sales", form="labels", limit=3, rerank="none")
+    monkeypatch.setattr(model, "encode", lambda texts: (_ for _ in ()).throw(model.EmbedError("no CUDA device is visible to torch")))
+    assert cli.cmd_search(question, client=client) == 1
+    assert capsys.readouterr().out == "search: no CUDA device is visible to torch" + chr(10)
+    monkeypatch.setattr(model, "encode", lambda texts: np.vstack([QUESTION] * len(texts)))
+    monkeypatch.setattr(client, "query_points", lambda *a, **k: (_ for _ in ()).throw(ConnectionError("refused")))
+    monkeypatch.setattr(cli.server, "running", lambda config: None)
+    assert cli.cmd_search(question, client=client) == 1
+    assert capsys.readouterr().out.startswith("search: the index's server is not running, so nothing reached it: ntk qdrant start")
+
+
+def test_numbers_out_of_range_are_refused_by_the_parser():
+    # HS-F12: --limit -5 printed 95 results, --limit 0 nothing, --interval -1 a traceback, --interval 0 a busy loop.
+    from needtoknow.cli import LIMIT, build_parser
+    from needtoknow.index.search import CANDIDATES
+    assert LIMIT == CANDIDATES
+    for args in (["search", "q", "--as", "sales", "--limit", "0"], ["search", "q", "--as", "sales", "--limit", "-5"],
+                 ["search", "q", "--as", "sales", "--limit", "101"], ["ingest", "watch", "--interval", "0"],
+                 ["ingest", "watch", "--interval", "-1"]):
+        with pytest.raises(SystemExit):
+            build_parser().parse_args(args)
+    assert build_parser().parse_args(["search", "q", "--as", "sales", "--limit", "100"]).limit == 100

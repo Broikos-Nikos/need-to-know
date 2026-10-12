@@ -74,3 +74,14 @@ def test_a_missing_model_comes_with_the_command_that_fetches_its_pinned_revision
     config, reranker = load_config(), rerank_config()
     assert not ok and f"uv run hf download {config['repo']} --revision {config['revision']};" in line
     assert line.endswith(f"uv run hf download {reranker['repo']} --revision {reranker['revision']}")
+
+
+def test_the_summary_says_the_server_is_stopped_when_every_check_passes(monkeypatch):
+    # HS-F14: its qdrant line said "not running", and the summary under it said 9 of 9 ok.
+    import io
+    monkeypatch.setattr(doctor, "CHECKS", [("python", doctor.check_python)])
+    monkeypatch.setattr(doctor.server, "running", lambda config: None)
+    out = io.StringIO()
+    doctor.run(offline=True, out=out)
+    assert out.getvalue().splitlines()[-1] == ("doctor: 1 of 1 ok; the index's server is stopped, so nothing can be "
+                                               "searched until ntk qdrant start")

@@ -81,14 +81,20 @@ def count(db: sqlite3.Connection, points, sign: int) -> None:
                        [(term, set_id, sign * n) for term, n in tally.items()])
 
 
+CHUNK = 500  # terms a statement: with the label sets, under the 999 variables of older SQLite
+
+
 def weights(db: sqlite3.Connection, terms: list[int], label_sets: list[str]) -> list[float]:
     """BM25's IDF of each term over the given label sets, the role's view."""
     marks = ",".join("?" * len(label_sets)) or "NULL"
     ids = [row[0] for row in db.execute(f"SELECT id FROM sets WHERE label_set IN ({marks})", label_sets)]
     total = db.execute(f"SELECT COALESCE(SUM(passages), 0) FROM sets WHERE id IN ({','.join('?' * len(ids)) or 'NULL'})",
                        ids).fetchone()[0]
-    held = dict(db.execute(f"SELECT term, SUM(n) FROM df WHERE term IN ({','.join('?' * len(terms)) or 'NULL'}) "
-                           f"AND set_id IN ({','.join('?' * len(ids)) or 'NULL'}) GROUP BY term", [*terms, *ids]))
+    held: dict[int, int] = {}
+    for start in range(0, len(terms), CHUNK):  # SQLite counts the variables of one statement (HS-F10)
+        part = terms[start:start + CHUNK]
+        held.update(db.execute(f"SELECT term, SUM(n) FROM df WHERE term IN ({','.join('?' * len(part))}) AND set_id IN "
+                               f"({','.join('?' * len(ids)) or 'NULL'}) GROUP BY term", [*part, *ids]))
     return [math.log(1 + (total - held.get(term, 0) + 0.5) / (held.get(term, 0) + 0.5)) for term in terms]
 
 
