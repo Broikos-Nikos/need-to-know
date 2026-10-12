@@ -23,8 +23,10 @@ each case and form takes the first of the efs, then the exact path, whose tie aw
 mean is 0.97 or more in both classes; test probes report it, with the median seconds of
 a search, beside the graph's dev mean at the largest ef. Every unit the engine returns
 that the case may not read is counted (it must be 0), and for prose probes the share of
-table units in the exact path's top 10, KB3-K3's annex intrusion. `--report` prints the
-last run's report again from its saved numbers.
+table units in the exact path's top 10, KB3-K3's annex intrusion. Beside each case's medians,
+the share of the machine busy while the case ran, this bench and its server included,
+since the medians move with it (RS-F13). `--report` prints the last run's report again
+from its saved numbers.
 """
 
 from __future__ import annotations
@@ -37,6 +39,8 @@ import time
 from collections import defaultdict
 
 import numpy as np
+
+from full_build import system_times
 
 from needtoknow.embed import cache, model
 from needtoknow.index import search as retrieval
@@ -105,6 +109,7 @@ def main() -> int:
     index_of = {unit: n for n, unit in enumerate(ids)}
     results = []
     for case, reads, bench_only in cases:
+        idle0, all0, first = *system_times(), len(results)
         allowed = torch.tensor([bool(unit_labels & reads) for unit_labels in labels], device="cuda")
         for n, ((unit, kind), query) in enumerate(zip(probes, queries)):
             q = torch.from_numpy(query).to("cuda")
@@ -132,7 +137,10 @@ def main() -> int:
                         "foreign": sum(1 for u in found if not labels[index_of[u]] & reads),
                         "tables": sum(1 for u in found if layer[index_of[u]] == "table"), "tenth": tenth_exact,
                         "seconds": seconds})
-        print(f"  {case}: done, {time.perf_counter() - began:.0f} s", flush=True)
+        idle1, all1 = system_times()
+        for row in results[first:]:
+            row["busy"] = 1 - (idle1 - idle0) / (all1 - all0)
+        print(f"  {case}: done, {time.perf_counter() - began:.0f} s, machine busy {results[-1]['busy']:.0%}", flush=True)
 
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_bytes((json.dumps(results) + "\n").encode("utf-8"))
@@ -176,8 +184,9 @@ def report(results: list[dict], efs: list[int | None]) -> None:
             graph = [r for r in rows if r["ef"] == efs[-2] and r["split"] == "dev"]
             name = ("exact" if shown is None else f"ef {shown}") if reached else f"none reached {TARGET}, exact"
             flag = " bench only" if rows and rows[0]["bench_only"] else ""
+            busy = f"; machine busy {rows[0]['busy']:.0%}" if rows and "busy" in rows[0] else ""
             print(f"  {case:<16}{flag:<11} {name}: " + "; ".join(cells) + f"; median {took[len(took) // 2] * 1000:.0f} "
-                  f"ms; graph {mean(graph, 'tie_aware'):.3f}", flush=True)
+                  f"ms{busy}; graph {mean(graph, 'tie_aware'):.3f}", flush=True)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 """How long an audience change takes to reach queries through the watcher, the scan and the sync (T3.13, AC-F6).
 
-    uv run python bench/revocation.py [--interval SECONDS] [--doc DOC_ID]
+    uv run python bench/revocation.py [--interval SECONDS] [--doc DOC_ID] [--runs 5]
 
 Needs the corpus, the manifest, the vector cache, the embed extra and the index on the
 running server (`ntk qdrant start`, `ntk index sync`). It picks the first prose section
@@ -11,9 +11,11 @@ watcher with the sync, waits for its catch up, and widens the section's audience
 second label, as the simulator's relabel does; it times until a role of that second label
 finds one of the section's units. Then it puts the file back, which narrows the audience
 again, and times until that role finds none: the revocation. Every scan and sync between
-an edit and the query that saw it is printed with its seconds (MA-F6). The corpus is left
-as it was found, and the next sync after it leaves the index as it was. It exits 1 when
-either change takes longer than the objective, 5 s.
+an edit and the query that saw it is printed with its seconds (MA-F6). It widens and
+narrows `--runs` times, five by default, and prints each change's median, largest and
+count, since one run is one draw of the watcher's poll, the scan and the machine's load
+(RS-F13). The corpus is left as it was found, and the next sync after it leaves the index
+as it was. It exits 1 when any run takes longer than the objective, 5 s.
 """
 
 from __future__ import annotations
@@ -23,7 +25,7 @@ import json
 import sys
 import time
 
-from watched import OBJECTIVE, Watched, until
+from watched import OBJECTIVE, Watched, past, spread, until
 
 from needtoknow.corpus.mutate import corpus_files, encoded, read
 from needtoknow.corpus.plan import LABEL_EN, MIXES
@@ -39,6 +41,7 @@ def main() -> int:
     parser.add_argument("--interval", type=float, help="the watcher's interval; by default its own")
     parser.add_argument("--doc", help="the document to relabel; by default the largest that qualifies, "
                         "the slowest to scan")
+    parser.add_argument("--runs", type=int, default=5, help="how many times to widen and narrow; the largest decides")
     args = parser.parse_args()
     sys.stdout.reconfigure(encoding="utf-8")
     full = data_dir() / "corpus" / "full"
@@ -74,27 +77,29 @@ def main() -> int:
 
     assert not sees(), f"{reader} already sees {doc_id}'s section"
     original = file.read_bytes()
+    grants, revokes = [], []
     watched = Watched(args.interval)
     print(f"{doc_id}, as {reader}; the watcher's catch up, a scan and a sync of every document: {watched.start():.1f} s",
           flush=True)
     try:
         widened = line.replace("\n", f"; {LABEL_EN[added]}\n")
-        began = time.perf_counter()
-        file.write_bytes(encoded(meta, read(file, meta).replace(line, widened, 1)))
-        grant = until(sees, 60)
-        print(f"  the widening: {watched.timeline(began, grant)}", flush=True)
-        began = time.perf_counter()
-        file.write_bytes(original)
-        revoke = until(lambda: not sees(), 60)
-        print(f"  the narrowing: {watched.timeline(began, revoke)}", flush=True)
+        for run in range(1, args.runs + 1):
+            began = time.perf_counter()
+            file.write_bytes(encoded(meta, read(file, meta).replace(line, widened, 1)))
+            grants.append(until(sees, 60))
+            print(f"  run {run}, the widening: {watched.timeline(began, grants[-1])}", flush=True)
+            began = time.perf_counter()
+            file.write_bytes(original)
+            revokes.append(until(lambda: not sees(), 60))
+            print(f"  run {run}, the narrowing: {watched.timeline(began, revokes[-1])}", flush=True)
     finally:
         watched.stop()
         if file.read_bytes() != original:
             file.write_bytes(original)
-    print(f"{doc_id}: {label} widened to {label} and {added}, then narrowed back; as {reader}: the section was found "
-          f"{grant:.1f} s after the edit, and gone {revoke:.1f} s after the narrowing (watch interval {watched.interval:g} s; "
-          f"objective {OBJECTIVE:g} s)")
-    if max(grant, revoke) > OBJECTIVE:
+    print(f"{doc_id}: {label} widened to {label} and {added}, then narrowed back; as {reader}: the section found after "
+          f"the edit, {spread(grants)}; gone after the narrowing, {spread(revokes)} (watch interval "
+          f"{watched.interval:g} s; objective {OBJECTIVE:g} s)")
+    if past(grants + revokes):
         print(f"past the {OBJECTIVE:g} s objective", file=sys.stderr)
         return 1
     return 0

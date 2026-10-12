@@ -1,7 +1,7 @@
 """How long a one sentence edit takes to reach a query, through the watcher, the scan, the embedding and the sync, and
 its undoing: the change bench of the freshness objective (T2.9, MA-F6).
 
-    uv run python bench/freshness.py [--interval SECONDS]
+    uv run python bench/freshness.py [--interval SECONDS] [--runs 5]
 
 Needs the corpus, the manifest, the vector cache, the embed extra and the index on the
 running server. It changes one planted fact's value in a plain text file, which changes
@@ -10,8 +10,9 @@ asking it; then it writes the file's original bytes back and times until the old
 sentence is found again and the new one is not. The watcher runs in a thread, started
 only once its catch up is done, with the encoder already loaded by the first question,
 as a running watcher's is; every scan and sync between an edit and the query that saw
-it is printed with its seconds. The corpus is left as it was found. It exits 1 when
-either change takes longer than the objective, 5 s.
+it is printed with its seconds. It edits and undoes `--runs` times, five by default, and
+prints each change's median, largest and count (RS-F13). The corpus is left as it was
+found. It exits 1 when any run takes longer than the objective, 5 s.
 """
 
 from __future__ import annotations
@@ -21,7 +22,7 @@ import json
 import sys
 import time
 
-from watched import OBJECTIVE, Watched, until
+from watched import OBJECTIVE, Watched, past, spread, until
 
 from needtoknow.corpus.mutate import corpus_files, encoded, read, replace_value
 from needtoknow.index import server
@@ -42,6 +43,7 @@ def found(client, policy: dict, role: str, sentence: str) -> bool:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Time an edit through the watcher into queries.")
     parser.add_argument("--interval", type=float, help="the watcher's interval; by default its own")
+    parser.add_argument("--runs", type=int, default=5, help="how many times to edit and undo; the largest decides")
     args = parser.parse_args()
     sys.stdout.reconfigure(encoding="utf-8")
     base = data_dir() / "corpus"
@@ -62,25 +64,27 @@ def main() -> int:
     client = server.client()
     assert found(client, policy, role, old) and not found(client, policy, role, new), "the fact is not as planted"
     original = file.read_bytes()
+    edits, undos = [], []
     watched = Watched(args.interval)
     print(f"{doc_id}, as {role}; the watcher's catch up, a scan and a sync of every document: {watched.start():.1f} s",
           flush=True)
     try:
-        began = time.perf_counter()
-        file.write_bytes(encoded(meta, read(file, meta).replace(old, new, 1)))
-        edit = until(lambda: found(client, policy, role, new), 60)
-        print(f"  the edit: {watched.timeline(began, edit)}", flush=True)
-        began = time.perf_counter()
-        file.write_bytes(original)
-        undo = until(lambda: found(client, policy, role, old) and not found(client, policy, role, new), 60)
-        print(f"  the undoing: {watched.timeline(began, undo)}", flush=True)
+        for run in range(1, args.runs + 1):
+            began = time.perf_counter()
+            file.write_bytes(encoded(meta, read(file, meta).replace(old, new, 1)))
+            edits.append(until(lambda: found(client, policy, role, new), 60))
+            print(f"  run {run}, the edit: {watched.timeline(began, edits[-1])}", flush=True)
+            began = time.perf_counter()
+            file.write_bytes(original)
+            undos.append(until(lambda: found(client, policy, role, old) and not found(client, policy, role, new), 60))
+            print(f"  run {run}, the undoing: {watched.timeline(began, undos[-1])}", flush=True)
     finally:
         watched.stop()
         if file.read_bytes() != original:
             file.write_bytes(original)
-    print(f"{doc_id}: the edited sentence reached a query in {edit:.1f} s, and its undoing in {undo:.1f} s "
+    print(f"{doc_id}: the edited sentence reached a query in {spread(edits)}; its undoing in {spread(undos)} "
           f"(watch interval {watched.interval:g} s; objective {OBJECTIVE:g} s)")
-    if max(edit, undo) > OBJECTIVE:
+    if past(edits + undos):
         print(f"past the {OBJECTIVE:g} s objective", file=sys.stderr)
         return 1
     return 0

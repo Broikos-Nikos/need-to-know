@@ -159,6 +159,14 @@ exact scan at any ef from 64 to 512, and at 512 the means ran from 0.680 to 0.94
 single label views held. Exact, every role held 1.000 on every probe, at a median of 26
 to 83 ms a search (`bench/filter_bench.py`).
 
+**Measured again, 2026-10-13.** The probes are the first 30 words of 360 units drawn per
+label, half of them dev, which sit closer to the indexed text than a question does. On
+the index rebuilt fresh after the decision, the graph's dev means at ef 512 ran from
+0.688 to 0.959; they move when the graph is built again. The exact path held 1.000 on
+every probe, at a median of 24 to 38 ms a search and 77 for admin, with the machine 78
+to 89 percent busy, this bench and its server included: the bench prints that share
+beside its medians, since they move with it.
+
 **Reverses if.** Exact search passes 200 ms for a role, as a corpus several times larger
 would make it; then each label is searched through the graph and the lists merged.
 
@@ -172,6 +180,13 @@ starts.
 watcher holding the encoder, full collections during a cut walked 368,000 objects, and
 the largest document's change took 6.6 to 7.4 s. With these, it reaches a query in 4.6
 s, and a one sentence edit in 1.6 s (`bench/revocation.py`, `bench/freshness.py`).
+
+**Measured again, 2026-10-13.** Both benches now repeat each change five times in one
+watcher and print the median, the largest and the count. The largest document's
+widening reached a query at a median of 4.8 s and at most 4.8 s, its narrowing at 4.1 s
+and at most 4.1 s; the one sentence edit at 1.4 s and at most 1.5 s, its undoing at 1.5
+s. The largest document's margin under 5 s is 0.2 s, and its sync read more slowly with
+each run, from 0.40 to 0.73 s.
 
 **Reverses if.** A look at the corpus folder costs more than a few percent of a core,
 or the largest document's change passes 5 s again; then a scan cuts only the sections

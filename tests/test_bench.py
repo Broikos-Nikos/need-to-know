@@ -1,5 +1,6 @@
 """The benches run anywhere and still print what the history quotes them for (MA-F1)."""
 
+import importlib.util
 import re
 import subprocess
 import sys
@@ -13,6 +14,15 @@ BENCH = Path(__file__).resolve().parents[1] / "bench"
 def run(script: str, *args: str) -> subprocess.CompletedProcess:
     return subprocess.run([sys.executable, str(BENCH / script), *args], capture_output=True, text=True,
                           encoding="utf-8", errors="replace")
+
+
+def test_a_change_bench_reports_the_spread_of_its_runs_and_the_largest_decides():
+    # RS-F13: N53 quoted one run's 4.6 s; three runs later took 4.0 to 4.5 s.
+    spec = importlib.util.spec_from_file_location("watched", BENCH / "watched.py")
+    watched = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(watched)
+    assert watched.spread([4.0, 4.1, 5.5]) == "median 4.1 s, largest 5.5 s, over 3 runs"
+    assert watched.past([4.0, 5.2, 4.1]) and not watched.past([4.9, 4.9])
 
 
 def test_every_kill_point_of_the_simulator_ends_equal_to_the_crash_free_state():

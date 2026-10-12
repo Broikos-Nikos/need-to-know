@@ -58,8 +58,10 @@ plain text file, timed until a role that may read it finds the new sentence by a
 and its undoing, through `ntk ingest watch` running as a process of its own, as a
 deployment runs it, started once its catch up is done. Every scan and sync between an
 edit and the query that saw it prints with its seconds and parts, from the lines the
-watcher prints (`bench/watched.py`). It exits 1 past the objective, 5 s, and leaves the
-corpus as it found it. It needs the corpus, the manifest, the vector cache, the `embed`
+watcher prints (`bench/watched.py`). It makes the edit and its undoing five times,
+`--runs` to change that, and prints each change's median, largest and count, since one
+run is one draw of the watcher's poll, the scan and the machine's load; it exits 1 when
+any run passes the objective, 5 s, and leaves the corpus as it found it. It needs the corpus, the manifest, the vector cache, the `embed`
 extra and the index on the running server.
 
 ```
@@ -98,8 +100,9 @@ puts the file back, which narrows it again, with `ntk ingest watch` running as a
 of its own and syncing the index; it times how long a reader of the second label takes to
 find the section, and how long until it can no longer, each with its scan and sync. By
 default it takes the largest document that qualifies, LOG_CAT_006, since a change costs a
-scan of its whole file; `--doc` names another. It exits 1 past the objective, 5 s. It
-needs the corpus, the manifest, the vector cache, the `embed` extra and the index on the
+scan of its whole file; `--doc` names another. It widens and narrows five times,
+`--runs` to change that, and prints each change's median, largest and count; it exits 1
+when any run passes the objective, 5 s. It needs the corpus, the manifest, the vector cache, the `embed` extra and the index on the
 running server, and leaves the corpus as it found it. Commits "Let the watcher carry
 every change into the index" and "Bring the largest document's change under 5 s" quote
 it.
@@ -146,7 +149,8 @@ every label's prose and tables, split dev and test, in domain and off topic apar
 Qdrant's graph at ef 64 to 512 and the exact path the search takes, each against an
 exact float32 top 10 computed on the GPU outside the engine, by a tie aware overlap@10;
 units a case may not read counted, and the share of table units in a prose probe's top
-10. It needs the manifest, the vector cache, the `embed` extra, a CUDA GPU and the index
+10; beside each case's medians, the share of the machine busy while it ran, this bench
+and its server included, since the medians move with it. It needs the manifest, the vector cache, the `embed` extra, a CUDA GPU and the index
 on the running server, and writes its numbers to NTK_DATA_DIR/bench/filter_bench.json,
 which `--report` prints again. N51 and the commit "Search exactly under every role's
 filter" quote it.

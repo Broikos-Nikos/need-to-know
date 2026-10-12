@@ -11,6 +11,7 @@ Imported by `bench/freshness.py` and `bench/revocation.py`; not a bench of its o
 from __future__ import annotations
 
 import re
+import statistics
 import subprocess
 import sys
 import threading
@@ -73,6 +74,17 @@ class Watched:
         parts = [f"{e['kind']} at {e['began'] - edit:.2f} s took {e['seconds']:.2f} s ({e['detail']})"
                  for e in self.events if edit <= e["began"] <= edit + seen]
         return "; ".join(parts) + f"; seen at {seen:.2f} s"
+
+
+def spread(seconds: list[float]) -> str:
+    """Repeated timings as the change benches report them: one run is one draw of the watcher's poll, the scan and the
+    machine's load, so a figure quoted alone moves on the next run (RS-F13)."""
+    return f"median {statistics.median(seconds):.1f} s, largest {max(seconds):.1f} s, over {len(seconds)} runs"
+
+
+def past(seconds: list[float]) -> bool:
+    """Whether any run took longer than the objective: the largest decides, never the median."""
+    return max(seconds) > OBJECTIVE
 
 
 def until(condition, limit: float) -> float:
