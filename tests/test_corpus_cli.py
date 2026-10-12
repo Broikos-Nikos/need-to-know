@@ -100,3 +100,12 @@ def test_an_empty_catalogue_assembles_to_nothing_without_dividing_by_zero(monkey
     (tmp_path / "corpus" / "plan" / "catalogue.json").write_bytes(b"[]")
     assert main(["corpus", "assemble"]) == 0
     assert capsys.readouterr().out.startswith("assembled 0 files, 0.0 MB")
+
+
+def test_the_check_says_how_many_problems_it_does_not_print(monkeypatch, capsys):
+    from needtoknow.corpus import check as checker
+    monkeypatch.setattr(checker, "check", lambda: {"counts": {}, "problems": [f"p{n}" for n in range(45)],
+                                                   "invented_examples": []})
+    assert main(["corpus", "check"]) == 1
+    lines = capsys.readouterr().out.splitlines()
+    assert len(lines) == 41 and lines[-1] == "problem  and 5 more"

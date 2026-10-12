@@ -9,7 +9,7 @@ import pytest
 np = pytest.importorskip("numpy")
 pytest.importorskip("torch")
 
-from needtoknow.embed.model import EmbedError, encode, load  # noqa: E402
+from needtoknow.embed.model import EmbedError, encode, load, states, tokenize  # noqa: E402
 
 CARD_QUERIES = ["What is BGE M3?", "Defination of BM25"]
 CARD_PASSAGES = [
@@ -45,9 +45,16 @@ def test_vectors_are_finite_unit_length_rows_even_for_empty_and_overlong_text():
     assert np.allclose(np.linalg.norm(vectors, axis=1), 1.0, atol=1e-3)
 
 
+def test_a_passage_over_max_length_is_refused_where_a_question_is_cut():
+    long_text = "λέξη " * 3000
+    with pytest.raises(EmbedError, match="refused rather than cut"):
+        states(tokenize([long_text]))
+    assert np.isfinite(encode([long_text])).all()
+
+
 def test_rows_come_back_in_the_order_given_though_batches_are_sorted_by_length():
     texts = ["a much longer sentence about returns, devices, receipts and the thirty day window", "short", "medium length"]
-    batched = encode(texts, batch_size=2)
+    batched = encode(texts, budget=48)  # the two short texts share a batch, the long one goes alone
     alone = np.vstack([encode([text]) for text in texts])
     assert np.sum(batched * alone, axis=1).min() > 0.999
 

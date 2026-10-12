@@ -7,14 +7,19 @@ under MIN_TOKENS joins the next piece of its run, or the one before when it is l
 (KB1-F10). Tables: data rows are grouped under their header row, repeated at the head
 of every group; a group closes at a row whose text hashes to a boundary, on average
 every ROWS_PER_UNIT rows, so inserting a row reshapes one or two groups rather than all
-that follow; and no group passes MAX_ROWS rows or MAX_TOKENS tokens. Headings, audience
-and classification lines are never units: the heading path, already cut to what the
-unit's readers may read (AC-F4), and the labels travel with the unit instead.
+that follow; and no group passes MAX_ROWS rows or MAX_TOKENS estimated tokens.
+Headings, audience and classification lines are never units: the heading path, already
+cut to what the unit's readers may read (AC-F4), and the labels travel with the unit
+instead.
 
 Tokens are estimated from characters, never counted by the model's tokenizer, so a
-unit's boundaries are the same with or without the embed extra. The divisors sit below
-the fewest characters per BGE-M3 token measured on the corpus's paragraphs, 4.06 in
-English and 3.27 in Greek, so the estimate never comes out below the real count.
+unit's boundaries are the same with or without the embed extra. The estimate is close
+for prose and low for tables: `bench/embed_throughput.py` finds prose units over it by
+at most 3 tokens, while table text, dense with codes, digits and dates, runs to 1.80
+characters a token in Greek and 2.08 in English, so a table unit passes its estimate by
+up to 208 tokens and the longest passage is 486. Nothing is cut for it: the embedder
+refuses a passage over its max_length rather than truncating it (T3.1), and the bench
+prints the longest passage against that limit.
 
 Ids are content addressed (architecture section 3): a section key from the document
 and its heading path, and a unit id from the document, the section key, the text, the

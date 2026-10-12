@@ -42,6 +42,8 @@ def build_parser() -> argparse.ArgumentParser:
     ingest = commands.add_parser("ingest", help="cut the assembled corpus into units and record them in the manifest")
     ingest.add_argument("action", choices=("build", "scan", "watch"))
     ingest.add_argument("--interval", type=float, default=1.0, help="watch: seconds between looks at the corpus folder")
+    embed = commands.add_parser("embed", help="embed every unit of the manifest whose passage the vector cache lacks")
+    embed.add_argument("--budget", type=int, help="padded tokens per batch; config/models.toml sets the default")
     return parser
 
 
@@ -72,6 +74,22 @@ def cmd_ingest(args: argparse.Namespace, out=None) -> int:
     summary = build() if args.action == "build" else scan()
     report_run(summary, out)
     return 1 if summary["unknown_audiences"] else 0
+
+
+def cmd_embed(args: argparse.Namespace, out=None) -> int:
+    from needtoknow.embed.cache import CacheError, fill
+    from needtoknow.embed.model import EmbedError
+    out = out or sys.stdout
+    try:
+        summary = fill(budget=args.budget, report=lambda line: print(line, file=out, flush=True))
+    except (EmbedError, CacheError) as error:
+        print(f"embed: {error}", file=out, flush=True)
+        return 1
+    rate = f", {summary['tokens'] / summary['seconds']:,.0f} tokens/s" if summary["seconds"] else ""
+    print(f"units {summary['units']}; passages cached before {summary['cached']}, missing {summary['missing']}, "
+          f"embedded {summary['embedded']}: {summary['tokens']} tokens in {summary['seconds']:.0f} s{rate}; "
+          f"{summary['model']} in {summary['path']}", file=out, flush=True)
+    return 0
 
 
 def cmd_coverage(out) -> int:
@@ -143,6 +161,8 @@ def cmd_corpus(args: argparse.Namespace, out=None) -> int:
         print(f"{key:<26} {value}", file=out)
     for line in result["problems"][:40]:
         print(f"problem  {line}", file=out)
+    if len(result["problems"]) > 40:
+        print(f"problem  and {len(result['problems']) - 40} more", file=out)
     for line in result["invented_examples"]:
         print(f"value?   {line}", file=out)
     return 0 if not result["problems"] else 1
@@ -221,6 +241,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_corpus(args)
     if args.command == "ingest":
         return cmd_ingest(args)
+    if args.command == "embed":
+        return cmd_embed(args)
     parser.print_help()
     return 0
 

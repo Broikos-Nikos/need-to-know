@@ -2,8 +2,21 @@
 
 The repository and revision are pinned in config/models.toml, and loading never
 touches the network. A vector is BGE-M3's dense recipe: the last hidden state of
-the first token, normalised to unit length, returned as float32. Texts are batched
-by length, so padding stays short, and the rows come back in the order given.
+the first token, normalised to unit length. `states` returns that state as the model
+computed it, in its own dtype, which is what the vector cache keeps (T3.1), and
+`normalise` turns it into the float32 row that is searched, the same way for a fresh
+state and a cached one.
+
+Tokenising is apart from the model, so a caller can check lengths before the GPU
+sees anything. Texts are sorted by token count and cut into batches of at most
+`batch_tokens` padded tokens, so short texts go many to a batch and long ones few,
+and the rows come back in the order given. `states` refuses an input over
+`max_length` rather than cutting it, because a cut passage loses its tail from the
+index without a word (`12-infrastructure/08`); `encode`, for questions, cuts. The
+allocator is capped below the card's memory, so a batch too big for it fails with
+an out of memory error instead of spilling into system memory and crawling, which
+the Windows driver otherwise allows (same doc, section 2).
+
 Needs the `embed` extra: `uv sync --extra embed`.
 """
 
@@ -15,9 +28,12 @@ from pathlib import Path
 
 from needtoknow.settings import repo_root
 
+# The share of the card's memory torch may take; the knowledge base's M1 ran at the same cap.
+MEMORY_FRACTION = 0.92
+
 
 class EmbedError(Exception):
-    """The model, its revision or the GPU is not what the configuration asks for."""
+    """The model, its revision, the GPU or an input is not what the configuration asks for."""
 
 
 def load_config(path: Path | None = None) -> dict:
@@ -35,6 +51,8 @@ def load(device: str = "cuda"):
         raise EmbedError(f"{error.name} is not installed; run `uv sync --extra embed`") from error
     if device == "cuda" and not torch.cuda.is_available():
         raise EmbedError("no CUDA device is visible to torch")
+    if device == "cuda":
+        torch.cuda.set_per_process_memory_fraction(MEMORY_FRACTION)
     config = load_config()
     try:
         tokenizer = AutoTokenizer.from_pretrained(config["repo"], revision=config["revision"], local_files_only=True)
@@ -45,23 +63,65 @@ def load(device: str = "cuda"):
     return tokenizer, model.to(device).eval()
 
 
-def encode(texts: list[str], batch_size: int = 32, max_length: int | None = None):
-    """Unit length float32 rows, one per text, in the order given."""
+def tokenize(texts: list[str], cut: bool = False) -> list[list[int]]:
+    """Token ids with the model's special tokens, one list per text; cut at max_length only when asked."""
+    tokenizer, _ = load()
+    limit = load_config()["max_length"]
+    return tokenizer(list(texts), add_special_tokens=True, truncation=cut, max_length=limit if cut else None)["input_ids"]
+
+
+def batches(lengths: list[int], budget: int) -> list[list[int]]:
+    """Indices sorted by length and cut so that no batch pads past `budget` tokens; a longer text goes alone."""
+    out: list[list[int]] = []
+    for i in sorted(range(len(lengths)), key=lengths.__getitem__):
+        if out and (len(out[-1]) + 1) * lengths[i] <= budget:
+            out[-1].append(i)
+        else:
+            out.append([i])
+    return out
+
+
+def states(ids: list[list[int]], budget: int | None = None):
+    """The first token's last hidden state for each list of token ids, in the model's dtype, in the order given."""
     import numpy as np
     import torch
 
     config = load_config()
     tokenizer, model = load()
-    vectors = np.empty((len(texts), config["dimensions"]), dtype=np.float32)
-    order = sorted(range(len(texts)), key=lambda i: len(texts[i]))
+    longest = max(map(len, ids), default=0)
+    if longest > config["max_length"]:
+        over = sum(len(x) > config["max_length"] for x in ids)
+        raise EmbedError(f"{over} inputs are longer than max_length {config['max_length']}, the longest "
+                         f"{longest} tokens: refused rather than cut")
+    out = np.empty((len(ids), config["dimensions"]), dtype=np.dtype(config["dtype"]))
     with torch.inference_mode():
-        for start in range(0, len(order), batch_size):
-            rows = order[start:start + batch_size]
-            batch = tokenizer([texts[i] for i in rows], padding=True, truncation=True,
-                              max_length=max_length or config["max_length"], return_tensors="pt").to(model.device)
-            first = model(**batch).last_hidden_state[:, 0].float()
-            vectors[rows] = check_batch(torch.nn.functional.normalize(first, dim=-1).cpu().numpy())
-    return vectors
+        for rows in batches([len(x) for x in ids], budget or config["batch_tokens"]):
+            width = len(ids[rows[-1]])
+            tokens = np.full((len(rows), width), tokenizer.pad_token_id, dtype=np.int64)
+            mask = np.zeros((len(rows), width), dtype=np.int64)
+            for j, i in enumerate(rows):
+                tokens[j, :len(ids[i])] = ids[i]
+                mask[j, :len(ids[i])] = 1
+            first = model(input_ids=torch.from_numpy(tokens).to(model.device),
+                          attention_mask=torch.from_numpy(mask).to(model.device)).last_hidden_state[:, 0]
+            raw = first.cpu().numpy()
+            check_batch(normalise(raw))
+            out[rows] = raw
+    return out
+
+
+def normalise(rows):
+    """Float32 rows of unit length; a row of zeros comes out as NaN, which check_batch refuses."""
+    import numpy as np
+
+    rows = np.asarray(rows, dtype=np.float32)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        return rows / np.linalg.norm(rows, axis=1, keepdims=True)
+
+
+def encode(texts: list[str], budget: int | None = None):
+    """Unit length float32 rows, one per text, in the order given; a text over max_length is cut, as a question may be."""
+    return normalise(states(tokenize(texts, cut=True), budget))
 
 
 def check_batch(vectors):

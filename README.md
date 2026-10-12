@@ -27,6 +27,10 @@ repository that produces it.
 * Every paragraph and table row knows who may read it, from its section's audience
   line, and each label's share of the corpus meets its registered share:
   `ntk corpus coverage`.
+* Every unit is embedded as its passage, its heading path above its text, and kept
+  in a cache under that passage, so a second run, a relabel or a rebuilt index
+  embeds nothing again; a passage longer than the model takes is refused, never
+  cut: `ntk embed`.
 * Every audit finding the history cites, open or fixed, is in `docs/AUDITS.md`.
 
 ## Run it
@@ -53,6 +57,7 @@ uv run pytest
 * `bench/` holds the scripts behind the numbers in the history, and
   `docs/AUDITS.md` lists every audit finding the history cites.
 
-The index and the answers, still to come, will also need `uv sync --extra embed`,
-a CUDA GPU, the Qdrant binary named in `config/qdrant.toml` and a DeepSeek key.
+`ntk embed` needs `uv sync --extra embed` and a CUDA GPU, and the index and the
+answers, still to come, will also need the Qdrant binary named in
+`config/qdrant.toml` and a DeepSeek key.
 `ntk doctor` checks each of them.

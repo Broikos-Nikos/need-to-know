@@ -7,6 +7,10 @@ repo = "BAAI/bge-m3"
 revision = "5617a9f61b028005a4858fdac845db406aefb181"
 dimensions = 1024
 dtype = "float16"
-# Units are paragraphs split above 256 tokens (T2.6), so 512 leaves room for the
-# heading prefix; the model itself accepts 8192.
+# The longest passage, a table unit under its heading path, is 486 tokens
+# (bench/embed_throughput.py). A passage over this limit is refused, never cut;
+# the model itself accepts 8192.
 max_length = 512
+# Padded tokens per batch. On the RTX 4060, 8192 to 65536 ran within 1 percent of
+# each other and 131072 slower (bench/embed_throughput.py).
+batch_tokens = 32768
