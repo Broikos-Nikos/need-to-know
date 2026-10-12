@@ -22,6 +22,7 @@ Needs the `embed` extra: `uv sync --extra embed`.
 
 from __future__ import annotations
 
+import os
 import tomllib
 from functools import lru_cache
 from pathlib import Path
@@ -43,7 +44,12 @@ def load_config(path: Path | None = None) -> dict:
 
 @lru_cache(maxsize=1)
 def load(device: str = "cuda"):
-    """The tokenizer and the model, loaded once per process."""
+    """The tokenizer and the model, loaded once per process, with no byte to or from the network."""
+    # `local_files_only` is not enough: given a .bin checkpoint, as BGE-M3's pinned revision is, transformers starts a
+    # thread that asks the Hub about a safetensors conversion of the model, and can ask for one. Every load did,
+    # until tick 61. The first switch is read when the model loads, the second when huggingface_hub is imported.
+    os.environ["DISABLE_SAFETENSORS_CONVERSION"] = "1"
+    os.environ["HF_HUB_OFFLINE"] = "1"
     try:
         import torch
         from transformers import AutoModel, AutoTokenizer

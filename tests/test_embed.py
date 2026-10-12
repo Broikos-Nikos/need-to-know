@@ -63,3 +63,30 @@ def test_a_greek_question_finds_its_greek_answer_and_so_does_its_english_twin():
     question_el, question_en, answer, unrelated = encode([QUESTION_EL, QUESTION_EN, ANSWER_EL, UNRELATED_EL])
     assert question_el @ answer > question_el @ unrelated + 0.15
     assert question_en @ answer > question_en @ unrelated + 0.15
+
+
+PROGRAM = """
+import socket, threading
+attempts = []
+def refuse(self, address):
+    attempts.append(address)
+    raise OSError("refused by the test")
+socket.socket.connect = refuse
+from needtoknow.embed.model import load
+load(device="cpu")
+for thread in threading.enumerate():
+    if thread is not threading.current_thread() and not thread.daemon:
+        thread.join(60)
+print("attempts", len(attempts))
+"""
+
+
+def test_loading_the_model_opens_no_connection():
+    # Tick 61: transformers' safetensors conversion thread asked the Hub about BGE-M3 on every load.
+    import subprocess
+    import sys
+
+    result = subprocess.run([sys.executable, "-c", PROGRAM], capture_output=True, text=True, encoding="utf-8",
+                            errors="replace", env={**__import__("os").environ, "CUDA_VISIBLE_DEVICES": "-1"})
+    assert result.returncode == 0, result.stderr[-2000:]
+    assert result.stdout.strip().splitlines()[-1] == "attempts 0", result.stdout[-500:]
