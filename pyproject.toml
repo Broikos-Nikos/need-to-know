@@ -11,6 +11,15 @@ dependencies = [
     "qdrant-client>=1.19.1,<1.20",
 ]
 
+[project.optional-dependencies]
+# The embedding model, needed to build the index and to search it, not to run the
+# tests or the page: `uv sync --extra embed`. On Windows torch comes from the
+# CUDA 13.0 index below.
+embed = [
+    "torch>=2.14.1,<2.15",
+    "transformers>=5.19,<5.20",
+]
+
 [project.scripts]
 ntk = "needtoknow.cli:main"
 
@@ -20,6 +29,14 @@ build-backend = "uv_build"
 
 [tool.uv.build-backend]
 module-name = "needtoknow"
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cu130", marker = "sys_platform == 'win32'" }]
+
+[[tool.uv.index]]
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
+explicit = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

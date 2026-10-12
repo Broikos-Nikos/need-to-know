@@ -1,0 +1,12 @@
+# Models, pinned by repository and revision, and loaded only from the local Hugging
+# Face cache: a machine without them is told so, rather than sent to download
+# gigabytes in the middle of a build.
+
+[embed]
+repo = "BAAI/bge-m3"
+revision = "5617a9f61b028005a4858fdac845db406aefb181"
+dimensions = 1024
+dtype = "float16"
+# Units are paragraphs split above 256 tokens (T2.6), so 512 leaves room for the
+# heading prefix; the model itself accepts 8192.
+max_length = 512
