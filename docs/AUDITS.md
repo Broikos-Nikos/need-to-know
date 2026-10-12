@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**105 findings, 81 closed, 24 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
+**109 findings, 81 closed, 28 open**, from 15 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -210,3 +210,14 @@ The same session's review of the generated corpus. 5 findings, 2 closed.
 | `KB3-K5` | low | fixed, tick 39 | Label shares by unit follow annex bytes, not the registered shares (general 0.0 against 0.20, hr 4.7 against 0.02): shop directories under general, annex rows budgeted per label; the coverage report prints registered and measured shares Measured by `ntk corpus coverage`. |
 | `KB3-K6` | low | open | The prose cannot compare paragraph and section units (685 of 900 sections are one paragraph): the README and any units claim say so |
 | `KB3-K7` | low | open | Templated tells: a capital letter after the date frame in 14 sentences, one effective date for all versioned facts, and N39's stale canary count (corrected at tick 23) |
+
+## `KB4`, the retrieval design at P3 exit, reviewed against a knowledge base
+
+The same session's review of the retrieval design and its measured filtered recall. 4 findings, 0 closed.
+
+| id | severity | status | finding |
+|---|---|---|---|
+| `KB4-K8` | medium | open | The planned graph path mends the union filter but not the prose island, and N7's comparison would mix unit size with exactness: per label prefetches nested under one request and checked once against a merge in the client, prose searched exactly through a filter on its layer, and the sentence variant held to the filter bench at 0.97 per role on both layers before E6 compares it |
+| `KB4-K9` | low | open | The matched pair gap cannot tell a leak from how words sit in the role's own text: a noninterference test, two builds with the same frozen avgdl that differ only in units a role may not read, with every role's fused ids, order and scores and its reranked order identical on the attack's questions and the dev probes; N50 names avgdl as the one statistic measured over the whole collection |
+| `KB4-K10` | low | open | Four keyword payload indexes build graph edges per value that no served search walks: enable_hnsw false on doc_id and lang, and on label_set once the bench stops comparing forms, with bench/full_build.py --fresh timed before and after |
+| `KB4-K11` | low | open | The lexical module's docstrings say Qdrant weighs a question by its IDF modifier, gone since N50: query() returns placeholders that search() replaces with BM25's IDF over the asking role's view |
