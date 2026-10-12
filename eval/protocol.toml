@@ -8,7 +8,7 @@
 # newest hash in eval/protocol_history.toml, so a change is a new dated entry there
 # with its reason, never a quiet edit.
 
-version = 1
+version = 2
 registered = 2026-10-12
 
 [splits]
@@ -20,6 +20,19 @@ unit = "fact family"
 seed = 20261012
 test_share = 0.5
 stratify_by = ["label", "kind"]
+
+[splits.balance]
+# Checked twice, both times before any item is scored, on properties that carry no
+# outcome: when the families are split, before any item is written, and again when
+# the items are written. Each property's standardized mean difference between the
+# halves stays under the limit. A family split that fails is replaced by the next
+# seed's before any item exists, and every draw is recorded; an item that unbalances
+# its split is rewritten, never moved. After the first scored run, no family ever
+# changes split.
+when = "construction"
+family_properties = ["placements", "document_size", "language", "salience"]
+item_properties = ["stemmed_overlap"]
+max_standardized_mean_difference = 0.1
 
 [splits.test]
 # The published accuracy. The baseline is the first release.
@@ -36,10 +49,11 @@ purposes = ["development", "baseline", "experiment", "parity"]
 
 [baseline]
 # deepseek-flash on both splits, three repeats; an item whose verdict changes between
-# repeats is marked unstable. If dev and test accuracy differ beyond noise (the 95
-# percent interval of the difference excludes zero), the split is drawn again with
-# the next seed before any experiment, and both draws are recorded.
+# repeats is marked unstable. The dev and test difference is published with its
+# interval as a diagnostic and changes nothing: the baseline is the first release,
+# and by then the dev items have been read during development.
 repeats = 3
+on_disagreement = "report"
 
 [decision]
 # One variable per experiment, against the incumbent, paired by item on dev. Never
@@ -63,7 +77,8 @@ arms = ["up", "cost", "probe"]
 # of the same configuration hash. The test result never chooses, reverts or tunes
 # anything. A defect found after a test run, and visible without looking at any
 # outcome, allows one rerun per test set, with both runs published and the defect
-# named; a second such defect costs a new test set.
+# named; a second such defect costs a new test set, written from test families that
+# no published test item has used.
 parity = "retrieval for every dev item equals the last dev run of the same configuration"
 reruns_per_test_set = 1
 published = "the latest release, with every release listed"

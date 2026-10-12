@@ -68,10 +68,25 @@ def test_the_protocol_matches_its_newest_recorded_version():
     )
 
 
-def test_every_recorded_version_is_dated_and_explained():
+def test_every_recorded_version_is_dated_and_explained(protocol):
     with open(history_path(), "rb") as handle:
         versions = tomllib.load(handle)["version"]
     dates = [version["date"] for version in versions]
     assert all(isinstance(date, dt.date) for date in dates) and dates == sorted(dates)
     assert all(re.fullmatch(r"[0-9a-f]{64}", version["sha256"]) for version in versions)
     assert all(version["reason"].strip() for version in versions)
+    assert protocol["version"] == len(versions)
+
+
+def test_a_score_triggered_redraw_is_refused(protocol):
+    # Until version 2 the baseline redrew the split when dev and test disagreed:
+    # a test outcome choosing, after the dev items had been read.
+    old = copy.deepcopy(protocol)
+    old["baseline"]["on_disagreement"] = "redraw"
+    assert any("on_disagreement" in problem for problem in validate(old))
+
+
+def test_balance_is_checked_before_any_score(protocol):
+    late = copy.deepcopy(protocol)
+    late["splits"]["balance"]["when"] = "baseline"
+    assert any("splits.balance.when" in problem for problem in validate(late))

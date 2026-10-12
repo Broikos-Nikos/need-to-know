@@ -7,3 +7,15 @@
 date = 2026-10-12
 sha256 = "d300e13df357b49921862d68dbee3df3117463e7e97c01ecf173b5a416835646"
 reason = "Registered before any question, probe, answer or score existed."
+
+[[version]]
+date = 2026-10-12
+sha256 = "9ebe6bdb89d2616bd8fcf42f2d6037a01ce42c4a71fbef23292d8fbd8fca3bda"
+reason = """\
+Still before any question, probe, answer or score existed. Version 1 redrew the \
+split when the baseline's dev and test scores disagreed, which let a test outcome \
+choose, and would have moved families whose dev answers had already been read into \
+the new test split. Now the baseline only reports that difference, the split's \
+balance is checked at construction on properties that carry no outcome, and no \
+family changes split after the first scored run. A test set voided twice is \
+replaced from test families no published item has used."""

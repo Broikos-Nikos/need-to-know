@@ -53,6 +53,10 @@ def validate(protocol: dict) -> list[str]:
         problems.append("the test split is not run at release")
     if "experiment" not in splits.get("dev", {}).get("purposes", []):
         problems.append("the dev split does not serve experiments")
+    if protocol.get("baseline", {}).get("on_disagreement") != "report":
+        problems.append("baseline.on_disagreement must be 'report': a dev and test difference may change nothing")
+    if splits.get("balance", {}).get("when") != "construction":
+        problems.append("splits.balance.when must be 'construction': balance is checked before any item is scored")
     decision = protocol.get("decision", {})
     margin = decision.get("non_inferiority_margin")
     if not isinstance(margin, float) or not 0 < margin <= 0.1:
