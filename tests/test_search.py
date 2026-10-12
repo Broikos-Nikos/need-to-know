@@ -134,6 +134,20 @@ def test_a_questions_lexical_weights_are_counted_over_the_roles_view_alone(clien
                                                                                          "unlabelled"]))
 
 
+def test_the_dense_search_is_exact_unless_an_ef_asks_for_the_graph(client, monkeypatch):
+    # N51: under a filter that matches any of several labels, the graph missed up to half of the exact top 10 at any
+    # ef; the exact path scans the int8 vectors and rescores twice the limit. The filter bench names an ef.
+    sent = []
+    real = client.query_points
+    monkeypatch.setattr(client, "query_points", lambda *args, **kwargs: sent.append(kwargs) or real(*args, **kwargs))
+    ask(client, role="sales")
+    ask(client, role="sales", ef=128)
+    exact, graph = (next(p.params for p in kwargs["prefetch"] if p.using == DENSE) for kwargs in sent)
+    assert exact.exact and exact.hnsw_ef is None
+    assert exact.quantization.rescore and exact.quantization.oversampling == 2.0
+    assert not graph.exact and graph.hnsw_ef == 128 and graph.quantization.rescore
+
+
 def test_one_side_alone_runs_inside_the_roles_filter_too(client):
     assert [hit["unit_id"] for hit in ask(client, role="sales", sides=("sparse",))] == ["sales"]
     assert [hit["unit_id"] for hit in ask(client, role="sales", sides=("dense",))] == ["open", "sales"]

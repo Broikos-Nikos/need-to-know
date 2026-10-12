@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**91 findings, 56 closed, 35 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
+**91 findings, 59 closed, 32 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -23,7 +23,7 @@ An audit pass that tried to break a first run. 8 findings, 8 closed.
 
 ## `RS`, the retrieval scientist
 
-An audit pass on whether the evaluation can fail and its statistics are honest. 11 findings, 2 closed.
+An audit pass on whether the evaluation can fail and its statistics are honest. 11 findings, 3 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -37,7 +37,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 | `RS-F8` | low | open | A multi valued experiment has no rule for choosing among its values: compare each with the incumbent, adopt the cheapest that clears an arm, or Holm within it |
 | `RS-F9` | low | open | Part of the simulation's false claims is an assumed probe coin (0.12 to 0.18 without it): print the assumption or simulate the probe arm |
 | `RS-F10` | low | fixed, tick 39 | Target shares must sum to 1 while a section may name several labels: define the share by first label, or check at least 1 |
-| `RS-F11` | low | open | Overlap@10 on off topic probes counts swaps among near equal scores: report a tie aware overlap and gate on misses beyond the tolerance |
+| `RS-F11` | low | fixed, tick 69 | Overlap@10 on off topic probes counts swaps among near equal scores: report a tie aware overlap and gate on misses beyond the tolerance |
 
 ## `DR`, the deep reviewer
 
@@ -154,13 +154,13 @@ An audit pass on time, memory and disk, its page half waiting for the page. 3 fi
 
 ## `KB1`, the plan, reviewed against a knowledge base
 
-A separate session's review of the plan against the author's research notes. 15 findings, 7 closed.
+A separate session's review of the plan against the author's research notes. 15 findings, 8 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `KB1-F1` | high | fixed, tick 5 | The headline is tuned on its own test set: freeze the 50, decide P8 on a separate dev set of about 100, register experiment order, adoption rule and a non inferiority margin, run the 50 once per release |
 | `KB1-F2` | high | fixed, tick 6 | The filtered recall gate never reaches the selective case: every role reads general, so role filters are about 22 percent or more; gate per role filter as sent, in domain and off topic split, overlap@10 against an exact float32 scan on all probes at two or three ef values, a bench only view for a role without general |
-| `KB1-F3` | medium | open | Filter on label_set, the tenant key, by computing each role's readable label sets at query time; keep labels for audit and display; measure both filters in the F2 bench |
+| `KB1-F3` | medium | fixed, tick 69 | Filter on label_set, the tenant key, by computing each role's readable label sets at query time; keep labels for audit and display; measure both filters in the F2 bench |
 | `KB1-F4` | medium | fixed, tick 63 | BM25 IDF side channel: raw lexical scores never leave the server; P6 runs a term existence attack and publishes its success rate; if it works, per role view sparse collections |
 | `KB1-F5` | medium | open | Publish answerable accuracy, refusal correctness and leaks as separate figures; the overall rate only as a fourth |
 | `KB1-F6` | medium | open | Golden set needs near misses, multi hop across two documents and answers spanning a unit boundary; score near misses like J |
@@ -185,11 +185,11 @@ The same session's review of the evaluation protocol. 2 findings, 0 closed.
 
 ## `KB3`, the corpus at P1 exit, reviewed against a knowledge base
 
-The same session's review of the generated corpus. 5 findings, 1 closed.
+The same session's review of the generated corpus. 5 findings, 2 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
-| `KB3-K3` | medium | open | The annex mass is 1,164 row shapes and its glossary six definitions repeated 602,893 times: named columns with a header in every table, one glossary per document, revisions dated in order; the dense intrusion rate of annex units measured at P3 |
+| `KB3-K3` | medium | fixed, tick 69 | The annex mass is 1,164 row shapes and its glossary six definitions repeated 602,893 times: named columns with a header in every table, one glossary per document, revisions dated in order; the dense intrusion rate of annex units measured at P3 |
 | `KB3-K4` | medium | open | An overlap cap stated as a share of the question still lets it carry every word that decides retrieval: items rewritten without the planted sentence in view, overlap capped on the three rarest stems, about 20 dev items with a paraphrase twin |
 | `KB3-K5` | low | fixed, tick 39 | Label shares by unit follow annex bytes, not the registered shares (general 0.0 against 0.20, hr 4.7 against 0.02): shop directories under general, annex rows budgeted per label; the coverage report prints registered and measured shares |
 | `KB3-K6` | low | open | The prose cannot compare paragraph and section units (685 of 900 sections are one paragraph): the README and any units claim say so |

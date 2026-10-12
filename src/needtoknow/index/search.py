@@ -9,8 +9,11 @@ search, never a pass over its results, so a unit the role may not read can neith
 returned nor take a candidate's place. Qdrant fuses the two lists by reciprocal rank,
 1 / (60 + rank) summed as the base's M9 did (`03-retrieval-rag/12` section 5), and returns
 the fused order with fused scores only: no raw lexical score leaves the server (KB1-F4's
-first condition). The dense search rescores its int8 candidates against the float32
-originals.
+first condition). The dense search is exact under the role's filter, the int8 vectors
+scanned and twice the limit rescored against the float32 originals: the filter bench
+found Qdrant's graph short of the exact top 10 under every role's filter at every ef up
+to 512, and the exact path at 1.000 for every role in a median 26 to 83 ms (N51). Naming
+an `ef` asks for the graph instead, for the bench and experiments.
 
 The filter takes two forms, which the filter bench compares (KB1-F3): `labels`, any of
 the labels the role reads, and `label_set`, any label set present in the collection that
@@ -68,7 +71,9 @@ def search(client, question: str, role: str, policy: dict | None = None, form: s
     prefetch = []
     if "dense" in sides:
         dense = encode([question])[0]
-        params = models.SearchParams(hnsw_ef=ef, quantization=models.QuantizationSearchParams(rescore=True))
+        # No ef: the exact path (N51), the int8 vectors scanned and twice the limit rescored in float32.
+        quantization = models.QuantizationSearchParams(rescore=True, oversampling=2.0 if ef is None else None)
+        params = models.SearchParams(exact=ef is None, hnsw_ef=ef, quantization=quantization)
         prefetch.append(models.Prefetch(query=dense.tolist(), using=DENSE, filter=flt, limit=limit, params=params))
     indices, _ = lexical.query(question)
     if indices and "sparse" in sides:  # a question of stopwords alone has no lexical side

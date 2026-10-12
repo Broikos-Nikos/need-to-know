@@ -122,3 +122,21 @@ on dev.
 ```
 uv run python bench/rerank_latency.py
 ```
+
+## filter_bench.py
+
+Whether the engine's filtered dense search finds what an exact scan finds, for every
+role's filter as sent and two bench only views, in both filter forms: probes drawn from
+every label's prose and tables, split dev and test, in domain and off topic apart;
+Qdrant's graph at ef 64 to 512 and the exact path the search takes, each against an
+exact float32 top 10 computed on the GPU outside the engine, by a tie aware overlap@10;
+units a case may not read counted, and the share of table units in a prose probe's top
+10. It needs the manifest, the vector cache, the `embed` extra, a CUDA GPU and the index
+on the running server, and writes its numbers to NTK_DATA_DIR/bench/filter_bench.json,
+which `--report` prints again. N51 and the commit "Search exactly under every role's
+filter" quote it.
+
+```
+uv run python bench/filter_bench.py
+uv run python bench/filter_bench.py --report
+```
