@@ -60,5 +60,20 @@ def encode(texts: list[str], batch_size: int = 32, max_length: int | None = None
             batch = tokenizer([texts[i] for i in rows], padding=True, truncation=True,
                               max_length=max_length or config["max_length"], return_tensors="pt").to(model.device)
             first = model(**batch).last_hidden_state[:, 0].float()
-            vectors[rows] = torch.nn.functional.normalize(first, dim=-1).cpu().numpy()
+            vectors[rows] = check_batch(torch.nn.functional.normalize(first, dim=-1).cpu().numpy())
+    return vectors
+
+
+def check_batch(vectors):
+    """Refuse a batch holding a value that is not finite or a row that is not of unit length.
+
+    Both are failures that load and run without raising anything (`12-infrastructure/08`).
+    """
+    import numpy as np
+
+    if not np.isfinite(vectors).all():
+        raise EmbedError("a batch came back with NaN or infinite values")
+    norms = np.linalg.norm(vectors, axis=1)
+    if not np.allclose(norms, 1.0, atol=1e-3):
+        raise EmbedError(f"a batch came back with norms from {norms.min():.4f} to {norms.max():.4f}, not 1")
     return vectors
