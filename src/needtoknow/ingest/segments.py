@@ -18,7 +18,6 @@ the headings that each of its readers may read (AC-F4).
 
 from __future__ import annotations
 
-import math
 import re
 import unicodedata
 from collections import Counter
@@ -42,7 +41,6 @@ NAMES = {**{fold(label): label for label in LABEL_EN},
 AUDIENCE = re.compile(r"^\s*(?:audience|κοινο)\s*[:\-\u2013\u2014]\s*(.*?)\s*$")
 CLASSIFICATION = re.compile(r"^\s*(?:classification|διαβαθμιση)\s*[:\-\u2013\u2014]")
 SEPARATOR = re.compile(r"[:\-\u2013\u2014]")
-ROWS_PER_UNIT = 12
 
 
 def labels_named(names: str, unknown: list[str]) -> tuple[str, ...]:
@@ -133,47 +131,32 @@ def with_safe_paths(elements: list[Element]) -> list[Element]:
 
 @dataclass
 class Coverage:
-    """Units by label, a unit being what T2.6 will cut: a paragraph, or ROWS_PER_UNIT rows of one table."""
+    """Units by label, as the units step cuts them (T2.6), and units by layer."""
 
     first: Counter = field(default_factory=Counter)      # units by their first label, which sums to all units
     readable: Counter = field(default_factory=Counter)   # units each label can read, which may sum above them
+    layers: Counter = field(default_factory=Counter)     # prose and table units (KB1-F8)
     unknown: list[str] = field(default_factory=list)
     notes: Counter = field(default_factory=Counter)  # audience lines read as narrowing, html disagreements
 
-    def add(self, elements: list[Element]) -> None:
-        rows: list[Element] = []
-
-        def close() -> None:
-            if rows:
-                self.count(rows[0].labels, math.ceil(len(rows) / ROWS_PER_UNIT))
-                rows.clear()
-
-        for e in elements:
-            if e.kind == "row" and not e.header and (not rows or rows[0].labels == e.labels):
-                rows.append(e)
-                continue
-            close()
-            if e.kind == "row" and not e.header:
-                rows.append(e)
-            elif e.kind == "paragraph":
-                self.count(e.labels, 1)
-        close()
-
-    def count(self, labels: tuple[str, ...], units: int) -> None:
-        self.first[labels[0]] += units
-        for label in labels:
-            self.readable[label] += units
+    def add(self, units) -> None:
+        for unit in units:
+            self.first[unit.labels[0]] += 1
+            self.layers[unit.layer] += 1
+            for label in unit.labels:
+                self.readable[label] += 1
 
 
 def corpus_coverage(full) -> Coverage:
-    """The coverage of every file in an assembled corpus, each decoded, parsed and segmented as ingestion will."""
+    """The coverage of every file in an assembled corpus, each decoded, parsed, segmented and cut as ingestion will."""
     from needtoknow.corpus.mutate import corpus_files
     from needtoknow.ingest.decode import load
     from needtoknow.ingest.parse import parse
     from needtoknow.ingest.structure import structure
+    from needtoknow.ingest.units import units
 
     coverage = Coverage()
-    for _doc_id, (file, _sidecar, meta) in sorted(corpus_files(full).items()):
+    for doc_id, (file, _sidecar, meta) in sorted(corpus_files(full).items()):
         elements = structure(parse(load(file, meta), meta["format"]), meta["format"])
-        coverage.add(segments(elements, meta, coverage.unknown, coverage.notes))
+        coverage.add(units(segments(elements, meta, coverage.unknown, coverage.notes), doc_id, meta["language"]))
     return coverage

@@ -44,7 +44,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def cmd_coverage(out) -> int:
     """Units by label as ingestion reads them, against config/labels.toml (T2.4, KB3-K5, RS-F10)."""
-    from needtoknow.ingest.segments import ROWS_PER_UNIT, corpus_coverage
+    from needtoknow.ingest.segments import corpus_coverage
     from needtoknow.policy import UNLABELLED, load_labels
     from needtoknow.settings import data_dir
     full = data_dir() / "corpus" / "full"
@@ -53,7 +53,8 @@ def cmd_coverage(out) -> int:
         return 1
     coverage = corpus_coverage(full)
     units = sum(coverage.first.values())
-    print(f"units {units}, a paragraph or {ROWS_PER_UNIT} rows of one table each; by first label, which sums to all "
+    layers = ", ".join(f"{layer} {count}" for layer, count in sorted(coverage.layers.items()))
+    print(f"units {units} as the units step cuts them ({layers}); by first label, which sums to all "
           f"units, against the registered share, and the share each label can read", file=out)
     registered = load_labels()
     for label in [*registered, UNLABELLED]:
@@ -75,7 +76,7 @@ def cmd_corpus(args: argparse.Namespace, out=None) -> int:
         return 0
     if args.action == "assemble":
         from needtoknow.corpus import narrative_dir
-        from needtoknow.corpus.assemble import ROWS_PER_UNIT, assemble
+        from needtoknow.corpus.assemble import assemble
         from needtoknow.settings import data_dir
         report = assemble()
         if report["missing"]:
@@ -88,7 +89,7 @@ def cmd_corpus(args: argparse.Namespace, out=None) -> int:
         if units:
             shares = ", ".join(f"{label} {report['units'][label] / units:.3f} ({share:.2f})"
                                for label, share in report["registered"].items())
-            print(f"units {units}, a prose section or {ROWS_PER_UNIT} table rows each; share by label, registered in "
+            print(f"units {units}, a prose section or a group of rows as the units step cuts it; share by label, registered in "
                   f"brackets: {shares}", file=out)
         return 0
     if args.action == "samples":

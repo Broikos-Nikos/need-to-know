@@ -8,10 +8,11 @@ short glossary, which everyone reads, so they sit under the general audience, an
 closes with its forms and its revision history, dated in order up to its version.
 
 The rows of the register and the directory are budgeted so that each label's share
-of units meets `config/labels.toml` (N43). A unit is a prose section or a group of
-ROWS_PER_UNIT table rows. Tables carry no policy value, so they can never contradict
-a fact, and every date of something done falls on or before LAST_DAY; only a
-contract renewal may lie ahead.
+of units meets `config/labels.toml` (N43), a unit being what the units step cuts
+(T2.6): a prose section counts as one, and a table's rows count at the rate that step
+cuts that table in that language, measured on a sample of SAMPLE_ROWS rows. Tables
+carry no policy value, so they can never contradict a fact, and every date of
+something done falls on or before LAST_DAY; only a contract renewal may lie ahead.
 """
 
 from __future__ import annotations
@@ -22,17 +23,20 @@ import random
 import shutil
 from collections import Counter
 from datetime import date, timedelta
+from functools import lru_cache
 from pathlib import Path
 
 from needtoknow.corpus import dump_json, exclusive, narrative_dir
 from needtoknow.corpus.plan import DEPARTMENTS, LABEL_EL, LABEL_EN, SEED, world
+from needtoknow.ingest.structure import Element
+from needtoknow.ingest.units import table_groups
 from needtoknow.policy import load_labels
 from needtoknow.settings import data_dir
 
-ROWS_PER_UNIT = 12
+SAMPLE_ROWS = 2000
 # The scale of a plan: units per planned megabyte, set so that the plan's 280 MB come out
 # at about the 300 MB the owner settled on (N39). `ntk corpus assemble` prints the result.
-UNITS_PER_MB = 1250
+UNITS_PER_MB = 1820
 FIRST_DAY, LAST_DAY = date(2023, 1, 1), date(2026, 9, 30)
 
 TITLES = {
@@ -160,8 +164,22 @@ def small_tables(doc: dict, w: dict) -> list[tuple[str, str, list[str]]]:
     return [("forms", doc["owner"], forms), ("glossary", "general", glossary), ("revisions", doc["owner"], revisions)]
 
 
-def units_of(rows: list[str]) -> int:
-    return -(-len(rows) // ROWS_PER_UNIT)
+def units_of(kind: str, lang: str, rows: list[str]) -> int:
+    """How many units the units step cuts these rows into, under their table's header (T2.6)."""
+    if not rows:
+        return 0
+    _en, _el, columns_en, columns_el = TITLES[kind]
+    header = Element("row", " | ".join(columns_el if lang == "el" else columns_en), 0, 0, header=True)
+    return len(table_groups(header, [Element("row", row, 0, 0) for row in rows], lang))
+
+
+@lru_cache(maxsize=None)
+def rows_per_unit(kind: str, lang: str) -> float:
+    """Rows per unit for a bulk table, measured by cutting a fixed sample of its rows as the units step does."""
+    rng, w = random.Random(f"{SEED}:sample:{kind}:{lang}"), world()
+    rows = (directory_rows(lang, rng, w, SAMPLE_ROWS) if kind == "directory"
+            else register_rows(kind, lang, rng, w, SAMPLE_ROWS))
+    return SAMPLE_ROWS / units_of(kind, lang, rows)
 
 
 def budgets(docs: list[dict], shares: dict[str, float], w: dict) -> dict[str, dict[str, int]]:
@@ -169,25 +187,27 @@ def budgets(docs: list[dict], shares: dict[str, float], w: dict) -> dict[str, di
 
     The plan's sizes set the scale, UNITS_PER_MB units per planned megabyte. General's
     units come from the directory in every document, a department's from its own
-    register, each spread over the documents in proportion to their planned size.
+    register, each spread over the documents in proportion to their planned size, and
+    turned into rows at the rate the units step cuts that table in that language.
     """
     total = UNITS_PER_MB * sum(d["target_mb"] for d in docs)
     units = Counter(s["label"] for d in docs for s in d["sections"])
     for d in docs:
-        for _kind, audience, rows in small_tables(d, w):
-            units[audience] += units_of(rows)
+        for kind, audience, rows in small_tables(d, w):
+            units[audience] += units_of(kind, d["language"], rows)
     out = {d["id"]: {"register": 0, "directory": 0} for d in docs}
 
-    def spread(rows: float, group: list[dict], table: str) -> None:
+    def spread(needed: float, group: list[dict], table: str) -> None:
         weight = sum(d["target_mb"] for d in group)
         for d in group:
-            out[d["id"]][table] = round(rows * d["target_mb"] / weight)
+            kind = "directory" if table == "directory" else d["owner"]
+            out[d["id"]][table] = round(needed * d["target_mb"] / weight * rows_per_unit(kind, d["language"]))
 
-    spread(max(0.0, shares["general"] * total - units["general"]) * ROWS_PER_UNIT, docs, "directory")
+    spread(max(0.0, shares["general"] * total - units["general"]), docs, "directory")
     for label, share in shares.items():
         owned = [d for d in docs if d["owner"] == label]
         if label != "general" and owned:
-            spread(max(0.0, share * total - units[label]) * ROWS_PER_UNIT, owned, "register")
+            spread(max(0.0, share * total - units[label]), owned, "register")
     return out
 
 
@@ -327,7 +347,7 @@ def assemble_doc(doc: dict, source: Path, w: dict, out: Path, legacy: str | None
         en, el, columns_en, columns_el = TITLES[kind]
         head = header_lines(lang, len(sections) + 1, f"{prefix} {chr(65 + letter)}: {el if lang == 'el' else en}", audience)
         sections.append((head, "\n".join(rows), columns_el if lang == "el" else columns_en))
-        units[audience] += units_of(rows)
+        units[audience] += units_of(kind, lang, rows)
     text = render(doc["format"], title, meta_line, sections)
     encoding = "windows-1253" if doc["id"] == legacy else "utf-8"
     path = out / f"{doc['id']}.{doc['format']}"

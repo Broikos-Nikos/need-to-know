@@ -13,6 +13,7 @@ from needtoknow.ingest.decode import load
 from needtoknow.ingest.parse import parse
 from needtoknow.ingest.segments import Coverage, labels_named, segments
 from needtoknow.ingest.structure import Element, structure
+from needtoknow.ingest.units import Unit
 from needtoknow.policy import UNLABELLED
 from needtoknow.settings import repo_root
 
@@ -70,16 +71,15 @@ def test_without_a_sidecar_default_the_text_above_the_first_audience_is_unlabell
     assert labels == [(UNLABELLED,), (UNLABELLED,)]
 
 
-def test_coverage_counts_paragraphs_and_groups_of_twelve_rows_by_first_label():
-    rows = [Element("row", "h", 0, 1, header=True, labels=("legal", "finance"))]
-    rows += [Element("row", f"r{k}", 0, 1, labels=("legal", "finance")) for k in range(12)]
-    more = [Element("row", f"s{k}", 0, 1, labels=("hr",)) for k in range(13)]
+def test_coverage_counts_units_by_first_label_by_every_reader_and_by_layer():
+    def unit(labels, layer):
+        return Unit("id", "DOC", "key", layer, "text", labels, (), 0, 1, "en")
+
     coverage = Coverage()
-    coverage.add([Element("paragraph", "p", 0, 1, labels=("sales",)), *rows, Element("audience", "Audience: Sales", 0, 1, labels=("sales",)),
-                  Element("row", "h", 0, 1, header=True, labels=("hr",)), *more])
-    # Twelve rows under a header are one unit, not two: the header is repeated in each group, never counted alone.
-    assert dict(coverage.first) == {"sales": 1, "legal": 1, "hr": 2}
-    assert dict(coverage.readable) == {"sales": 1, "legal": 1, "finance": 1, "hr": 2}
+    coverage.add([unit(("sales",), "prose"), unit(("legal", "finance"), "table"), unit(("legal", "finance"), "table")])
+    assert dict(coverage.first) == {"sales": 1, "legal": 2}
+    assert dict(coverage.readable) == {"sales": 1, "legal": 2, "finance": 2}
+    assert dict(coverage.layers) == {"prose": 1, "table": 2}
 
 
 def test_the_coverage_command_reports_shares_and_fails_on_a_name_no_label_knows(monkeypatch, tmp_path, capsys):

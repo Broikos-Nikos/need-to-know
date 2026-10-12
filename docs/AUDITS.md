@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**69 findings, 38 closed, 31 open**, from 12 reviews. Each audit pass took one perspective and nothing else.
+**69 findings, 40 closed, 29 open**, from 12 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -107,18 +107,18 @@ An audit pass of three minutes, on whether the author ships, measures and says s
 
 ## `AC`, the access control red team
 
-An audit pass that tried to make restricted text readable by the wrong role. 4 findings, 3 closed.
+An audit pass that tried to make restricted text readable by the wrong role. 4 findings, 4 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `AC-F1` | high | fixed, tick 41 | A second audience line inside a section relabels the rest of it, so one line opens a Legal section to everyone: only the line under a heading sets the audience, a later one may only narrow |
 | `AC-F2` | high | fixed, tick 41 | An audience line in another case or with another separator is ignored and the section falls back to the document owner: recognise any case, accents and separator |
 | `AC-F3` | high | fixed, tick 41 | In html an audience line overrides a narrower data-audience: take the intersection when they disagree, and count it |
-| `AC-F4` | medium | open | A heading path carries restricted headings into text everyone may read: a path keeps only headings that every reader of the element may read |
+| `AC-F4` | medium | fixed, tick 43 | A heading path carries restricted headings into text everyone may read: a path keeps only headings that every reader of the element may read |
 
 ## `KB1`, the plan, reviewed against a knowledge base
 
-A separate session's review of the plan against the author's research notes. 15 findings, 3 closed.
+A separate session's review of the plan against the author's research notes. 15 findings, 4 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -131,7 +131,7 @@ A separate session's review of the plan against the author's research notes. 15 
 | `KB1-F7` | medium | open | Headline says synthetic; a closed book run with empty excerpts published beside it; planted values mostly non default, deliberate defaults flagged in the registry |
 | `KB1-F8` | medium | open | Corpus is mostly code generated structure while the eval is mostly prose: stats by layer, metrics by layer, cap layer C at about a third of units and raise table items |
 | `KB1-F9` | medium | open | Planted facts are too salient: a salience plan per fact recorded in the registry, and a noise pass (page headers and footers, cross references, numbering drift, typos) over layers A and B |
-| `KB1-F10` | medium | open | Unit rules: list runs as one block, units under about 30 tokens merged into the next in the same segment and heading, audience and classification lines moved to the payload, table header repeated per row group |
+| `KB1-F10` | medium | fixed, tick 43 | Unit rules: list runs as one block, units under about 30 tokens merged into the next in the same segment and heading, audience and classification lines moved to the payload, table header repeated per row group |
 | `KB1-F11` | low | open | The KB session is not a domain expert: 10 seed questions from real public documents with no company in them (EU consumer law, the Greek regulator's consumer rules); five generated Greek samples offered to the owner for a naturalness read |
 | `KB1-F12` | low | open | N7's arithmetic is wrong: about 6 million sentence units fit as int8 in 16 GB; plan E6 on the full profile after a peak RAM measurement on the small one |
 | `KB1-F13` | low | open | The 2.6 and 4.1 points are a title prefix, not the heading path; cite each number for what it measured |

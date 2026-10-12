@@ -10,7 +10,7 @@ from datetime import date
 import pytest
 
 from needtoknow.corpus import assemble, mutate
-from needtoknow.corpus.assemble import LAST_DAY, ROWS_PER_UNIT, TITLES, budgets, register_rows, small_tables, units_of
+from needtoknow.corpus.assemble import LAST_DAY, TITLES, budgets, register_rows, rows_per_unit, small_tables, units_of
 from needtoknow.corpus.plan import DEPARTMENTS, LABEL_EN, SEED, header, make_catalogue, make_facts, world
 from needtoknow.policy import load_labels
 
@@ -47,12 +47,14 @@ def test_the_shares_of_units_meet_the_registered_shares_on_the_plan():
     shares = {label: entry["target_share"] for label, entry in load_labels().items()}
     units = Counter(s["label"] for d in docs for s in d["sections"])
     for d in docs:
-        for _kind, audience, rows in small_tables(d, w):
-            units[audience] += units_of(rows)
+        for kind, audience, rows in small_tables(d, w):
+            units[audience] += units_of(kind, d["language"], rows)
+    by_id = {d["id"]: d for d in docs}
     for doc_id, rows in budgets(docs, shares, w).items():
-        owner = next(d["owner"] for d in docs if d["id"] == doc_id)
-        units[owner] += units_of(["row"] * rows["register"])
-        units["general"] += units_of(["row"] * rows["directory"])
+        d = by_id[doc_id]
+        # The units the budgeted rows will make, at the rate the units step cuts each table in its language.
+        units[d["owner"]] += rows["register"] / rows_per_unit(d["owner"], d["language"])
+        units["general"] += rows["directory"] / rows_per_unit("directory", d["language"])
     total = sum(units.values())
     for label, share in shares.items():
         assert abs(units[label] / total - share) < 0.005, (label, units[label] / total, share)
@@ -130,4 +132,4 @@ def test_the_report_counts_every_unit_it_wrote(corpus):
     _, docs, report = corpus
     prose = len(docs)
     assert sum(report["units"].values()) > prose and report["units"]["general"] > 0
-    assert set(report["units"]) <= set(LABEL_EN) and ROWS_PER_UNIT == 12
+    assert set(report["units"]) <= set(LABEL_EN)
