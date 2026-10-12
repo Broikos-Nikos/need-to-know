@@ -9,47 +9,26 @@ miss, the stop reason, the seconds, and the USD at the price in force when the c
 began, since peak hours cost double. `max_tokens` and `temperature` are sent only when
 given, so the API's own defaults apply otherwise.
 
-429, 5xx and a dropped connection are tried again after 1, 2 and 4 seconds, as the API's
-error page advises; 400, 401, 402 and 422 are not, and come back as a ProviderError that
-says what went wrong and never holds the key. A reply that ends for want of the server's
-resources is billed and unusable, so it is tried again and both are counted. The opener,
+Retries are `call.post`'s. A reply that ends for want of the server's resources is billed
+and unusable, so it is tried again too, and every billed reply is counted. The opener,
 the clock and the sleep are parameters, so the tests never touch the network.
 """
 
 from __future__ import annotations
 
 import datetime as dt
-import json
 import time
-import urllib.error
 import urllib.request
-from dataclasses import dataclass
 from typing import Callable
 
-from needtoknow.providers.catalog import cost_usd, load_catalog
+from needtoknow.providers.call import Completion, ProviderError, post, priced, started
+from needtoknow.providers.call import HINTS as COMMON_HINTS
+from needtoknow.providers.catalog import load_catalog
 from needtoknow.providers.deepseek_account import HTTP_HINTS
 from needtoknow.settings import setting
 
-RETRIED = (429, 500, 502, 503, 504)
-BACKOFF = (1.0, 2.0, 4.0)  # seconds before each retry: four attempts at most
-HINTS = {400: "the request body is malformed", 422: "a parameter is invalid", **HTTP_HINTS}
-EXPLAINED = (400, 422)  # the codes whose own message names the field at fault; no other reply's words are kept
-
-
-class ProviderError(Exception):
-    """DeepSeek did not complete the call; the message says why and never holds the key."""
-
-
-@dataclass(frozen=True)
-class Completion:
-    text: str
-    reasoning: str  # the thinking DeepSeek returns beside the answer; empty with thinking off
-    usage: dict  # input_hit, input_miss, output and reasoning tokens, over every billed attempt
-    stop_reason: str  # DeepSeek's finish_reason: stop, length, content_filter, ...
-    seconds: float
-    cost_usd: float
-    model: str  # the model that answered, as the reply names it
-    attempts: int
+HINTS = {**COMMON_HINTS, **HTTP_HINTS}
+__all__ = ["Completion", "ProviderError", "complete", "request_body", "usage_of"]
 
 
 def request_body(model: str, system: str, messages: list[dict], thinking: bool, as_json: bool,
@@ -76,17 +55,9 @@ def usage_of(reply: dict) -> dict:
             "reasoning": int(details.get("reasoning_tokens", 0))}
 
 
-def refusal(error: urllib.error.HTTPError, key: str) -> str:
-    """An HTTP error in the user's terms; DeepSeek's own words only where they name a parameter, without the key."""
-    said = ""
-    if error.code in EXPLAINED:
-        try:
-            said = str(json.loads(error.read() or b"{}").get("error", {}).get("message", ""))
-        except (ValueError, AttributeError, OSError):
-            said = ""
-        said = said.replace(key, "(the key)")[:200]
-    hint = HINTS.get(error.code)
-    return f"HTTP {error.code} {error.reason}" + (f": {hint}" if hint else "") + (f" ({said})" if said else "")
+def finish_of(reply: dict) -> str:
+    choices = reply.get("choices") or [{}]
+    return str((choices[0] or {}).get("finish_reason") or "") if isinstance(choices[0], dict) else ""
 
 
 def complete(system: str, messages: list[dict], thinking: bool | None = None, as_json: bool = False,
@@ -101,42 +72,18 @@ def complete(system: str, messages: list[dict], thinking: bool | None = None, as
     if thinking is None:
         thinking = deepseek.get("thinking", "disabled") == "enabled"
     model = deepseek["model"]
-    data = json.dumps(request_body(model, system, messages, thinking, as_json, max_tokens, temperature)).encode("utf-8")
-    began_at = (now or (lambda: dt.datetime.now(dt.timezone.utc)))()
-    began = time.perf_counter()
-    billed = {"input_hit": 0, "input_miss": 0, "output": 0, "reasoning": 0}
-    last = len(BACKOFF) + 1
-    for attempt in range(1, last + 1):
-        request = urllib.request.Request(
-            deepseek["base_url"].rstrip("/") + "/chat/completions", data=data, method="POST",
-            headers={"Authorization": "Bearer " + key, "Content-Type": "application/json", "Accept": "application/json"})
-        try:
-            with opener(request, timeout=timeout) as response:
-                raw = response.read()
-        except urllib.error.HTTPError as error:
-            if error.code not in RETRIED or attempt == last:
-                raise ProviderError(f"DeepSeek refused the call: {refusal(error, key)}") from None
-            sleep(BACKOFF[attempt - 1])
-            continue
-        except (urllib.error.URLError, TimeoutError, OSError) as error:
-            if attempt == last:
-                raise ProviderError(f"DeepSeek could not be reached: {type(error).__name__}") from None
-            sleep(BACKOFF[attempt - 1])
-            continue
-        try:
-            reply = json.loads(raw)
-            choice = reply["choices"][0]
-        except (ValueError, KeyError, IndexError, TypeError):
-            raise ProviderError(f"DeepSeek answered, but not with a completion: {raw[:60]!r}") from None
-        usage = usage_of(reply)
-        billed = {kind: billed[kind] + usage[kind] for kind in billed}
-        stop = choice.get("finish_reason") or ""
-        if stop == "insufficient_system_resource" and attempt < last:
-            sleep(BACKOFF[attempt - 1])
-            continue
-        message = choice.get("message") or {}
-        return Completion(text=message.get("content") or "", reasoning=message.get("reasoning_content") or "",
-                          usage=billed, stop_reason=stop, seconds=time.perf_counter() - began,
-                          cost_usd=cost_usd(deepseek["models"][model]["price"], billed, began_at, deepseek["peak"]),
-                          model=str(reply.get("model") or model), attempts=attempt)
-    raise ProviderError(f"DeepSeek gave no usable reply in {last} attempts")
+    began_at, began = started(now), time.perf_counter()
+    replies, attempts = post(
+        "DeepSeek", deepseek["base_url"].rstrip("/") + "/chat/completions", {"Authorization": "Bearer " + key},
+        request_body(model, system, messages, thinking, as_json, max_tokens, temperature), key, opener, sleep, timeout,
+        hints=HINTS, unusable=lambda reply: finish_of(reply) == "insufficient_system_resource")
+    reply = replies[-1]
+    choices = reply.get("choices")
+    if not choices or not isinstance(choices[0], dict):
+        raise ProviderError(f"DeepSeek answered, but not with a completion: {str(reply)[:60]}")
+    billed = {kind: sum(usage_of(r)[kind] for r in replies) for kind in ("input_hit", "input_miss", "output", "reasoning")}
+    message = choices[0].get("message") or {}
+    return Completion(text=message.get("content") or "", reasoning=message.get("reasoning_content") or "",
+                      usage=billed, stop_reason=finish_of(reply), seconds=time.perf_counter() - began,
+                      cost_usd=priced(deepseek, model, billed, began_at),
+                      model=str(reply.get("model") or model), attempts=attempts)

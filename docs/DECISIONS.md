@@ -37,8 +37,11 @@ worse.
 **Call.** One provider is evaluated, DeepSeek's `deepseek-flash`, the model the project is
 tuned for. The answer layer reaches it through `complete`, which sends `thinking` as a top
 level field of the request, disabled unless asked or configured otherwise. Model ids and
-prices live in `config/providers.toml`; adapters for other providers would be tested
-against recorded replies and claim nothing more.
+prices live in `config/providers.toml`. Adapters for OpenAI's Responses API, Anthropic's
+Messages API and Gemini's generateContent share only the post and its retries, since
+reasoning switches, JSON output, stop reasons and token counts differ by provider; each
+is tested on replies shaped as its reference documents them and claims nothing more, as
+no key for them exists here.
 
 **Evidence.** DeepSeek's documentation shows `thinking` inside `extra_body`, the OpenAI
 SDK's syntax, which the SDK unwraps before it sends; a raw request that keeps the wrapper
