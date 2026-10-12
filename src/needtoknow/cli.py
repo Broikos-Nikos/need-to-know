@@ -34,7 +34,33 @@ def build_parser() -> argparse.ArgumentParser:
     qdrant.add_argument("action", choices=("start", "stop", "status"))
     checkup = commands.add_parser("doctor", help="whether this machine can build and search the index, one line per check")
     checkup.add_argument("--offline", action="store_true", help="skip the live calls to DeepSeek")
+    corpus = commands.add_parser("corpus", help="plan the corpus, assemble it from the writers' narrative, or check it")
+    corpus.add_argument("action", choices=("plan", "assemble", "check"))
     return parser
+
+
+def cmd_corpus(args: argparse.Namespace, out=None) -> int:
+    out = out or sys.stdout
+    if args.action == "plan":
+        from needtoknow.corpus.plan import build, summary
+        path = build()
+        print(f"plan written to {path}: {summary(path)}", file=out)
+        return 0
+    if args.action == "assemble":
+        from needtoknow.corpus.assemble import assemble
+        report = assemble()
+        print(f"assembled {report['written']} files, {report['bytes'] / 2**20:.1f} MB; "
+              f"missing narrative: {', '.join(report['missing']) or 'none'}", file=out)
+        return 0 if not report["missing"] else 1
+    from needtoknow.corpus.check import check
+    result = check()
+    for key, value in result["counts"].items():
+        print(f"{key:<26} {value}", file=out)
+    for line in result["problems"][:40]:
+        print(f"problem  {line}", file=out)
+    for line in result["invented_examples"]:
+        print(f"value?   {line}", file=out)
+    return 0 if not result["problems"] else 1
 
 
 def cmd_qdrant(args: argparse.Namespace, out=None) -> int:
@@ -106,6 +132,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_qdrant(args)
     if args.command == "doctor":
         return doctor.run(offline=args.offline, opener=OPENER)
+    if args.command == "corpus":
+        return cmd_corpus(args)
     parser.print_help()
     return 0
 

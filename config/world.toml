@@ -1,0 +1,95 @@
+# What the Company has, so that its documents can be about real seeming things. The
+# Company is never named: documents call it "the Company" or "η Εταιρεία", and its
+# partners are known by their codes (N23). Everything here is invented.
+
+[company]
+en = "the Company"
+el = "η Εταιρεία"
+head_office = { en = "head office in Marousi", el = "κεντρικά γραφεία στο Μαρούσι" }
+
+[[products]]
+key = "prepaid"
+en = "prepaid mobile plans"
+el = "καρτοκινητή τηλεφωνία"
+
+[[products]]
+key = "postpaid"
+en = "postpaid mobile plans"
+el = "συμβόλαια κινητής"
+
+[[products]]
+key = "business"
+en = "business mobile plans"
+el = "επαγγελματικά προγράμματα κινητής"
+
+[[products]]
+key = "fibre"
+en = "fibre broadband"
+el = "οπτική ίνα"
+
+[[products]]
+key = "copper"
+en = "copper broadband"
+el = "σύνδεση χαλκού"
+
+[[products]]
+key = "fwa"
+en = "fixed wireless broadband"
+el = "σταθερή ασύρματη πρόσβαση"
+
+[[products]]
+key = "tv"
+en = "TV packages"
+el = "τηλεοπτικά πακέτα"
+
+[[products]]
+key = "devices"
+en = "devices"
+el = "συσκευές"
+
+[[products]]
+key = "accessories"
+en = "accessories"
+el = "αξεσουάρ"
+
+[[products]]
+key = "insurance"
+en = "device insurance"
+el = "ασφάλιση συσκευών"
+
+[regions]
+# Greece's thirteen administrative regions.
+en = ["Attica", "Central Macedonia", "Thessaly", "Western Greece", "Crete", "Eastern Macedonia and Thrace",
+      "Central Greece", "Peloponnese", "Epirus", "Western Macedonia", "South Aegean", "North Aegean", "Ionian Islands"]
+el = ["Αττική", "Κεντρική Μακεδονία", "Θεσσαλία", "Δυτική Ελλάδα", "Κρήτη", "Ανατολική Μακεδονία και Θράκη",
+      "Στερεά Ελλάδα", "Πελοπόννησος", "Ήπειρος", "Δυτική Μακεδονία", "Νότιο Αιγαίο", "Βόρειο Αιγαίο", "Ιόνια Νησιά"]
+
+[[warehouses]]
+key = "WH1"
+en = "the Aspropyrgos warehouse"
+el = "η αποθήκη Ασπροπύργου"
+
+[[warehouses]]
+key = "WH2"
+en = "the Sindos warehouse"
+el = "η αποθήκη Σίνδου"
+
+[[warehouses]]
+key = "WH3"
+en = "the Heraklion warehouse"
+el = "η αποθήκη Ηρακλείου"
+
+[systems]
+# Internal system names, not companies.
+crm = "Atlas"
+billing = "Ledger"
+warehouse = "Dock"
+ticketing = "Relay"
+field_service = "Compass"
+
+[partners]
+# Known by code only.
+couriers = ["C1", "C2", "C3", "C4"]
+courier_roles = { C1 = "national express", C2 = "economy", C3 = "islands", C4 = "same day in Attica" }
+repair_centres = ["R1", "R2"]
+insurer = "INS1"
