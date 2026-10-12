@@ -48,7 +48,8 @@ def client(monkeypatch, tmp_path):
 
 
 def ask(client, question="settlement ceiling", role="sales", **kwargs):
-    return search(client, question, role, encode=lambda texts: np.vstack([QUESTION] * len(texts)), **kwargs)
+    return search(client, question, role, encode=lambda texts: np.vstack([QUESTION] * len(texts)),
+                  **{"rerank": "none", **kwargs})
 
 
 @pytest.mark.parametrize("form", FORMS)
@@ -112,11 +113,12 @@ def test_ntk_search_prints_what_the_role_may_read_and_refuses_an_unknown_role(cl
         db.executemany("INSERT INTO units VALUES (?, 'DOC', 'key', 'prose', ?, '[]', ?, 0, 1, 'en', 1)",
                        [(unit, json.dumps(labels), text) for unit, labels, text, _ in UNITS])
     monkeypatch.setattr(model, "encode", lambda texts: np.vstack([QUESTION] * len(texts)))
-    question = argparse.Namespace(question="settlement ceiling", role="sales", form="labels", limit=10)
+    question = argparse.Namespace(question="settlement ceiling", role="sales", form="labels", limit=10, rerank="none")
     assert cmd_search(question, client=client) == 0
     lines = capsys.readouterr().out.splitlines()
     assert len(lines) == 2 and "sales" in lines[0] and "settlement ceiling" in lines[0] and "general" in lines[1]
-    assert cmd_search(argparse.Namespace(question="x", role="board", form="labels", limit=10), client=client) == 1
+    assert cmd_search(argparse.Namespace(question="x", role="board", form="labels", limit=10, rerank="none"),
+                      client=client) == 1
 
 
 def test_a_questions_lexical_weights_are_counted_over_the_roles_view_alone(client, monkeypatch):
@@ -135,3 +137,21 @@ def test_a_questions_lexical_weights_are_counted_over_the_roles_view_alone(clien
 def test_one_side_alone_runs_inside_the_roles_filter_too(client):
     assert [hit["unit_id"] for hit in ask(client, role="sales", sides=("sparse",))] == ["sales"]
     assert [hit["unit_id"] for hit in ask(client, role="sales", sides=("dense",))] == ["open", "sales"]
+
+
+def test_the_rerank_switch_hands_the_reranker_the_candidates_own_passages(client, monkeypatch):
+    # T3.6: the reranker reads each fused candidate's passage from the manifest and reorders those, none other.
+    import json
+
+    from needtoknow.index import rerank
+    from needtoknow.ingest.manifest import opened
+    with opened() as db:
+        db.execute("INSERT INTO files VALUES ('DOC', 'doc.md', 1, 1, 1, 1, 'h', 'md', 'utf-8', 'en', 'v', 1)")
+        db.executemany("INSERT INTO units VALUES (?, 'DOC', 'key', 'prose', ?, '[\"Policy\"]', ?, 0, 1, 'en', 1)",
+                       [(unit, json.dumps(labels), text) for unit, labels, text, _ in UNITS])
+    seen = []
+    monkeypatch.setattr(rerank, "cross_scores", lambda question, passages: seen.append(passages) or [0.0, 1.0])
+    hits = search(client, "settlement ceiling", "sales", encode=lambda texts: np.vstack([QUESTION] * len(texts)), rerank="cross")
+    assert [h["unit_id"] for h in hits] == ["open", "sales"]  # the reranker preferred the fused second
+    assert seen == [["Policy\nThe settlement ceiling for sales claims is set each quarter.",
+                     "Policy\nShops open at nine on weekdays."]]

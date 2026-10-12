@@ -51,11 +51,13 @@ def role_filter(policy: dict, role: str, form: str = "labels", sets: list[str] |
 
 
 def search(client, question: str, role: str, policy: dict | None = None, form: str = "labels", limit: int = CANDIDATES,
-           ef: int | None = None, encode=None, sides: tuple[str, ...] = ("dense", "sparse")) -> list[dict]:
-    """The role's fused candidates for the question, best first: unit id, rank and fused score, nothing else.
+           ef: int | None = None, encode=None, sides: tuple[str, ...] = ("dense", "sparse"),
+           rerank: str | None = None) -> list[dict]:
+    """The role's candidates for the question, best first: unit id, rank and score, nothing else.
 
     `sides` leaves one search out, for the evaluation's run of each path alone and for the side channel bench;
-    whatever runs, runs inside the role's filter.
+    whatever runs, runs inside the role's filter. `rerank` reorders the fused candidates (T3.6); None takes
+    `config/models.toml`'s switch, and the score is then the reranker's.
     """
     from qdrant_client import models
 
@@ -78,4 +80,22 @@ def search(client, question: str, role: str, policy: dict | None = None, form: s
                                         filter=flt, limit=limit))
     found = client.query_points(COLLECTION, prefetch=prefetch, query=models.RrfQuery(rrf=models.Rrf(k=RRF_K + 1)),
                                 query_filter=flt, limit=limit, with_payload=["unit_id"]).points
-    return [{"unit_id": point.payload["unit_id"], "rank": rank, "score": point.score} for rank, point in enumerate(found, 1)]
+    hits = [{"unit_id": point.payload["unit_id"], "rank": rank, "score": point.score} for rank, point in enumerate(found, 1)]
+    from needtoknow.index import rerank as second
+    mode = rerank or second.load_config()["mode"]
+    if mode == "none" or not hits:
+        return hits
+    return second.rerank(question, hits, passages_of([hit["unit_id"] for hit in hits]), mode)
+
+
+def passages_of(unit_ids: list[str]) -> list[str]:
+    """The passages of the given units, as the encoders read them, from the manifest."""
+    import json
+
+    from needtoknow.ingest.manifest import opened
+    from needtoknow.ingest.units import passage
+
+    with opened() as db:
+        rows = {u: (p, t) for u, p, t in db.execute(
+            f"SELECT unit_id, path, text FROM units WHERE unit_id IN ({','.join('?' * len(unit_ids))})", unit_ids)}
+    return [passage(json.loads(rows[u][0]), rows[u][1]) for u in unit_ids]

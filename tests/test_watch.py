@@ -163,7 +163,7 @@ def test_a_narrowed_audience_stops_reaching_its_old_readers_through_the_watcher(
     question = np.ones(1024, dtype=np.float32) / 32
 
     def legal_sees_the_section():
-        hits = search(client, "outcome", "legal", encode=lambda texts: np.vstack([question] * len(texts)))
+        hits = search(client, "outcome", "legal", encode=lambda texts: np.vstack([question] * len(texts)), rerank="none")
         with opened() as db:
             texts = [db.execute("SELECT text FROM units WHERE unit_id = ?", (h["unit_id"],)).fetchone() for h in hits]
         return any(t is None or "records the outcome" in t[0] for t in texts)
@@ -207,7 +207,7 @@ def test_a_watcher_syncs_every_document_first_since_a_dead_one_may_have_left_one
 
     def section_served_to_legal() -> bool:
         """Whether legal gets a unit of the narrowed section, or a point the manifest no longer holds."""
-        found = search(client, "outcome", "legal", encode=lambda texts: np.vstack([question] * len(texts)))
+        found = search(client, "outcome", "legal", encode=lambda texts: np.vstack([question] * len(texts)), rerank="none")
         with opened() as db:
             texts = [db.execute("SELECT text FROM units WHERE unit_id = ?", (h["unit_id"],)).fetchone() for h in found]
         return any(t is None or "the outcome" in t[0] for t in texts)

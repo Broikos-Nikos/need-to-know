@@ -85,18 +85,20 @@ def check_gpu(_context: dict) -> tuple[bool, str]:
 
 
 def check_model(_context: dict) -> tuple[bool, str]:
+    """The embedding model and the reranker (T3.6), each at its pinned revision, in the local cache."""
     from needtoknow.embed.model import load_config as embed_config
+    from needtoknow.index.rerank import load_config as rerank_config
 
-    config = embed_config()
     try:
         from huggingface_hub import try_to_load_from_cache
     except ImportError:
         return False, "huggingface_hub is not installed: uv sync --extra embed"
-    found = isinstance(try_to_load_from_cache(config["repo"], "config.json", revision=config["revision"]), str)
-    if found:
-        return True, f"{config['repo']} at {config['revision'][:8]} in the local cache"
-    return False, (f"{config['repo']} at {config['revision'][:8]} is not in the local cache: "
-                   f"uv run hf download {config['repo']} --revision {config['revision']}")
+    models = [embed_config(), rerank_config()]
+    missing = [c for c in models if not isinstance(try_to_load_from_cache(c["repo"], "config.json", revision=c["revision"]), str)]
+    if not missing:
+        return True, " and ".join(f"{c['repo']} at {c['revision'][:8]}" for c in models) + " in the local cache"
+    return False, "; ".join(f"{c['repo']} at {c['revision'][:8]} is not in the local cache: "
+                            f"uv run hf download {c['repo']} --revision {c['revision']}" for c in missing)
 
 
 def check_deepseek(context: dict) -> tuple[bool, str]:

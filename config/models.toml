@@ -14,3 +14,13 @@ max_length = 512
 # Padded tokens per batch. On the RTX 4060, 8192 to 65536 ran within 1 percent of
 # each other and 131072 slower (bench/embed_throughput.py).
 batch_tokens = 32768
+
+[rerank]
+# The second stage's switch (T3.6): "cross", "multivector" or "none". The base measured
+# bge-reranker-v2-m3 4 points of recall@1 above BGE-M3's own multi vector rerank, which
+# was 7 to 8 above dense (03-retrieval-rag/12 section 9); P5 measures both on dev.
+mode = "cross"
+repo = "BAAI/bge-reranker-v2-m3"
+revision = "953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e"
+# A question and a passage together: passages run to 486 tokens, so 1024 cuts nothing.
+max_length = 1024

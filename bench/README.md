@@ -109,3 +109,16 @@ they must not. It needs the manifest and the index on the running server.
 ```
 uv run python bench/idf_attack.py --role sales
 ```
+
+## rerank_latency.py
+
+What the rerank switch costs: planted fact sentences, half in each language, asked as one
+role at each position of the switch, none, multivector and cross, with the median and 95th
+percentile seconds a question takes from text to final order and how often the first unit
+differs from the fused order's. It needs the index on the running server, the manifest,
+the `embed` extra and both pinned models; whether a reranker helps is P5's question, asked
+on dev.
+
+```
+uv run python bench/rerank_latency.py
+```

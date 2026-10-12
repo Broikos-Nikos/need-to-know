@@ -68,7 +68,7 @@ def main() -> int:
 
     def sees() -> bool:
         """Whether the reader gets the section back: one of its units, or a point the manifest no longer holds."""
-        hits = search(asker, question, reader, policy, limit=20)
+        hits = search(asker, question, reader, policy, limit=20, rerank="none")  # whether, not in what order
         with opened() as db:
             rows = [db.execute("SELECT doc_id, text FROM units WHERE unit_id = ?", (h["unit_id"],)).fetchone() for h in hits]
         return any(row is None or (row[0] == doc_id and opening in " ".join(row[1].split())) for row in rows)

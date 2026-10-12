@@ -37,6 +37,17 @@ class EmbedError(Exception):
     """The model, its revision, the GPU or an input is not what the configuration asks for."""
 
 
+def offline() -> None:
+    """Keep every model load off the network.
+
+    `local_files_only` is not enough: given a .bin checkpoint, as BGE-M3's pinned revision is, transformers starts a
+    thread that asks the Hub about a safetensors conversion of the model, and can ask for one. Every load did, until
+    tick 61. The first switch is read when a model loads, the second when huggingface_hub is imported.
+    """
+    os.environ["DISABLE_SAFETENSORS_CONVERSION"] = "1"
+    os.environ["HF_HUB_OFFLINE"] = "1"
+
+
 def load_config(path: Path | None = None) -> dict:
     with open(path or repo_root() / "config" / "models.toml", "rb") as handle:
         return tomllib.load(handle)["embed"]
@@ -45,11 +56,7 @@ def load_config(path: Path | None = None) -> dict:
 @lru_cache(maxsize=1)
 def load(device: str = "cuda"):
     """The tokenizer and the model, loaded once per process, with no byte to or from the network."""
-    # `local_files_only` is not enough: given a .bin checkpoint, as BGE-M3's pinned revision is, transformers starts a
-    # thread that asks the Hub about a safetensors conversion of the model, and can ask for one. Every load did,
-    # until tick 61. The first switch is read when the model loads, the second when huggingface_hub is imported.
-    os.environ["DISABLE_SAFETENSORS_CONVERSION"] = "1"
-    os.environ["HF_HUB_OFFLINE"] = "1"
+    offline()
     try:
         import torch
         from transformers import AutoModel, AutoTokenizer

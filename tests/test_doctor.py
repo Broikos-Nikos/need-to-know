@@ -57,6 +57,8 @@ def test_a_missing_model_comes_with_the_command_that_fetches_its_pinned_revision
     hub = pytest.importorskip("huggingface_hub")
     monkeypatch.setattr(hub, "try_to_load_from_cache", lambda *a, **k: None)
     from needtoknow.embed.model import load_config
+    from needtoknow.index.rerank import load_config as rerank_config
     ok, line = doctor.check_model({})
-    config = load_config()
-    assert not ok and line.endswith(f"uv run hf download {config['repo']} --revision {config['revision']}")
+    config, reranker = load_config(), rerank_config()
+    assert not ok and f"uv run hf download {config['repo']} --revision {config['revision']};" in line
+    assert line.endswith(f"uv run hf download {reranker['repo']} --revision {reranker['revision']}")

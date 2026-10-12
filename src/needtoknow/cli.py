@@ -51,6 +51,8 @@ def build_parser() -> argparse.ArgumentParser:
     find.add_argument("--as", dest="role", required=True, help="a role of config/policy.toml")
     find.add_argument("--form", choices=("labels", "label_set"), default="labels", help="the filter's form (KB1-F3)")
     find.add_argument("--limit", type=int, default=10)
+    find.add_argument("--rerank", choices=("none", "multivector", "cross"), help="the second stage; config/models.toml "
+                                                                                 "sets the default")
     embed = commands.add_parser("embed", help="embed every unit of the manifest whose passage the vector cache lacks")
     embed.add_argument("--budget", type=int, help="padded tokens per batch; config/models.toml sets the default")
     return parser
@@ -158,7 +160,8 @@ def cmd_search(args: argparse.Namespace, out=None, client=None) -> int:
     from needtoknow.policy import PolicyError
     out = out or sys.stdout
     try:
-        hits = search(client or server.client(), args.question, args.role, form=args.form, limit=args.limit)
+        hits = search(client or server.client(), args.question, args.role, form=args.form,
+                      rerank=getattr(args, "rerank", None))[:args.limit]
     except (PolicyError, server.ServerError) as error:
         print(f"search: {error}", file=out, flush=True)
         return 1
