@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from needtoknow.corpus import check
+from needtoknow.corpus import assemble, check
 from needtoknow.corpus.plan import header
 
 FACT = "Returned items are inspected within 3 working days of arrival at the warehouse."
@@ -17,21 +17,45 @@ def write(monkeypatch, tmp_path):
     base = tmp_path / "corpus"
     (base / "plan").mkdir(parents=True)
     (base / "narrative").mkdir()
-    doc = {"id": "RET_PRO_001", "language": "en", "owner": "returns", "sections": [
+    doc = {"id": "RET_PRO_001", "language": "en", "owner": "returns", "type": "PRO", "type_name": "Procedure",
+           "format": "txt", "target_mb": 0.01, "version": "1.0", "sections": [
         {"label": "returns", "topic_en": "Inspection", "topic_el": "Έλεγχος", "facts": ["F1"], "canary": None},
         {"label": "returns", "topic_en": "Inspection, part 2", "topic_el": "Έλεγχος, μέρος 2", "facts": [], "canary": None}]}
     fact = {"id": "F1", "label": "returns", "en": FACT, "el": FACT, "placements": ["RET_PRO_001"]}
     (base / "plan" / "catalogue.json").write_text(json.dumps([doc]), encoding="utf-8")
     (base / "plan" / "facts.json").write_text(json.dumps([fact]), encoding="utf-8")
 
-    def narrative(first_heading=None, body=f"{PROSE}{FACT}"):
+    def narrative(first_heading=None, body=f"{PROSE}{FACT}", tamper=None):
         heads = [header(doc, n, s) for n, s in enumerate(doc["sections"], 1)]
         if first_heading:
             heads[1][0] = first_heading
         text = "\n".join(heads[0] + ["", body, ""] + heads[1] + ["", PROSE, ""])
         (base / "narrative" / "RET_PRO_001.txt").write_text(text, encoding="utf-8")
+        if tamper is not None:
+            assemble.assemble()
+            path = base / "full" / "RET_PRO_001.txt"
+            path.write_bytes(tamper(path.read_bytes().decode("utf-8")).encode("utf-8"))
         return check.check()
     return narrative
+
+
+@pytest.mark.parametrize("text", ["within 3 working days", "εντός 3 εργάσιμων ημερών", "εντός 5 ημερών",
+                                  "a fee of 30 €", "up to €250", "within 48 hours", "15%", "για 2 έτη", "4 μήνες"])
+def test_every_form_of_a_policy_value_is_seen(text):
+    # DR-F1: the first detector missed five of the first seven of these.
+    assert check.policy_values(text), text
+
+
+@pytest.mark.parametrize("text", ["form RF2", "step 3 of the procedure", "courier C1", "priority P1", "since 2025"])
+def test_codes_and_steps_are_not_policy_values(text):
+    assert check.policy_values(text) == [], text
+
+
+def test_a_fact_missing_from_the_assembled_file_is_named(write):
+    # DR-F3: the narrative is not what gets indexed; the assembled file is.
+    assert write(tamper=lambda text: text)["problems"] == []
+    result = write(tamper=lambda text: text.replace(FACT, "The warehouse inspects returned items."))
+    assert any("fact F1 missing from the assembled file" in p for p in result["problems"])
 
 
 def test_a_faithful_writer_passes(write):

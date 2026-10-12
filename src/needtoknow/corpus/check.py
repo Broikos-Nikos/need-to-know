@@ -8,18 +8,33 @@ can come later.
 
 from __future__ import annotations
 
+import html
 import json
 import re
+import unicodedata
 from collections import Counter
 
 from needtoknow.corpus.assemble import parse_sections
+from needtoknow.corpus.mutate import corpus_files, read
 from needtoknow.corpus.plan import LABEL_EL, LABEL_EN, header
 from needtoknow.settings import data_dir
 
 LABELS = {**{v: k for k, v in LABEL_EN.items()}, **{v: k for k, v in LABEL_EL.items()}}
-# A number followed by a policy unit: a value a writer may have invented.
-POLICY_VALUE = re.compile(r"\b\d+(?:[.,]\d+)?\s*(?:%|days?|hours?|minutes?|months?|weeks?|years?|euros?|EUR|percent|kilograms?|"
-                          r"ημέρ\w*|ώρ\w*|λεπτ\w*|μήν\w*|μην\w*|εβδομάδ\w*|έτ\w*|ευρώ|τοις εκατό|κιλ\w*)", re.IGNORECASE)
+# A number with a policy unit, at most two words apart, in text without accents: a value a writer
+# may have invented. "3 working days", "εντός 3 εργάσιμων ημερών", "€250" and "30 €" all count (DR-F1).
+UNITS = (r"%|€|days?|hours?|minutes?|months?|weeks?|years?|euros?|eur|percent|kilograms?|kg|"
+         r"ημερ(?:α|ας|ες|ων)|ωρ(?:α|ας|ες|ων)|λεπτ(?:ο|α|ων)|μην(?:α|ας|ες|ων)|εβδομαδ(?:α|ας|ες|ων)|"
+         r"ετ(?:ος|η|ων|ους)|ευρω|τοις εκατο|κιλ(?:ο|α|ων)")
+POLICY_VALUE = re.compile(rf"€\s*\d+(?:[.,]\d+)?|\b\d+(?:[.,]\d+)?\s*(?:[^\W\d]+\s+){{0,2}}?(?:{UNITS})(?!\w)")
+
+
+def plain(text: str) -> str:
+    """Lower case without accents; Greek final sigma kept, which casefold would not."""
+    return "".join(c for c in unicodedata.normalize("NFD", text) if not unicodedata.combining(c)).lower()
+
+
+def policy_values(text: str) -> list[str]:
+    return [m.group(0) for m in POLICY_VALUE.finditer(plain(text))]
 
 
 def squash(text: str) -> str:
@@ -75,11 +90,35 @@ def check() -> dict:
             rest = flat
             for fid in planned["facts"]:
                 rest = rest.replace(squash(facts[fid][lang]), " ")
-            for match in POLICY_VALUE.finditer(rest):
+            for value in policy_values(rest):
                 report["values outside the facts"] += 1
-                invented.append(f"{doc['id']} section {n}: {match.group(0)}")
+                invented.append(f"{doc['id']} section {n}: {value}")
     full = base / "full"
-    files = [p for p in full.glob("*") if not p.name.endswith(".meta.json")] if full.is_dir() else []
+    files = [p for p in full.rglob("*") if p.is_file() and not p.name.endswith(".meta.json")] if full.is_dir() else []
     report["files assembled"] = len(files)
     report["megabytes"] = round(sum(p.stat().st_size for p in files) / 2**20, 1)
+    if files:
+        assembled_facts(full, facts, report, problems)
     return {"counts": dict(report), "problems": problems, "invented_examples": invented[:15]}
+
+
+def assembled_facts(full, facts: dict, report: Counter, problems: list[str]) -> None:
+    """Every placement in the files that will be indexed, each read by its sidecar's encoding, HTML unescaped (DR-F3)."""
+    found = corpus_files(full)
+    by_doc: dict[str, list[dict]] = {}
+    for f in facts.values():
+        for doc_id in f.get("placements", []):
+            by_doc.setdefault(doc_id, []).append(f)
+    for doc_id, here in by_doc.items():
+        report["placements in assembled files"] += len(here)
+        if doc_id not in found:
+            problems.append(f"{doc_id}: no assembled file")
+            continue
+        file, _, meta = found[doc_id]
+        text = read(file, meta)
+        flat = squash(html.unescape(text) if meta["format"] == "html" else text)
+        for f in here:
+            if squash(f[meta["language"]]) in flat:
+                report["placements found in assembled files"] += 1
+            else:
+                problems.append(f"{doc_id}: fact {f['id']} missing from the assembled file")
