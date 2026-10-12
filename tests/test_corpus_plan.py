@@ -34,6 +34,16 @@ def test_every_fact_is_planted_in_a_section_of_its_own_label():
             assert sections[(doc_id, f["id"])] == f["label"], (doc_id, f["id"])
 
 
+def test_no_document_repeats_a_heading():
+    # DR-F2: topics are drawn with replacement, so a repeat becomes "..., part 2".
+    _, docs = plan()
+    for doc in docs:
+        headings = [s["topic_en"] for s in doc["sections"]]
+        assert len(headings) == len(set(headings)), doc["id"]
+        greek = [s["topic_el"] for s in doc["sections"]]
+        assert len(greek) == len(set(greek)), doc["id"]
+
+
 def test_a_superseded_value_differs_from_the_one_that_replaced_it():
     facts, _ = plan()
     by_id = {f["id"]: f for f in facts}

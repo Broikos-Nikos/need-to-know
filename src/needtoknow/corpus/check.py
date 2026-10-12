@@ -13,7 +13,7 @@ import re
 from collections import Counter
 
 from needtoknow.corpus.assemble import parse_sections
-from needtoknow.corpus.plan import LABEL_EL, LABEL_EN
+from needtoknow.corpus.plan import LABEL_EL, LABEL_EN, header
 from needtoknow.settings import data_dir
 
 LABELS = {**{v: k for k, v in LABEL_EN.items()}, **{v: k for k, v in LABEL_EL.items()}}
@@ -49,6 +49,8 @@ def check() -> dict:
             audience = head[1].split(":", 1)[1].strip() if len(head) > 1 and ":" in head[1] else ""
             if LABELS.get(audience) != planned["label"]:
                 problems.append(f"{doc['id']} section {n}: audience {audience!r}, planned {planned['label']}")
+            if head[:1] != header(doc, n, planned)[:1]:
+                problems.append(f"{doc['id']} section {n}: heading {head[:1]}, planned {header(doc, n, planned)[0]!r}")
             flat = squash(body)
             words = len(flat.split())
             report["words"] += words

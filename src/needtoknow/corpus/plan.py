@@ -341,7 +341,22 @@ def make_catalogue(rng: random.Random, facts: list[dict]) -> list[dict]:
         for s in doc["sections"]:
             if s["label"] != "general" and rng.random() < 0.06:
                 s["canary"] = f"CANARY_{rng.randrange(16**6):06X}_{s['label'].upper().replace('-', '')}"
+    number_repeats(docs)
     return docs
+
+
+def number_repeats(docs: list[dict]) -> None:
+    """A heading drawn twice in one document becomes "..., part 2", so no file repeats a heading (DR-F2).
+
+    It runs after every random draw and after placement, so the facts, canaries and
+    writers' sections stay exactly where they were; only the repeated headings change.
+    """
+    for doc in docs:
+        seen: dict[str, int] = {}
+        for s in doc["sections"]:
+            seen[s["topic_en"]] = seen.get(s["topic_en"], 0) + 1
+            if seen[s["topic_en"]] > 1:
+                s["topic_en"], s["topic_el"] = f"{s['topic_en']}, part {seen[s['topic_en']]}", f"{s['topic_el']}, μέρος {seen[s['topic_en']]}"
 
 
 def place(rng: random.Random, docs: list[dict], facts: list[dict]) -> None:
