@@ -39,7 +39,7 @@ def test_each_reranker_puts_the_answer_first_in_either_language(mode, language):
 def test_the_cross_encoder_scores_the_shortest_pairs_together_and_answers_in_the_order_given(monkeypatch):
     # PF-F4: batches of 16 in rank order, each padded to its longest pair; sorted by length a question took 572 ms
     # instead of 843 on 10 questions, the same top 8.
-    import torch
+    torch = pytest.importorskip("torch")
     batches = []
 
     class Inputs(dict):
