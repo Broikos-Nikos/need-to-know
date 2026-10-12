@@ -9,6 +9,12 @@ model = "deepseek-flash"
 # A top level request field. Thinking is the API's default, so it is turned off
 # explicitly; an extra_body wrapper in raw JSON is silently ignored.
 thinking = "disabled"
+# What the answer layer sends with every question (T4.4): temperature 0, since hosted
+# output varies even there and the baseline repeats each item three times
+# (specs/evaluation.md section 4); and a cap far above a brief JSON answer, which a
+# reply cut short reports as length. E9 tries 0.3.
+temperature = 0.0
+max_tokens = 1024
 status = "evaluated"
 
 [deepseek.models.deepseek-flash]

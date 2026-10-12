@@ -1,0 +1,77 @@
+"""One question end to end (T4.4), with the search, the excerpts and the provider stood in for: the answer cache keyed
+by the prompt as sent, so a narrowed section is never answered from it (AC-F8); only normal replies kept; the settings
+read from the catalogue; and a spend log that holds numbers and hashes and no text."""
+
+import json
+
+import pytest
+
+from needtoknow.answer import pipeline
+from needtoknow.providers.call import Completion
+
+QUESTION = "What is the settlement ceiling?"
+SECRET = {"doc_id": "LEG_SET_004", "section_key": "k1", "labels": ["legal", "sales"], "path": ["Settlements", "Ceiling"],
+          "units": ["u1"], "rank": 1, "text": "The settlement ceiling is 2,000,000 EUR."}
+PUBLIC = {"doc_id": "SAL_PRO_033", "section_key": "k2", "labels": ["sales"], "path": ["Sales procedure", "Authorisation"],
+          "units": ["u2"], "rank": 2, "text": "Return authorisation is issued by the returns team."}
+
+
+@pytest.fixture
+def world(tmp_path, monkeypatch):
+    """What each role is shown, the provider's calls, and the stop reason it gives."""
+    monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path))
+    state = {"shown": {"sales": [SECRET, PUBLIC], "legal": [SECRET, PUBLIC]}, "calls": [], "stop": "stop"}
+    monkeypatch.setattr(pipeline, "search", lambda client, question, role, policy=None, **kw: [{"role": role}])
+    monkeypatch.setattr(pipeline, "expand", lambda hits: [dict(e) for e in state["shown"][hits[0]["role"]]])
+
+    def provider(system, messages, config=None, **settings):
+        state["calls"].append({"messages": messages, **settings})
+        found = "2,000,000" in messages[0]["content"]
+        reply = {"status": "answered", "answer": "2,000,000 EUR.", "citations": [1]} if found else \
+            {"status": "not_found", "answer": "", "citations": []}
+        return Completion(text=json.dumps(reply), reasoning="", usage={"input_hit": 0, "input_miss": 300, "output": 20,
+                                                                       "reasoning": 0},
+                          stop_reason=state["stop"], seconds=0.01, cost_usd=0.00006, model="deepseek-flash", attempts=1)
+
+    monkeypatch.setitem(pipeline.ADAPTERS, "deepseek", provider)
+    return state
+
+
+def test_a_narrowed_section_is_never_answered_from_the_cache(world):
+    first = pipeline.ask(None, QUESTION, "sales")
+    again = pipeline.ask(None, QUESTION, "sales")
+    assert (first["status"], first["citations"][0]["doc_id"], first["cached"]) == ("answered", "LEG_SET_004", False)
+    assert again["cached"] and len(world["calls"]) == 1
+    world["shown"]["sales"] = [PUBLIC]  # the ceiling's section narrowed to legal alone
+    after = pipeline.ask(None, QUESTION, "sales")
+    assert (after["status"], after["cached"], len(world["calls"])) == ("not_found", False, 2)
+    assert "2,000,000" not in json.dumps(after)
+    shared = pipeline.ask(None, QUESTION, "legal")  # shown the very text sales was shown first: both may read it
+    assert shared["cached"] and shared["status"] == "answered" and len(world["calls"]) == 2
+
+
+def test_only_a_reply_that_ended_normally_is_kept_and_the_settings_come_from_the_catalogue(world):
+    world["stop"] = "length"
+    pipeline.ask(None, QUESTION, "sales")
+    world["stop"] = "stop"
+    pipeline.ask(None, QUESTION, "sales")
+    assert len(world["calls"]) == 2  # the cut reply was not kept
+    sent = world["calls"][0]
+    assert (sent["thinking"], sent["as_json"], sent["max_tokens"], sent["temperature"]) == (False, True, 1024, 0.0)
+
+
+def test_the_spend_log_holds_numbers_and_no_text_and_sums(world):
+    pipeline.ask(None, QUESTION, "sales")
+    pipeline.ask(None, QUESTION, "sales")
+    world["shown"]["sales"] = [PUBLIC]
+    pipeline.ask(None, QUESTION, "sales")
+    raw = pipeline.spend_path().read_text(encoding="utf-8")
+    for text in (QUESTION, SECRET["text"], PUBLIC["text"], "2,000,000", "Settlements", "settlement"):
+        assert text not in raw, text
+    lines = [json.loads(line) for line in raw.splitlines()]
+    assert [line["cached"] for line in lines] == [False, True, False]
+    assert set(lines[0]["seconds"]) == {"search", "expand", "provider", "parse", "total"}
+    assert (lines[1]["usd"], lines[1]["attempts"]) == (0.0, 0)  # nothing billed for a cached answer
+    total = pipeline.spend()
+    assert (total["questions"], total["cached"], total["usd"]) == (3, 1, pytest.approx(0.00012))
+    assert total["tokens"]["input_miss"] == 600 and total["p95_seconds"] >= total["median_seconds"]
