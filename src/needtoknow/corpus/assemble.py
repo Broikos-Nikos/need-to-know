@@ -11,6 +11,7 @@ from __future__ import annotations
 import html
 import json
 import random
+import shutil
 from pathlib import Path
 
 from needtoknow.corpus.plan import LABEL_EL, LABEL_EN, SEED, world
@@ -118,8 +119,12 @@ def assemble(profile: str = "full") -> dict:
     docs = json.loads((base / "plan" / "catalogue.json").read_text(encoding="utf-8"))
     w = world()
     out = base / profile
-    out.mkdir(parents=True, exist_ok=True)
-    legacy = next(d["id"] for d in docs if d["language"] == "el" and d["format"] == "txt")
+    if out.exists():  # a fresh build: no file a mutation moved or added survives it
+        shutil.rmtree(out)
+    out.mkdir(parents=True)
+    (base / f"{profile}.journal.jsonl").unlink(missing_ok=True)
+    # One Greek text file keeps the legacy Windows-1253 encoding, when the catalogue has one.
+    legacy = next((d["id"] for d in docs if d["language"] == "el" and d["format"] == "txt"), None)
     report = {"written": 0, "missing": [], "bytes": 0}
     for doc in docs:
         source = base / "narrative" / f"{doc['id']}.txt"

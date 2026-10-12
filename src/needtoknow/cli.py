@@ -34,8 +34,10 @@ def build_parser() -> argparse.ArgumentParser:
     qdrant.add_argument("action", choices=("start", "stop", "status"))
     checkup = commands.add_parser("doctor", help="whether this machine can build and search the index, one line per check")
     checkup.add_argument("--offline", action="store_true", help="skip the live calls to DeepSeek")
-    corpus = commands.add_parser("corpus", help="plan the corpus, assemble it from the writers' narrative, or check it")
-    corpus.add_argument("action", choices=("plan", "assemble", "check"))
+    corpus = commands.add_parser("corpus", help="plan the corpus, assemble it from the writers' narrative, check it, or change it")
+    corpus.add_argument("action", choices=("plan", "assemble", "check", "mutate"))
+    corpus.add_argument("--count", type=int, default=9, help="mutate: how many changes to apply")
+    corpus.add_argument("--seed", type=int, default=1, help="mutate: the seed that picks documents and values")
     return parser
 
 
@@ -52,6 +54,11 @@ def cmd_corpus(args: argparse.Namespace, out=None) -> int:
         print(f"assembled {report['written']} files, {report['bytes'] / 2**20:.1f} MB; "
               f"missing narrative: {', '.join(report['missing']) or 'none'}", file=out)
         return 0 if not report["missing"] else 1
+    if args.action == "mutate":
+        from needtoknow.corpus.mutate import mutate
+        for entry in mutate(args.count, args.seed):
+            print(f"{entry['seq']:>3} {entry['kind']:<17} {entry['doc_id']:<14} {entry['expected']}", file=out)
+        return 0
     from needtoknow.corpus.check import check
     result = check()
     for key, value in result["counts"].items():
