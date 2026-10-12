@@ -39,7 +39,21 @@ def build_parser() -> argparse.ArgumentParser:
     corpus.add_argument("action", choices=("plan", "assemble", "check", "coverage", "mutate", "samples"))
     corpus.add_argument("--count", type=int, default=9, help="mutate: how many changes to apply")
     corpus.add_argument("--seed", type=int, default=1, help="mutate: the seed that picks documents and values")
+    ingest = commands.add_parser("ingest", help="cut the assembled corpus into units and record them in the manifest")
+    ingest.add_argument("action", choices=("build",))
     return parser
+
+
+def cmd_ingest(args: argparse.Namespace, out=None) -> int:
+    from needtoknow.ingest.manifest import build, manifest_path
+    out = out or sys.stdout
+    summary = build()
+    print(f"run {summary['run']}: files {summary['files']}, changed {summary['files_changed']}, removed "
+          f"{summary['files_removed']}; units added {summary['units_added']}, removed {summary['units_removed']}, "
+          f"in the manifest {summary['units_total']} ({manifest_path()})", file=out)
+    if summary["unknown_audiences"]:
+        print(f"audience names no label knows: {', '.join(summary['unknown_audiences'])}", file=out)
+    return 1 if summary["unknown_audiences"] else 0
 
 
 def cmd_coverage(out) -> int:
@@ -187,6 +201,8 @@ def main(argv: list[str] | None = None) -> int:
         return doctor.run(offline=args.offline, opener=OPENER)
     if args.command == "corpus":
         return cmd_corpus(args)
+    if args.command == "ingest":
+        return cmd_ingest(args)
     parser.print_help()
     return 0
 
