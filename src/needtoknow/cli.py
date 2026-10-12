@@ -145,7 +145,8 @@ def cmd_index(args: argparse.Namespace, out=None, client=None) -> int:
         from needtoknow.index.sync import sync
         done = sync(client, report=lambda line: print(line, file=out, flush=True))
         print(f"synced: units {done['units']}, points {done['points_before']} before and {done['points_after']} after; "
-              f"deleted {done['deleted']}, embedded {done['embedded']}, upserted {done['upserted']} in {done['seconds']:.0f} s",
+              f"deleted {done['deleted']}, embedded {done['embedded']}, upserted {done['upserted']} in {done['seconds']:.1f} s "
+              f"(" + ", ".join(f"{part} {seconds:.1f}" for part, seconds in done["parts"].items()) + ")",
               file=out, flush=True)
         return 0 if done["points_after"] == done["units"] else 1
     return 0

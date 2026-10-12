@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**91 findings, 61 closed, 30 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
+**91 findings, 65 closed, 26 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -74,18 +74,18 @@ An audit pass that killed the pipeline mid build and mid change. 5 findings, 5 c
 
 ## `MA`, the measurement auditor
 
-An audit pass on whether every number can be produced again. 9 findings, 3 closed.
+An audit pass on whether every number can be produced again. 9 findings, 5 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `MA-F1` | medium | fixed, tick 25 | Two commit messages carry numbers that no command in the repository produces (5547561: 24, 15, 9, 1; fbd9532: one file changed, 42 writes): commit the probes as a bench script, before numbers runnable on the parent commit, and only numbers a committed command prints go into commit messages |
 | `MA-F2` | low | open | 'N tests pass' counts this machine: 135 passed as built, 129 passed and 6 skipped without the GPU and the Qdrant binary; give passed and skipped and say which tests need what |
-| `MA-F3` | low | open | The doctor's 15 GB floor has no measurement behind it (the data directory holds 415 MB): measure the full build's peak disk use and set the floor from it |
+| `MA-F3` | low | fixed, tick 71 | The doctor's 15 GB floor has no measurement behind it (the data directory holds 415 MB): measure the full build's peak disk use and set the floor from it |
 | `MA-F4` | low | fixed, tick 39 | 35974c7 states the plan's 22 percent as what hr's filter sends (measured about 5 percent), and labels.toml promises an `ntk corpus verify` that does not exist: the coverage report prints planned and measured shares and the comment names it |
 | `MA-F5` | low | fixed, tick 26 | Finding ids in commits and code resolve to no document in the repository (D20): docs/AUDITS.md lists every cited id, and a gate fails on any it lacks |
 | `MA-F6` | medium | open | c079ead says a revocation lands inside 5 s; at HEAD it takes 5.2 to 5.6 s, and a grant waits for the watcher's start up catch up |
 | `MA-F7` | low | open | 7772c46 quotes 16 of 17 (94 percent) from documents_v1, which no committed command can rebuild now |
-| `MA-F8` | low | open | The sync's printed seconds leave out the reading that is most of a quiet sync, and its docstring's quarter of a minute has no command |
+| `MA-F8` | low | fixed, tick 71 | The sync's printed seconds leave out the reading that is most of a quiet sync, and its docstring's quarter of a minute has no command |
 | `MA-F9` | low | open | docs/AUDITS.md quotes auditors' probes that the repository does not hold |
 
 ## `MT`, the maintainer in six months
@@ -144,17 +144,17 @@ An audit pass of ten seconds on the first screen, by someone who hires but does 
 
 ## `PF`, the performance auditor
 
-An audit pass on time, memory and disk, its page half waiting for the page. 3 findings, 2 closed.
+An audit pass on time, memory and disk, its page half waiting for the page. 3 findings, 3 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `PF-F1` | medium | fixed, tick 70 | More than half of ingestion is spent copying row objects (segments 35 percent, structure 20): labels and safe paths in one pass and one copy, measured again before the full build |
-| `PF-F2` | low | open | The manifest is 1.7 times the corpus, its paths repeated on every unit: paths once per section, and the manifest counted in the disk floor |
+| `PF-F2` | low | fixed, tick 71 | The manifest is 1.7 times the corpus, its paths repeated on every unit: paths once per section, and the manifest counted in the disk floor |
 | `PF-F3` | low | fixed, tick 70 | Memory peaks at 19 times the size of the file being cut (158 MB for 8.43 MB): say the limit, stream by section if larger files arrive |
 
 ## `KB1`, the plan, reviewed against a knowledge base
 
-A separate session's review of the plan against the author's research notes. 15 findings, 8 closed.
+A separate session's review of the plan against the author's research notes. 15 findings, 9 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -169,7 +169,7 @@ A separate session's review of the plan against the author's research notes. 15 
 | `KB1-F9` | medium | open | Planted facts are too salient: a salience plan per fact recorded in the registry, and a noise pass (page headers and footers, cross references, numbering drift, typos) over layers A and B |
 | `KB1-F10` | medium | fixed, tick 43 | Unit rules: list runs as one block, units under about 30 tokens merged into the next in the same segment and heading, audience and classification lines moved to the payload, table header repeated per row group |
 | `KB1-F11` | low | open | The KB session is not a domain expert: 10 seed questions from real public documents with no company in them (EU consumer law, the Greek regulator's consumer rules); five generated Greek samples offered to the owner for a naturalness read |
-| `KB1-F12` | low | open | N7's arithmetic is wrong: about 6 million sentence units fit as int8 in 16 GB; plan E6 on the full profile after a peak RAM measurement on the small one |
+| `KB1-F12` | low | fixed, tick 71 | N7's arithmetic is wrong: about 6 million sentence units fit as int8 in 16 GB; plan E6 on the full profile after a peak RAM measurement on the small one |
 | `KB1-F13` | low | fixed, tick 50 | The 2.6 and 4.1 points are a title prefix, not the heading path; cite each number for what it measured |
 | `KB1-F14` | low | fixed, tick 42 | After NFC the Greek question mark is a semicolon that Punkt does not split on: a Greek sentence end rule and a unit test on the sentence Τι ώρα είναι; Είναι πέντε. |
 | `KB1-F15` | low | fixed, tick 51 | Lexical analyser: stem per token by script, stopword lists for both languages, average unit length frozen per index version |

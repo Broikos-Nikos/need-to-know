@@ -30,6 +30,9 @@ produces it.
 * Ingestion holds one file at a time, so its memory follows the largest file, not
   the corpus, at about 14 times that file's size; a file of a hundred megabytes or
   more would want cutting a section at a time: `uv run python bench/ingest_steps.py`.
+* The full build, from the assembled corpus to a searchable index, runs phase by
+  phase with the memory and disk each needs, about 80 minutes here, an hour of it
+  embedding on the GPU: `uv run python bench/full_build.py --fresh`.
 * Every unit is embedded as its passage, its heading path above its text, and kept
   in a cache under that passage, so a second run, a relabel or a rebuilt index
   embeds nothing again; a passage longer than the model takes is refused, never

@@ -154,3 +154,22 @@ uv run python bench/ingest_steps.py
 git worktree add ../ntk-before 4659edd
 PYTHONPATH=../ntk-before/src uv run python bench/ingest_steps.py
 ```
+
+## full_build.py
+
+The full build, timed: with `--fresh` it deletes the manifest, the vector cache, the
+lexical statistics, the frequency table and the collection, then runs `ntk ingest build`,
+`ntk embed`, `ntk index create` and `ntk index sync`, each in a process of its own that
+reads its own peak working set and CPU seconds as it ends, and waits for Qdrant to finish
+indexing, Qdrant started afresh so its peaks are this build's. Every phase prints its
+seconds, those peaks, the share of the machine busy meanwhile, and the data directory's
+largest size, sampled every second; then the manifest's bytes by column. `--serving N`
+restarts Qdrant on the built index instead and prints its memory once loaded and after N
+questions as admin. It needs the assembled corpus, the `embed` extra, the GPU and the
+server's binary, and takes about 80 minutes on this machine. `config/build.toml` records the
+disk peak the doctor's floor comes from.
+
+```
+uv run python bench/full_build.py --fresh
+uv run python bench/full_build.py --serving 50
+```

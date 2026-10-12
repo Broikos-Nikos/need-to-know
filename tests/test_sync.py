@@ -2,6 +2,7 @@
 the cache by passage, deletes before upserts, a killed sync finished by the next, and two in a row changing nothing."""
 
 import json
+import re
 
 import numpy as np
 import pytest
@@ -126,6 +127,25 @@ def test_ntk_index_sync_says_what_it_did_and_fails_when_the_counts_disagree(worl
     monkeypatch.setattr(loader, "held", lambda client, doc_ids=None: set())  # a collection that seems empty: every unit upserted again
     monkeypatch.setattr(client, "count", lambda *a, **k: type("Count", (), {"count": 3})())
     assert cmd_index(argparse.Namespace(action="sync"), client=client) == 1
+
+
+def test_a_syncs_seconds_count_its_reading_and_are_printed_by_part(world, capsys, monkeypatch):
+    # MA-F8: the seconds started after the manifest and the point ids were read, so a quiet sync of the corpus, 17 s
+    # at the wall clock, printed 0 s.
+    import argparse
+    import time
+
+    from needtoknow.cli import cmd_index
+    client, _, _ = world
+    real = loader.held
+    monkeypatch.setattr(loader, "held", lambda *a, **k: time.sleep(0.3) or real(*a, **k))
+    done = loader.sync(client)
+    assert list(done["parts"]) == ["read", "deletes", "embedding", "upserts", "check"]
+    assert done["parts"]["read"] >= 0.3 and done["seconds"] >= sum(done["parts"].values()) >= 0.3
+    assert cmd_index(argparse.Namespace(action="sync"), client=client) == 0
+    shown = re.search(r"upserted 0 in ([\d.]+) s \(read ([\d.]+), deletes [\d.]+, embedding [\d.]+, upserts [\d.]+, "
+                      r"check [\d.]+\)", capsys.readouterr().out)
+    assert shown and float(shown.group(1)) >= 0.3 and float(shown.group(2)) >= 0.3
 
 
 def test_a_sync_of_some_documents_compares_those_alone(world):

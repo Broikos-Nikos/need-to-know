@@ -49,7 +49,19 @@ def test_too_little_free_disk_fails_the_data_check(monkeypatch):
     usage = namedtuple("usage", "total used free")
     monkeypatch.setattr(doctor.shutil, "disk_usage", lambda _path: usage(100 * 2**30, 99 * 2**30, 1 * 2**30))
     ok, detail = doctor.check_data({})
-    assert not ok and f"under the {doctor.MIN_FREE_GB} GB" in detail
+    assert not ok and f"under the {doctor.min_free_gb()} GB" in detail
+
+
+def test_the_disk_floor_is_a_measured_full_builds_peak_half_again():
+    # MA-F3: the floor was 15 GB with nothing measured behind it; it is now the data directory's peak during a full
+    # build, recorded beside the command that printed it.
+    import math
+    import tomllib
+
+    from needtoknow.settings import repo_root
+    text = (repo_root() / "config" / "build.toml").read_text(encoding="utf-8")
+    assert "bench/full_build.py --fresh" in text
+    assert doctor.min_free_gb() == math.ceil(tomllib.loads(text)["measured"]["peak_data_dir_gb"] * 1.5)
 
 
 def test_a_missing_model_comes_with_the_command_that_fetches_its_pinned_revision(monkeypatch):

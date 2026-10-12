@@ -8,8 +8,10 @@ present, and the test suite checks that they work.
 
 from __future__ import annotations
 
+import math
 import shutil
 import sys
+import tomllib
 import urllib.request
 
 from needtoknow import policy
@@ -17,11 +19,16 @@ from needtoknow.eval.protocol import load_protocol
 from needtoknow.index import server
 from needtoknow.providers import deepseek_account
 from needtoknow.providers.catalog import load_catalog
-from needtoknow.settings import data_dir, setting
+from needtoknow.settings import data_dir, repo_root, setting
 
 GREEK = "Ελληνικά"
-# What the full build keeps under NTK_DATA_DIR, from PLAN section 8.
-MIN_FREE_GB = 15
+
+
+def min_free_gb() -> int:
+    """The free disk a full build needs: the data directory's peak during one, as config/build.toml records it from
+    bench/full_build.py, half again for headroom (MA-F3)."""
+    measured = tomllib.loads((repo_root() / "config" / "build.toml").read_text(encoding="utf-8"))["measured"]
+    return math.ceil(measured["peak_data_dir_gb"] * 1.5)
 
 
 def check_python(_context: dict) -> tuple[bool, str]:
@@ -37,9 +44,9 @@ def check_console(context: dict) -> tuple[bool, str]:
 def check_data(_context: dict) -> tuple[bool, str]:
     path = data_dir()
     existing = next(p for p in (path, *path.parents) if p.exists())
-    free = shutil.disk_usage(existing).free / 2**30
-    shortfall = "" if free >= MIN_FREE_GB else f", under the {MIN_FREE_GB} GB the full build needs"
-    return free >= MIN_FREE_GB, f"{path}, {free:.0f} GB free{shortfall}"
+    free, floor = shutil.disk_usage(existing).free / 2**30, min_free_gb()
+    need = f", {floor} GB a full build needs" if free >= floor else f", under the {floor} GB the full build needs"
+    return free >= floor, f"{path}, {free:.0f} GB free{need}"
 
 
 def check_config(_context: dict) -> tuple[bool, str]:

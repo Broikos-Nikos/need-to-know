@@ -19,7 +19,9 @@ against the index's own counts, recounting from the index when they differ: a sy
 killed between the two stores leaves the table wrong otherwise, and no later sync,
 finding index and manifest agreed, would notice (OP-F5). Given the documents a scan changed, it compares those
 alone, through the payload index on `doc_id`, which is what the watcher asks for: a
-whole comparison reads every unit and every point id, a quarter of a minute.
+whole comparison reads every unit and every point id. Its seconds count from the start,
+and `ntk index sync` prints them by part: the reading, the deletes, the embedding, the
+upserts and the closing check (MA-F8).
 """
 
 from __future__ import annotations
@@ -69,6 +71,15 @@ def _sync(client, manifest: Path | None, report, doc_ids: list[str] | None) -> d
 
     from needtoknow.ingest.manifest import opened as manifest_opened
 
+    began = mark = time.perf_counter()
+    parts: dict[str, float] = {}  # seconds by part, from the start: a quiet sync is mostly its reading (MA-F8)
+
+    def lap(name: str) -> None:
+        nonlocal mark
+        now = time.perf_counter()
+        parts[name] = now - mark
+        mark = now
+
     stats = lexical.frozen()
     with manifest_opened(manifest) as db:
         query = 'SELECT unit_id, doc_id, section_key, layer, labels, path, text, start, "end", language FROM units'
@@ -81,8 +92,8 @@ def _sync(client, manifest: Path | None, report, doc_ids: list[str] | None) -> d
     stale = sorted(present - set(wanted))
     todo = [wanted[pid] for pid in sorted(set(wanted) - present)]
     summary = {"units": len(wanted), "points_before": len(present), "deleted": len(stale), "upserted": 0,
-               "embedded": 0, "seconds": 0.0}
-    started = time.perf_counter()
+               "embedded": 0, "seconds": 0.0, "parts": parts}
+    lap("read")
     with frequencies.opened(COLLECTION) as counts, cache.opened() as vectors:
         for start in range(0, len(stale), BATCH * 4):
             part = stale[start:start + BATCH * 4]
@@ -90,6 +101,7 @@ def _sync(client, manifest: Path | None, report, doc_ids: list[str] | None) -> d
             client.delete(COLLECTION, points_selector=models.PointIdsList(points=part), wait=True)
             frequencies.count(counts, [(r.payload["label_set"], r.vector[SPARSE].indices) for r in gone], -1)
             counts.commit()
+        lap("deletes")
         texts = [passage(json.loads(row[5]), row[6]) for row in todo]
         keys = [cache.passage_key(text) for text in texts]
         absent = cache.missing(vectors, keys)
@@ -99,6 +111,7 @@ def _sync(client, manifest: Path | None, report, doc_ids: list[str] | None) -> d
                 if key in absent:
                     first.setdefault(key, (row[0], text))
             summary["embedded"] = cache.embed(vectors, list(first.items()))["embedded"]
+        lap("embedding")
         for start in range(0, len(todo), BATCH):
             part, part_texts = todo[start:start + BATCH], texts[start:start + BATCH]
             dense = cache.read(vectors, keys[start:start + BATCH])
@@ -113,12 +126,14 @@ def _sync(client, manifest: Path | None, report, doc_ids: list[str] | None) -> d
             counts.commit()
             summary["upserted"] += len(part)
             if report and (summary["upserted"] % (BATCH * 200) == 0 or summary["upserted"] == len(todo)):
-                report(f"upserted {summary['upserted']} of {len(todo)} points, {time.perf_counter() - started:.0f} s")
+                report(f"upserted {summary['upserted']} of {len(todo)} points, {time.perf_counter() - began:.0f} s")
+        lap("upserts")
     with frequencies.opened(COLLECTION) as counts:
         summary["drift"] = frequencies.drift(counts, client, COLLECTION)
         summary["recounted"] = frequencies.recount(counts, client, COLLECTION) if summary["drift"] else 0
-    summary["seconds"] = time.perf_counter() - started
     summary["points_after"] = client.count(COLLECTION, exact=True).count
+    lap("check")
+    summary["seconds"] = time.perf_counter() - began
     if doc_ids is not None:
         summary["documents"] = len(set(doc_ids))
     return summary
