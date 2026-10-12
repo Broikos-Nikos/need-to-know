@@ -186,3 +186,19 @@ disk peak the doctor's floor comes from.
 uv run python bench/full_build.py --fresh
 uv run python bench/full_build.py --serving 50
 ```
+
+## permission_suite.py
+
+The permission suite at retrieval level (`specs/evaluation.md` section 6, items 1 to 3):
+each label's probes, half prose and half tables, asked as every role the policy defines,
+a user holding two roles, a user with only `general`, and sales with a membership removed
+from the policy in memory, each three ways 100 deep, the dense search alone, the sparse
+alone and their fusion, which is the reranker's input. Any unit a case may not read is
+counted, and the suite exits 1 on one; for the cases that may read a probe's unit, how
+often it comes back in the fused top 10 and top 100. It needs the manifest, the vector
+cache, the `embed` extra and the index on the running server, and takes about three
+minutes. The prompt, citations, caches and canaries join it with the answers, at P5.
+
+```
+uv run python bench/permission_suite.py
+```
