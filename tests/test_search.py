@@ -1,0 +1,116 @@
+"""The query (T3.5) in Qdrant's local mode, with a stand in for the question encoder: every role's filter in both
+forms, the filter inside each search rather than after it, fusion by reciprocal rank, and nothing but ranks out."""
+
+import numpy as np
+import pytest
+from qdrant_client import QdrantClient, models
+
+from needtoknow.index.collection import COLLECTION, DENSE, SPARSE, ensure, payload, point_id
+from needtoknow.index.search import FORMS, RRF_K, role_filter, search
+from needtoknow.lexical import document, frozen
+from needtoknow.policy import PolicyError, load_policy, readable
+
+pytestmark = pytest.mark.filterwarnings("ignore:Payload indexes have no effect in the local Qdrant")
+QUESTION = np.random.default_rng(1).normal(size=1024).astype(np.float32)
+QUESTION /= np.linalg.norm(QUESTION)
+
+
+def near(seed: int, distance: float) -> np.ndarray:
+    """A unit vector at roughly the given distance from the question."""
+    noise = np.random.default_rng(seed).normal(size=1024).astype(np.float32)
+    vector = QUESTION + distance * noise / np.linalg.norm(noise)
+    return vector / np.linalg.norm(vector)
+
+
+UNITS = ([(f"secret{n}", ["legal"], "Legal note on matters of counsel.", near(100 + n, 0.1)) for n in range(50)]
+         + [("open", ["general"], "Shops open at nine on weekdays.", near(2, 0.8)),
+            ("sales", ["sales"], "The settlement ceiling for sales claims is set each quarter.", near(3, 0.9)),
+            ("lost", ["unlabelled"], "Text under an audience no label knows.", near(4, 0.2))])
+
+
+@pytest.fixture
+def client(monkeypatch, tmp_path):
+    monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path))
+    client = QdrantClient(location=":memory:")
+    ensure(client, lambda: (text for _, _, text, _ in UNITS))
+    avgdl = frozen()["avgdl"]
+    points = []
+    for unit, labels, text, vector in UNITS:
+        indices, values = document(text, avgdl)
+        points.append(models.PointStruct(id=point_id(unit), vector={DENSE: vector.tolist(),
+                                         SPARSE: models.SparseVector(indices=indices, values=values)},
+                                         payload=payload(unit, "DOC", "key", "prose", labels, (), 0, 1, "en")))
+    client.upsert(COLLECTION, points=points)
+    return client
+
+
+def ask(client, question="settlement ceiling", role="sales", **kwargs):
+    return search(client, question, role, encode=lambda texts: np.vstack([QUESTION] * len(texts)), **kwargs)
+
+
+@pytest.mark.parametrize("form", FORMS)
+def test_no_role_gets_a_unit_it_may_not_read_in_either_filter_form(client, form):
+    policy = load_policy()
+    labels = {unit: set(unit_labels) for unit, unit_labels, _, _ in UNITS}
+    for role in policy["roles"]:
+        found = {hit["unit_id"] for hit in ask(client, role=role, form=form)}
+        allowed = {unit for unit, unit_labels in labels.items() if unit_labels & readable(policy, role)}
+        assert found == allowed, (role, form)
+    assert len(found) == len(UNITS)  # the last role is the administrator, who reads everything by the policy
+
+
+def test_the_filter_is_inside_the_search_so_closer_forbidden_units_take_no_place(client):
+    # Fifty legal units sit closer to the question than anything sales may read, and a question of stopwords leaves
+    # the dense side alone: with the filter applied after its top 1, sales would get nothing.
+    assert [hit["unit_id"] for hit in ask(client, question="the and of", role="sales", limit=1)] == ["open"]
+
+
+def test_every_search_and_the_fusion_carry_the_roles_filter(client, monkeypatch):
+    # Qdrant also pushes the outer filter into each search; the code does not lean on that.
+    sent = {}
+    real = client.query_points
+    monkeypatch.setattr(client, "query_points", lambda *args, **kwargs: sent.update(kwargs) or real(*args, **kwargs))
+    ask(client, question="settlement ceiling", role="sales")
+    expected = role_filter(load_policy(), "sales")
+    assert len(sent["prefetch"]) == 2 and all(p.filter == expected for p in sent["prefetch"])
+    assert sent["query_filter"] == expected
+
+
+def test_a_unit_both_searches_find_comes_before_one_only_the_dense_side_finds(client):
+    hits = ask(client, question="settlement ceiling", role="sales")
+    assert [hit["unit_id"] for hit in hits] == ["sales", "open"]  # open is nearer, sales is found by both sides
+    assert hits[0]["score"] == pytest.approx(1 / (RRF_K + 1) + 1 / (RRF_K + 2))
+
+
+def test_only_ranks_and_fused_scores_leave_the_search(client):
+    hits = ask(client)
+    assert all(set(hit) == {"unit_id", "rank", "score"} for hit in hits) and [h["rank"] for h in hits] == [1, 2]
+    assert all(hit["score"] <= 2 / (RRF_K + 1) for hit in hits)
+
+
+def test_a_question_of_stopwords_alone_still_searches_the_dense_side(client):
+    assert [hit["unit_id"] for hit in ask(client, question="the and of", role="sales")] == ["open", "sales"]
+
+
+def test_a_role_the_policy_does_not_define_is_refused(client):
+    with pytest.raises(PolicyError, match="no role named 'board'"):
+        ask(client, role="board")
+
+
+def test_ntk_search_prints_what_the_role_may_read_and_refuses_an_unknown_role(client, monkeypatch, capsys):
+    import argparse
+    import json
+
+    from needtoknow.cli import cmd_search
+    from needtoknow.embed import model
+    from needtoknow.ingest.manifest import opened
+    with opened() as db:
+        db.execute("INSERT INTO files VALUES ('DOC', 'doc.md', 1, 1, 1, 1, 'h', 'md', 'utf-8', 'en', 'v', 1)")
+        db.executemany("INSERT INTO units VALUES (?, 'DOC', 'key', 'prose', ?, '[]', ?, 0, 1, 'en', 1)",
+                       [(unit, json.dumps(labels), text) for unit, labels, text, _ in UNITS])
+    monkeypatch.setattr(model, "encode", lambda texts: np.vstack([QUESTION] * len(texts)))
+    question = argparse.Namespace(question="settlement ceiling", role="sales", form="labels", limit=10)
+    assert cmd_search(question, client=client) == 0
+    lines = capsys.readouterr().out.splitlines()
+    assert len(lines) == 2 and "sales" in lines[0] and "settlement ceiling" in lines[0] and "general" in lines[1]
+    assert cmd_search(argparse.Namespace(question="x", role="board", form="labels", limit=10), client=client) == 1

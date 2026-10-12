@@ -44,6 +44,11 @@ def build_parser() -> argparse.ArgumentParser:
     ingest.add_argument("--interval", type=float, default=1.0, help="watch: seconds between looks at the corpus folder")
     index = commands.add_parser("index", help="create the Qdrant collection, or bring it to the manifest")
     index.add_argument("action", choices=("create", "sync"))
+    find = commands.add_parser("search", help="the candidates a role's question finds, fused, best first")
+    find.add_argument("question")
+    find.add_argument("--as", dest="role", required=True, help="a role of config/policy.toml")
+    find.add_argument("--form", choices=("labels", "label_set"), default="labels", help="the filter's form (KB1-F3)")
+    find.add_argument("--limit", type=int, default=10)
     embed = commands.add_parser("embed", help="embed every unit of the manifest whose passage the vector cache lacks")
     embed.add_argument("--budget", type=int, help="padded tokens per batch; config/models.toml sets the default")
     return parser
@@ -127,6 +132,29 @@ def cmd_index(args: argparse.Namespace, out=None, client=None) -> int:
               f"deleted {done['deleted']}, embedded {done['embedded']}, upserted {done['upserted']} in {done['seconds']:.0f} s",
               file=out, flush=True)
         return 0 if done["points_after"] == done["units"] else 1
+    return 0
+
+
+def cmd_search(args: argparse.Namespace, out=None, client=None) -> int:
+    """A role's question through the retrieval API: rank, fused score, document, labels and the start of the unit."""
+    import json
+
+    from needtoknow.index.search import search
+    from needtoknow.ingest.manifest import opened
+    from needtoknow.policy import PolicyError
+    out = out or sys.stdout
+    try:
+        hits = search(client or server.client(), args.question, args.role, form=args.form, limit=args.limit)
+    except (PolicyError, server.ServerError) as error:
+        print(f"search: {error}", file=out, flush=True)
+        return 1
+    with opened() as db:
+        for hit in hits:
+            doc_id, labels, text = db.execute("SELECT doc_id, labels, text FROM units WHERE unit_id = ?",
+                                              (hit["unit_id"],)).fetchone()
+            line = " ".join(text.split())
+            print(f"{hit['rank']:>3} {hit['score']:.4f} {doc_id:<12} {'+'.join(json.loads(labels)):<14} {line[:90]}",
+                  file=out, flush=True)
     return 0
 
 
@@ -283,6 +311,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_embed(args)
     if args.command == "index":
         return cmd_index(args)
+    if args.command == "search":
+        return cmd_search(args)
     parser.print_help()
     return 0
 
