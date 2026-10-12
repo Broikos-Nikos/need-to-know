@@ -6,6 +6,8 @@ import secrets
 import socket
 import subprocess
 
+from pathlib import Path
+
 import pytest
 
 import needtoknow.settings
@@ -140,3 +142,16 @@ def test_live_server_that_answers_without_the_key_is_stopped(isolated, monkeypat
     with pytest.raises(server.ServerError, match="answered without the API key"):
         server.start(isolated)
     assert server.running(isolated) is None and server.http_status(isolated, "/readyz") is None
+
+
+def test_stop_says_so_when_the_process_outlives_its_wait_and_keeps_the_pid_file(monkeypatch, tmp_path):
+    # DR-F5: it reported the pid stopped and deleted the pid file while the process still ran.
+    monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path))
+    server.pid_file().parent.mkdir(parents=True)
+    server.pid_file().write_text("4242")
+    monkeypatch.setattr(server, "image_path", lambda pid: Path("qdrant.exe"))
+    monkeypatch.setattr(server, "is_ours", lambda pid, config: True)
+    monkeypatch.setattr(server, "terminate", lambda pid: None)
+    with pytest.raises(server.ServerError, match="still runs after 0 s"):
+        server.stop(CONFIG, timeout=0.2)
+    assert server.pid_file().exists()

@@ -190,7 +190,25 @@ def stop(config: dict, timeout: float = 10.0) -> int | None:
         raise ServerError(f"pid {pid} in {path} is {found}, not this project's Qdrant; not stopping it")
     terminate(pid)
     began = time.perf_counter()
-    while image_path(pid) is not None and time.perf_counter() - began < timeout:
+    while image_path(pid) is not None:
+        if time.perf_counter() - began > timeout:  # DR-F5: never report a server stopped that still runs
+            raise ServerError(f"pid {pid} was told to stop and still runs after {timeout:.0f} s; {path} is kept")
         time.sleep(0.05)
     path.unlink()
     return pid
+
+
+def client(config: dict | None = None):
+    """A client of this project's server, with the key from the environment or .env."""
+    import warnings
+
+    from qdrant_client import QdrantClient
+
+    config = config or load_config()
+    key = setting(config["key_env"])
+    if not key:
+        raise ServerError(f"{config['key_env']} is not set; ntk qdrant start writes one into .env")
+    with warnings.catch_warnings():  # the key travels over http, on the loopback interface only
+        warnings.filterwarnings("ignore", message="Api key is used with an insecure connection")
+        return QdrantClient(url=f"http://{config['host']}:{config['http_port']}", api_key=key, prefer_grpc=False,
+                            timeout=120)

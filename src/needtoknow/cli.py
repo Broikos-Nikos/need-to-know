@@ -42,6 +42,8 @@ def build_parser() -> argparse.ArgumentParser:
     ingest = commands.add_parser("ingest", help="cut the assembled corpus into units and record them in the manifest")
     ingest.add_argument("action", choices=("build", "scan", "watch"))
     ingest.add_argument("--interval", type=float, default=1.0, help="watch: seconds between looks at the corpus folder")
+    index = commands.add_parser("index", help="create the Qdrant collection, or check the one there")
+    index.add_argument("action", choices=("create",))
     embed = commands.add_parser("embed", help="embed every unit of the manifest whose passage the vector cache lacks")
     embed.add_argument("--budget", type=int, help="padded tokens per batch; config/models.toml sets the default")
     return parser
@@ -96,6 +98,27 @@ def cmd_embed(args: argparse.Namespace, out=None) -> int:
     print(f"units {summary['units']}; passages cached before {summary['cached']}, missing {summary['missing']}, "
           f"embedded {summary['embedded']}: {summary['tokens']} tokens in {summary['seconds']:.0f} s{rate}; "
           f"{summary['model']} in {summary['path']}", file=out, flush=True)
+    return 0
+
+
+def cmd_index(args: argparse.Namespace, out=None, client=None) -> int:
+    """Create the collection, freezing the lexical statistics over the manifest, or check the one there (T3.3)."""
+    import json
+
+    from needtoknow.index.collection import COLLECTION, CollectionError, ensure
+    from needtoknow.ingest.manifest import opened
+    from needtoknow.ingest.units import passage
+    out = out or sys.stdout
+    try:
+        client = client or server.client()
+        with opened() as db:
+            result = ensure(client, lambda: (passage(json.loads(p), t) for p, t in db.execute("SELECT path, text FROM units")))
+    except (CollectionError, server.ServerError) as error:
+        print(f"index: {error}", file=out, flush=True)
+        return 1
+    stats = result["lexical"]
+    print(f"{COLLECTION}: {'created' if result['created'] else 'already there, and of this shape'}; lexical statistics "
+          f"frozen over {stats['passages']} passages, avgdl {stats['avgdl']:.2f}", file=out, flush=True)
     return 0
 
 
@@ -250,6 +273,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_ingest(args)
     if args.command == "embed":
         return cmd_embed(args)
+    if args.command == "index":
+        return cmd_index(args)
     parser.print_help()
     return 0
 

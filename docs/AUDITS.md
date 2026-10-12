@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**82 findings, 49 closed, 33 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
+**82 findings, 50 closed, 32 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -41,7 +41,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 
 ## `DR`, the deep reviewer
 
-An audit pass on correctness, read in the logic rather than the comments. 14 findings, 12 closed.
+An audit pass on correctness, read in the logic rather than the comments. 14 findings, 13 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -49,7 +49,7 @@ An audit pass on correctness, read in the logic rather than the comments. 14 fin
 | `DR-F2` | medium | fixed, tick 17 | 140 of 160 documents repeat a section heading (247 of 900 sections); rename repeats in plan and narrative together before ingestion |
 | `DR-F3` | low | fixed, tick 18 | The light check reads the narrative, not the assembled files (207 of 207 present there, measured) |
 | `DR-F4` | low | fixed, tick 35 | The Windows-1253 file is written with errors=replace (0 lost characters today) |
-| `DR-F5` | low | open | server.stop reports a pid stopped after its wait times out |
+| `DR-F5` | low | fixed, tick 56 | server.stop reports a pid stopped after its wait times out |
 | `DR-F6` | low | fixed, tick 22 | The simulator counts journal lines through an unclosed file |
 | `DR-F7` | high | fixed, tick 53 | A change to the steps that decide text and labels never reaches the manifest: VERSIONS leaves out decode and segments, and build keeps units whenever the content hash matches |
 | `DR-F8` | high | fixed, tick 54 | An audience line followed by text in the same paragraph is not read, and the text takes the inherited audience |
