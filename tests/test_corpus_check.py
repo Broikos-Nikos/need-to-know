@@ -25,14 +25,15 @@ def write(monkeypatch, tmp_path):
     (base / "plan" / "catalogue.json").write_text(json.dumps([doc]), encoding="utf-8")
     (base / "plan" / "facts.json").write_text(json.dumps([fact]), encoding="utf-8")
 
-    def narrative(first_heading=None, body=f"{PROSE}{FACT}", tamper=None):
+    def narrative(first_heading=None, body=f"{PROSE}{FACT}", tamper=None, assembled=True):
         heads = [header(doc, n, s) for n, s in enumerate(doc["sections"], 1)]
         if first_heading:
             heads[1][0] = first_heading
         text = "\n".join(heads[0] + ["", body, ""] + heads[1] + ["", PROSE, ""])
         (base / "narrative" / "RET_PRO_001.txt").write_text(text, encoding="utf-8")
-        if tamper is not None:
+        if assembled:
             assemble.assemble()
+        if tamper is not None:
             path = base / "full" / "RET_PRO_001.txt"
             path.write_bytes(tamper(path.read_bytes().decode("utf-8")).encode("utf-8"))
         return check.check()
@@ -61,6 +62,11 @@ def test_a_fact_missing_from_the_assembled_file_is_named(write):
 def test_a_faithful_writer_passes(write):
     result = write()
     assert result["problems"] == [] and result["counts"]["facts found"] == 1
+
+
+def test_a_corpus_never_assembled_is_named(write):
+    # OP-F1: a check that passes with no corpus would pass a swap killed halfway.
+    assert write(assembled=False)["problems"] == ["full/: no assembled corpus"]
 
 
 def test_a_heading_that_drifted_from_the_plan_is_named(write):

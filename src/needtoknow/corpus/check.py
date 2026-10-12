@@ -1,9 +1,9 @@
 """A light check of the corpus: every planted fact where it was registered and nowhere it was not, headers
 that parse, canaries in place, the language each file claims, and prose that invents no policy value.
 
-Light on purpose: it reads the writers' narrative, where every risk to consistency
-lives, and counts the assembled files and their sizes. The full verifier (T1.8)
-can come later.
+It reads the writers' narrative, where the risks to consistency start, and then the
+assembled files that get indexed: one file and one sidecar for every catalogue
+document, nothing the change journal does not explain, and every placed fact present.
 """
 
 from __future__ import annotations
@@ -97,23 +97,66 @@ def check() -> dict:
     files = [p for p in full.rglob("*") if p.is_file() and not p.name.endswith(".meta.json")] if full.is_dir() else []
     report["files assembled"] = len(files)
     report["megabytes"] = round(sum(p.stat().st_size for p in files) / 2**20, 1)
-    if files:
-        assembled_facts(full, facts, report, problems)
+    if full.is_dir():
+        journal = journal_entries(base / "full.journal.jsonl")
+        inventory(full, docs, journal, report, problems)
+        assembled_facts(full, facts, journal, report, problems)
+    else:
+        problems.append(f"{full.name}/: no assembled corpus")
     return {"counts": dict(report), "problems": problems, "invented_examples": invented[:15]}
 
 
-def assembled_facts(full, facts: dict, report: Counter, problems: list[str]) -> None:
-    """Every placement in the files that will be indexed, each read by its sidecar's encoding, HTML unescaped (DR-F3)."""
+def journal_entries(path) -> list[dict]:
+    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line] if path.is_file() else []
+
+
+def inventory(full, docs: list[dict], journal: list[dict], report: Counter, problems: list[str]) -> None:
+    """One file and one sidecar for every catalogue document, and nothing else unless the journal says why (OP-F1)."""
+    deleted = {e["doc_id"] for e in journal if e.get("kind") == "delete_file"}
+    added = {e["doc_id"] for e in journal if e.get("kind") == "new_file"}
+    first: dict[str, str] = {}
+    described = set()
+    for sidecar in sorted(full.rglob("*.meta.json"), key=lambda q: q.relative_to(full).as_posix()):
+        name = sidecar.relative_to(full).as_posix()
+        meta = json.loads(sidecar.read_text(encoding="utf-8"))
+        file = sidecar.with_name(f"{sidecar.name[: -len('.meta.json')]}.{meta['format']}")
+        if not file.is_file():
+            problems.append(f"{name}: a sidecar without its file")
+            continue
+        described.add(file)
+        if meta["doc_id"] in first:
+            problems.append(f"{name}: a second file for {meta['doc_id']}, the first is {first[meta['doc_id']]}")
+        first.setdefault(meta["doc_id"], name)
+    for file in sorted(full.rglob("*"), key=lambda q: q.relative_to(full).as_posix()):
+        if file.is_file() and not file.name.endswith(".meta.json") and file not in described:
+            problems.append(f"{file.relative_to(full).as_posix()}: a file no sidecar describes")
+    report["documents in full"] = len(first)
+    for doc in docs:
+        if doc["id"] not in first and doc["id"] not in deleted:
+            problems.append(f"{doc['id']}: no assembled file in {full.name}/")
+    catalogue = {d["id"] for d in docs}
+    for doc_id in sorted(first):
+        if doc_id not in catalogue and doc_id not in added:
+            problems.append(f"{doc_id}: in {full.name}/ but neither in the catalogue nor added by the journal")
+
+
+def assembled_facts(full, facts: dict, journal: list[dict], report: Counter, problems: list[str]) -> None:
+    """Every placement in the files that will be indexed, each read by its sidecar's encoding, HTML unescaped (DR-F3).
+
+    A placement the journal changed or deleted is not expected in its old form.
+    """
     found = corpus_files(full)
+    explained = {(e["doc_id"], e.get("fact")) for e in journal if e.get("kind") == "value_update"}
+    deleted = {e["doc_id"] for e in journal if e.get("kind") == "delete_file"}
     by_doc: dict[str, list[dict]] = {}
     for f in facts.values():
         for doc_id in f.get("placements", []):
-            by_doc.setdefault(doc_id, []).append(f)
+            if doc_id not in deleted and (doc_id, f["id"]) not in explained:
+                by_doc.setdefault(doc_id, []).append(f)
     for doc_id, here in by_doc.items():
         report["placements in assembled files"] += len(here)
         if doc_id not in found:
-            problems.append(f"{doc_id}: no assembled file")
-            continue
+            continue  # inventory has named it
         file, _, meta = found[doc_id]
         text = read(file, meta)
         flat = squash(html.unescape(text) if meta["format"] == "html" else text)

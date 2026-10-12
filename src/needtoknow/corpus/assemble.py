@@ -116,14 +116,18 @@ def render(fmt: str, title: str, meta_line: str, sections: list[tuple[list[str],
 
 
 def assemble(profile: str = "full") -> dict:
+    """A fresh build of the whole corpus, swapped in only once every document is written (OP-F1).
+
+    The files go to a sibling folder first, so a build killed halfway leaves the
+    previous corpus and its journal as they were. The swap is three renames, and a
+    kill between two of them is finished or undone by `settle` before the next build.
+    """
     base = data_dir() / "corpus"
     docs = json.loads((base / "plan" / "catalogue.json").read_text(encoding="utf-8"))
     w = world()
-    out = base / profile
-    if out.exists():  # a fresh build: no file a mutation moved or added survives it
-        shutil.rmtree(out)
-    out.mkdir(parents=True)
-    (base / f"{profile}.journal.jsonl").unlink(missing_ok=True)
+    place = places(base, profile)
+    settle(place)
+    place["building"].mkdir(parents=True)
     report = {"written": 0, "missing": [], "bytes": 0}
     legacy = legacy_id(docs)
     for doc in docs:
@@ -131,9 +135,38 @@ def assemble(profile: str = "full") -> dict:
         if not source.is_file():
             report["missing"].append(doc["id"])
             continue
-        report["bytes"] += assemble_doc(doc, source, w, out, legacy)
+        report["bytes"] += assemble_doc(doc, source, w, place["building"], legacy)
         report["written"] += 1
+    # The old corpus goes aside with its journal, since the new one has had no changes yet.
+    if place["corpus"].exists():
+        place["corpus"].rename(place["retired"])
+    if place["journal"].exists():
+        place["journal"].rename(place["retired journal"])
+    place["building"].rename(place["corpus"])
+    settle(place)
     return report
+
+
+def places(base: Path, profile: str) -> dict[str, Path]:
+    return {"corpus": base / profile, "journal": base / f"{profile}.journal.jsonl", "building": base / f"{profile}.building",
+            "retired": base / f"{profile}.retired", "retired journal": base / f"{profile}.retired.journal.jsonl"}
+
+
+def settle(place: dict[str, Path]) -> None:
+    """Make the corpus and its journal agree again after a kill at any step of a build or a swap.
+
+    With no corpus in place the swap stopped halfway, and the old corpus comes back,
+    its journal first. Whatever is then left aside, and any unfinished build, is deleted.
+    """
+    if not place["corpus"].exists() and place["retired"].exists():
+        if place["retired journal"].exists():
+            place["retired journal"].replace(place["journal"])
+        place["retired"].rename(place["corpus"])
+    if place["retired"].exists():
+        shutil.rmtree(place["retired"])
+    place["retired journal"].unlink(missing_ok=True)
+    if place["building"].exists():
+        shutil.rmtree(place["building"])
 
 
 def legacy_id(docs: list[dict]) -> str | None:
