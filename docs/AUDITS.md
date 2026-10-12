@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**85 findings, 53 closed, 32 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
+**87 findings, 53 closed, 34 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -62,13 +62,15 @@ An audit pass on correctness, read in the logic rather than the comments. 14 fin
 
 ## `OP`, the pipeline operator
 
-An audit pass that killed the pipeline mid build and mid change. 3 findings, 3 closed.
+An audit pass that killed the pipeline mid build and mid change. 5 findings, 3 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `OP-F1` | medium | fixed, tick 21 | A killed build leaves a partial corpus, and the check named 1 of 9 missing files: build into a sibling folder and swap; the check compares full/ with the catalogue |
 | `OP-F2` | medium | fixed, tick 22 | A change is written before its journal line, so a crash leaves it unexplained: journal pending, write, mark applied |
 | `OP-F3` | low | fixed, tick 22 | Two simulators at once would share sequence numbers: a lock for the run |
+| `OP-F4` | high | open | A watcher that starts late, or restarts after dying between its scan and its sync, never catches up: a revocation made then stays served |
+| `OP-F5` | medium | open | The frequency table drifts from the index after a killed sync or two syncs at once, and nothing notices |
 
 ## `MA`, the measurement auditor
 
