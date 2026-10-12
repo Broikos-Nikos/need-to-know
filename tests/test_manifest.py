@@ -116,3 +116,27 @@ def test_a_scan_cuts_with_the_collector_paused_and_turns_it_back_on(corpus, monk
     assert gc.isenabled()
     build()
     assert seen and not any(seen) and gc.isenabled()
+
+
+def test_a_scan_waits_for_the_one_holding_the_manifest_rather_than_dying(corpus):
+    # HS-F9: two scans met in SQLite's lock and the second died after its 5 s; now they take turns on the lock.
+    import threading
+    import time
+
+    from needtoknow.corpus import exclusive
+    held, release = threading.Event(), threading.Event()
+
+    def hold():
+        with exclusive(manifest_path().parent):
+            held.set()
+            release.wait(10)
+
+    holder = threading.Thread(target=hold)
+    holder.start()
+    assert held.wait(10)
+    threading.Timer(3.0, release.set).start()  # three times what this corpus's build takes, so a wait shows
+    began = time.perf_counter()
+    summary = build()
+    waited = time.perf_counter() - began
+    holder.join()
+    assert waited >= 2.9 and summary["files"] == 6

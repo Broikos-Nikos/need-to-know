@@ -269,3 +269,24 @@ def test_the_watcher_looks_every_half_second_unless_told_otherwise():
     # N53: a change waits two intervals before its scan, and a look at 320 files costs 9 ms.
     from needtoknow.cli import build_parser
     assert build_parser().parse_args(["ingest", "watch"]).interval == 0.5
+
+
+def test_a_scan_that_fails_is_said_and_tried_again_and_the_watcher_lives(tmp_path):
+    # HS-F9: a scan that met the manifest locked by a build ended the watcher, and with it every later change.
+    import sqlite3
+    (tmp_path / "a.txt").write_text("x")
+    calls, reports, checks = [], [], {"n": 0}
+
+    def scan_fn(full):
+        calls.append(1)
+        if len(calls) == 1:
+            raise sqlite3.OperationalError("database is locked")
+        return {}
+
+    def stop():
+        checks["n"] += 1
+        return checks["n"] > 3
+
+    watch(tmp_path, interval=0, stop=stop, report=reports.append, sleep=lambda _seconds: None, scan_fn=scan_fn)
+    assert len(calls) == 2
+    assert reports[0]["error"] == "manifest not scanned, trying again: OperationalError: database is locked"

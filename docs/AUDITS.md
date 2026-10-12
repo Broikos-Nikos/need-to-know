@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**99 findings, 68 closed, 31 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
+**99 findings, 69 closed, 30 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -10,7 +10,7 @@ A finding's numbers are what its audit measured when it filed it, by that audit'
 
 ## `HS`, the hostile stranger
 
-An audit pass that tried to break a first run. 14 findings, 8 closed.
+An audit pass that tried to break a first run. 14 findings, 9 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -22,7 +22,7 @@ An audit pass that tried to break a first run. 14 findings, 8 closed.
 | `HS-F6` | medium | fixed, tick 11 | The name gate misses spaced, hyphenated and zero width split names and skips binaries while reporting ok |
 | `HS-F7` | low | fixed, tick 12 | A model list item without an id raises KeyError |
 | `HS-F8` | low | fixed, tick 12 | A configured model missing from the price table raises KeyError even offline; validate the catalogue on load |
-| `HS-F9` | high | open | A build running while one file changes kills the watcher: its scan waits 5 s for the manifest and ends it, 'database is locked', and later changes wait for a restart |
+| `HS-F9` | high | fixed, tick 77 | A build running while one file changes kills the watcher: its scan waits 5 s for the manifest and ends it, 'database is locked', and later changes wait for a restart |
 | `HS-F10` | medium | open | A question of a megabyte crashes the search: one SQL variable per term, 'too many SQL variables' |
 | `HS-F11` | medium | open | A stopped server or a missing GPU reaches ntk search and ntk index sync as a traceback |
 | `HS-F12` | low | open | Out of range numbers are taken: --limit -5 prints 95 results, --limit 0 nothing, --interval -1 a traceback, --interval 0 a busy loop |

@@ -10,7 +10,9 @@ plus one scan.
 
 It begins by catching up: a scan, for whatever changed while no watcher ran, and a
 sync of every document, for whatever a watcher that died between its scan and its
-sync left behind; only then does it watch (OP-F4). When a scan changes a unit, the
+sync left behind; only then does it watch (OP-F4). A scan that fails for any reason but a
+missing folder is said and tried again every interval, as a failed sync is, so the
+watcher outlives a build that holds the manifest (HS-F9). When a scan changes a unit, the
 watcher syncs the index too, for the documents it changed (AC-F6): a narrowed audience that reached only the manifest would go on being
 served from the index. The sync deletes before it upserts, so a revocation lands even
 when a later step fails, and a sync that fails is tried again every interval, with the
@@ -66,12 +68,16 @@ def watch(full: Path, interval: float = 1.0, stop: Callable[[], bool] = lambda: 
         if pending:
             try:
                 summary = scan_fn(full)
-                report(summary)
-                unsynced.update(summary.get("changed_docs", []))
             except ManifestError as error:  # the folder gone, say: said, and the watch goes on (DR-F11)
                 report({"error": str(error)})
+                pending = False
+            except Exception as error:  # the manifest held past the scan's wait, say: said, tried again (HS-F9)
+                report({"error": f"manifest not scanned, trying again: {type(error).__name__}: {error}"})
+            else:
+                report(summary)
+                unsynced.update(summary.get("changed_docs", []))
+                pending = False
             runs += 1
-            pending = False
         if (unsynced or everything) and sync_fn is not None:
             try:
                 report(sync_fn(None if everything else sorted(unsynced)))

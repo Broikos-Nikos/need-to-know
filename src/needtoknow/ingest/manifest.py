@@ -29,6 +29,7 @@ from dataclasses import replace
 from datetime import datetime, timezone
 from pathlib import Path
 
+from needtoknow.corpus import exclusive
 from needtoknow.corpus.mutate import corpus_files
 from needtoknow.ingest import pipeline
 from needtoknow.ingest.units import Unit
@@ -76,6 +77,9 @@ def collector_paused():
     finally:
         if enabled:
             gc.enable()
+
+
+SCAN_WAIT = 900.0  # seconds a scan waits for another to finish: a full build takes 90 to 175
 
 
 def manifest_path() -> Path:
@@ -160,7 +164,8 @@ def scan(full: Path | None = None, path: Path | None = None, force: bool = False
                             f"killed between its renames leaves it so, and the next ntk corpus assemble settles it")
     kind = "build" if force else "scan"
     began = time.perf_counter()
-    with collector_paused(), opened(path) as db:
+    # One scan at a time, the next waiting its turn rather than meeting SQLite's lock and dying after 5 s (HS-F9).
+    with exclusive((path or manifest_path()).parent, wait=SCAN_WAIT), collector_paused(), opened(path) as db:
         run_id = db.execute("INSERT INTO runs (kind, started) VALUES (?, ?)", (kind, now())).lastrowid
         summary = {"run": run_id, "kind": kind, "files": 0, "files_read": 0, "files_changed": 0, "files_removed": 0,
                    "units_added": 0, "units_removed": 0, "changes": {}, "changed_docs": []}
