@@ -123,43 +123,85 @@ def assemble(profile: str = "full") -> dict:
         shutil.rmtree(out)
     out.mkdir(parents=True)
     (base / f"{profile}.journal.jsonl").unlink(missing_ok=True)
-    # One Greek text file keeps the legacy Windows-1253 encoding, when the catalogue has one.
-    legacy = next((d["id"] for d in docs if d["language"] == "el" and d["format"] == "txt"), None)
     report = {"written": 0, "missing": [], "bytes": 0}
+    legacy = legacy_id(docs)
     for doc in docs:
         source = base / "narrative" / f"{doc['id']}.txt"
         if not source.is_file():
             report["missing"].append(doc["id"])
             continue
-        lang, rng = doc["language"], random.Random(f"{SEED}:{doc['id']}")
-        sections = [(head, body, False) for head, body in parse_sections(source.read_text(encoding="utf-8"))]
-        owner_name = LABEL_EL[doc["owner"]] if lang == "el" else LABEL_EN[doc["owner"]]
-        title = f"{doc['type_name']}: {owner_name}"
-        meta_line = (f"Έγγραφο {doc['id']}, έκδοση {doc['version']}, η Εταιρεία, εσωτερική χρήση" if lang == "el"
-                     else f"Document {doc['id']}, version {doc['version']}, the Company, internal use")
-        target = int(doc["target_mb"] * 1024 * 1024)
-        size = len(render(doc["format"], title, meta_line, sections).encode("utf-8"))
-        number, letter = len(sections), 0
-        while size < target:
-            kind = letter % len(ANNEXES[lang])
-            name = ANNEXES[lang][kind][0]
-            prefix = "Παράρτημα" if lang == "el" else "Annex"
-            rows = [annex_row(kind, lang, rng, w, len(sections)) for _ in range(rng.randint(400, 1600))]
-            number += 1
-            head = header_lines(lang, number, f"{prefix} {chr(65 + letter % 26)}{letter // 26 or ''}: {name}", doc["owner"])
-            body = "\n".join(rows)
-            sections.append((head, body, True))
-            size += len(body.encode("utf-8")) + 200
-            letter += 1
-        ext = {"txt": "txt", "md": "md", "html": "html"}[doc["format"]]
-        text = render(doc["format"], title, meta_line, sections)
-        encoding = "windows-1253" if doc["id"] == legacy else "utf-8"
-        path = out / f"{doc['id']}.{ext}"
-        path.write_bytes(text.encode("cp1253" if encoding == "windows-1253" else "utf-8", errors="replace"))
-        meta = {"doc_id": doc["id"], "title": title, "owner": doc["owner"], "language": lang, "version": doc["version"],
-                "type": doc["type"], "default_audience": doc["owner"], "classification": "internal",
-                "format": doc["format"], "encoding": encoding}
-        (out / f"{doc['id']}.meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1), encoding="utf-8")
+        report["bytes"] += assemble_doc(doc, source, w, out, legacy)
         report["written"] += 1
-        report["bytes"] += path.stat().st_size
     return report
+
+
+def legacy_id(docs: list[dict]) -> str | None:
+    """One Greek text file keeps the legacy Windows-1253 encoding, when the catalogue has one."""
+    return next((d["id"] for d in docs if d["language"] == "el" and d["format"] == "txt"), None)
+
+
+def assemble_doc(doc: dict, source: Path, w: dict, out: Path, legacy: str | None,
+                 cap_bytes: int | None = None, rows: tuple[int, int] = (400, 1600)) -> int:
+    """One document and its sidecar into `out`; returns the bytes written."""
+    lang, rng = doc["language"], random.Random(f"{SEED}:{doc['id']}")
+    sections = [(head, body, False) for head, body in parse_sections(source.read_text(encoding="utf-8"))]
+    owner_name = LABEL_EL[doc["owner"]] if lang == "el" else LABEL_EN[doc["owner"]]
+    title = f"{doc['type_name']}: {owner_name}"
+    meta_line = (f"Έγγραφο {doc['id']}, έκδοση {doc['version']}, η Εταιρεία, εσωτερική χρήση" if lang == "el"
+                 else f"Document {doc['id']}, version {doc['version']}, the Company, internal use")
+    target = int(doc["target_mb"] * 1024 * 1024)
+    if cap_bytes is not None:
+        target = min(target, cap_bytes)
+    size = len(render(doc["format"], title, meta_line, sections).encode("utf-8"))
+    number, letter = len(sections), 0
+    while size < target:
+        kind = letter % len(ANNEXES[lang])
+        name = ANNEXES[lang][kind][0]
+        prefix = "Παράρτημα" if lang == "el" else "Annex"
+        lines = [annex_row(kind, lang, rng, w, len(sections)) for _ in range(rng.randint(*rows))]
+        number += 1
+        head = header_lines(lang, number, f"{prefix} {chr(65 + letter % 26)}{letter // 26 or ''}: {name}", doc["owner"])
+        body = "\n".join(lines)
+        sections.append((head, body, True))
+        size += len(body.encode("utf-8")) + 200
+        letter += 1
+    text = render(doc["format"], title, meta_line, sections)
+    encoding = "windows-1253" if doc["id"] == legacy else "utf-8"
+    path = out / f"{doc['id']}.{doc['format']}"
+    path.write_bytes(text.encode("cp1253" if encoding == "windows-1253" else "utf-8", errors="replace"))
+    meta = {"doc_id": doc["id"], "title": title, "owner": doc["owner"], "language": lang, "version": doc["version"],
+            "type": doc["type"], "default_audience": doc["owner"], "classification": "internal",
+            "format": doc["format"], "encoding": encoding}
+    (out / f"{doc['id']}.meta.json").write_text(json.dumps(meta, ensure_ascii=False, indent=1), encoding="utf-8")
+    return path.stat().st_size
+
+
+def sample_ids(docs: list[dict]) -> list[str]:
+    """Six documents a stranger can open: each format in each language, mixing departments where one does,
+    and the Greek text file in its legacy encoding."""
+    def mixed(d: dict) -> bool:
+        return len({s["label"] for s in d["sections"]} - {"general"}) > 1
+    by_id = {d["id"]: d for d in docs}
+    chosen = [legacy_id(docs)]
+    owners = {by_id[chosen[0]]["owner"]} if chosen[0] else set()
+    for lang, fmt in [("en", "txt"), ("en", "md"), ("el", "md"), ("en", "html"), ("el", "html")]:
+        # A department not shown yet comes first, so the six samples show six owners where they can.
+        pool = sorted((d for d in docs if (d["language"], d["format"]) == (lang, fmt)),
+                      key=lambda d: (d["owner"] in owners, not mixed(d), d["id"]))
+        chosen.append(pool[0]["id"])
+        owners.add(pool[0]["owner"])
+    return [c for c in chosen if c]
+
+
+def samples(out: Path, cap_kb: int = 40) -> list[Path]:
+    """The six sample files, small: the writers' full text, then a few annex rows up to the cap."""
+    base = data_dir() / "corpus"
+    docs = json.loads((base / "plan" / "catalogue.json").read_text(encoding="utf-8"))
+    w, by_id = world(), {d["id"]: d for d in docs}
+    out.mkdir(parents=True, exist_ok=True)
+    for stale in out.glob("*"):
+        stale.unlink()
+    legacy = legacy_id(docs)
+    for doc_id in sample_ids(docs):
+        assemble_doc(by_id[doc_id], base / "narrative" / f"{doc_id}.txt", w, out, legacy, cap_kb * 1024, rows=(12, 24))
+    return sorted(out.iterdir())

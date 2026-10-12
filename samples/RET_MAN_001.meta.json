@@ -1,0 +1,12 @@
+{
+ "doc_id": "RET_MAN_001",
+ "title": "Εγχειρίδιο λειτουργιών: Επιστροφές",
+ "owner": "returns",
+ "language": "el",
+ "version": "1.9",
+ "type": "MAN",
+ "default_audience": "returns",
+ "classification": "internal",
+ "format": "txt",
+ "encoding": "windows-1253"
+}

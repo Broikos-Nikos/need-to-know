@@ -1,0 +1,614 @@
+Operations manual: Customer Care
+Document CUS_MAN_008, version 1.0, the Company, internal use
+
+SECTION 1  Response times
+Audience: Customer Care
+Classification: Internal
+
+Response times are measured from the moment a customer's request enters the queue, not from the time the first agent opens the case. Each request is assigned a priority at intake, and the priority determines how quickly the first reply must go out. Agents must send a first reply that acknowledges the request, confirms the next step and gives a realistic time for the next update. A holding message that says only that the case is being looked at does not count as a first reply under the standard. Priority is reviewed if the customer adds new information, such as a service outage affecting several people or a payment that has been taken in error. Team leaders check the queue at the start of each shift and move requests that are close to the limit to available agents. The aim is to make the first contact useful, not just fast.
+
+SECTION 2  Response times, part 2
+Audience: Customer Care
+Classification: Internal
+
+When a first reply is missed, the agent records the reason in Relay at the time of the miss, not later in the shift. The most common reasons are a missing account reference, a request that needs a technical check, or an agent who was on a call with another customer. Each reason is coded, so that the team can separate avoidable delays from delays caused by systems or by the complexity of a case. Team leaders review the codes at the team meeting and decide whether the process needs to change. Agents must not change the time stamp on a case to improve the figures, and any correction is made by the team leader with a note. The figures are used to plan staffing and training, not to judge individuals, and the team is told this openly.
+
+SECTION 3  Callbacks and holding
+Audience: Customer Care
+Classification: Internal
+
+A callback is booked when a customer asks for one or when the agent cannot resolve the request in the same contact. The booking must include the phone number, the best time to call, the case reference and the reason for the callback, so that the colleague who calls is fully prepared. The callback is placed in the queue for the agent who booked it, unless that agent is off shift, in which case the team leader reallocates it. The customer is told when to expect the call, and the agent does not promise a time that the team cannot meet. If the customer does not answer, the team makes a further attempt in the same window and then records the outcome in the case. Holding is used only for short checks, and the agent tells the customer why they are waiting and how long the check is likely to take. Holding is never used to avoid a difficult conversation.
+
+SECTION 4  Compensation
+Audience: Customer Care
+Classification: Internal
+
+Compensation is paid where the standard rule applies, and the rule is set out in the compensation schedule that is updated when the policy changes. Agents must check that the outage is confirmed in the network records before they promise any credit, because an unconfirmed outage cannot be compensated under the rule. Where the customer asks for more than the rule provides, the agent does not refuse on the spot; the request goes to the team leader for a decision, and the customer is told when the answer will come. Goodwill credits are approved case by case, and the approval is recorded with the reason and the amount. The team reviews compensation decisions on a regular basis to make sure the rule has been applied consistently, and any inconsistency is corrected with the customer informed. Agents do not discuss the compensation given to other customers, because each case is confidential.
+
+SECTION 5  Callbacks and holding, part 2
+Audience: Customer Care
+Classification: Internal
+
+Out of hours requests are logged with the time the customer asked, and the callback is placed in the first available slot when the team reopens. Agents do not promise a callback at a fixed time outside the opening hours, because the rota does not cover that time. Where a callback is transferred to another agent, the handover note must include the customer's account, the reason for the call and what has already been said, so that the customer does not repeat the story. The new agent introduces themselves and mentions the earlier conversation, so that the call feels continuous. A callback that has not been made by the end of the shift is listed for the team leader, who decides who takes it first thing the next morning. Missed callbacks are reported in the end of day summary so that nothing is lost between shifts.
+
+SECTION 6  Business contracts
+Audience: Legal
+Classification: Internal
+
+Business contracts carry a different allocation of risk from consumer contracts, and the customer care team must not describe liability to a business customer in its own words. The Company's liability under a business contract is capped at 35000 euros per incident. Customer care agents do not agree to increase the cap in a call, and any request to change the liability terms goes to the legal team for review. The business clause is read from the approved template, and the agent confirms that the customer has been given the document. If a business customer claims a loss that exceeds the cap, the case is referred to legal at once with the full history. The legal team decides whether the loss is covered by insurance and whether the customer has a valid claim under the contract. Customer care records the claim but does not confirm any payment until legal has decided.
+
+SECTION 7  Annex A: Shop directory
+Audience: Customer Care
+Classification: Internal
+
+Shop CL428 | North Aegean | unit 164 | managed by the quality reviewer | extension 45113
+Shop GP474 | Central Greece | unit 121 | managed by the process owner | extension 56790
+Shop EB430 | Central Greece | unit 93 | managed by the quality reviewer | extension 45235
+Shop AC985 | South Aegean | unit 102 | managed by the process owner | extension 79773
+Shop DG344 | South Aegean | unit 235 | managed by the regional manager | extension 66300
+Shop HM132 | Western Macedonia | unit 153 | managed by the regional manager | extension 44984
+Shop EF896 | Western Greece | unit 34 | managed by the quality reviewer | extension 69620
+Shop EL723 | Ionian Islands | unit 188 | managed by the team leader | extension 81293
+Shop KJ994 | Central Macedonia | unit 234 | managed by the team leader | extension 74642
+Shop CL869 | Eastern Macedonia and Thrace | unit 20 | managed by the regional manager | extension 46257
+Shop GB209 | South Aegean | unit 183 | managed by the quality reviewer | extension 88272
+Shop JN726 | Crete | unit 173 | managed by the team leader | extension 76313
+Shop GF278 | Crete | unit 88 | managed by the team leader | extension 61860
+Shop GN652 | Central Greece | unit 30 | managed by the team leader | extension 48854
+Shop FD134 | Central Greece | unit 120 | managed by the shop manager | extension 65363
+Shop CH678 | Attica | unit 162 | managed by the quality reviewer | extension 78637
+Shop GJ311 | North Aegean | unit 75 | managed by the team leader | extension 42955
+
+SECTION 8  Annex B: Stock list
+Audience: Customer Care
+Classification: Internal
+
+SKU TV20780 | device insurance | bin E23 | 750 units on hand | reorder flag Y
+SKU DT85337 | fibre broadband | bin F24 | 162 units on hand | reorder flag Y
+SKU ST37583 | copper broadband | bin C57 | 265 units on hand | reorder flag N
+SKU DR39448 | fibre broadband | bin G49 | 320 units on hand | reorder flag Y
+SKU DX47200 | postpaid mobile plans | bin B50 | 121 units on hand | reorder flag Y
+SKU RT75080 | accessories | bin C43 | 488 units on hand | reorder flag N
+SKU AS53008 | copper broadband | bin A44 | 515 units on hand | reorder flag Y
+SKU VD53547 | accessories | bin B12 | 294 units on hand | reorder flag N
+SKU DT16078 | postpaid mobile plans | bin D44 | 223 units on hand | reorder flag N
+SKU DX16035 | postpaid mobile plans | bin A05 | 67 units on hand | reorder flag Y
+SKU SS24328 | device insurance | bin D41 | 658 units on hand | reorder flag N
+SKU AS52204 | business mobile plans | bin H35 | 652 units on hand | reorder flag N
+SKU SX24511 | prepaid mobile plans | bin B20 | 439 units on hand | reorder flag N
+SKU VT75330 | postpaid mobile plans | bin D19 | 60 units on hand | reorder flag N
+
+SECTION 9  Annex C: Revision history
+Audience: Customer Care
+Classification: Internal
+
+Revision 2.5 | 2024-06-06 | regional manager | obsolete form removed
+Revision 2.26 | 2026-11-10 | process owner | wording clarified in section 7
+Revision 4.13 | 2026-05-03 | process owner | table layout updated
+Revision 1.19 | 2026-01-24 | regional manager | obsolete form removed
+Revision 3.17 | 2025-04-27 | process owner | table layout updated
+Revision 1.22 | 2025-12-08 | process owner | references to Atlas updated
+Revision 3.3 | 2023-02-08 | regional manager | wording clarified in section 6
+Revision 1.33 | 2026-09-28 | regional manager | obsolete form removed
+Revision 2.16 | 2023-12-02 | quality reviewer | wording clarified in section 6
+Revision 2.9 | 2024-11-16 | regional manager | approval step moved to Relay
+Revision 3.19 | 2026-11-07 | shop manager | obsolete form removed
+Revision 2.36 | 2025-12-22 | shop manager | wording clarified in section 2
+Revision 2.39 | 2024-01-13 | quality reviewer | table layout updated
+Revision 1.8 | 2025-12-11 | quality reviewer | obsolete form removed
+
+SECTION 10  Annex D: Form definitions
+Audience: Customer Care
+Classification: Internal
+
+Form F79 | field customer number | mandatory | entered in Ledger
+Form F71 | field reason code | mandatory | entered in Ledger
+Form F60 | field date received | mandatory | entered in Relay
+Form F49 | field contract reference | mandatory | entered in Compass
+Form F38 | field reason code | optional | entered in Compass
+Form F19 | field reason code | optional | entered in Relay
+Form F49 | field contract reference | optional | entered in Relay
+Form F39 | field contract reference | optional | entered in Atlas
+Form F50 | field contract reference | mandatory | entered in Dock
+Form F13 | field customer number | optional | entered in Dock
+Form F85 | field contract reference | optional | entered in Atlas
+Form F80 | field device serial | mandatory | entered in Atlas
+Form F21 | field channel | mandatory | entered in Dock
+Form F50 | field channel | mandatory | entered in Compass
+Form F84 | field approver | mandatory | entered in Ledger
+Form F13 | field contract reference | mandatory | entered in Relay
+Form F49 | field channel | optional | entered in Compass
+Form F90 | field date received | mandatory | entered in Relay
+Form F48 | field device serial | mandatory | entered in Dock
+Form F25 | field date received | optional | entered in Atlas
+Form F98 | field channel | mandatory | entered in Relay
+
+SECTION 11  Annex E: Glossary
+Audience: Customer Care
+Classification: Internal
+
+Ticket: a customer request recorded in Relay
+Ticket: a customer request recorded in Relay
+RMA: a return authorisation recorded in Dock
+Second line: the team that resolves escalated cases
+Second line: the team that resolves escalated cases
+Cut off: the last pickup time agreed with a courier
+Second line: the team that resolves escalated cases
+First line: the advisors who take the first contact
+Depot: a regional store of spare parts
+Cut off: the last pickup time agreed with a courier
+First line: the advisors who take the first contact
+First line: the advisors who take the first contact
+Ticket: a customer request recorded in Relay
+Ticket: a customer request recorded in Relay
+Second line: the team that resolves escalated cases
+Depot: a regional store of spare parts
+RMA: a return authorisation recorded in Dock
+First line: the advisors who take the first contact
+Second line: the team that resolves escalated cases
+Depot: a regional store of spare parts
+Cut off: the last pickup time agreed with a courier
+
+SECTION 12  Annex F: Shop directory
+Audience: Customer Care
+Classification: Internal
+
+Shop EF740 | Attica | unit 222 | managed by the team leader | extension 57347
+Shop FN273 | Ionian Islands | unit 152 | managed by the quality reviewer | extension 71102
+Shop DC208 | South Aegean | unit 114 | managed by the shop manager | extension 40130
+Shop PJ647 | Ionian Islands | unit 119 | managed by the team leader | extension 56463
+Shop NJ816 | Ionian Islands | unit 150 | managed by the quality reviewer | extension 37235
+Shop NL267 | Crete | unit 229 | managed by the shop manager | extension 54053
+Shop PK377 | Epirus | unit 192 | managed by the shop manager | extension 83989
+Shop FD145 | Central Greece | unit 136 | managed by the team leader | extension 79193
+Shop NM806 | Central Macedonia | unit 62 | managed by the regional manager | extension 72756
+Shop DB415 | Central Macedonia | unit 211 | managed by the shop manager | extension 35730
+Shop BP865 | South Aegean | unit 223 | managed by the quality reviewer | extension 37458
+Shop PN571 | North Aegean | unit 237 | managed by the process owner | extension 52587
+Shop KE994 | Peloponnese | unit 137 | managed by the quality reviewer | extension 54229
+Shop PF851 | Western Greece | unit 207 | managed by the process owner | extension 45023
+Shop CM938 | Thessaly | unit 176 | managed by the team leader | extension 49805
+Shop KJ254 | Attica | unit 107 | managed by the regional manager | extension 59074
+Shop KB165 | Attica | unit 111 | managed by the regional manager | extension 76377
+Shop PE298 | Ionian Islands | unit 148 | managed by the regional manager | extension 83492
+Shop DM412 | Central Macedonia | unit 145 | managed by the team leader | extension 68542
+Shop HP465 | Peloponnese | unit 221 | managed by the shop manager | extension 46485
+Shop KB526 | Attica | unit 122 | managed by the regional manager | extension 33766
+Shop FL278 | Crete | unit 150 | managed by the regional manager | extension 74898
+Shop EG830 | Central Greece | unit 68 | managed by the quality reviewer | extension 51042
+
+SECTION 13  Annex G: Stock list
+Audience: Customer Care
+Classification: Internal
+
+SKU AA98622 | devices | bin H30 | 328 units on hand | reorder flag N
+SKU DV15857 | business mobile plans | bin A26 | 320 units on hand | reorder flag N
+SKU TT93868 | accessories | bin G15 | 275 units on hand | reorder flag N
+SKU RX58480 | fibre broadband | bin H48 | 664 units on hand | reorder flag Y
+SKU VX44296 | devices | bin G50 | 873 units on hand | reorder flag Y
+SKU SX99341 | TV packages | bin G56 | 385 units on hand | reorder flag N
+SKU XS56118 | fixed wireless broadband | bin F29 | 275 units on hand | reorder flag Y
+SKU TX45060 | fixed wireless broadband | bin C17 | 777 units on hand | reorder flag Y
+SKU SV31511 | business mobile plans | bin G29 | 360 units on hand | reorder flag Y
+SKU XA85624 | fibre broadband | bin C56 | 283 units on hand | reorder flag Y
+SKU AX35680 | accessories | bin A52 | 619 units on hand | reorder flag N
+SKU DD24442 | prepaid mobile plans | bin G26 | 346 units on hand | reorder flag N
+SKU VA52878 | copper broadband | bin H18 | 786 units on hand | reorder flag N
+
+SECTION 14  Annex H: Revision history
+Audience: Customer Care
+Classification: Internal
+
+Revision 2.2 | 2026-11-03 | regional manager | wording clarified in section 1
+Revision 2.23 | 2024-01-21 | quality reviewer | obsolete form removed
+Revision 4.7 | 2024-12-03 | quality reviewer | examples added to section 4
+Revision 2.1 | 2026-05-04 | shop manager | wording clarified in section 4
+Revision 4.13 | 2026-10-08 | process owner | approval step moved to Relay
+Revision 1.30 | 2025-07-04 | quality reviewer | obsolete form removed
+Revision 4.37 | 2025-02-01 | team leader | wording clarified in section 11
+Revision 1.32 | 2025-11-13 | shop manager | references to Atlas updated
+Revision 3.28 | 2024-08-15 | team leader | table layout updated
+Revision 1.0 | 2026-07-10 | quality reviewer | approval step moved to Relay
+Revision 2.0 | 2025-09-06 | shop manager | approval step moved to Relay
+Revision 1.21 | 2023-02-02 | team leader | wording clarified in section 7
+Revision 3.27 | 2023-08-18 | team leader | examples added to section 4
+Revision 4.14 | 2023-12-07 | quality reviewer | references to Atlas updated
+
+SECTION 15  Annex I: Form definitions
+Audience: Customer Care
+Classification: Internal
+
+Form F37 | field device serial | optional | entered in Dock
+Form F10 | field approver | optional | entered in Atlas
+Form F68 | field customer number | optional | entered in Dock
+Form F33 | field customer number | optional | entered in Compass
+Form F14 | field reason code | optional | entered in Ledger
+Form F38 | field reason code | mandatory | entered in Relay
+Form F97 | field approver | optional | entered in Relay
+Form F18 | field approver | optional | entered in Atlas
+Form F79 | field date received | optional | entered in Dock
+Form F35 | field customer number | mandatory | entered in Ledger
+Form F44 | field contract reference | optional | entered in Dock
+Form F30 | field contract reference | mandatory | entered in Ledger
+Form F11 | field channel | optional | entered in Dock
+Form F99 | field channel | mandatory | entered in Dock
+Form F29 | field device serial | optional | entered in Relay
+Form F32 | field approver | mandatory | entered in Dock
+Form F91 | field customer number | mandatory | entered in Ledger
+Form F84 | field contract reference | optional | entered in Dock
+Form F26 | field approver | optional | entered in Relay
+Form F74 | field channel | optional | entered in Compass
+
+SECTION 16  Annex J: Glossary
+Audience: Customer Care
+Classification: Internal
+
+First line: the advisors who take the first contact
+Ticket: a customer request recorded in Relay
+Cut off: the last pickup time agreed with a courier
+First line: the advisors who take the first contact
+Depot: a regional store of spare parts
+RMA: a return authorisation recorded in Dock
+RMA: a return authorisation recorded in Dock
+Second line: the team that resolves escalated cases
+Depot: a regional store of spare parts
+Cut off: the last pickup time agreed with a courier
+Cut off: the last pickup time agreed with a courier
+Ticket: a customer request recorded in Relay
+RMA: a return authorisation recorded in Dock
+Depot: a regional store of spare parts
+First line: the advisors who take the first contact
+Cut off: the last pickup time agreed with a courier
+
+SECTION 17  Annex K: Shop directory
+Audience: Customer Care
+Classification: Internal
+
+Shop MK942 | North Aegean | unit 180 | managed by the quality reviewer | extension 86230
+Shop MA798 | Attica | unit 73 | managed by the quality reviewer | extension 47154
+Shop NK433 | Attica | unit 43 | managed by the process owner | extension 87326
+Shop HD627 | North Aegean | unit 94 | managed by the shop manager | extension 40003
+Shop KM746 | Peloponnese | unit 81 | managed by the regional manager | extension 42162
+Shop FM655 | Thessaly | unit 37 | managed by the process owner | extension 41787
+Shop FL255 | Crete | unit 69 | managed by the regional manager | extension 37377
+Shop JG672 | Attica | unit 172 | managed by the team leader | extension 78942
+Shop MC400 | Attica | unit 116 | managed by the team leader | extension 64668
+Shop LG893 | South Aegean | unit 19 | managed by the shop manager | extension 34227
+Shop BF817 | Thessaly | unit 50 | managed by the regional manager | extension 67782
+Shop GM507 | North Aegean | unit 29 | managed by the shop manager | extension 67982
+Shop EN725 | Central Greece | unit 232 | managed by the team leader | extension 87617
+Shop PC672 | South Aegean | unit 218 | managed by the quality reviewer | extension 47734
+Shop DP762 | Western Greece | unit 21 | managed by the regional manager | extension 85248
+Shop LP831 | Peloponnese | unit 43 | managed by the quality reviewer | extension 49755
+Shop LG515 | Crete | unit 93 | managed by the process owner | extension 63098
+Shop CK233 | Epirus | unit 6 | managed by the team leader | extension 51430
+Shop DE624 | Central Macedonia | unit 240 | managed by the team leader | extension 80660
+
+SECTION 18  Annex L: Stock list
+Audience: Customer Care
+Classification: Internal
+
+SKU SX64187 | accessories | bin C26 | 328 units on hand | reorder flag N
+SKU VD19889 | TV packages | bin E25 | 535 units on hand | reorder flag N
+SKU SS87993 | prepaid mobile plans | bin B08 | 80 units on hand | reorder flag N
+SKU TX53202 | prepaid mobile plans | bin F05 | 301 units on hand | reorder flag Y
+SKU SA25304 | fixed wireless broadband | bin H26 | 544 units on hand | reorder flag Y
+SKU XX90888 | fibre broadband | bin G16 | 742 units on hand | reorder flag N
+SKU RT40224 | accessories | bin G06 | 120 units on hand | reorder flag Y
+SKU RX72350 | fixed wireless broadband | bin A53 | 311 units on hand | reorder flag Y
+SKU VA16043 | copper broadband | bin H16 | 577 units on hand | reorder flag Y
+SKU TS10062 | devices | bin G37 | 264 units on hand | reorder flag Y
+SKU XR80995 | accessories | bin H60 | 158 units on hand | reorder flag N
+SKU XA83066 | prepaid mobile plans | bin B07 | 896 units on hand | reorder flag N
+SKU TR62625 | devices | bin C05 | 208 units on hand | reorder flag Y
+SKU RT24938 | TV packages | bin F15 | 781 units on hand | reorder flag N
+SKU RT77371 | accessories | bin H09 | 886 units on hand | reorder flag Y
+SKU VT99139 | fixed wireless broadband | bin C48 | 63 units on hand | reorder flag N
+SKU RS61208 | TV packages | bin D39 | 659 units on hand | reorder flag Y
+SKU VX28682 | accessories | bin C17 | 477 units on hand | reorder flag Y
+SKU TX10394 | device insurance | bin F25 | 407 units on hand | reorder flag N
+SKU XS68151 | postpaid mobile plans | bin A27 | 683 units on hand | reorder flag N
+
+SECTION 19  Annex M: Revision history
+Audience: Customer Care
+Classification: Internal
+
+Revision 1.17 | 2025-12-01 | process owner | examples added to section 4
+Revision 2.34 | 2023-07-14 | shop manager | approval step moved to Relay
+Revision 2.33 | 2026-09-10 | process owner | approval step moved to Relay
+Revision 2.1 | 2026-09-02 | shop manager | references to Atlas updated
+Revision 2.38 | 2025-06-13 | shop manager | table layout updated
+Revision 4.19 | 2023-04-06 | process owner | wording clarified in section 5
+Revision 4.2 | 2025-06-25 | shop manager | examples added to section 16
+Revision 3.26 | 2024-01-09 | shop manager | obsolete form removed
+Revision 2.0 | 2023-07-05 | regional manager | obsolete form removed
+Revision 4.4 | 2026-08-26 | quality reviewer | table layout updated
+Revision 4.11 | 2023-10-26 | quality reviewer | table layout updated
+Revision 2.6 | 2024-08-03 | team leader | table layout updated
+Revision 1.14 | 2023-06-17 | regional manager | wording clarified in section 6
+Revision 1.12 | 2025-02-09 | shop manager | examples added to section 7
+Revision 2.17 | 2026-12-11 | team leader | examples added to section 13
+Revision 4.16 | 2023-12-18 | quality reviewer | wording clarified in section 3
+Revision 4.17 | 2025-10-20 | quality reviewer | approval step moved to Relay
+Revision 1.21 | 2025-04-13 | quality reviewer | wording clarified in section 6
+Revision 4.15 | 2025-07-08 | process owner | approval step moved to Relay
+Revision 2.20 | 2025-09-16 | team leader | table layout updated
+
+SECTION 20  Annex N: Form definitions
+Audience: Customer Care
+Classification: Internal
+
+Form F79 | field reason code | optional | entered in Compass
+Form F22 | field device serial | optional | entered in Ledger
+Form F42 | field contract reference | mandatory | entered in Compass
+Form F78 | field customer number | optional | entered in Dock
+Form F23 | field contract reference | mandatory | entered in Compass
+Form F13 | field date received | optional | entered in Relay
+Form F19 | field date received | mandatory | entered in Ledger
+Form F28 | field date received | mandatory | entered in Dock
+Form F20 | field channel | optional | entered in Ledger
+Form F57 | field date received | mandatory | entered in Ledger
+Form F19 | field reason code | mandatory | entered in Relay
+Form F91 | field channel | optional | entered in Compass
+
+SECTION 21  Annex O: Glossary
+Audience: Customer Care
+Classification: Internal
+
+Cut off: the last pickup time agreed with a courier
+Second line: the team that resolves escalated cases
+First line: the advisors who take the first contact
+Second line: the team that resolves escalated cases
+Depot: a regional store of spare parts
+Cut off: the last pickup time agreed with a courier
+Cut off: the last pickup time agreed with a courier
+Cut off: the last pickup time agreed with a courier
+First line: the advisors who take the first contact
+Depot: a regional store of spare parts
+First line: the advisors who take the first contact
+Depot: a regional store of spare parts
+Ticket: a customer request recorded in Relay
+Second line: the team that resolves escalated cases
+Depot: a regional store of spare parts
+Depot: a regional store of spare parts
+Second line: the team that resolves escalated cases
+Ticket: a customer request recorded in Relay
+Cut off: the last pickup time agreed with a courier
+Depot: a regional store of spare parts
+
+SECTION 22  Annex P: Shop directory
+Audience: Customer Care
+Classification: Internal
+
+Shop NK360 | Western Greece | unit 163 | managed by the team leader | extension 43280
+Shop NL557 | North Aegean | unit 234 | managed by the shop manager | extension 56768
+Shop AN853 | Crete | unit 39 | managed by the regional manager | extension 84216
+Shop PE923 | Peloponnese | unit 192 | managed by the regional manager | extension 53369
+Shop CJ125 | North Aegean | unit 77 | managed by the regional manager | extension 79727
+Shop KC697 | Central Greece | unit 3 | managed by the shop manager | extension 61455
+Shop FA140 | Peloponnese | unit 83 | managed by the quality reviewer | extension 64560
+Shop AD407 | Central Macedonia | unit 163 | managed by the process owner | extension 59512
+Shop FG573 | Western Macedonia | unit 127 | managed by the shop manager | extension 61772
+Shop LC760 | Thessaly | unit 110 | managed by the quality reviewer | extension 64199
+Shop NM811 | Epirus | unit 232 | managed by the quality reviewer | extension 67532
+Shop MP169 | Crete | unit 175 | managed by the process owner | extension 52493
+Shop JM892 | Epirus | unit 62 | managed by the process owner | extension 39703
+Shop HN599 | Western Macedonia | unit 109 | managed by the quality reviewer | extension 69242
+Shop HM566 | Central Greece | unit 204 | managed by the regional manager | extension 55948
+Shop DG918 | Thessaly | unit 195 | managed by the quality reviewer | extension 41465
+Shop NM192 | Western Greece | unit 188 | managed by the shop manager | extension 72703
+Shop EG161 | Ionian Islands | unit 78 | managed by the team leader | extension 62306
+Shop EH496 | South Aegean | unit 165 | managed by the quality reviewer | extension 74702
+Shop LH708 | North Aegean | unit 84 | managed by the team leader | extension 87162
+Shop NL740 | Central Macedonia | unit 160 | managed by the shop manager | extension 38997
+Shop LM530 | Peloponnese | unit 152 | managed by the shop manager | extension 64871
+Shop BJ144 | Crete | unit 155 | managed by the team leader | extension 30834
+Shop AK143 | Attica | unit 207 | managed by the quality reviewer | extension 48347
+
+SECTION 23  Annex Q: Stock list
+Audience: Customer Care
+Classification: Internal
+
+SKU TS39015 | fibre broadband | bin H21 | 249 units on hand | reorder flag Y
+SKU AA10083 | fibre broadband | bin F34 | 3 units on hand | reorder flag N
+SKU VD70836 | fibre broadband | bin H54 | 376 units on hand | reorder flag Y
+SKU AR85145 | business mobile plans | bin F55 | 206 units on hand | reorder flag Y
+SKU XV72723 | TV packages | bin F27 | 876 units on hand | reorder flag Y
+SKU SD65893 | prepaid mobile plans | bin E02 | 385 units on hand | reorder flag Y
+SKU AA78543 | fixed wireless broadband | bin E14 | 635 units on hand | reorder flag N
+SKU SV23107 | copper broadband | bin D32 | 181 units on hand | reorder flag N
+SKU XT33981 | business mobile plans | bin G56 | 622 units on hand | reorder flag Y
+SKU TS12606 | fixed wireless broadband | bin G39 | 775 units on hand | reorder flag Y
+SKU DS23174 | devices | bin C49 | 199 units on hand | reorder flag N
+SKU VR25280 | business mobile plans | bin E28 | 163 units on hand | reorder flag N
+SKU AR36359 | device insurance | bin C45 | 685 units on hand | reorder flag N
+SKU VS26076 | copper broadband | bin D16 | 607 units on hand | reorder flag N
+SKU RX13630 | fixed wireless broadband | bin A46 | 566 units on hand | reorder flag N
+SKU DS95819 | accessories | bin D33 | 269 units on hand | reorder flag Y
+SKU RR54434 | fibre broadband | bin H28 | 116 units on hand | reorder flag N
+SKU RA30965 | fixed wireless broadband | bin B07 | 735 units on hand | reorder flag Y
+SKU TV88876 | business mobile plans | bin G28 | 388 units on hand | reorder flag N
+
+SECTION 24  Annex R: Revision history
+Audience: Customer Care
+Classification: Internal
+
+Revision 1.2 | 2026-07-22 | regional manager | table layout updated
+Revision 2.1 | 2024-02-03 | regional manager | obsolete form removed
+Revision 4.33 | 2024-04-02 | process owner | table layout updated
+Revision 1.31 | 2026-06-13 | team leader | table layout updated
+Revision 1.3 | 2025-06-27 | regional manager | obsolete form removed
+Revision 4.3 | 2025-03-15 | team leader | wording clarified in section 21
+Revision 3.40 | 2026-03-12 | process owner | approval step moved to Relay
+Revision 4.31 | 2026-08-13 | regional manager | references to Atlas updated
+Revision 4.26 | 2025-10-05 | quality reviewer | wording clarified in section 1
+Revision 2.26 | 2025-02-06 | process owner | approval step moved to Relay
+Revision 3.24 | 2025-12-16 | process owner | examples added to section 18
+Revision 1.38 | 2025-12-26 | quality reviewer | table layout updated
+Revision 4.14 | 2025-01-14 | process owner | examples added to section 18
+Revision 2.8 | 2025-05-09 | process owner | obsolete form removed
+Revision 2.25 | 2026-02-16 | team leader | examples added to section 7
+Revision 3.34 | 2025-12-11 | team leader | wording clarified in section 23
+Revision 3.15 | 2023-10-25 | regional manager | references to Atlas updated
+Revision 2.18 | 2023-03-16 | shop manager | obsolete form removed
+Revision 3.35 | 2026-05-10 | team leader | references to Atlas updated
+Revision 2.32 | 2026-11-11 | regional manager | obsolete form removed
+Revision 1.14 | 2023-06-24 | process owner | table layout updated
+Revision 1.33 | 2026-07-17 | quality reviewer | references to Atlas updated
+Revision 3.12 | 2026-01-04 | regional manager | references to Atlas updated
+
+SECTION 25  Annex S: Form definitions
+Audience: Customer Care
+Classification: Internal
+
+Form F67 | field date received | mandatory | entered in Dock
+Form F73 | field customer number | mandatory | entered in Atlas
+Form F61 | field customer number | mandatory | entered in Ledger
+Form F95 | field device serial | mandatory | entered in Ledger
+Form F96 | field approver | optional | entered in Dock
+Form F77 | field customer number | optional | entered in Relay
+Form F19 | field contract reference | optional | entered in Atlas
+Form F28 | field date received | optional | entered in Compass
+Form F31 | field channel | optional | entered in Relay
+Form F52 | field date received | mandatory | entered in Relay
+Form F67 | field reason code | optional | entered in Ledger
+Form F51 | field approver | optional | entered in Atlas
+Form F34 | field contract reference | optional | entered in Ledger
+Form F71 | field customer number | optional | entered in Dock
+Form F13 | field channel | optional | entered in Relay
+Form F75 | field customer number | mandatory | entered in Ledger
+Form F46 | field contract reference | optional | entered in Relay
+Form F31 | field reason code | mandatory | entered in Atlas
+Form F23 | field reason code | optional | entered in Compass
+
+SECTION 26  Annex T: Glossary
+Audience: Customer Care
+Classification: Internal
+
+RMA: a return authorisation recorded in Dock
+Second line: the team that resolves escalated cases
+Cut off: the last pickup time agreed with a courier
+Depot: a regional store of spare parts
+Second line: the team that resolves escalated cases
+Depot: a regional store of spare parts
+Ticket: a customer request recorded in Relay
+Cut off: the last pickup time agreed with a courier
+Cut off: the last pickup time agreed with a courier
+Depot: a regional store of spare parts
+Ticket: a customer request recorded in Relay
+Ticket: a customer request recorded in Relay
+Ticket: a customer request recorded in Relay
+Cut off: the last pickup time agreed with a courier
+First line: the advisors who take the first contact
+Cut off: the last pickup time agreed with a courier
+Second line: the team that resolves escalated cases
+First line: the advisors who take the first contact
+
+SECTION 27  Annex U: Shop directory
+Audience: Customer Care
+Classification: Internal
+
+Shop DD504 | Eastern Macedonia and Thrace | unit 61 | managed by the process owner | extension 33354
+Shop JH711 | Thessaly | unit 41 | managed by the shop manager | extension 30558
+Shop HA422 | South Aegean | unit 43 | managed by the team leader | extension 73859
+Shop AK794 | Peloponnese | unit 30 | managed by the team leader | extension 85909
+Shop BH565 | Epirus | unit 79 | managed by the team leader | extension 46440
+Shop DM393 | Central Greece | unit 167 | managed by the process owner | extension 61233
+Shop NA440 | Eastern Macedonia and Thrace | unit 212 | managed by the team leader | extension 70695
+Shop JB597 | Central Macedonia | unit 123 | managed by the quality reviewer | extension 68232
+Shop EE568 | Western Macedonia | unit 3 | managed by the regional manager | extension 68601
+Shop HA216 | South Aegean | unit 135 | managed by the team leader | extension 35859
+Shop EH191 | Central Macedonia | unit 63 | managed by the regional manager | extension 68351
+Shop NM261 | Thessaly | unit 113 | managed by the process owner | extension 48405
+Shop LF526 | South Aegean | unit 209 | managed by the quality reviewer | extension 60913
+Shop GB285 | Western Macedonia | unit 18 | managed by the team leader | extension 75508
+Shop BP967 | Thessaly | unit 78 | managed by the team leader | extension 30970
+Shop KA683 | Thessaly | unit 49 | managed by the team leader | extension 42746
+Shop ME203 | Crete | unit 103 | managed by the regional manager | extension 43734
+Shop NK641 | Ionian Islands | unit 71 | managed by the regional manager | extension 37722
+
+SECTION 28  Annex V: Stock list
+Audience: Customer Care
+Classification: Internal
+
+SKU RS32081 | TV packages | bin E34 | 230 units on hand | reorder flag N
+SKU SR41024 | copper broadband | bin H30 | 750 units on hand | reorder flag N
+SKU SV55864 | device insurance | bin A43 | 569 units on hand | reorder flag Y
+SKU VR38711 | device insurance | bin H54 | 181 units on hand | reorder flag Y
+SKU XT31517 | fibre broadband | bin D39 | 732 units on hand | reorder flag N
+SKU SA43094 | copper broadband | bin F36 | 2 units on hand | reorder flag N
+SKU VR45256 | devices | bin B13 | 202 units on hand | reorder flag Y
+SKU DD49781 | prepaid mobile plans | bin B48 | 587 units on hand | reorder flag Y
+SKU XA34956 | device insurance | bin G28 | 50 units on hand | reorder flag Y
+SKU TR91444 | TV packages | bin A20 | 460 units on hand | reorder flag N
+SKU XV62416 | prepaid mobile plans | bin B37 | 652 units on hand | reorder flag Y
+SKU SR33594 | TV packages | bin C58 | 32 units on hand | reorder flag N
+SKU VS27086 | copper broadband | bin B32 | 435 units on hand | reorder flag Y
+
+SECTION 29  Annex W: Revision history
+Audience: Customer Care
+Classification: Internal
+
+Revision 3.28 | 2023-03-02 | regional manager | obsolete form removed
+Revision 4.17 | 2023-10-18 | quality reviewer | obsolete form removed
+Revision 3.7 | 2024-11-16 | shop manager | examples added to section 12
+Revision 1.34 | 2025-03-16 | team leader | obsolete form removed
+Revision 4.22 | 2024-04-05 | regional manager | obsolete form removed
+Revision 1.20 | 2025-02-09 | regional manager | obsolete form removed
+Revision 4.14 | 2023-08-22 | shop manager | approval step moved to Relay
+Revision 1.5 | 2024-09-24 | quality reviewer | approval step moved to Relay
+Revision 2.10 | 2025-09-18 | regional manager | obsolete form removed
+Revision 4.36 | 2026-06-06 | shop manager | references to Atlas updated
+Revision 1.40 | 2024-02-16 | regional manager | table layout updated
+Revision 3.38 | 2023-01-02 | shop manager | references to Atlas updated
+Revision 4.9 | 2025-09-21 | team leader | references to Atlas updated
+Revision 3.26 | 2025-03-08 | quality reviewer | references to Atlas updated
+Revision 1.14 | 2025-11-17 | process owner | examples added to section 3
+Revision 3.17 | 2024-12-23 | process owner | obsolete form removed
+Revision 3.15 | 2023-05-26 | shop manager | references to Atlas updated
+Revision 3.1 | 2023-03-21 | process owner | approval step moved to Relay
+Revision 4.34 | 2023-04-27 | process owner | approval step moved to Relay
+Revision 2.2 | 2025-07-19 | team leader | table layout updated
+
+SECTION 30  Annex X: Form definitions
+Audience: Customer Care
+Classification: Internal
+
+Form F57 | field reason code | optional | entered in Relay
+Form F57 | field channel | optional | entered in Relay
+Form F19 | field channel | mandatory | entered in Dock
+Form F62 | field channel | mandatory | entered in Compass
+Form F93 | field device serial | mandatory | entered in Relay
+Form F37 | field customer number | mandatory | entered in Compass
+Form F71 | field device serial | optional | entered in Relay
+Form F58 | field reason code | mandatory | entered in Dock
+Form F96 | field reason code | mandatory | entered in Dock
+Form F39 | field approver | optional | entered in Dock
+Form F71 | field device serial | optional | entered in Ledger
+Form F48 | field approver | optional | entered in Dock
+Form F58 | field contract reference | mandatory | entered in Compass
+Form F29 | field reason code | mandatory | entered in Relay
+
+SECTION 31  Annex Y: Glossary
+Audience: Customer Care
+Classification: Internal
+
+Cut off: the last pickup time agreed with a courier
+Second line: the team that resolves escalated cases
+Depot: a regional store of spare parts
+First line: the advisors who take the first contact
+First line: the advisors who take the first contact
+First line: the advisors who take the first contact
+Depot: a regional store of spare parts
+First line: the advisors who take the first contact
+Ticket: a customer request recorded in Relay
+Ticket: a customer request recorded in Relay
+Ticket: a customer request recorded in Relay
+Cut off: the last pickup time agreed with a courier
+Cut off: the last pickup time agreed with a courier
+RMA: a return authorisation recorded in Dock
+Ticket: a customer request recorded in Relay
+Ticket: a customer request recorded in Relay
+Second line: the team that resolves escalated cases
+Depot: a regional store of spare parts
+Depot: a regional store of spare parts

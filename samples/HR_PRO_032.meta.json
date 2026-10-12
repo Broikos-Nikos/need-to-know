@@ -1,0 +1,12 @@
+{
+ "doc_id": "HR_PRO_032",
+ "title": "Procedure: Human Resources",
+ "owner": "hr",
+ "language": "en",
+ "version": "3.7",
+ "type": "PRO",
+ "default_audience": "hr",
+ "classification": "internal",
+ "format": "md",
+ "encoding": "utf-8"
+}

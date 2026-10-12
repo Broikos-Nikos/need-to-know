@@ -1,0 +1,12 @@
+{
+ "doc_id": "SAL_FAQ_011",
+ "title": "Συχνές ερωτήσεις και υποθέσεις: Πωλήσεις",
+ "owner": "sales",
+ "language": "el",
+ "version": "4.6",
+ "type": "FAQ",
+ "default_audience": "sales",
+ "classification": "internal",
+ "format": "html",
+ "encoding": "utf-8"
+}

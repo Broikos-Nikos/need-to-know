@@ -1,0 +1,12 @@
+{
+ "doc_id": "CUS_MAN_008",
+ "title": "Operations manual: Customer Care",
+ "owner": "customer-care",
+ "language": "en",
+ "version": "1.0",
+ "type": "MAN",
+ "default_audience": "customer-care",
+ "classification": "internal",
+ "format": "txt",
+ "encoding": "utf-8"
+}

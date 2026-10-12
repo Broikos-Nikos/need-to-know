@@ -1,0 +1,12 @@
+{
+ "doc_id": "CUS_FAQ_010",
+ "title": "FAQ and case notes: Customer Care",
+ "owner": "customer-care",
+ "language": "en",
+ "version": "1.0",
+ "type": "FAQ",
+ "default_audience": "customer-care",
+ "classification": "internal",
+ "format": "html",
+ "encoding": "utf-8"
+}

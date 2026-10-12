@@ -1,0 +1,12 @@
+{
+ "doc_id": "LEG_CIR_021",
+ "title": "Συλλογή εγκυκλίων: Νομικό Τμήμα",
+ "owner": "legal",
+ "language": "el",
+ "version": "3.5",
+ "type": "CIR",
+ "default_audience": "legal",
+ "classification": "internal",
+ "format": "md",
+ "encoding": "utf-8"
+}
