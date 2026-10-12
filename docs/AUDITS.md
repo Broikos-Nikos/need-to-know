@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**59 findings, 24 closed, 35 open**, from 9 reviews. Each audit pass took one perspective and nothing else.
+**62 findings, 24 closed, 38 open**, from 10 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -84,6 +84,16 @@ An audit pass on whether a fresh clone can be rebuilt and changed safely. 4 find
 | `MT-F2` | medium | fixed, tick 31 | The writers' narrative (160 files, 1.7 MB) exists only on this machine, so no one else can rebuild the corpus and a lost disk loses it: make it fetchable and verifiable from the repository |
 | `MT-F3` | medium | fixed, tick 31 | The README says nothing about installing or running the project: a short run section with uv sync, ntk doctor, the corpus commands and the benches |
 | `MT-F4` | low | fixed, tick 30 | ntk corpus samples deletes every file in samples/ before writing, a hand added note included: delete only files named for a document |
+
+## `SC`, the supply chain auditor
+
+An audit pass on every dependency, pin and download, and anything committed by accident. 3 findings, 0 closed.
+
+| id | severity | status | finding |
+|---|---|---|---|
+| `SC-F1` | medium | open | No advisory check reads uv.lock: the workspace gate selects projects by package-lock.json; pip-audit found no known vulnerabilities once, by hand, and cannot reach torch 2.14.1+cu130 |
+| `SC-F2` | low | open | qdrant-client is a runtime dependency that no module imports before P3: say so beside the line, or move it to the dev group |
+| `SC-F3` | low | open | The pinned model and Qdrant binary have no command that fetches them: the doctor prints the exact commands with the revision and digest |
 
 ## `KB1`, the plan, reviewed against a knowledge base
 
