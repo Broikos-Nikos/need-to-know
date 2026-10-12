@@ -136,15 +136,16 @@ def test_a_questions_lexical_weights_are_counted_over_the_roles_view_alone(clien
 
 def test_the_dense_search_is_exact_unless_an_ef_asks_for_the_graph(client, monkeypatch):
     # N51: under a filter that matches any of several labels, the graph missed up to half of the exact top 10 at any
-    # ef; the exact path scans the int8 vectors and rescores twice the limit. The filter bench names an ef.
+    # ef. The exact path scores every vector the filter passes in float32 and ignores quantization, so none is sent:
+    # asked for int8 alone, it gave float32's ids and scores for 30 questions of 30 (tick 71). The filter bench names
+    # an ef, and the graph's int8 codes are rescored.
     sent = []
     real = client.query_points
     monkeypatch.setattr(client, "query_points", lambda *args, **kwargs: sent.append(kwargs) or real(*args, **kwargs))
     ask(client, role="sales")
     ask(client, role="sales", ef=128)
     exact, graph = (next(p.params for p in kwargs["prefetch"] if p.using == DENSE) for kwargs in sent)
-    assert exact.exact and exact.hnsw_ef is None
-    assert exact.quantization.rescore and exact.quantization.oversampling == 2.0
+    assert exact.exact and exact.hnsw_ef is None and exact.quantization is None
     assert not graph.exact and graph.hnsw_ef == 128 and graph.quantization.rescore
 
 
