@@ -1,0 +1,130 @@
+"""ntk doctor: whether this machine can build and search the index, one line per check.
+
+A check returns whether it passed and one line of detail, and an exception inside a
+check becomes that check's failure, never a traceback. Nothing here prints a key,
+and nothing loads the embedding model: the doctor checks that the pieces are
+present, and the test suite checks that they work.
+"""
+
+from __future__ import annotations
+
+import shutil
+import sys
+import urllib.request
+
+from needtoknow import policy
+from needtoknow.eval.protocol import load_protocol
+from needtoknow.index import server
+from needtoknow.providers import deepseek_account
+from needtoknow.providers.catalog import load_catalog
+from needtoknow.settings import data_dir, setting
+
+GREEK = "Ελληνικά"
+# What the full build keeps under NTK_DATA_DIR, from PLAN section 8.
+MIN_FREE_GB = 15
+
+
+def check_python(_context: dict) -> tuple[bool, str]:
+    version = sys.version_info
+    return version[:2] == (3, 12), f"{version.major}.{version.minor}.{version.micro}"
+
+
+def check_console(context: dict) -> tuple[bool, str]:
+    encoding = getattr(context["out"], "encoding", None) or "unknown"
+    return encoding.lower().replace("-", "") == "utf8", f"{encoding}; Greek prints as {GREEK}"
+
+
+def check_data(_context: dict) -> tuple[bool, str]:
+    path = data_dir()
+    existing = next(p for p in (path, *path.parents) if p.exists())
+    free = shutil.disk_usage(existing).free / 2**30
+    shortfall = "" if free >= MIN_FREE_GB else f", under the {MIN_FREE_GB} GB the full build needs"
+    return free >= MIN_FREE_GB, f"{path}, {free:.0f} GB free{shortfall}"
+
+
+def check_config(_context: dict) -> tuple[bool, str]:
+    labels = policy.load_labels()
+    roles = policy.load_policy(labels=labels)["roles"]
+    protocol = load_protocol()
+    load_catalog()
+    server.load_config()
+    from needtoknow.embed.model import load_config as embed_config
+
+    embed_config()
+    return True, f"providers, {len(labels)} labels, {len(roles)} roles, protocol version {protocol['version']}, qdrant, models"
+
+
+def check_keys(_context: dict) -> tuple[bool, str]:
+    catalog = load_catalog()
+    deepseek = bool(setting(catalog["deepseek"]["key_env"]))
+    qdrant = bool(setting(server.load_config()["key_env"]))
+    optional = [catalog[name]["key_env"] for name in ("openai", "anthropic", "gemini") if not setting(catalog[name]["key_env"])]
+    return deepseek, (
+        f"DEEPSEEK_API_KEY {'set' if deepseek else 'missing'}; "
+        f"QDRANT_API_KEY {'set' if qdrant else 'not yet, ntk qdrant start writes one'}; "
+        f"{len(optional)} optional keys unset"
+    )
+
+
+def check_qdrant(_context: dict) -> tuple[bool, str]:
+    config = server.load_config()
+    server.check_binary(server.binary_path(config), config["exe_sha256"])
+    pid = server.running(config)
+    return True, f"{config['version']} matches its pin; " + (f"running as pid {pid}" if pid else "not running, ntk qdrant start")
+
+
+def check_gpu(_context: dict) -> tuple[bool, str]:
+    try:
+        import torch
+    except ImportError:
+        return False, "torch is not installed: uv sync --extra embed"
+    if not torch.cuda.is_available():
+        return False, f"torch {torch.__version__} sees no CUDA device"
+    card = torch.cuda.get_device_properties(0)
+    return True, f"{card.name}, {card.total_memory // 2**20} MiB, CUDA {torch.version.cuda}, torch {torch.__version__}"
+
+
+def check_model(_context: dict) -> tuple[bool, str]:
+    from needtoknow.embed.model import load_config as embed_config
+
+    config = embed_config()
+    try:
+        from huggingface_hub import try_to_load_from_cache
+    except ImportError:
+        return False, "huggingface_hub is not installed: uv sync --extra embed"
+    found = isinstance(try_to_load_from_cache(config["repo"], "config.json", revision=config["revision"]), str)
+    return found, f"{config['repo']} at {config['revision'][:8]} " + ("in the local cache" if found else "is not in the local cache")
+
+
+def check_deepseek(context: dict) -> tuple[bool, str]:
+    if context["offline"]:
+        return True, "live check skipped: --offline"
+    deepseek = load_catalog()["deepseek"]
+    key = setting(deepseek["key_env"])
+    if not key:
+        return False, f"{deepseek['key_env']} is not set"
+    passed, lines = deepseek_account.live_check(deepseek["base_url"], deepseek["model"], key, context["opener"])
+    return passed, "; ".join(lines)
+
+
+CHECKS = [
+    ("python", check_python), ("console", check_console), ("data", check_data), ("config", check_config),
+    ("keys", check_keys), ("qdrant", check_qdrant), ("gpu", check_gpu), ("model", check_model),
+    ("deepseek", check_deepseek),
+]
+
+
+def run(offline: bool = False, out=None, opener=urllib.request.urlopen) -> int:
+    """Print one line per check and a summary; 0 when every check passed."""
+    out = out or sys.stdout
+    context = {"offline": offline, "out": out, "opener": opener}
+    passed = 0
+    for name, check in CHECKS:
+        try:
+            ok, detail = check(context)
+        except Exception as error:  # a check that breaks is a failed check, said in one line
+            ok, detail = False, f"{type(error).__name__}: {error}"
+        passed += ok
+        print(f"{'ok' if ok else 'FAIL':<5} {name:<9} {detail}", file=out)
+    print(f"doctor: {passed} of {len(CHECKS)} ok", file=out)
+    return 0 if passed == len(CHECKS) else 1

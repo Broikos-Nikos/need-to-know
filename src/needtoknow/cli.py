@@ -4,13 +4,12 @@ from __future__ import annotations
 
 import argparse
 import sys
-import urllib.error
 import urllib.request
 
-from needtoknow import __version__
+from needtoknow import __version__, doctor
 from needtoknow.index import server
 from needtoknow.providers import deepseek_account
-from needtoknow.providers.catalog import load_catalog
+from needtoknow.providers.catalog import CatalogError, load_catalog
 from needtoknow.settings import setting
 
 PROVIDERS = ("deepseek", "openai", "anthropic", "gemini")
@@ -33,15 +32,17 @@ def build_parser() -> argparse.ArgumentParser:
     providers.add_argument("--offline", action="store_true", help="skip the two live calls to DeepSeek")
     qdrant = commands.add_parser("qdrant", help="start, stop or check the local Qdrant server")
     qdrant.add_argument("action", choices=("start", "stop", "status"))
+    checkup = commands.add_parser("doctor", help="whether this machine can build and search the index, one line per check")
+    checkup.add_argument("--offline", action="store_true", help="skip the live calls to DeepSeek")
     return parser
 
 
 def cmd_qdrant(args: argparse.Namespace, out=None) -> int:
     """Exit 0 when the action succeeded; for status, when the server is running and ready."""
     out = out or sys.stdout
-    config = server.load_config()
-    where = f"{config['host']}:{config['http_port']}"
     try:
+        config = server.load_config()
+        where = f"{config['host']}:{config['http_port']}"
         if args.action == "start":
             pid, seconds, created = server.start(config)
             if created:
@@ -64,7 +65,11 @@ def cmd_qdrant(args: argparse.Namespace, out=None) -> int:
 def cmd_providers(args: argparse.Namespace, out=None) -> int:
     """Exit 0 when the configured DeepSeek model is live and the balance is usable."""
     out = out or sys.stdout
-    catalog = load_catalog()
+    try:
+        catalog = load_catalog()
+    except CatalogError as error:
+        print(f"providers: {error}", file=out)
+        return 1
     for name in PROVIDERS:
         entry = catalog[name]
         has_key = "yes" if setting(entry["key_env"]) else "no"
@@ -81,26 +86,26 @@ def cmd_providers(args: argparse.Namespace, out=None) -> int:
     if not key:
         print(f"live check skipped: {deepseek['key_env']} is not set in the environment or .env", file=out)
         return 1
-    try:
-        models = deepseek_account.list_models(deepseek["base_url"], key, OPENER)
-        available, rows = deepseek_account.balance(deepseek["base_url"], key, OPENER)
-    except (urllib.error.URLError, TimeoutError, OSError) as error:
-        print(f"live check failed: {type(error).__name__}", file=out)
-        return 1
-    listed = deepseek["model"] in models
-    print(f"live models: {', '.join(models)}; configured {deepseek['model']} listed: {'yes' if listed else 'no'}", file=out)
-    amounts = ", ".join(f"{total} {currency}" for total, currency in rows) or "none reported"
-    print(f"balance: {amounts}; usable: {'yes' if available else 'no'}", file=out)
-    return 0 if listed and available else 1
+    passed, lines = deepseek_account.live_check(deepseek["base_url"], deepseek["model"], key, OPENER)
+    for line in lines:
+        print(line, file=out)
+    return 0 if passed else 1
 
 
 def main(argv: list[str] | None = None) -> int:
+    # Half the corpus is Greek, and a pipe on Windows defaults to the locale's code
+    # page, which cannot encode it (HS-F4): every command writes UTF-8.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
     parser = build_parser()
     args = parser.parse_args(argv)
     if args.command == "providers":
         return cmd_providers(args)
     if args.command == "qdrant":
         return cmd_qdrant(args)
+    if args.command == "doctor":
+        return doctor.run(offline=args.offline, opener=OPENER)
     parser.print_help()
     return 0
 

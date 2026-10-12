@@ -1,6 +1,7 @@
 import argparse
 import io
 import json
+import urllib.error
 
 import pytest
 
@@ -92,3 +93,47 @@ def test_every_provider_is_listed_with_its_key_state(isolated):
     assert "key set: yes" in lines["openai"]
     assert "key set: no" in lines["deepseek"]
     assert "set-but-not-shown" not in text
+
+
+def opener_answering(body: bytes):
+    def opener(request, timeout=None):
+        return io.BytesIO(body)
+    return opener
+
+
+def test_an_html_page_instead_of_json_is_named_not_a_traceback(isolated):
+    # HS-F2: a captive portal or an outage page answers 200 with HTML.
+    isolated.setenv("DEEPSEEK_API_KEY", FAKE_KEY)
+    isolated.setattr(cli, "OPENER", opener_answering(b"<html><body>Sign in to Wi-Fi</body></html>"))
+    code, text = run()
+    assert code == 1 and "not JSON" in text and "<html>" in text and FAKE_KEY not in text
+
+
+def test_a_refused_key_says_so_with_its_status_and_never_shows_it(isolated):
+    # HS-F3: it used to print only "HTTPError".
+    def unauthorized(request, timeout=None):
+        raise urllib.error.HTTPError(request.full_url, 401, "Unauthorized", {}, io.BytesIO(b"{}"))
+    isolated.setenv("DEEPSEEK_API_KEY", FAKE_KEY)
+    isolated.setattr(cli, "OPENER", unauthorized)
+    code, text = run()
+    assert code == 1 and "HTTP 401 Unauthorized: DeepSeek refused the key" in text and FAKE_KEY not in text
+
+
+def test_a_model_item_without_an_id_is_skipped(isolated):
+    # HS-F7: it used to raise KeyError: 'id'.
+    body = {"data": [{"object": "model"}, {"id": "deepseek-flash"}], "is_available": True, "balance_infos": []}
+    isolated.setenv("DEEPSEEK_API_KEY", FAKE_KEY)
+    isolated.setattr(cli, "OPENER", opener_answering(json.dumps(body).encode("utf-8")))
+    code, text = run()
+    assert code == 0 and "configured deepseek-flash listed: yes" in text
+
+
+def test_a_model_name_with_a_typo_is_named_with_its_file_and_key(isolated, tmp_path):
+    # HS-F8: it used to raise KeyError before any network call, even offline.
+    from needtoknow.providers import catalog
+    broken = tmp_path / "providers.toml"
+    broken.write_text(catalog.catalog_path().read_text(encoding="utf-8").replace(
+        'model = "deepseek-flash"', 'model = "deepseek-flash-2"', 1), encoding="utf-8")
+    isolated.setattr(catalog, "catalog_path", lambda: broken)
+    code, text = run(offline=True)
+    assert code == 1 and "deepseek.model is 'deepseek-flash-2'" in text

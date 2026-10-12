@@ -35,8 +35,11 @@ class ServerError(Exception):
 
 
 def load_config(path: Path | None = None) -> dict:
-    with open(path or repo_root() / "config" / "qdrant.toml", "rb") as handle:
-        return tomllib.load(handle)
+    try:
+        with open(path or repo_root() / "config" / "qdrant.toml", "rb") as handle:
+            return tomllib.load(handle)
+    except tomllib.TOMLDecodeError as error:
+        raise ServerError(f"config/qdrant.toml is not valid TOML: {error}") from None
 
 
 def binary_path(config: dict) -> Path:
