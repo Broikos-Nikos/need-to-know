@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**65 findings, 28 closed, 37 open**, from 11 reviews. Each audit pass took one perspective and nothing else.
+**65 findings, 31 closed, 34 open**, from 11 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -97,13 +97,13 @@ An audit pass on every dependency, pin and download, and anything committed by a
 
 ## `HE`, the hiring engineer
 
-An audit pass of three minutes, on whether the author ships, measures and says so honestly. 3 findings, 0 closed.
+An audit pass of three minutes, on whether the author ships, measures and says so honestly. 3 findings, 3 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
-| `HE-F1` | medium | open | The README says nothing is measured while the repository proves a clone rebuilds the corpus, kills recover and every block resolves: a What works today list, each item with its command |
-| `HE-F2` | medium | open | The README never says the documents are synthetic or who the writers are: one sentence on provenance where the documents first appear |
-| `HE-F3` | high | open | The README says none of the run section needs a GPU, a key or a network, but uv sync downloads the dependencies: say the rest runs without them once uv sync has fetched them |
+| `HE-F1` | medium | fixed, tick 37 | The README says nothing is measured while the repository proves a clone rebuilds the corpus, kills recover and every block resolves: a What works today list, each item with its command |
+| `HE-F2` | medium | fixed, tick 37 | The README never says the documents are synthetic or who the writers are: one sentence on provenance where the documents first appear |
+| `HE-F3` | high | fixed, tick 37 | The README says none of the run section needs a GPU, a key or a network, but uv sync downloads the dependencies: say the rest runs without them once uv sync has fetched them |
 
 ## `KB1`, the plan, reviewed against a knowledge base
 
