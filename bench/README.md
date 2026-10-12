@@ -51,9 +51,14 @@ uv run python bench/parse_corpus.py
 
 ## freshness.py
 
-Times a one sentence edit through the watcher into the manifest, and its undoing, on a
-plain text file of the corpus, which it leaves as it found it. It needs an assembled
-corpus and a manifest, which `ntk ingest build` makes.
+The change bench of the freshness objective: a one sentence edit to a planted fact in a
+plain text file, timed until a role that may read it finds the new sentence by asking it,
+and its undoing, through `ntk ingest watch` running as a process of its own, as a
+deployment runs it, started once its catch up is done. Every scan and sync between an
+edit and the query that saw it prints with its seconds and parts, from the lines the
+watcher prints (`bench/watched.py`). It exits 1 past the objective, 5 s, and leaves the
+corpus as it found it. It needs the corpus, the manifest, the vector cache, the `embed`
+extra and the index on the running server.
 
 ```
 uv run python bench/freshness.py
@@ -87,14 +92,19 @@ uv run python bench/lexical_corpus.py
 ## revocation.py
 
 Widens one section's audience to a second label, as the simulator's relabel does, then
-puts the file back, which narrows it again, with the watcher running and syncing the
-index; it times how long a reader of the second label takes to find the section, and how
-long until it can no longer. It needs the corpus, the manifest, the vector cache, the
-`embed` extra and the index on the running server, and leaves the corpus as it found it.
-Commit "Let the watcher carry every change into the index" quotes it.
+puts the file back, which narrows it again, with `ntk ingest watch` running as a process
+of its own and syncing the index; it times how long a reader of the second label takes to
+find the section, and how long until it can no longer, each with its scan and sync. By
+default it takes the largest document that qualifies, LOG_CAT_006, since a change costs a
+scan of its whole file; `--doc` names another. It exits 1 past the objective, 5 s. It
+needs the corpus, the manifest, the vector cache, the `embed` extra and the index on the
+running server, and leaves the corpus as it found it. Commits "Let the watcher carry
+every change into the index" and "Bring the largest document's change under 5 s" quote
+it.
 
 ```
 uv run python bench/revocation.py
+uv run python bench/revocation.py --doc CUS_MAN_003
 ```
 
 ## idf_attack.py

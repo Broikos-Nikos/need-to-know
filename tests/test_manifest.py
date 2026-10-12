@@ -100,4 +100,19 @@ def test_the_ingest_command_prints_its_run(corpus, capsys):
     assert main(["ingest", "build"]) == 0
     out = capsys.readouterr().out
     assert out.startswith("build run 1: files 6, read 6, changed 6, removed 0; units added ") and "manifest.db" in out
-    assert out.rstrip().endswith("changes by kind: added 6")
+    head, _, seconds = out.rstrip().rpartition("; in ")
+    assert head.endswith("changes by kind: added 6") and seconds.endswith(" s") and float(seconds[:-2]) >= 0
+
+
+def test_a_scan_cuts_with_the_collector_paused_and_turns_it_back_on(corpus, monkeypatch):
+    # T3.16: in a watcher holding the encoder, full collections during a cut walk 368,000 objects: the largest file's
+    # cut took 3.09 s with the collector on and 2.16 s with it off.
+    import gc
+
+    from needtoknow.ingest import pipeline
+    seen = []
+    real = pipeline.document_units
+    monkeypatch.setattr(pipeline, "document_units", lambda *a, **k: seen.append(gc.isenabled()) or real(*a, **k))
+    assert gc.isenabled()
+    build()
+    assert seen and not any(seen) and gc.isenabled()

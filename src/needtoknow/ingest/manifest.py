@@ -19,9 +19,11 @@ run that verifies. Every run records, per file, what changed.
 
 from __future__ import annotations
 
+import gc
 import hashlib
 import json
 import sqlite3
+import time
 from contextlib import contextmanager
 from dataclasses import replace
 from datetime import datetime, timezone
@@ -59,6 +61,21 @@ CREATE TABLE changes (
 
 class ManifestError(RuntimeError):
     """A manifest from another schema version, or one that cannot be opened."""
+
+
+@contextmanager
+def collector_paused():
+    """Python's cyclic collector off while a scan cuts and writes: a cut makes millions of objects and no cycles, and
+    every full collection meanwhile walks every object the process holds. In a watcher holding the encoder, 368,000
+    of them, the largest file's cut took 3.09 s with it on and 2.16 s with it off (tick 73), and a change waits for it.
+    """
+    enabled = gc.isenabled()
+    gc.disable()
+    try:
+        yield
+    finally:
+        if enabled:
+            gc.enable()
 
 
 def manifest_path() -> Path:
@@ -142,7 +159,8 @@ def scan(full: Path | None = None, path: Path | None = None, force: bool = False
         raise ManifestError(f"{full} is not there, so every document would read as deleted: nothing scanned. A swap "
                             f"killed between its renames leaves it so, and the next ntk corpus assemble settles it")
     kind = "build" if force else "scan"
-    with opened(path) as db:
+    began = time.perf_counter()
+    with collector_paused(), opened(path) as db:
         run_id = db.execute("INSERT INTO runs (kind, started) VALUES (?, ?)", (kind, now())).lastrowid
         summary = {"run": run_id, "kind": kind, "files": 0, "files_read": 0, "files_changed": 0, "files_removed": 0,
                    "units_added": 0, "units_removed": 0, "changes": {}, "changed_docs": []}
@@ -198,6 +216,7 @@ def scan(full: Path | None = None, path: Path | None = None, force: bool = False
                    "units_added = ?, units_removed = ?, units_total = ? WHERE run_id = ?",
                    (now(), summary["files"], summary["files_read"], summary["files_changed"], summary["files_removed"],
                     summary["units_added"], summary["units_removed"], summary["units_total"], run_id))
+    summary["seconds"] = time.perf_counter() - began  # committed: what a watcher's change waits for (MA-F6)
     return summary
 
 

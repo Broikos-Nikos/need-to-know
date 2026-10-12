@@ -45,8 +45,13 @@ CHARS_PER_TOKEN = {"en": 4.0, "el": 3.2}
 SEP = "\x1f"
 
 
+def tokens_for(length: int, language: str) -> int:
+    """The token estimate of a text this many characters long."""
+    return math.ceil(length / CHARS_PER_TOKEN.get(language, 3.2))
+
+
 def estimate_tokens(text: str, language: str) -> int:
-    return math.ceil(len(text) / CHARS_PER_TOKEN.get(language, 3.2))
+    return tokens_for(len(text), language)
 
 
 def digest(*parts: str, size: int = 32) -> str:
@@ -124,7 +129,9 @@ def merge_short(pieces: list[tuple[str, int, int]], language: str) -> list[tuple
 
 
 def is_boundary(row_text: str) -> bool:
-    return int(digest(row_text, size=8), 16) % ROWS_PER_UNIT == 0
+    # digest(row_text, size=8) as a number: its eight hex digits are the hash's first four bytes, read here
+    # without the round trip through hex, which every one of 4.3 million rows paid (T3.16).
+    return int.from_bytes(hashlib.sha256(row_text.encode("utf-8")).digest()[:4], "big") % ROWS_PER_UNIT == 0
 
 
 def table_groups(header: Element | None, rows: list[Element], language: str) -> list[tuple[str, int, int]]:
@@ -134,15 +141,20 @@ def table_groups(header: Element | None, rows: list[Element], language: str) -> 
     current: list[Element] = []
 
     def close() -> None:
+        nonlocal size
         if current:
             text = "\n".join(([head] if head else []) + [r.text for r in current])
             groups.append((text, current[0].start, current[-1].end))
             current.clear()
+        size = len(head)
 
+    # The length of the group close() would join, kept as rows come: the header, then a newline and each row. A
+    # group with one more row is measured from it, where it was joined again for every row (T3.16).
+    size = len(head)
     for row in rows:
-        candidate = "\n".join(([head] if head else []) + [r.text for r in current] + [row.text])
-        if current and (len(current) >= MAX_ROWS or estimate_tokens(candidate, language) > MAX_TOKENS):
+        if current and (len(current) >= MAX_ROWS or tokens_for(size + 1 + len(row.text), language) > MAX_TOKENS):
             close()
+        size = size + 1 + len(row.text) if current or head else len(row.text)
         current.append(row)
         if is_boundary(row.text):
             close()

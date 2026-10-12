@@ -226,3 +226,46 @@ def test_a_watcher_scans_first_what_changed_while_none_ran(monkeypatch, tmp_path
     assert watch(full, stop=steps.stop, sleep=steps.sleep) == 1
     with opened() as db:
         assert db.execute("SELECT count(*) FROM units WHERE text LIKE '%files the outcome%'").fetchone()[0] == 1
+
+
+def test_the_lines_the_watcher_prints_are_the_lines_the_change_benches_time(capsys, monkeypatch):
+    # MA-F6: bench/watched.py times each scan and sync from the line ntk ingest watch prints when it ends.
+    import sys
+
+    from needtoknow.cli import report_run
+    from needtoknow.settings import repo_root
+    monkeypatch.syspath_prepend(str(repo_root() / "bench"))
+    import watched
+    report_run({"kind": "scan", "run": 7, "files": 160, "files_read": 1, "files_changed": 1, "files_removed": 0,
+                "units_added": 1, "units_removed": 1, "units_total": 501031, "changes": {"changed": 1},
+                "unknown_audiences": [], "seconds": 2.9}, sys.stdout)
+    report_run({"deleted": 1, "embedded": 0, "upserted": 1, "points_after": 501031, "units": 17369, "seconds": 0.5,
+                "parts": {"read": 0.35, "check": 0.1}}, sys.stdout)
+    scan_line, sync_line = capsys.readouterr().out.splitlines()
+    assert watched.SCAN.match(scan_line).groups() == ("1", "2.90")
+    assert watched.SYNC.match(sync_line).groups() == ("0.50", "read 0.35, check 0.10")
+
+
+def test_the_watcher_loads_the_encoder_before_it_watches_when_it_syncs_the_index(monkeypatch, tmp_path):
+    # T3.16: the first edit after a watcher started paid the encoder's load, 10 to 25 s, before its embedding.
+    import argparse
+    import io
+
+    from needtoknow import cli
+    from needtoknow.embed import model
+    from needtoknow.ingest import watch as watching
+    calls = []
+    monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path))
+    monkeypatch.setattr(model, "load", lambda *a, **k: calls.append("load"))
+    monkeypatch.setattr(watching, "watch", lambda *a, **k: calls.append("watch") or 0)
+    cli.cmd_ingest(argparse.Namespace(action="watch", interval=0.5, manifest_only=False), io.StringIO())
+    assert calls == ["load", "watch"]
+    calls.clear()
+    cli.cmd_ingest(argparse.Namespace(action="watch", interval=0.5, manifest_only=True), io.StringIO())
+    assert calls == ["watch"]
+
+
+def test_the_watcher_looks_every_half_second_unless_told_otherwise():
+    # N53: a change waits two intervals before its scan, and a look at 320 files costs 9 ms.
+    from needtoknow.cli import build_parser
+    assert build_parser().parse_args(["ingest", "watch"]).interval == 0.5

@@ -106,3 +106,42 @@ def test_the_pieces_of_a_long_paragraph_carry_their_own_offsets():
     pieces = [u for u in cut(text) if u.path[-1:] == ("SECTION 1  Desk",)]
     assert len(pieces) >= 2 and all(text[u.start:u.end] == u.text for u in pieces)
     assert [u.start for u in pieces] == sorted(u.start for u in pieces) and len({u.start for u in pieces}) == len(pieces)
+
+
+def test_a_groups_length_is_counted_as_rows_come_and_its_boundaries_read_as_the_digest_says():
+    # T3.16: table_groups joined the group again for every row only to measure it, and is_boundary read the hash
+    # through hex; both now count, and must cut exactly the groups the join and the hex cut.
+    import random
+
+    from needtoknow.ingest import units as cutter
+    from needtoknow.ingest.structure import Element
+    newline = chr(10)
+
+    def joined(header, rows, language):
+        head = header.text if header else ""
+        groups, current = [], []
+
+        def close():
+            if current:
+                groups.append((newline.join(([head] if head else []) + [r.text for r in current]), current[0].start,
+                               current[-1].end))
+                current.clear()
+
+        for row in rows:
+            candidate = newline.join(([head] if head else []) + [r.text for r in current] + [row.text])
+            if current and (len(current) >= MAX_ROWS or estimate_tokens(candidate, language) > MAX_TOKENS):
+                close()
+            current.append(row)
+            if int(cutter.digest(row.text, size=8), 16) % cutter.ROWS_PER_UNIT == 0:
+                close()
+        close()
+        return groups
+
+    rng = random.Random(73)
+    headers = (None, Element("row", "Shop | Region", 0, 0, header=True), Element("row", "H" * 700, 0, 0, header=True))
+    for case in range(300):
+        width = rng.choice((5, 40, 120, 400, 1100))
+        rows = [Element("row", "x" * rng.randint(1, width) + str(n), 10 * n, 10 * n + 5) for n in range(rng.randint(1, 90))]
+        header = rng.choice(headers)
+        for language in ("en", "el"):
+            assert cutter.table_groups(header, rows, language) == joined(header, rows, language), (case, language)

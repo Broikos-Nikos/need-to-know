@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+import time
 import urllib.request
 
 from needtoknow import __version__, doctor
@@ -41,7 +42,8 @@ def build_parser() -> argparse.ArgumentParser:
     corpus.add_argument("--seed", type=int, default=1, help="mutate: the seed that picks documents and values")
     ingest = commands.add_parser("ingest", help="cut the assembled corpus into units and record them in the manifest")
     ingest.add_argument("action", choices=("build", "scan", "watch"))
-    ingest.add_argument("--interval", type=float, default=1.0, help="watch: seconds between looks at the corpus folder")
+    # Half a second: a change waits two intervals before its scan, and a look costs 9 ms (N53).
+    ingest.add_argument("--interval", type=float, default=0.5, help="watch: seconds between looks at the corpus folder")
     ingest.add_argument("--manifest-only", action="store_true",
                         help="watch: keep the manifest current and leave the index alone")
     index = commands.add_parser("index", help="create the Qdrant collection, or bring it to the manifest")
@@ -64,16 +66,17 @@ def report_run(summary: dict, out) -> None:
         print(f"ingest: {summary['error']}", file=out, flush=True)
         return
     if "upserted" in summary:
+        parts = ", ".join(f"{part} {seconds:.2f}" for part, seconds in summary.get("parts", {}).items())
         print(f"index: deleted {summary['deleted']}, embedded {summary['embedded']}, upserted {summary['upserted']}; "
               f"points {summary['points_after']} for {summary['units']} units"
-              + (f"; frequency table recounted from {summary['recounted']} points" if summary.get("recounted") else ""),
-              file=out, flush=True)
+              + (f"; frequency table recounted from {summary['recounted']} points" if summary.get("recounted") else "")
+              + f"; in {summary['seconds']:.2f} s ({parts})", file=out, flush=True)
         return
     changes = ", ".join(f"{k} {n}" for k, n in sorted(summary["changes"].items())) or "none"
     print(f"{summary['kind']} run {summary['run']}: files {summary['files']}, read {summary['files_read']}, "
           f"changed {summary['files_changed']}, removed {summary['files_removed']}; units added {summary['units_added']}, "
           f"removed {summary['units_removed']}, in the manifest {summary['units_total']} ({manifest_path()}); "
-          f"changes by kind: {changes}", file=out, flush=True)
+          f"changes by kind: {changes}; in {summary.get('seconds', 0.0):.2f} s", file=out, flush=True)
     if summary["unknown_audiences"]:
         print(f"audience names no label knows: {', '.join(summary['unknown_audiences'])}", file=out, flush=True)
 
@@ -91,6 +94,15 @@ def cmd_ingest(args: argparse.Namespace, out=None) -> int:
             from needtoknow.index.sync import sync
             return sync(server.client(), doc_ids=doc_ids)
 
+        if not args.manifest_only:  # an edited paragraph is embedded again: load the encoder now, not at the first edit
+            try:
+                from needtoknow.embed import model
+                began = time.perf_counter()
+                model.load()
+                print(f"encoder loaded in {time.perf_counter() - began:.1f} s", file=out, flush=True)
+            except Exception as error:  # no embed extra, no GPU: the first edit pays the load, or says why it cannot
+                print(f"encoder not loaded, so the first edit loads it: {type(error).__name__}: {error}", file=out,
+                      flush=True)
         try:
             watch(full, interval=args.interval, report=lambda summary: report_run(summary, out),
                   sync_fn=None if args.manifest_only else sync_index)
