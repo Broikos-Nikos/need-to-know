@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**71 findings, 40 closed, 31 open**, from 13 reviews. Each audit pass took one perspective and nothing else.
+**74 findings, 40 closed, 34 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -124,6 +124,16 @@ An audit pass of ten seconds on the first screen, by someone who hires but does 
 |---|---|---|---|
 | `RC-F1` | medium | open | The README opens with jargon, a vector database RAG project, and the plain idea comes forty words in: lead with what it does for a person |
 | `RC-F2` | medium | open | Nothing in the first screen can be seen or tried: the capture goes above everything when P6 lands |
+
+## `PF`, the performance auditor
+
+An audit pass on time, memory and disk, its page half waiting for the page. 3 findings, 0 closed.
+
+| id | severity | status | finding |
+|---|---|---|---|
+| `PF-F1` | medium | open | More than half of ingestion is spent copying row objects (segments 35 percent, structure 20): labels and safe paths in one pass and one copy, measured again before the full build |
+| `PF-F2` | low | open | The manifest is 1.7 times the corpus, its paths repeated on every unit: paths once per section, and the manifest counted in the disk floor |
+| `PF-F3` | low | open | Memory peaks at 19 times the size of the file being cut (158 MB for 8.43 MB): say the limit, stream by section if larger files arrive |
 
 ## `KB1`, the plan, reviewed against a knowledge base
 
