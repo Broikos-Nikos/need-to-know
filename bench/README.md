@@ -3,8 +3,9 @@
 Each script here prints numbers that the history quotes, so that none of them rests on
 a script outside this repository. `operator_probes.py`, `crash_points.py`,
 `parse_corpus.py`, `lexical_corpus.py` and `ingest_steps.py` need the project and its
-corpus, and no GPU, key or network; the others need the GPU, the running index server or
-both, as each section says.
+corpus, and no GPU, key or network; `deepseek_call.py` needs a DeepSeek key and the
+network, and nothing else; the others need the GPU, the running index server or both, as
+each section says.
 
 ## operator_probes.py
 
@@ -191,6 +192,20 @@ disk peak the doctor's floor comes from.
 ```
 uv run python bench/full_build.py --fresh
 uv run python bench/full_build.py --serving 50
+```
+
+## deepseek_call.py
+
+One question through the DeepSeek adapter, live: T4.1's prompt over two fixed excerpts,
+asked with thinking off at the top level of the request, on, and off inside `extra_body`
+as the OpenAI SDK's syntax writes it; for each, the tokens as DeepSeek bills them, cache
+hits apart, the reasoning tokens, the seconds, the USD and the answer as `parse` reads
+it. It exits 1 if thinking off at the top level spends a reasoning token, if the wrapped
+form spends none, which would mean the API now reads it, or if an answer is not the first
+excerpt's, cited alone. N13 quotes it; three calls cost a fraction of a cent.
+
+```
+uv run python bench/deepseek_call.py
 ```
 
 ## permission_suite.py

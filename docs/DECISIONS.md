@@ -32,6 +32,25 @@ label.
 **Reverses if.** The sentence variant wins on the evaluation's probes with accuracy no
 worse.
 
+## N13. deepseek-flash is the model under test, behind one small interface
+
+**Call.** One provider is evaluated, DeepSeek's `deepseek-flash`, the model the project is
+tuned for. The answer layer reaches it through `complete`, which sends `thinking` as a top
+level field of the request, disabled unless asked or configured otherwise. Model ids and
+prices live in `config/providers.toml`; adapters for other providers would be tested
+against recorded replies and claim nothing more.
+
+**Evidence.** DeepSeek's documentation shows `thinking` inside `extra_body`, the OpenAI
+SDK's syntax, which the SDK unwraps before it sends; a raw request that keeps the wrapper
+leaves thinking on, the API's default. On 2026-10-13, `bench/deepseek_call.py` asked one
+question three ways: thinking off at the top level spent 0 reasoning tokens, on spent 34,
+and off inside `extra_body` spent 41. The research notes warn that reasoning and caching
+controls are not portable and should not be abstracted before a second provider is used
+(`09-production/05`).
+
+**Reverses if.** The owner opens the model comparison across providers; then the other
+adapters get keys and runs.
+
 ## N23. No company is named; the documents say "the Company"
 
 **Call.** The generated documents call their author "the Company", "η Εταιρεία" in
