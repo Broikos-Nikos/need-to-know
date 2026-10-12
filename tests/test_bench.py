@@ -1,0 +1,34 @@
+"""The benches run anywhere and still print what the history quotes them for (MA-F1)."""
+
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+from needtoknow.corpus.plan import build
+
+BENCH = Path(__file__).resolve().parents[1] / "bench"
+
+
+def run(script: str, *args: str) -> subprocess.CompletedProcess:
+    return subprocess.run([sys.executable, str(BENCH / script), *args], capture_output=True, text=True,
+                          encoding="utf-8", errors="replace")
+
+
+def test_every_kill_point_of_the_simulator_ends_equal_to_the_crash_free_state():
+    result = run("crash_points.py")
+    assert result.returncode == 0, result.stdout + result.stderr[-2000:]
+    total = int(re.search(r"kill points (\d+):", result.stdout).group(1))
+    assert total > 0 and f"equal to the crash free state {total} of {total}" in result.stdout, result.stdout
+
+
+def test_the_operator_probes_run_on_a_plan_alone(monkeypatch, tmp_path):
+    monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path))
+    build()
+    result = run("operator_probes.py", "--corpus", str(tmp_path / "corpus"), "--synthetic")
+    assert result.returncode == 0, result.stdout + result.stderr[-2000:]
+    for line in ["P3 two assemblies: identical bytes True in 48 files",
+                 "P1 a build killed after 15 of 24 documents: 0 files missing; problems naming a missing file 0",
+                 "P1c 9 files deleted by hand, 1 carrying a fact: the check names 9",
+                 "P2 the journal line made to fail: files changed 0; journal lines 0"]:
+        assert line in result.stdout, result.stdout
