@@ -1,8 +1,9 @@
 """The corpus plan: the same seed gives the same Company, and every fact is planted where its label belongs."""
 
 import random
+import re
 
-from needtoknow.corpus.plan import SEED, make_catalogue, make_facts, world
+from needtoknow.corpus.plan import SEED, lower_first, make_catalogue, make_facts, world
 
 
 def plan():
@@ -42,6 +43,18 @@ def test_no_document_repeats_a_heading():
         assert len(headings) == len(set(headings)), doc["id"]
         greek = [s["topic_el"] for s in doc["sections"]]
         assert len(greek) == len(set(greek)), doc["id"]
+
+
+def test_a_dated_sentence_goes_on_in_lower_case_unless_it_starts_with_an_acronym():
+    # KB3-K7: "From 1 July 2025, A credit check ..." in 8 English and 6 Greek sentences.
+    assert lower_first("A credit check is required.") == "a credit check is required."
+    assert lower_first("Ο πελάτης δικαιούται.") == "ο πελάτης δικαιούται."
+    assert lower_first("SLA breaches are reported.") == "SLA breaches are reported."
+    facts, _ = plan()
+    frame = re.compile(r"^(?:From \d+ \w+ \d{4}|Από την \d+ \w+ \d{4}), (\w+)")
+    firsts = [m.group(1) for f in facts for lang in ("en", "el") if (m := frame.match(f[lang]))]
+    assert len(firsts) == 2 * sum(f["kind"] in ("versioned", "superseded") for f in facts) > 0
+    assert all(w[0].islower() or (len(w) > 1 and w.isupper()) for w in firsts), firsts
 
 
 def test_a_superseded_value_differs_from_the_one_that_replaced_it():

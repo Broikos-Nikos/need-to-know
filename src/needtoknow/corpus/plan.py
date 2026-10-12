@@ -310,7 +310,13 @@ def shift(value: tuple[str, str]) -> tuple[str, str]:
 
 
 def lower_first(text: str) -> str:
-    return text[:1].lower() + text[1:] if not text[:2].isupper() else text
+    """The sentence after a date frame goes on in lower case, unless its first word is an acronym such as SLA.
+
+    A one letter word is no acronym: "A credit check" and "Ο πελάτης" kept their capital
+    after "From 1 July 2025, " until KB3-K7.
+    """
+    first = text.split(" ", 1)[0]
+    return text if len(first) > 1 and first.isupper() else text[:1].lower() + text[1:]
 
 
 def make_catalogue(rng: random.Random, facts: list[dict]) -> list[dict]:
