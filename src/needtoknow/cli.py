@@ -40,20 +40,37 @@ def build_parser() -> argparse.ArgumentParser:
     corpus.add_argument("--count", type=int, default=9, help="mutate: how many changes to apply")
     corpus.add_argument("--seed", type=int, default=1, help="mutate: the seed that picks documents and values")
     ingest = commands.add_parser("ingest", help="cut the assembled corpus into units and record them in the manifest")
-    ingest.add_argument("action", choices=("build", "scan"))
+    ingest.add_argument("action", choices=("build", "scan", "watch"))
+    ingest.add_argument("--interval", type=float, default=1.0, help="watch: seconds between looks at the corpus folder")
     return parser
 
 
-def cmd_ingest(args: argparse.Namespace, out=None) -> int:
-    from needtoknow.ingest.manifest import build, manifest_path, scan
-    out = out or sys.stdout
-    summary = build() if args.action == "build" else scan()
+def report_run(summary: dict, out) -> None:
+    from needtoknow.ingest.manifest import manifest_path
     changes = ", ".join(f"{k} {n}" for k, n in sorted(summary["changes"].items())) or "none"
-    print(f"{summary['kind']} run {summary['run']}: files {summary['files']}, read {summary['files_read']}, changed {summary['files_changed']}, removed "
-          f"{summary['files_removed']}; units added {summary['units_added']}, removed {summary['units_removed']}, "
-          f"in the manifest {summary['units_total']} ({manifest_path()}); changes by kind: {changes}", file=out)
+    print(f"{summary['kind']} run {summary['run']}: files {summary['files']}, read {summary['files_read']}, "
+          f"changed {summary['files_changed']}, removed {summary['files_removed']}; units added {summary['units_added']}, "
+          f"removed {summary['units_removed']}, in the manifest {summary['units_total']} ({manifest_path()}); "
+          f"changes by kind: {changes}", file=out, flush=True)
     if summary["unknown_audiences"]:
-        print(f"audience names no label knows: {', '.join(summary['unknown_audiences'])}", file=out)
+        print(f"audience names no label knows: {', '.join(summary['unknown_audiences'])}", file=out, flush=True)
+
+
+def cmd_ingest(args: argparse.Namespace, out=None) -> int:
+    from needtoknow.ingest.manifest import build, scan
+    from needtoknow.settings import data_dir
+    out = out or sys.stdout
+    if args.action == "watch":
+        from needtoknow.ingest.watch import watch
+        full = data_dir() / "corpus" / "full"
+        print(f"watching {full} every {args.interval:g} s; Ctrl+C stops", file=out, flush=True)
+        try:
+            watch(full, interval=args.interval, report=lambda summary: report_run(summary, out))
+        except KeyboardInterrupt:
+            pass
+        return 0
+    summary = build() if args.action == "build" else scan()
+    report_run(summary, out)
     return 1 if summary["unknown_audiences"] else 0
 
 

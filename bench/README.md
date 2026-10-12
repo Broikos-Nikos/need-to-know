@@ -39,11 +39,22 @@ scripts themselves, fails the suite.
 
 ## parse_corpus.py
 
-Parses every file of the assembled corpus, each in its declared encoding, and checks
-that every block's span gives its text back. It prints the blocks by kind, the header
-rows, the blocks that do not resolve, and the seconds spent parsing alone. It needs an
-assembled corpus, which `ntk corpus assemble` builds from a clone in under a minute.
+Decodes and parses every file of the assembled corpus, each in its declared encoding,
+and checks that every block's span gives its text back, that every file's section
+headings match its section lines, and that every fact placement comes out as one whole
+sentence. It needs an assembled corpus, which `ntk corpus assemble` builds from a clone
+in under a minute.
 
 ```
 uv run python bench/parse_corpus.py
+```
+
+## freshness.py
+
+Times a one sentence edit through the watcher into the manifest, and its undoing, on a
+plain text file of the corpus, which it leaves as it found it. It needs an assembled
+corpus and a manifest, which `ntk ingest build` makes.
+
+```
+uv run python bench/freshness.py
 ```
