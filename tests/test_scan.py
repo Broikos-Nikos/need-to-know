@@ -11,6 +11,7 @@ from needtoknow.corpus import assemble, mutate
 from needtoknow.corpus.plan import header
 from needtoknow.ingest import manifest, pipeline, segments
 from needtoknow.ingest.manifest import build, opened, scan
+from needtoknow.ingest.units import passage
 
 FACT = {"en": "Returned items are inspected within 3 working days of arrival at the warehouse.",
         "el": "Τα επιστρεφόμενα είδη ελέγχονται εντός 3 εργάσιμων ημερών από την άφιξή τους στην αποθήκη."}
@@ -44,8 +45,8 @@ def corpus(monkeypatch, tmp_path):
 
 def doc_units(doc_id):
     with opened() as db:
-        return {row[0]: (row[1], json.loads(row[2]), row[3], row[4]) for row in
-                db.execute("SELECT unit_id, text, labels, layer, section_key FROM units WHERE doc_id = ?", (doc_id,))}
+        return {row[0]: (row[1], json.loads(row[2]), row[3], row[4], tuple(json.loads(row[5]))) for row in
+                db.execute("SELECT unit_id, text, labels, layer, section_key, path FROM units WHERE doc_id = ?", (doc_id,))}
 
 
 def all_units():
@@ -132,6 +133,9 @@ def test_every_kind_of_change_gives_exactly_its_unit_diff(corpus):
         elif kind == "relabel":
             assert sorted(v[0] for v in removed.values()) == sorted(v[0] for v in added.values()) and added
             assert all(entry["to_labels"][1] in v[1] for v in added.values())
+            # DR-F10: the title, which the new label may not read, leaves the path, so the passage changes.
+            old = {v[0]: v for v in removed.values()}
+            assert all(set(old[v[0]][4]) - set(v[4]) <= {old[v[0]][4][0]} for v in added.values())
         elif kind in ("rename", "re_encode"):
             assert not added and not removed
             assert summary["changes"] == {"renamed" if kind == "rename" else "touched": 1}
@@ -143,6 +147,17 @@ def test_every_kind_of_change_gives_exactly_its_unit_diff(corpus):
             assert added and not removed and summary["changes"] == {"added": 1}
         elif kind == "delete_file":
             assert removed and not after and summary["changes"] == {"removed": 1}
+        # The entry's claim of what is embedded again, against the passages measured (DR-F10).
+        passages_before = {passage(v[4], v[0]) for v in removed.values()}
+        again = [v for v in added.values() if passage(v[4], v[0]) not in passages_before]
+        if entry["embeds"] == "none":
+            assert not again, kind
+        elif entry["embeds"] == "changed units":
+            assert len(again) == len(added), kind
+        else:
+            twins = {v[0]: v for v in removed.values()}
+            assert entry["embeds"] == "units whose heading path changed" and again, kind
+            assert again == [v for v in added.values() if v[4] != twins[v[0]][4]], kind
     assert checked == mutate.KINDS  # every kind, each as asked, none as a fallback
 
 
@@ -169,17 +184,17 @@ def test_the_version_moves_with_any_step_or_label_name_and_not_with_the_manifest
 def test_a_rule_change_relabels_through_scan_and_through_build(corpus, monkeypatch):
     base, docs = corpus
     returns = docs[0]["id"]
-    assert any(labels == ["returns"] for _, labels, _, _ in doc_units(returns).values())
+    assert any(labels == ["returns"] for _, labels, *_ in doc_units(returns).values())
     monkeypatch.setitem(segments.NAMES, segments.fold("Returns"), "legal")  # the same line now names legal
     assert scan()["units_added"] == 0  # the code on disk is unchanged, so the version is too
     monkeypatch.setattr(pipeline, "VERSIONS", pipeline.VERSIONS + " with the rule changed")  # as the new code gives it
     moved = scan()
     assert moved["units_added"] == moved["units_removed"] > 0
-    assert not any(labels == ["returns"] for _, labels, _, _ in doc_units(returns).values())
+    assert not any(labels == ["returns"] for _, labels, *_ in doc_units(returns).values())
     monkeypatch.setitem(segments.NAMES, segments.fold("Returns"), "returns")
     again = build()  # build alone, with the version left where it is: it trusts the fresh cut, not the hashes
     assert again["units_added"] == again["units_removed"] == moved["units_added"]
-    assert any(labels == ["returns"] for _, labels, _, _ in doc_units(returns).values())
+    assert any(labels == ["returns"] for _, labels, *_ in doc_units(returns).values())
 
 
 def test_a_missing_corpus_folder_is_refused_and_the_manifest_kept(corpus, capsys):

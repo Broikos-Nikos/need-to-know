@@ -3,7 +3,10 @@
 `ntk corpus mutate --count K --seed N` changes files under NTK_DATA_DIR/corpus/full and
 appends to corpus/full.journal.jsonl. The change bench later replays the journal
 against the index and compares what happened with what the journal says.
-`ntk corpus assemble` rebuilds the untouched corpus and clears the journal.
+`ntk corpus assemble` rebuilds the untouched corpus and clears the journal. Each entry
+says in words what the change must do, and in `embeds` which units it embeds again:
+"none", "changed units", or "units whose heading path changed", a claim the change
+bench checks against the passages it measures (DR-F10).
 
 A change is journaled before it is made (OP-F2). Its new bytes go to a staging
 folder first; then its journal line, marked pending, names the moves and deletes
@@ -199,7 +202,7 @@ def plan(kind: str, doc_id: str, found: tuple[Path, Path, dict], facts: list[dic
         old_value = f["values"][0]
         new_value = str(int(old_value) + (1 if int(old_value) < 10 else max(1, round(int(old_value) * 0.2))))
         new_sentence = replace_value(f[lang], old_value, new_value)
-        entry.update(fact=f["id"], old_value=old_value, new_value=new_value, sentence=new_sentence,
+        entry.update(fact=f["id"], old_value=old_value, new_value=new_value, sentence=new_sentence, embeds="changed units",
                      expected="only the units holding the sentence are embedded again; the fact now answers the new value")
         return entry, [("write", file, encoded(meta, text.replace(as_written(f[lang], fmt), as_written(new_sentence, fmt), 1)))]
     if kind in ("insert_paragraph", "delete_paragraph"):
@@ -210,13 +213,15 @@ def plan(kind: str, doc_id: str, found: tuple[Path, Path, dict], facts: list[dic
         if kind == "insert_paragraph":
             extra = as_written(EXTRA[lang], fmt)
             changed = text.replace(target, f"{target}</p>\n<p>{extra}" if fmt == "html" else f"{target}\n\n{extra}", 1)
-            entry.update(paragraph=EXTRA[lang], expected="one new unit in that section; no other unit changes")
+            entry.update(paragraph=EXTRA[lang], embeds="changed units", expected="the new paragraph's unit is embedded, or, when it is under "
+                         "MIN_TOKENS as the English one is, the neighbouring unit it joins; no other unit changes")
             return entry, [("write", file, encoded(meta, changed))]
         changed = text.replace(f"<p>{target}</p>\n", "", 1) if fmt == "html" else text.replace(f"{target}\n\n", "", 1)
         if changed == text:  # the last paragraph of a file has no blank line after it
             changed = text.replace(f"\n\n{target}", "", 1)
         assert changed != text, f"{doc_id}: the paragraph to delete was not found"
-        entry.update(paragraph_start=target[:80], expected="that paragraph's units are deleted; no other unit changes")
+        entry.update(paragraph_start=target[:80], embeds="changed units", expected="that paragraph's units are deleted, and a short neighbour that "
+                     "shared one is cut again; no other unit changes")
         return entry, [("write", file, encoded(meta, changed))]
     if kind == "relabel":
         line_prefix = "Κοινό: " if lang == "el" else "Audience: "
@@ -230,12 +235,16 @@ def plan(kind: str, doc_id: str, found: tuple[Path, Path, dict], facts: list[dic
         changed = text.replace(f"{line_prefix}{name}{end}", f"{line_prefix}{name}; {added}{end}", 1)
         if fmt == "html":
             changed = changed.replace(f'data-audience="{html.escape(name)}"', f'data-audience="{html.escape(name)}; {html.escape(added)}"', 1)
-        entry.update(from_labels=[label], to_labels=[label, MIXES[label]],
-                     expected="no unit is embedded again; one section's labels change in the payload, and its new readers see it at the next query")
+        # DR-F10: the new label may not read a heading the section sat under, the title above all, and the safe
+        # path (AC-F4) drops it, so the passage changes and its vectors with it.
+        entry.update(from_labels=[label], to_labels=[label, MIXES[label]], embeds="units whose heading path changed",
+                     expected="the section's units take both labels; those whose heading path loses a heading the new "
+                              "label may not read, the title among them, are embedded again, the rest change only their "
+                              "payload; the new readers see them at the next query")
         return entry, [("write", file, encoded(meta, changed))]
     if kind == "rename":
         new_file = full / "moved" / f"{doc_id}_{seq}.{fmt}"
-        entry.update(file=rel(new_file), before_file=rel(file), expected="no unit is embedded again; the document's path is updated")
+        entry.update(file=rel(new_file), before_file=rel(file), embeds="none", expected="no unit is embedded again; the document's path is updated")
         return entry, [("move", file, new_file), ("move", meta_path, new_file.with_name(f"{doc_id}_{seq}.meta.json"))]
     if kind == "re_encode":
         new_encoding = "utf-8" if meta["encoding"] != "utf-8" else ("windows-1253" if lang == "el" else "utf-8-sig")
@@ -244,7 +253,7 @@ def plan(kind: str, doc_id: str, found: tuple[Path, Path, dict], facts: list[dic
         except UnicodeEncodeError:
             new_encoding = "utf-8-sig"
         new_meta = meta | {"encoding": new_encoding}
-        entry.update(encoding=new_encoding, expected="nothing changes: the decoded text is the same")
+        entry.update(encoding=new_encoding, embeds="none", expected="nothing changes: the decoded text is the same")
         return entry, [("write", file, encoded(new_meta, text)), ("write", meta_path, json_bytes(new_meta))]
     if kind == "annex_refresh":
         # Some shops in the directory get a new extension, the last cell of their row, in every format.
@@ -258,7 +267,8 @@ def plan(kind: str, doc_id: str, found: tuple[Path, Path, dict], facts: list[dic
             while extension == m.group(2):
                 extension = str(rng.randint(30000, 89999))
             changed = changed[: m.start(2)] + extension + changed[m.end(2):]
-        entry.update(rows_changed=len(chosen), expected="only the row groups holding the changed rows are embedded again")
+        entry.update(rows_changed=len(chosen), embeds="changed units", expected="the row groups holding the changed rows are embedded again, "
+                     "with a neighbouring group where a changed row moved a group boundary; no other unit changes")
         return entry, [("write", file, encoded(meta, changed))]
     if kind == "new_file":
         new_id = f"GEN_NEW_{seq:03d}"
@@ -268,12 +278,12 @@ def plan(kind: str, doc_id: str, found: tuple[Path, Path, dict], facts: list[dic
         new_file = full / f"{new_id}.txt"
         new_meta = {"doc_id": new_id, "title": title, "owner": "general", "language": lang, "version": "1.0", "type": "CIR",
                     "default_audience": "general", "classification": "internal", "format": "txt", "encoding": "utf-8"}
-        entry.update(doc_id=new_id, file=rel(new_file), expected="its units are added; nothing else changes")
+        entry.update(doc_id=new_id, file=rel(new_file), embeds="changed units", expected="its units are added; nothing else changes")
         # The sidecar goes in last: a file is a document from the moment its sidecar describes it.
         return entry, [("write", new_file, "\n".join([title, new_id, ""] + head + ["", body, ""]).encode("utf-8")),
                        ("write", full / f"{new_id}.meta.json", json_bytes(new_meta))]
     if kind == "delete_file":
-        entry.update(facts_lost=[f["id"] for f in facts if f.get("placements") == [doc_id]],
+        entry.update(facts_lost=[f["id"] for f in facts if f.get("placements") == [doc_id]], embeds="none",
                      expected="all its units leave both indexes; facts planted only here can no longer be answered")
         return entry, [("delete", file), ("delete", meta_path)]
     raise ValueError(f"unknown change kind {kind!r}")
