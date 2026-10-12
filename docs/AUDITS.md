@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**82 findings, 44 closed, 38 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
+**82 findings, 48 closed, 34 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -41,7 +41,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 
 ## `DR`, the deep reviewer
 
-An audit pass on correctness, read in the logic rather than the comments. 14 findings, 7 closed.
+An audit pass on correctness, read in the logic rather than the comments. 14 findings, 11 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -52,13 +52,13 @@ An audit pass on correctness, read in the logic rather than the comments. 14 fin
 | `DR-F5` | low | open | server.stop reports a pid stopped after its wait times out |
 | `DR-F6` | low | fixed, tick 22 | The simulator counts journal lines through an unclosed file |
 | `DR-F7` | high | fixed, tick 53 | A change to the steps that decide text and labels never reaches the manifest: VERSIONS leaves out decode and segments, and build keeps units whenever the content hash matches |
-| `DR-F8` | high | open | An audience line followed by text in the same paragraph is not read, and the text takes the inherited audience |
-| `DR-F9` | high | open | In plain text a wrapped line that reads as a heading closes a restricted section and hands the rest of its paragraph the parent's audience |
+| `DR-F8` | high | fixed, tick 54 | An audience line followed by text in the same paragraph is not read, and the text takes the inherited audience |
+| `DR-F9` | high | fixed, tick 54 | In plain text a wrapped line that reads as a heading closes a restricted section and hands the rest of its paragraph the parent's audience |
 | `DR-F10` | high | open | A relabel changes the passage when the safe path drops a heading, while the journal and T3.4's plan say no unit is embedded again |
 | `DR-F11` | medium | fixed, tick 53 | A scan of a missing corpus folder removes every document from the manifest |
 | `DR-F12` | low | open | A split paragraph's pieces all carry the whole paragraph's offsets |
-| `DR-F13` | low | open | An unknown html data-audience is reported folded, not as written |
-| `DR-F14` | low | open | HTML text outside h1 to h6, p, li and tr is dropped without a word (0 characters on this corpus) |
+| `DR-F13` | low | fixed, tick 54 | An unknown html data-audience is reported folded, not as written |
+| `DR-F14` | low | fixed, tick 54 | HTML text outside h1 to h6, p, li and tr is dropped without a word (0 characters on this corpus) |
 
 ## `OP`, the pipeline operator
 

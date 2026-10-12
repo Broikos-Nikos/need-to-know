@@ -8,7 +8,8 @@ their wording rather than their markup, "SECTION 3" or a numbered line, are left
 the heading step (T2.3); audience lines to the segment step (T2.4).
 
 The parsers expect "\\n" line ends, which decoding produces (T2.2), so an offset is a
-plain index into one string.
+plain index into one string. Html text outside every block, in a div or straight in a
+section, would never reach the index, so a file holding any is refused (DR-F14).
 """
 
 from __future__ import annotations
@@ -102,18 +103,21 @@ def parse_md(text: str) -> list[Block]:
 
 class _Html(HTMLParser):
     BLOCKS = {"h1", "h2", "h3", "h4", "h5", "h6", "p", "li", "tr"}
+    UNSEEN = {"title", "script", "style"}  # text no reader of the page sees as body text
 
     def __init__(self, text: str):
         super().__init__(convert_charrefs=True)
         self.text, self.blocks, self.audiences = text, [], []
         self.lines = [0] + [m.end() for m in re.finditer("\n", text)]
         self.open = None  # (tag, start of content, pieces, cells, header)
+        self.unseen = 0
 
     def at(self) -> int:
         line, column = self.getpos()
         return self.lines[line - 1] + column
 
     def handle_starttag(self, tag, attrs):
+        self.unseen += tag in self.UNSEEN
         if tag == "section":
             self.audiences.append(dict(attrs).get("data-audience"))
         elif tag in self.BLOCKS and self.open is None:
@@ -128,8 +132,12 @@ class _Html(HTMLParser):
             self.open[2].append(data)
             if self.open[0] == "tr" and self.open[3]:
                 self.open[3][-1].append(data)
+        elif data.strip() and not self.unseen:
+            raise ValueError(f"text outside every block at {self.at()}: {data.strip()[:60]!r}; the html parser reads "
+                             f"h1 to h6, p, li and tr")
 
     def handle_endtag(self, tag):
+        self.unseen -= tag in self.UNSEEN and self.unseen > 0
         if tag == "section" and self.audiences:
             self.audiences.pop()
         elif self.open and tag == self.open[0]:

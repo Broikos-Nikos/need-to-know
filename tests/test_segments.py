@@ -152,3 +152,55 @@ def test_a_heading_path_never_carries_a_heading_its_reader_may_not_read():
     notice = labelled(text, "md", "Shops stay open")
     assert notice.labels == ("general",) and notice.path == ("1.1 Shop notice",)
     assert labelled(text, "md", "Terms").path == ("SECTION 1  SECRET merger",)
+
+
+@pytest.mark.parametrize("fmt, text", [
+    ("md", "# Policy: Sales@@Document line@@## SECTION 1  Contracts@@Audience: Legal~The register lists every supplier.~"),
+    ("txt", "Policy: Sales~Document line@@SECTION 1  Contracts~Audience: Legal~The register lists every supplier.~"),
+])
+def test_an_audience_line_heading_a_paragraph_is_read_as_if_a_blank_line_followed_it(fmt, text):
+    # DR-F8: with no blank line after it, the line was text, and the section took the document's sales.
+    text = text.replace("@@", "~~").replace("~", "\n")
+    elements = segmented(text, fmt, {"default_audience": "sales", "format": fmt}, [])
+    register = next(e for e in elements if "register" in e.text)
+    assert register.labels == ("legal",) and register.text == "The register lists every supplier."
+    assert text[register.start:register.end] == register.text
+    assert next(e for e in elements if e.text.startswith("Audience")).kind == "audience"
+
+
+def test_an_audience_line_inside_a_paragraph_narrows_the_whole_paragraph():
+    # DR-F8: a line further down a paragraph was ignored; read now as a later line is (AC-F1).
+    text = ("# Policy: Sales@@Document line@@## SECTION 1  Claims@@Audience: Legal@@Settled by counsel.~"
+            "Audience: All staff~SECRET settlement ceiling.~").replace("@@", "~~").replace("~", "\n")
+    notes = Counter()
+    elements = segments(structure(parse(text, "md"), "md"), {"default_audience": "sales", "format": "md"}, [], notes)
+    assert next(e for e in elements if "SECRET" in e.text).labels == (UNLABELLED,)
+    assert notes == {"audience line inside a paragraph, read as narrowing only": 1}
+
+
+def test_a_wrapped_plain_text_line_never_widens_who_may_read():
+    # DR-F9: "15 Μαΐου ..." read as a numbered heading closed the legal section; the rest went to everyone.
+    text = ("Πολιτική συμβάσεων~~ΕΝΟΤΗΤΑ 3  Συμβάσεις~Κοινό: Νομικό Τμήμα~~"
+            "Η σύμβαση με τον προμηθευτή υπογράφηκε στις~15 Μαΐου από τη Διεύθυνση και ισχύει~"
+            "έως το 2027 με ρήτρα αποχώρησης.~").replace("~", "\n")
+    elements = segmented(text, "txt", {"default_audience": "general", "format": "txt"}, [])
+    assert [e.text for e in elements if e.kind == "heading"] == ["Πολιτική συμβάσεων", "ΕΝΟΤΗΤΑ 3  Συμβάσεις"]
+    assert all(e.labels == ("legal",) for e in elements if e.kind == "paragraph")
+
+
+def test_a_heading_guessed_from_its_wording_keeps_the_audience_in_force():
+    # DR-F9: a numbered heading with no audience line of its own may be a wrapped sentence, so it never widens.
+    text = ("Πολιτική συμβάσεων~~ΕΝΟΤΗΤΑ 3  Συμβάσεις~Κοινό: Νομικό Τμήμα~~Όροι.~~"
+            "15 Μαΐου από τη Διεύθυνση~Η ρήτρα ισχύει έως το 2027.~").replace("~", "\n")
+    elements = segmented(text, "txt", {"default_audience": "general", "format": "txt"}, [])
+    guessed = next(e for e in elements if e.text.startswith("15"))
+    assert guessed.kind == "heading" and guessed.inferred and guessed.labels == ("legal",)
+    assert next(e for e in elements if "2027" in e.text).labels == ("legal",)
+
+
+def test_an_unknown_html_audience_is_reported_as_written():
+    # DR-F13: it was reported folded, lower case and without accents.
+    unknown = []
+    segmented('<body><h1>T</h1><section data-audience="Διοικητικό Συμβούλιο"><h2>S</h2><p>x</p></section></body>', "html",
+              {"default_audience": "general", "format": "html"}, unknown)
+    assert unknown == ["Διοικητικό Συμβούλιο"]

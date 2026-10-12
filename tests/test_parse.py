@@ -103,3 +103,10 @@ def test_an_empty_text_and_a_carriage_return_and_an_unknown_format():
         parse("text", "docx")
     assert parse("a | b\nc | d", "txt") == [Block("row", "a | b", 0, 5, cells=("a", "b"), header=True),
                                            Block("row", "c | d", 6, 11, cells=("c", "d"))]
+
+
+def test_html_text_outside_every_block_is_refused_and_the_title_is_not():
+    # DR-F14: text in a div, or straight in a section, never reached the index.
+    with pytest.raises(ValueError, match="text outside every block at 30: 'Lost words.'"):
+        parse("<body><h1>T</h1><section><div>Lost words.</div><p>Kept.</p></section></body>", "html")
+    assert [b.text for b in parse("<head><title>Title</title></head><body><h1>T</h1><p>Kept.</p></body>", "html")] == ["T", "Kept."]

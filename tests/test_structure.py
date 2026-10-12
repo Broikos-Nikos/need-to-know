@@ -65,3 +65,14 @@ def test_a_later_heading_of_the_same_level_replaces_the_earlier_one_in_the_path(
     text = "# Title\n\n## One\n\nFirst.\n\n### One point one\n\nDeeper.\n\n## Two\n\nSecond.\n"
     paths = [(e.text, e.path) for e in structure(parse(text, "md"), "md") if e.kind == "paragraph"]
     assert paths == [("First.", ("Title", "One")), ("Deeper.", ("Title", "One", "One point one")), ("Second.", ("Title", "Two"))]
+
+
+def test_a_numbered_line_is_a_heading_only_at_the_head_of_its_run_and_before_a_new_sentence():
+    # DR-F9: wording is a guess, and a wrapped sentence can start with a number and a capital.
+    def headings(text):
+        return [e.text for e in structure(parse(text.replace("~", "\n"), "txt"), "txt") if e.kind == "heading"]
+    assert headings("Title~~2.1 Detail~Text two.~") == ["Title", "2.1 Detail"]
+    assert headings("Title~~2.1 Detail~") == ["Title", "2.1 Detail"]
+    assert headings("Title~~The contract was signed on~15 Μαΐου από τη Διεύθυνση~and runs to 2027.~") == ["Title"]
+    assert headings("Title~~15 Μαΐου από τη Διεύθυνση~ενέκρινε τη νέα πολιτική.~") == ["Title"]
+    assert headings("Title~~Text one.~SECTION 2  Pay~Text two.~") == ["Title", "SECTION 2  Pay"]

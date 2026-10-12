@@ -12,12 +12,19 @@ is one of:
 and in every case it is short and does not end like a sentence. The first line of a
 plain text file is its title, level 1, as markdown's and html's first heading is.
 A heading found inside a paragraph splits it, each part keeping its own offsets.
+
+Wording is a guess, and a wrapped sentence can begin "15 Μαΐου από τη Διεύθυνση",
+a number and a capital (DR-F9). So inside a paragraph only a keyword line is lifted
+out; a numbered or capitals line is a heading only at the head of its paragraph, and
+only when the line after it, if any, starts a sentence rather than going on with
+one. Such a heading is marked inferred, and the segment step never lets it widen who
+may read what follows.
 """
 
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 from needtoknow.ingest.parse import Block
 
@@ -38,6 +45,7 @@ class Element:
     header: bool = False
     audience: str | None = None
     labels: tuple[str, ...] = ()    # set by segments: who may read it, first label first
+    inferred: bool = False          # a plain text heading found by a number or capitals, not by a keyword
 
 
 def heading_level(line: str) -> int:
@@ -74,11 +82,17 @@ def split_txt(blocks: list[Block]) -> list[Element]:
                 pending.clear()
 
         at = block.start
-        for number, line in enumerate(block.text.split("\n")):
-            level = 1 if index == 0 and number == 0 else heading_level(line)
+        lines = block.text.split("\n")
+        for number, line in enumerate(lines):
+            level, inferred = (1, False) if index == 0 and number == 0 else (heading_level(line), False)
+            if level and not KEYWORD.match(line.strip()) and number == 0 and index > 0:
+                following = lines[1].lstrip()[:1] if len(lines) > 1 else ""
+                level, inferred = (level, True) if not following or following.isupper() or following.isdigit() else (0, False)
+            elif level and not KEYWORD.match(line.strip()) and number > 0:
+                level = 0  # a wrapped line, not a heading
             if level:
                 flush()
-                out.append(Element("heading", line, at, at + len(line), level=level))
+                out.append(Element("heading", line, at, at + len(line), level=level, inferred=inferred))
             else:
                 pending.append((at, at + len(line)))
             at += len(line) + 1
@@ -100,5 +114,5 @@ def structure(blocks: list[Block], fmt: str) -> list[Element]:
             while stack and stack[-1][0] >= e.level:
                 stack.pop()
             stack.append((e.level, e.text))
-        out.append(Element(e.kind, e.text, e.start, e.end, e.level, tuple(t for _, t in stack), e.cells, e.header, e.audience))
+        out.append(replace(e, path=tuple(t for _, t in stack)))
     return out
