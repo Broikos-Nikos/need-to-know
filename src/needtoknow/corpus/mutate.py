@@ -29,6 +29,10 @@ from needtoknow.settings import data_dir
 KINDS = ["value_update", "insert_paragraph", "relabel", "rename", "re_encode",
          "annex_refresh", "delete_paragraph", "new_file", "delete_file"]
 CODECS = {"windows-1253": "cp1253", "utf-8-sig": "utf-8-sig"}
+# A row of the shop directory with its extension as group 2: "AB123 | region | unit | manager | 34567", with
+# the pipes around it in markdown, or as table cells in html.
+DIRECTORY_ROW = {"text": r"(?m)^(\|? ?[A-Z]{2}\d{3} \| [^|\n]+ \| \d+ \| [^|\n]+ \| )(\d{5})( \|)?$",
+                 "html": r"(<tr><td>[A-Z]{2}\d{3}</td><td>[^<]*</td><td>\d+</td><td>[^<]*</td><td>)(\d{5})(</td></tr>)"}
 EXTRA = {"en": "Team leaders review this step at the weekly meeting and record any exception in Relay.",
          "el": "Οι επικεφαλής ομάδων εξετάζουν αυτό το βήμα στην εβδομαδιαία συνάντηση και καταγράφουν κάθε εξαίρεση στο Relay."}
 NEW_FILE = {"en": ("Circular compilation: All staff", "This circular confirms that the procedures in force remain unchanged "
@@ -243,14 +247,17 @@ def plan(kind: str, doc_id: str, found: tuple[Path, Path, dict], facts: list[dic
         entry.update(encoding=new_encoding, expected="nothing changes: the decoded text is the same")
         return entry, [("write", file, encoded(new_meta, text)), ("write", meta_path, json_bytes(new_meta))]
     if kind == "annex_refresh":
-        rows = [m for m in re.finditer(r"(?m)^.*\| (\d+) (units on hand|τεμάχια σε απόθεμα) \|.*$", text)]
+        # Some shops in the directory get a new extension, the last cell of their row, in every format.
+        rows = list(re.finditer(DIRECTORY_ROW["html" if fmt == "html" else "text"], text))
         if not rows:
-            return instead("re_encode", "no stock list here, a re encode instead", doc_id, found, facts, rng, full, seq)
+            return instead("re_encode", "no shop directory here, a re encode instead", doc_id, found, facts, rng, full, seq)
         chosen = rng.sample(rows, min(len(rows), max(1, len(rows) // 20)))
         changed = text
         for m in sorted(chosen, key=lambda m: m.start(), reverse=True):
-            line = m.group(0).replace(f"| {m.group(1)} {m.group(2)}", f"| {rng.randint(0, 900)} {m.group(2)}", 1)
-            changed = changed[: m.start()] + line + changed[m.end():]
+            extension = m.group(2)
+            while extension == m.group(2):
+                extension = str(rng.randint(30000, 89999))
+            changed = changed[: m.start(2)] + extension + changed[m.end(2):]
         entry.update(rows_changed=len(chosen), expected="only the row groups holding the changed rows are embedded again")
         return entry, [("write", file, encoded(meta, changed))]
     if kind == "new_file":

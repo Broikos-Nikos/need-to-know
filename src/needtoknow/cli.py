@@ -49,10 +49,14 @@ def cmd_corpus(args: argparse.Namespace, out=None) -> int:
         print(f"plan written to {path}: {summary(path)}", file=out)
         return 0
     if args.action == "assemble":
-        from needtoknow.corpus.assemble import assemble
+        from needtoknow.corpus.assemble import ROWS_PER_UNIT, assemble
         report = assemble()
         print(f"assembled {report['written']} files, {report['bytes'] / 2**20:.1f} MB; "
               f"missing narrative: {', '.join(report['missing']) or 'none'}", file=out)
+        units = sum(report["units"].values())
+        shares = ", ".join(f"{label} {report['units'][label] / units:.3f} ({share:.2f})" for label, share in report["registered"].items())
+        print(f"units {units}, a prose section or {ROWS_PER_UNIT} table rows each; share by label, registered in "
+              f"brackets: {shares}", file=out)
         return 0 if not report["missing"] else 1
     if args.action == "samples":
         from needtoknow.corpus.assemble import samples

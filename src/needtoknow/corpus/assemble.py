@@ -1,9 +1,17 @@
-"""Turn the writers' narrative into the corpus: a title block, the sections, and annexes up to each file's size.
+"""Turn the writers' narrative into the corpus: a title block, the sections, and the tables a real manual carries.
 
-Annexes are the structured part real manuals are mostly made of: directories, stock
-lists, revision histories, form definitions, glossaries. They are generated from the
-world file and a seed per document, carry no policy value, so they can never
-contradict a fact, and sit under the owner's audience like the rest of the file.
+Every table has named columns. Each department's documents carry that department's
+register under the owner's audience: a sales log, a stock list, a return
+authorisation log, a ticket log, a contract register, cost centres, network sites or
+a training roster. Every document also carries a page of the shop directory and a
+short glossary, which everyone reads, so they sit under the general audience, and it
+closes with its forms and its revision history, dated in order up to its version.
+
+The rows of the register and the directory are budgeted so that each label's share
+of units meets `config/labels.toml` (N43). A unit is a prose section or a group of
+ROWS_PER_UNIT table rows. Tables carry no policy value, so they can never contradict
+a fact, and every date of something done falls on or before LAST_DAY; only a
+contract renewal may lie ahead.
 """
 
 from __future__ import annotations
@@ -12,26 +20,50 @@ import html
 import json
 import random
 import shutil
+from collections import Counter
+from datetime import date, timedelta
 from pathlib import Path
 
 from needtoknow.corpus import dump_json, exclusive
-from needtoknow.corpus.plan import LABEL_EL, LABEL_EN, SEED, world
+from needtoknow.corpus.plan import DEPARTMENTS, LABEL_EL, LABEL_EN, SEED, world
+from needtoknow.policy import load_labels
 from needtoknow.settings import data_dir
 
-ANNEXES = {
-    "en": [("Shop directory", "Shop {code} | {region} | unit {unit} | managed by the {role} | extension {ext}"),
-           ("Stock list", "SKU {sku} | {product} | bin {bin} | {stock} units on hand | reorder flag {flag}"),
-           ("Revision history", "Revision {rev} | {date} | {role} | {change}"),
-           ("Form definitions", "Form {form} | field {field} | {need} | entered in {system}"),
-           ("Glossary", "{term}: {meaning}")],
-    "el": [("Κατάλογος καταστημάτων", "Κατάστημα {code} | {region} | μονάδα {unit} | υπεύθυνος: {role} | εσωτερικό {ext}"),
-           ("Κατάσταση αποθέματος", "Κωδικός {sku} | {product} | θέση {bin} | {stock} τεμάχια σε απόθεμα | σήμανση αναπαραγγελίας {flag}"),
-           ("Ιστορικό αναθεωρήσεων", "Αναθεώρηση {rev} | {date} | {role} | {change}"),
-           ("Ορισμοί εντύπων", "Έντυπο {form} | πεδίο {field} | {need} | καταχωρείται στο {system}"),
-           ("Γλωσσάριο", "{term}: {meaning}")],
+ROWS_PER_UNIT = 12
+# The scale of a plan: units per planned megabyte, set so that the plan's 280 MB come out
+# at about the 300 MB the owner settled on (N39). `ntk corpus assemble` prints the result.
+UNITS_PER_MB = 1250
+FIRST_DAY, LAST_DAY = date(2023, 1, 1), date(2026, 9, 30)
+
+TITLES = {
+    "directory": ("Shop directory", "Κατάλογος καταστημάτων", ["Shop", "Region", "Unit", "Manager", "Extension"],
+                  ["Κατάστημα", "Περιφέρεια", "Μονάδα", "Υπεύθυνος", "Εσωτερικό"]),
+    "glossary": ("Glossary", "Γλωσσάριο", ["Term", "Meaning"], ["Όρος", "Σημασία"]),
+    "forms": ("Form definitions", "Ορισμοί εντύπων", ["Form", "Field", "Required", "Entered in"],
+              ["Έντυπο", "Πεδίο", "Υποχρεωτικό", "Καταχωρείται στο"]),
+    "revisions": ("Revision history", "Ιστορικό αναθεωρήσεων", ["Revision", "Date", "Role", "Change"],
+                  ["Αναθεώρηση", "Ημερομηνία", "Ρόλος", "Αλλαγή"]),
+    "sales": ("Shop sales log", "Ημερολόγιο πωλήσεων", ["Date", "Shop", "Product", "Units sold", "Channel"],
+              ["Ημερομηνία", "Κατάστημα", "Προϊόν", "Τεμάχια", "Κανάλι"]),
+    "logistics": ("Stock list", "Κατάσταση αποθέματος", ["SKU", "Product", "Bin", "Units on hand", "Reorder"],
+                  ["Κωδικός", "Προϊόν", "Θέση", "Τεμάχια σε απόθεμα", "Αναπαραγγελία"]),
+    "returns": ("Return authorisation log", "Ημερολόγιο εξουσιοδοτήσεων επιστροφής",
+                ["RMA", "Received", "Product", "Reason code", "Status"], ["RMA", "Παραλαβή", "Προϊόν", "Κωδικός αιτίας", "Κατάσταση"]),
+    "customer-care": ("Ticket log", "Ημερολόγιο αιτημάτων", ["Ticket", "Opened", "Channel", "Category", "Team"],
+                      ["Αίτημα", "Άνοιγμα", "Κανάλι", "Κατηγορία", "Ομάδα"]),
+    "legal": ("Contract register", "Μητρώο συμβάσεων", ["Contract", "Counterparty", "Signed", "Renewal", "Owner"],
+              ["Σύμβαση", "Αντισυμβαλλόμενος", "Υπογραφή", "Ανανέωση", "Υπεύθυνος"]),
+    "finance": ("Cost centres", "Κέντρα κόστους", ["Cost centre", "Department", "Region", "Approver", "Ledger code"],
+                ["Κέντρο κόστους", "Τμήμα", "Περιφέρεια", "Εγκρίνων", "Κωδικός Ledger"]),
+    "network-ops": ("Network sites", "Σημεία δικτύου", ["Site", "Region", "Node type", "Commissioned", "Status"],
+                    ["Σημείο", "Περιφέρεια", "Τύπος κόμβου", "Ενεργοποίηση", "Κατάσταση"]),
+    "hr": ("Training roster", "Πρόγραμμα εκπαιδεύσεων", ["Course", "Title", "Department", "Session", "Seats"],
+           ["Μάθημα", "Τίτλος", "Τμήμα", "Συνεδρία", "Θέσεις"]),
 }
 ROLES = {"en": ["shop manager", "team leader", "regional manager", "process owner", "quality reviewer"],
          "el": ["διευθυντής καταστήματος", "επικεφαλής ομάδας", "περιφερειακός διευθυντής", "υπεύθυνος διαδικασίας", "ελεγκτής ποιότητας"]}
+LEGAL_ROLES = {"en": ["legal counsel", "contract manager", "compliance officer"],
+               "el": ["νομικός σύμβουλος", "υπεύθυνος συμβάσεων", "υπεύθυνος κανονιστικής συμμόρφωσης"]}
 CHANGES = {"en": ["wording clarified in section {s}", "table layout updated", "references to Atlas updated",
                   "approval step moved to Relay", "examples added to section {s}", "obsolete form removed"],
            "el": ["διευκρίνιση διατύπωσης στην ενότητα {s}", "ενημέρωση διάταξης πίνακα", "ενημέρωση αναφορών στο Atlas",
@@ -45,22 +77,118 @@ TERMS = {"en": [("RMA", "a return authorisation recorded in Dock"), ("First line
          "el": [("RMA", "εξουσιοδότηση επιστροφής καταχωρημένη στο Dock"), ("Πρώτη γραμμή", "οι σύμβουλοι που δέχονται την πρώτη επαφή"),
                 ("Δεύτερη γραμμή", "η ομάδα που επιλύει κλιμακωμένες υποθέσεις"), ("Ώρα αποκοπής", "η τελευταία ώρα παραλαβής που έχει συμφωνηθεί με μεταφορέα"),
                 ("Αποθήκη ανταλλακτικών", "περιφερειακή αποθήκη ανταλλακτικών"), ("Αίτημα", "αίτημα πελάτη καταχωρημένο στο Relay")]}
+CHANNELS = {"en": ["shop", "online", "phone", "partner"], "el": ["κατάστημα", "ηλεκτρονικό", "τηλεφωνικό", "συνεργάτης"]}
+YES_NO = {"en": ["yes", "no"], "el": ["ναι", "όχι"]}
+RETURN_STATUS = {"en": ["received", "inspected", "refunded", "repaired", "rejected"],
+                 "el": ["παραλήφθηκε", "ελέγχθηκε", "επιστράφηκαν χρήματα", "επισκευάστηκε", "απορρίφθηκε"]}
+CATEGORIES = {"en": ["billing", "coverage", "device fault", "number porting", "contract change", "complaint"],
+              "el": ["χρέωση", "κάλυψη", "βλάβη συσκευής", "φορητότητα αριθμού", "αλλαγή σύμβασης", "παράπονο"]}
+TEAMS = {"en": ["first line", "second line", "billing desk", "technical desk"],
+         "el": ["πρώτη γραμμή", "δεύτερη γραμμή", "γραφείο χρεώσεων", "τεχνικό γραφείο"]}
+NODES = {"en": ["mobile mast", "fibre cabinet", "exchange", "microwave link", "equipment room"],
+         "el": ["σταθμός βάσης", "καμπίνα οπτικής ίνας", "κέντρο", "μικροκυματική ζεύξη", "αίθουσα εξοπλισμού"]}
+SITE_STATUS = {"en": ["in service", "under maintenance", "retired"], "el": ["σε λειτουργία", "σε συντήρηση", "εκτός λειτουργίας"]}
+COURSES = {"en": ["Induction", "Data protection", "Health and safety", "Sales conversations", "Complaint handling",
+                  "Fibre installation", "Leadership basics"],
+           "el": ["Εισαγωγική εκπαίδευση", "Προστασία δεδομένων", "Υγεία και ασφάλεια", "Συζητήσεις πωλήσεων",
+                  "Διαχείριση παραπόνων", "Εγκατάσταση οπτικής ίνας", "Βασικές αρχές ηγεσίας"]}
 
 
-def annex_row(kind: int, lang: str, rng: random.Random, w: dict, sections: int) -> str:
-    template = ANNEXES[lang][kind][1]
-    products = [p[lang] for p in w["products"]]
-    return template.format(
-        code=f"{rng.choice('ABCDEFGHJKLMNP')}{rng.choice('ABCDEFGHJKLMNP')}{rng.randint(100, 999)}",
-        region=rng.choice(w["regions"][lang]), unit=rng.randint(1, 240), role=rng.choice(ROLES[lang]),
-        ext=rng.randint(30000, 89999), sku=f"{rng.choice('DVAXTRS')}{rng.choice('DVAXTRS')}{rng.randint(10000, 99999)}",
-        product=rng.choice(products), bin=f"{rng.choice('ABCDEFGH')}{rng.randint(1, 60):02d}", stock=rng.randint(0, 900),
-        flag=rng.choice(["Y", "N"]), rev=f"{rng.randint(1, 4)}.{rng.randint(0, 40)}",
-        date=f"20{rng.randint(23, 26)}-{rng.randint(1, 12):02d}-{rng.randint(1, 28):02d}",
-        change=rng.choice(CHANGES[lang]).format(s=rng.randint(1, max(1, sections))),
-        form=f"F{rng.randint(10, 99)}", field=rng.choice(FIELDS[lang]), need=rng.choice(NEED[lang]),
-        system=rng.choice(list(w["systems"].values())),
-        term=(t := rng.choice(TERMS[lang]))[0], meaning=t[1])
+def day(rng: random.Random, first: date = FIRST_DAY, last: date = LAST_DAY) -> date:
+    return first + timedelta(days=rng.randrange((last - first).days + 1))
+
+
+def shop(rng: random.Random) -> str:
+    return f"{rng.choice('ABCDEFGHJKLMNP')}{rng.choice('ABCDEFGHJKLMNP')}{rng.randint(100, 999)}"
+
+
+def register_rows(owner: str, lang: str, rng: random.Random, w: dict, n: int) -> list[str]:
+    """n rows of a department's register; logs run in date order."""
+    products, regions = [p[lang] for p in w["products"]], w["regions"][lang]
+    departments = [(LABEL_EL if lang == "el" else LABEL_EN)[d] for d in DEPARTMENTS]
+    if owner == "sales":
+        rows = sorted((day(rng), shop(rng), rng.choice(products), rng.randint(1, 40), rng.choice(CHANNELS[lang])) for _ in range(n))
+        return [f"{d.isoformat()} | {s} | {p} | {u} | {c}" for d, s, p, u, c in rows]
+    if owner == "logistics":
+        return [f"{rng.choice('DVAXTRS')}{rng.choice('DVAXTRS')}{rng.randint(10000, 99999)} | {rng.choice(products)} | "
+                f"{rng.choice('ABCDEFGH')}{rng.randint(1, 60):02d} | {rng.randint(0, 900)} | {rng.choice(YES_NO[lang])}" for _ in range(n)]
+    if owner == "returns":
+        start, rows = rng.randint(100000, 800000), sorted((day(rng), rng.choice(products), rng.randint(1, 9), rng.choice(RETURN_STATUS[lang])) for _ in range(n))
+        return [f"RMA{start + k} | {d.isoformat()} | {p} | RC{r} | {s}" for k, (d, p, r, s) in enumerate(rows)]
+    if owner == "customer-care":
+        start, rows = rng.randint(1000000, 8000000), sorted((day(rng), rng.choice(CHANNELS[lang]), rng.choice(CATEGORIES[lang]), rng.choice(TEAMS[lang])) for _ in range(n))
+        return [f"T{start + k} | {d.isoformat()} | {c} | {g} | {t}" for k, (d, c, g, t) in enumerate(rows)]
+    if owner == "legal":
+        parties = w["partners"]["couriers"] + w["partners"]["repair_centres"] + [w["partners"]["insurer"]]
+        rows = sorted((day(rng, FIRST_DAY, date(2026, 6, 30)), rng.choice(parties), rng.choice(LEGAL_ROLES[lang])) for _ in range(n))
+        return [f"K{1000 + k} | {p} | {d.isoformat()} | {(d + timedelta(days=365 * rng.randint(1, 3))).isoformat()} | {o}"
+                for k, (d, p, o) in enumerate(rows)]
+    if owner == "finance":
+        return [f"CC{rng.randint(100, 999)} | {rng.choice(departments)} | {rng.choice(regions)} | {rng.choice(ROLES[lang])} | "
+                f"L{rng.randint(10000, 99999)}" for _ in range(n)]
+    if owner == "network-ops":
+        rows = sorted((day(rng), rng.choice(regions), rng.choice(NODES[lang]), rng.choice(SITE_STATUS[lang])) for _ in range(n))
+        return [f"S{rng.randint(1000, 9999)} | {r} | {t} | {d.isoformat()} | {s}" for d, r, t, s in rows]
+    if owner == "hr":
+        rows = sorted((day(rng), rng.randrange(len(COURSES[lang])), rng.choice(departments), rng.randint(8, 30)) for _ in range(n))
+        return [f"TR{100 + c} | {COURSES[lang][c]} | {dep} | {d.isoformat()} | {seats}" for d, c, dep, seats in rows]
+    raise ValueError(f"no register for {owner!r}")
+
+
+def directory_rows(lang: str, rng: random.Random, w: dict, n: int) -> list[str]:
+    return [f"{shop(rng)} | {rng.choice(w['regions'][lang])} | {rng.randint(1, 240)} | {rng.choice(ROLES[lang])} | "
+            f"{rng.randint(30000, 89999)}" for _ in range(n)]
+
+
+def small_tables(doc: dict, w: dict) -> list[tuple[str, str, list[str]]]:
+    """The forms, the glossary and the revision history, as (kind, audience, rows): small, and fixed per document."""
+    lang, rng = doc["language"], random.Random(f"{SEED}:{doc['id']}:small")
+    forms = []
+    for number in rng.sample(range(10, 100), rng.randint(2, 5)):
+        for field in rng.sample(FIELDS[lang], rng.randint(4, len(FIELDS[lang]))):
+            forms.append(f"F{number} | {field} | {rng.choice(NEED[lang])} | {rng.choice(list(w['systems'].values()))}")
+    glossary = [f"{term} | {meaning}" for term, meaning in rng.sample(TERMS[lang], rng.randint(3, len(TERMS[lang])))]
+    major, minor = (int(part) for part in doc["version"].split("."))
+    versions = [f"{a}.{b}" for a in range(1, major + 1) for b in range(10) if (a, b) <= (major, minor)]
+    dates, when = [], day(rng, date(2024, 1, 1))
+    for _ in versions:
+        dates.append(when)
+        when -= timedelta(days=rng.randint(20, 120))
+    sections = len(doc.get("sections") or []) or 1
+    revisions = [f"{v} | {d.isoformat()} | {rng.choice(ROLES[lang])} | {rng.choice(CHANGES[lang]).format(s=rng.randint(1, sections))}"
+                 for v, d in zip(versions, reversed(dates))]
+    return [("forms", doc["owner"], forms), ("glossary", "general", glossary), ("revisions", doc["owner"], revisions)]
+
+
+def units_of(rows: list[str]) -> int:
+    return -(-len(rows) // ROWS_PER_UNIT)
+
+
+def budgets(docs: list[dict], shares: dict[str, float], w: dict) -> dict[str, dict[str, int]]:
+    """Rows of each document's register and directory, so that every label's share of units meets its share.
+
+    The plan's sizes set the scale, UNITS_PER_MB units per planned megabyte. General's
+    units come from the directory in every document, a department's from its own
+    register, each spread over the documents in proportion to their planned size.
+    """
+    total = UNITS_PER_MB * sum(d["target_mb"] for d in docs)
+    units = Counter(s["label"] for d in docs for s in d["sections"])
+    for d in docs:
+        for _kind, audience, rows in small_tables(d, w):
+            units[audience] += units_of(rows)
+    out = {d["id"]: {"register": 0, "directory": 0} for d in docs}
+
+    def spread(rows: float, group: list[dict], table: str) -> None:
+        weight = sum(d["target_mb"] for d in group)
+        for d in group:
+            out[d["id"]][table] = round(rows * d["target_mb"] / weight)
+
+    spread(max(0.0, shares["general"] * total - units["general"]) * ROWS_PER_UNIT, docs, "directory")
+    for label, share in shares.items():
+        owned = [d for d in docs if d["owner"] == label]
+        if label != "general" and owned:
+            spread(max(0.0, share * total - units[label]) * ROWS_PER_UNIT, owned, "register")
+    return out
 
 
 def header_lines(lang: str, number: int, title: str, label: str) -> list[str]:
@@ -80,34 +208,34 @@ def parse_sections(text: str) -> list[tuple[list[str], str]]:
     return out
 
 
-def render(fmt: str, title: str, meta_line: str, sections: list[tuple[list[str], str, bool]]) -> str:
+def render(fmt: str, title: str, meta_line: str, sections: list[tuple[list[str], str, list[str] | None]]) -> str:
+    """The file in its format. A section with columns is a table: its body holds one row per line, cells split by " | "."""
     if fmt == "txt":
         parts = [title, meta_line, ""]
-        for head, body, _table in sections:
-            parts += head + ["", body, ""]
+        for head, body, columns in sections:
+            parts += head + [""] + ([" | ".join(columns)] if columns else []) + [body, ""]
         return "\n".join(parts)
     if fmt == "md":
         parts = [f"# {title}", "", meta_line, ""]
-        for head, body, table in sections:
+        for head, body, columns in sections:
             parts += [f"## {head[0]}", "", head[1], head[2], ""]
-            if table:
-                rows = [line.split(" | ") for line in body.split("\n") if line]
-                width = max(len(r) for r in rows)
-                parts += ["| " + " | ".join(f"c{i + 1}" for i in range(width)) + " |", "|" + "---|" * width]
-                parts += ["| " + " | ".join(r + [""] * (width - len(r))) + " |" for r in rows]
+            if columns:
+                parts += ["| " + " | ".join(columns) + " |", "|" + "---|" * len(columns)]
+                parts += [f"| {line} |" for line in body.split("\n") if line]
             else:
                 parts += [body]
             parts += [""]
         return "\n".join(parts)
     parts = ["<!doctype html>", "<html><head><meta charset=\"utf-8\"><title>" + html.escape(title) + "</title></head><body>",
              f"<h1>{html.escape(title)}</h1>", f"<p>{html.escape(meta_line)}</p>"]
-    for head, body, table in sections:
+    for head, body, columns in sections:
         audience = head[1].split(":", 1)[1].strip()
         parts.append(f"<section data-audience=\"{html.escape(audience)}\"><h2>{html.escape(head[0])}</h2>")
         parts.append(f"<p class=\"audience\">{html.escape(head[1])}</p><p class=\"classification\">{html.escape(head[2])}</p>")
-        if table:
-            parts.append("<table>" + "".join("<tr>" + "".join(f"<td>{html.escape(c)}</td>" for c in line.split(" | ")) + "</tr>"
-                                             for line in body.split("\n") if line) + "</table>")
+        if columns:
+            parts.append("<table><tr>" + "".join(f"<th>{html.escape(c)}</th>" for c in columns) + "</tr>"
+                         + "".join("<tr>" + "".join(f"<td>{html.escape(c)}</td>" for c in line.split(" | ")) + "</tr>"
+                                   for line in body.split("\n") if line) + "</table>")
         else:
             parts += [f"<p>{html.escape(p)}</p>" for p in body.split("\n\n") if p.strip()]
         parts.append("</section>")
@@ -126,7 +254,9 @@ def assemble(profile: str = "full") -> dict:
     docs = json.loads((base / "plan" / "catalogue.json").read_text(encoding="utf-8"))
     w = world()
     place = places(base, profile)
-    report = {"written": 0, "missing": [], "bytes": 0}
+    shares = {label: entry["target_share"] for label, entry in load_labels().items()}
+    budget = budgets(docs, shares, w)
+    report = {"written": 0, "missing": [], "bytes": 0, "units": Counter(), "registered": shares}
     legacy = legacy_id(docs)
     with exclusive(base):
         settle(place)
@@ -136,7 +266,9 @@ def assemble(profile: str = "full") -> dict:
             if not source.is_file():
                 report["missing"].append(doc["id"])
                 continue
-            report["bytes"] += assemble_doc(doc, source, w, place["building"], legacy)
+            size, units = assemble_doc(doc, source, w, place["building"], legacy, budget[doc["id"]])
+            report["bytes"] += size
+            report["units"] += units
             report["written"] += 1
         # The old corpus goes aside with its journal, since the new one has had no changes yet.
         if place["corpus"].exists():
@@ -176,30 +308,23 @@ def legacy_id(docs: list[dict]) -> str | None:
 
 
 def assemble_doc(doc: dict, source: Path, w: dict, out: Path, legacy: str | None,
-                 cap_bytes: int | None = None, rows: tuple[int, int] = (400, 1600)) -> int:
-    """One document and its sidecar into `out`; returns the bytes written."""
+                 budget: dict[str, int]) -> tuple[int, Counter]:
+    """One document and its sidecar into `out`; returns the bytes written and the units by label."""
     lang, rng = doc["language"], random.Random(f"{SEED}:{doc['id']}")
-    sections = [(head, body, False) for head, body in parse_sections(source.read_text(encoding="utf-8"))]
+    sections = [(head, body, None) for head, body in parse_sections(source.read_text(encoding="utf-8"))]
+    units = Counter(s["label"] for s in doc["sections"])
     owner_name = LABEL_EL[doc["owner"]] if lang == "el" else LABEL_EN[doc["owner"]]
     title = f"{doc['type_name']}: {owner_name}"
     meta_line = (f"Έγγραφο {doc['id']}, έκδοση {doc['version']}, η Εταιρεία, εσωτερική χρήση" if lang == "el"
                  else f"Document {doc['id']}, version {doc['version']}, the Company, internal use")
-    target = int(doc["target_mb"] * 1024 * 1024)
-    if cap_bytes is not None:
-        target = min(target, cap_bytes)
-    size = len(render(doc["format"], title, meta_line, sections).encode("utf-8"))
-    number, letter = len(sections), 0
-    while size < target:
-        kind = letter % len(ANNEXES[lang])
-        name = ANNEXES[lang][kind][0]
-        prefix = "Παράρτημα" if lang == "el" else "Annex"
-        lines = [annex_row(kind, lang, rng, w, len(sections)) for _ in range(rng.randint(*rows))]
-        number += 1
-        head = header_lines(lang, number, f"{prefix} {chr(65 + letter % 26)}{letter // 26 or ''}: {name}", doc["owner"])
-        body = "\n".join(lines)
-        sections.append((head, body, True))
-        size += len(body.encode("utf-8")) + 200
-        letter += 1
+    tables = [(doc["owner"], doc["owner"], register_rows(doc["owner"], lang, rng, w, budget["register"])),
+              ("directory", "general", directory_rows(lang, rng, w, budget["directory"]))] + small_tables(doc, w)
+    prefix = "Παράρτημα" if lang == "el" else "Annex"
+    for letter, (kind, audience, rows) in enumerate(t for t in tables if t[2]):
+        en, el, columns_en, columns_el = TITLES[kind]
+        head = header_lines(lang, len(sections) + 1, f"{prefix} {chr(65 + letter)}: {el if lang == 'el' else en}", audience)
+        sections.append((head, "\n".join(rows), columns_el if lang == "el" else columns_en))
+        units[audience] += units_of(rows)
     text = render(doc["format"], title, meta_line, sections)
     encoding = "windows-1253" if doc["id"] == legacy else "utf-8"
     path = out / f"{doc['id']}.{doc['format']}"
@@ -208,7 +333,7 @@ def assemble_doc(doc: dict, source: Path, w: dict, out: Path, legacy: str | None
             "type": doc["type"], "default_audience": doc["owner"], "classification": "internal",
             "format": doc["format"], "encoding": encoding}
     dump_json(out / f"{doc['id']}.meta.json", meta)
-    return path.stat().st_size
+    return path.stat().st_size, units
 
 
 def sample_ids(docs: list[dict]) -> list[str]:
@@ -228,8 +353,8 @@ def sample_ids(docs: list[dict]) -> list[str]:
     return [c for c in chosen if c]
 
 
-def samples(out: Path, cap_kb: int = 40) -> list[Path]:
-    """The six sample files, small: the writers' full text, then a few annex rows up to the cap."""
+def samples(out: Path) -> list[Path]:
+    """The six sample files, small: the writers' full text, then each table cut to a page of rows."""
     base = data_dir() / "corpus"
     docs = json.loads((base / "plan" / "catalogue.json").read_text(encoding="utf-8"))
     w, by_id = world(), {d["id"]: d for d in docs}
@@ -238,5 +363,7 @@ def samples(out: Path, cap_kb: int = 40) -> list[Path]:
         stale.unlink()
     legacy = legacy_id(docs)
     for doc_id in sample_ids(docs):
-        assemble_doc(by_id[doc_id], base / "narrative" / f"{doc_id}.txt", w, out, legacy, cap_kb * 1024, rows=(12, 24))
+        rng = random.Random(f"{SEED}:{doc_id}:sample")
+        page = {"register": rng.randint(12, 24), "directory": rng.randint(12, 24)}
+        assemble_doc(by_id[doc_id], base / "narrative" / f"{doc_id}.txt", w, out, legacy, page)
     return sorted(out.iterdir())

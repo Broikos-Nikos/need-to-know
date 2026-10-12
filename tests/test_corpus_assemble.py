@@ -29,7 +29,8 @@ def base(monkeypatch, tmp_path):
                "format": fmt, "target_mb": 0.01, "version": "1.0",
                "sections": [{"label": "returns", "topic_en": "Inspection", "topic_el": "Έλεγχος", "facts": ["F1"], "canary": None}]}
         docs.append(doc)
-        text = "\n".join(header(doc, 1, doc["sections"][0]) + ["", PROSE[lang] + FACT[lang], ""])
+        # A second paragraph without the fact, so a paragraph can always be inserted or deleted.
+        text = "\n".join(header(doc, 1, doc["sections"][0]) + ["", PROSE[lang] + FACT[lang], "", PROSE[lang], ""])
         (base / "narrative" / f"{doc['id']}.txt").write_bytes(text.encode("utf-8"))
     facts = [{"id": "F1", "family": "F1", "label": "returns", "kind": "single", "values": ["3", "3"], **FACT,
               "placements": [d["id"] for d in docs]}]
@@ -52,10 +53,18 @@ def leftovers(base: Path) -> list[str]:
 
 def test_a_clean_build_passes_and_every_kind_of_journaled_change_still_passes(base):
     assert check.check()["problems"] == [] and check.check()["counts"]["documents in full"] == 3
-    entries = {e["kind"]: e for e in mutate.mutate(count=len(mutate.KINDS), seed=3)}
+    # The first seed that takes every kind as asked, none as a fallback, on three different documents.
+    for seed in range(1, 40):
+        assemble.assemble()
+        made = mutate.mutate(count=len(mutate.KINDS), seed=seed)
+        entries = {e["kind"]: e for e in made}
+        if ([e["kind"] for e in made] == mutate.KINDS
+                and len({entries[k]["doc_id"] for k in ("delete_file", "new_file", "value_update")}) == 3):
+            break
+    else:
+        pytest.fail("no seed under 40 takes every kind as asked on three different documents")
     assert check.check()["problems"] == []
     # The same changes without their journal: each one the inventory can see is named.
-    assert len({entries[k]["doc_id"] for k in ("delete_file", "new_file", "value_update")}) == 3
     (base / "full.journal.jsonl").unlink()
     problems = check.check()["problems"]
     assert f"{entries['new_file']['doc_id']}: in full/ but neither in the catalogue nor added by the journal" in problems
