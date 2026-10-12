@@ -11,8 +11,8 @@ section it goes in; language model agents wrote the prose around those facts, ke
 named, real or invented: the documents call it "the Company".
 
 Under construction: retrieval, the answers and their evaluation are still to come.
-The README claims no number yet; each will arrive with the command in this
-repository that produces it.
+Each number the README gives comes with the command in this repository that
+produces it.
 
 ## What works today
 
@@ -27,6 +27,9 @@ repository that produces it.
 * Every paragraph and table row knows who may read it, from its section's audience
   line, and each label's share of the corpus meets its registered share:
   `ntk corpus coverage`.
+* Ingestion holds one file at a time, so its memory follows the largest file, not
+  the corpus, at about 14 times that file's size; a file of a hundred megabytes or
+  more would want cutting a section at a time: `uv run python bench/ingest_steps.py`.
 * Every unit is embedded as its passage, its heading path above its text, and kept
   in a cache under that passage, so a second run, a relabel or a rebuilt index
   embeds nothing again; a passage longer than the model takes is refused, never

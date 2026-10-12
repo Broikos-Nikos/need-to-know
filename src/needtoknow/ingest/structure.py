@@ -24,7 +24,7 @@ may read what follows.
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 
 from needtoknow.ingest.parse import Block
 
@@ -33,7 +33,7 @@ KEYWORD = re.compile(r"(?:SECTION|CHAPTER|PART|ANNEX|APPENDIX|ARTICLE|ΕΝΟΤΗ
 NUMBERED = re.compile(r"(\d{1,2}(?:\.\d{1,2})*)\.?\s+\S")
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class Element:
     kind: str                       # "heading", "paragraph" or "row"; "audience" once segments has read it
     text: str
@@ -46,6 +46,28 @@ class Element:
     audience: str | None = None
     labels: tuple[str, ...] = ()    # set by segments: who may read it, first label first
     inferred: bool = False          # a plain text heading found by a number or capitals, not by a keyword
+
+    def placed(self, labels: tuple[str, ...], path: tuple[str, ...]) -> Element:
+        """This element with its readers and its safe heading path, made in one call rather than by replace(), which
+        walks every field: the segments step makes one of these for each of millions of rows (PF-F1)."""
+        return Element(self.kind, self.text, self.start, self.end, self.level, path, self.cells, self.header,
+                       self.audience, labels, self.inferred)
+
+
+class Headings:
+    """The headings open at a point of a file, and the path they make, built again only when a heading opens: every
+    element under the same headings shares one tuple, where each used to build its own (PF-F1)."""
+
+    def __init__(self) -> None:
+        self.stack: list[tuple[int, str]] = []
+        self.path: tuple[str, ...] = ()
+
+    def enter(self, level: int, text: str) -> tuple[str, ...]:
+        while self.stack and self.stack[-1][0] >= level:
+            self.stack.pop()
+        self.stack.append((level, text))
+        self.path = tuple(t for _, t in self.stack)
+        return self.path
 
 
 def heading_level(line: str) -> int:
@@ -67,18 +89,22 @@ def heading_level(line: str) -> int:
 
 
 def split_txt(blocks: list[Block]) -> list[Element]:
-    """Plain text blocks with their heading lines lifted out, the first line of the file as its title."""
+    """Plain text blocks with their heading lines lifted out, the first line of the file as its title, each element
+    made once, with its heading path."""
     out: list[Element] = []
+    headings = Headings()
     for index, block in enumerate(blocks):
         if block.kind != "paragraph":
-            out.append(Element(block.kind, block.text, block.start, block.end, cells=block.cells, header=block.header))
+            out.append(Element(block.kind, block.text, block.start, block.end, path=headings.path, cells=block.cells,
+                               header=block.header))
             continue
         pending: list[tuple[int, int]] = []
 
         def flush() -> None:
             if pending:
                 start, end = pending[0][0], pending[-1][1]
-                out.append(Element("paragraph", block.text[start - block.start:end - block.start], start, end))
+                out.append(Element("paragraph", block.text[start - block.start:end - block.start], start, end,
+                                   path=headings.path))
                 pending.clear()
 
         at = block.start
@@ -92,7 +118,8 @@ def split_txt(blocks: list[Block]) -> list[Element]:
                 level = 0  # a wrapped line, not a heading
             if level:
                 flush()
-                out.append(Element("heading", line, at, at + len(line), level=level, inferred=inferred))
+                out.append(Element("heading", line, at, at + len(line), level=level, path=headings.enter(level, line),
+                                   inferred=inferred))
             else:
                 pending.append((at, at + len(line)))
             at += len(line) + 1
@@ -101,18 +128,10 @@ def split_txt(blocks: list[Block]) -> list[Element]:
 
 
 def structure(blocks: list[Block], fmt: str) -> list[Element]:
-    """The blocks as elements, each with its heading path."""
+    """The blocks as elements, each made once, with its heading path."""
     if fmt == "txt":
-        elements = split_txt(blocks)
-    else:
-        elements = [Element(b.kind, b.text, b.start, b.end, level=b.level, cells=b.cells, header=b.header, audience=b.audience)
-                    for b in blocks]
-    stack: list[tuple[int, str]] = []
-    out = []
-    for e in elements:
-        if e.kind == "heading":
-            while stack and stack[-1][0] >= e.level:
-                stack.pop()
-            stack.append((e.level, e.text))
-        out.append(replace(e, path=tuple(t for _, t in stack)))
-    return out
+        return split_txt(blocks)
+    headings = Headings()
+    return [Element(b.kind, b.text, b.start, b.end, level=b.level,
+                    path=headings.enter(b.level, b.text) if b.kind == "heading" else headings.path,
+                    cells=b.cells, header=b.header, audience=b.audience) for b in blocks]

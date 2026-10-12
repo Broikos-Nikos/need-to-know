@@ -140,3 +140,17 @@ filter" quote it.
 uv run python bench/filter_bench.py
 uv run python bench/filter_bench.py --report
 ```
+
+## ingest_steps.py
+
+Every file of the assembled corpus through decode, parse, structure, segments and units,
+each step timed apart in wall and CPU seconds, with the elements and units made and a
+digest of every unit; then the largest file cut again under tracemalloc for its peak
+memory. It needs an assembled corpus and no GPU. Commit "Make each table row once in
+structure and once in segments" quotes it, run at that commit and at its parent's code:
+
+```
+uv run python bench/ingest_steps.py
+git worktree add ../ntk-before 4659edd
+PYTHONPATH=../ntk-before/src uv run python bench/ingest_steps.py
+```

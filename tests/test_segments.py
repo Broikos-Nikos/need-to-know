@@ -25,6 +25,30 @@ def segmented(text: str, fmt: str, meta: dict, unknown=None):
 
 
 @pytest.mark.parametrize("meta_path", SAMPLES, ids=lambda p: p.name.split(".")[0])
+def test_a_row_is_made_twice_on_its_way_and_rows_under_the_same_headings_share_one_path(meta_path, monkeypatch):
+    # PF-F1: structure and segments copied every row three times after making it, and every element built its own
+    # path tuple: over the corpus, 70 of 120 s of ingestion. Now structure makes each row with its path and segments
+    # makes it once more with its labels and safe path.
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+    text = load(meta_path.with_name(meta_path.name[: -len(".meta.json")] + "." + meta["format"]), meta)
+    made = Counter()
+    real = Element.__init__
+
+    def counted(self, kind, *args, **kwargs):
+        made[kind] += 1
+        real(self, kind, *args, **kwargs)
+
+    monkeypatch.setattr(Element, "__init__", counted)
+    elements = segmented(text, meta["format"], meta)
+    rows = [e for e in elements if e.kind == "row"]
+    assert len(rows) > 40 and made["row"] == 2 * len(rows)
+    shared = {}
+    for row in rows:
+        shared.setdefault((row.path, row.labels), set()).add(id(row.path))
+    assert all(len(ids) == 1 for ids in shared.values())
+
+
+@pytest.mark.parametrize("meta_path", SAMPLES, ids=lambda p: p.name.split(".")[0])
 def test_every_element_of_a_sample_takes_its_sections_audience(meta_path):
     meta = json.loads(meta_path.read_text(encoding="utf-8"))
     text = load(meta_path.with_name(meta_path.name[: -len(".meta.json")] + "." + meta["format"]), meta)

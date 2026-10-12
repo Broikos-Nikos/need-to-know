@@ -25,6 +25,7 @@ from __future__ import annotations
 import re
 import unicodedata
 from collections import Counter
+from collections.abc import Iterator
 from dataclasses import dataclass, field, replace
 
 from needtoknow.corpus.plan import LABEL_EL, LABEL_EN
@@ -94,17 +95,31 @@ def narrow(labels: tuple[str, ...], allowed: tuple[str, ...]) -> tuple[str, ...]
     return tuple(label for label in labels if label in allowed and label != UNLABELLED) or (UNLABELLED,)
 
 
+def access_heads(elements: list[Element], exact: bool) -> Iterator[Element]:
+    """The elements in order, each paragraph that opens with access lines split from them (DR-F8)."""
+    for element in elements:
+        if element.kind == "paragraph":
+            yield from split_access_head(element, exact)
+        else:
+            yield element
+
+
 def segments(elements: list[Element], meta: dict, unknown: list[str] | None = None,
              notes: Counter | None = None) -> list[Element]:
-    """The elements with their labels and safe heading paths, the audience lines marked."""
+    """The elements with their labels and safe heading paths, the audience lines marked.
+
+    One pass reads the labels, kept beside the elements, since a section's audience line sets
+    its heading's labels after the heading; a second makes each element once more, with its
+    labels and its path (PF-F1), where each used to be copied twice.
+    """
     unknown = [] if unknown is None else unknown
     notes = Counter() if notes is None else notes
     default = labels_named(meta["default_audience"], unknown) if meta.get("default_audience") else (UNLABELLED,)
     stack: list[dict] = []  # the open sections: level, labels, index of the heading in out, settled, declared
-    current, out = default, []
-    exact = meta.get("format") != "html"
-    for e in [part for element in elements for part in
-              (split_access_head(element, exact) if element.kind == "paragraph" else [element])]:
+    current = default
+    out: list[Element] = []               # the elements as they came, an audience line marked as one
+    labels: list[tuple[str, ...]] = []    # each one's labels, a heading's set again when its section settles
+    for e in access_heads(elements, meta.get("format") != "html"):
         if e.kind == "heading":
             while stack and stack[-1]["level"] >= e.level:
                 stack.pop()
@@ -114,7 +129,8 @@ def segments(elements: list[Element], meta: dict, unknown: list[str] | None = No
             if declared:  # html: the section's data-audience
                 current = labels_named(e.audience, unknown)
             stack.append({"level": e.level, "labels": current, "at": len(out), "settled": False, "declared": declared})
-            out.append(replace(e, labels=current))
+            out.append(e)
+            labels.append(current)
             continue
         if e.kind == "paragraph" and is_access_line(e.text):
             names = audience_names(e.text)
@@ -130,8 +146,9 @@ def segments(elements: list[Element], meta: dict, unknown: list[str] | None = No
                     current = narrow(current, named)
                 if top is not None:
                     top["labels"], top["settled"] = current, True
-                    out[top["at"]] = replace(out[top["at"]], labels=current)  # the heading belongs to its section's readers
-            out.append(replace(e, kind="audience", labels=current))
+                    labels[top["at"]] = current  # the heading belongs to its section's readers
+            out.append(replace(e, kind="audience"))
+            labels.append(current)
             continue
         if e.kind == "paragraph":
             for line in e.text.split("\n"):
@@ -140,24 +157,31 @@ def segments(elements: list[Element], meta: dict, unknown: list[str] | None = No
                     notes["audience line inside a paragraph, read as narrowing only"] += 1
                     if stack:
                         stack[-1]["labels"] = current
-                        out[stack[-1]["at"]] = replace(out[stack[-1]["at"]], labels=current)
+                        labels[stack[-1]["at"]] = current
         if stack:
             stack[-1]["settled"] = True  # text has appeared: from now on an audience line can only narrow
-        out.append(replace(e, labels=current))
-    return with_safe_paths(out)
+        out.append(e)
+        labels.append(current)
+    return with_safe_paths(out, labels)
 
 
-def with_safe_paths(elements: list[Element]) -> list[Element]:
-    """Each element's heading path, keeping a heading only when every label that reads the element reads it (AC-F4)."""
+def with_safe_paths(elements: list[Element], labels: list[tuple[str, ...]]) -> list[Element]:
+    """Each element with its labels and its heading path, the path keeping a heading only when every label that reads
+    the element reads it (AC-F4). Between two headings, elements with the same labels share one path."""
     open_headings: list[tuple[int, str, frozenset[str]]] = []
+    paths: dict[tuple[str, ...], tuple[str, ...]] = {}
     out = []
-    for e in elements:
+    for e, own in zip(elements, labels):
         if e.kind == "heading":
             while open_headings and open_headings[-1][0] >= e.level:
                 open_headings.pop()
-            open_headings.append((e.level, e.text, frozenset(e.labels)))
-        readers = set(e.labels)
-        out.append(replace(e, path=tuple(text for _, text, labels in open_headings if readers <= labels)))
+            open_headings.append((e.level, e.text, frozenset(own)))
+            paths = {}
+        path = paths.get(own)
+        if path is None:
+            readers = set(own)
+            path = paths[own] = tuple(text for _, text, heading in open_headings if readers <= heading)
+        out.append(e.placed(own, path))
     return out
 
 

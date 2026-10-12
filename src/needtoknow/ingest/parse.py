@@ -23,7 +23,7 @@ PARSER_VERSION = 1
 CELL = " | "
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class Block:
     kind: str                       # "heading", "paragraph" or "row"
     text: str

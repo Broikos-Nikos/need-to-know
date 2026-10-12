@@ -53,7 +53,7 @@ def digest(*parts: str, size: int = 32) -> str:
     return hashlib.sha256(SEP.join(parts).encode("utf-8")).hexdigest()[:size]
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True)
 class Unit:
     unit_id: str
     doc_id: str
