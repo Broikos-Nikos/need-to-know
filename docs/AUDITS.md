@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**103 findings, 76 closed, 27 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
+**104 findings, 80 closed, 24 open**, from 14 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -98,7 +98,7 @@ An audit pass on whether every number can be produced again. 9 findings, 8 close
 
 ## `MT`, the maintainer in six months
 
-An audit pass on whether a fresh clone can be rebuilt and changed safely. 8 findings, 4 closed.
+An audit pass on whether a fresh clone can be rebuilt and changed safely. 9 findings, 8 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -106,10 +106,11 @@ An audit pass on whether a fresh clone can be rebuilt and changed safely. 8 find
 | `MT-F2` | medium | fixed, tick 31 | The writers' narrative (160 files, 1.7 MB) exists only on this machine, so no one else can rebuild the corpus and a lost disk loses it: make it fetchable and verifiable from the repository |
 | `MT-F3` | medium | fixed, tick 31 | The README says nothing about installing or running the project: a short run section with uv sync, ntk doctor, the corpus commands and the benches |
 | `MT-F4` | low | fixed, tick 30 | ntk corpus samples deletes every file in samples/ before writing, a hand added note included: delete only files named for a document |
-| `MT-F5` | medium | open | The README stops at the corpus and calls the index still to come: no written path from a clone to a searchable index but a bench's source |
-| `MT-F6` | medium | open | The code cites decisions N7 to N53 in 18 files, and none resolves in the repository |
-| `MT-F7` | low | open | A changed collection or analyser is refused with no command to rebuild it, short of a bench that also deletes the vector cache |
-| `MT-F8` | low | open | bench/README.md opens by saying every bench runs with no GPU, key or network; eight of fifteen files need the GPU or the server |
+| `MT-F5` | medium | fixed, tick 82 | The README stops at the corpus and calls the index still to come: no written path from a clone to a searchable index but a bench's source |
+| `MT-F6` | medium | fixed, tick 82 | The code cites decisions N7 to N53 in 18 files, and none resolves in the repository |
+| `MT-F7` | low | fixed, tick 82 | A changed collection or analyser is refused with no command to rebuild it, short of a bench that also deletes the vector cache |
+| `MT-F8` | low | fixed, tick 82 | bench/README.md opens by saying every bench runs with no GPU, key or network; eight of fifteen files need the GPU or the server |
+| `MT-F9` | low | open | An edit anywhere in lexical.py stales the index's frozen statistics: the analyser's version is the whole file's hash |
 
 ## `SC`, the supply chain auditor
 

@@ -1,8 +1,10 @@
 # Benches
 
 Each script here prints numbers that the history quotes, so that none of them rests on
-a script outside this repository. Both run on any machine with the project installed,
-with no GPU, no key and no network.
+a script outside this repository. `operator_probes.py`, `crash_points.py`,
+`parse_corpus.py`, `lexical_corpus.py` and `ingest_steps.py` need the project and its
+corpus, and no GPU, key or network; the others need the GPU, the running index server or
+both, as each section says.
 
 ## operator_probes.py
 

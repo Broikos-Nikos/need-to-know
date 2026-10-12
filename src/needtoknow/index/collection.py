@@ -95,6 +95,15 @@ def problems(info) -> list[str]:
     return found
 
 
+def drop(client) -> bool:
+    """Delete the collection, so that the next ensure() builds it again with statistics frozen afresh and an empty
+    frequency table; the vector cache stays, its vectors owing nothing to the index (MT-F7). Whether one was there."""
+    there = client.collection_exists(COLLECTION)
+    if there:
+        client.delete_collection(COLLECTION)
+    return there
+
+
 def ensure(client, passages) -> dict:
     """The collection, created with its frozen lexical statistics when missing; refused when of another shape.
 
@@ -110,7 +119,8 @@ def ensure(client, passages) -> dict:
     else:
         found = problems(client.get_collection(COLLECTION))
         if found:
-            raise CollectionError(f"{COLLECTION} is not the collection this code builds: {'; '.join(found)}")
+            raise CollectionError(f"{COLLECTION} is not the collection this code builds: {'; '.join(found)}; "
+                                  f"ntk index create --replace builds it again, keeping the vector cache")
     for field, schema in indexes().items():
         client.create_payload_index(COLLECTION, field, field_schema=schema)
     return {"created": created, "lexical": lexical.frozen()}

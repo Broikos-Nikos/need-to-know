@@ -10,7 +10,7 @@ section it goes in; language model agents wrote the prose around those facts, ke
 `narrative/`; and code adds the tables a real manual carries. The company is never
 named, real or invented: the documents call it "the Company".
 
-Under construction: retrieval, the answers and their evaluation are still to come.
+Under construction: the answers and their evaluation are still to come.
 Each number the README gives comes with the command in this repository that
 produces it.
 
@@ -37,7 +37,12 @@ produces it.
   in a cache under that passage, so a second run, a relabel or a rebuilt index
   embeds nothing again; a passage longer than the model takes is refused, never
   cut: `ntk embed`.
-* Every audit finding the history cites, open or fixed, is in `docs/AUDITS.md`.
+* A role's question is searched inside that role's filter, on the dense and the lexical
+  side alike, and fused in the engine: no unit a role may not read came back in 6,480
+  searches, every role and three combinations of them asked every label's probes:
+  `uv run python bench/permission_suite.py`.
+* Every audit finding the history cites, open or fixed, is in `docs/AUDITS.md`, and
+  every decision the code cites is in `docs/DECISIONS.md`.
 
 ## Run it
 
@@ -63,7 +68,30 @@ uv run pytest
 * `bench/` holds the scripts behind the numbers in the history, and
   `docs/AUDITS.md` lists every audit finding the history cites.
 
-`ntk embed` needs `uv sync --extra embed` and a CUDA GPU, and the index and the
-answers, still to come, will also need the Qdrant binary named in
-`config/qdrant.toml` and a DeepSeek key.
-`ntk doctor` checks each of them.
+### Build the index and search it
+
+```
+uv sync --extra embed
+uv run ntk qdrant start
+uv run ntk ingest build
+uv run ntk embed
+uv run ntk index create
+uv run ntk index sync
+uv run ntk search "How many days does a customer have to return a device?" --as returns
+uv run ntk ingest watch
+```
+
+* The build needs a CUDA GPU for the encoder and the Qdrant binary that
+  `config/qdrant.toml` pins. `ntk qdrant start` says where to download it, the sha256
+  to check and where to unpack it, and writes the server's key into `.env`.
+* `ntk ingest build` cuts the corpus into units in the manifest; `ntk embed` embeds
+  every unit's passage into a cache; `ntk index create` makes the collection and
+  freezes the lexical statistics; `ntk index sync` brings the collection to the
+  manifest. `ntk index create --replace` builds the collection again and keeps the
+  vector cache.
+* A search asks as a role, through that role's filter only; `ntk ingest watch` carries
+  every change to the corpus into the manifest and the index.
+* `uv run python bench/full_build.py --fresh` runs the whole build, timed phase by
+  phase with its memory and disk.
+* The answers, still to come, will need a DeepSeek key. `ntk doctor` checks each of
+  these.

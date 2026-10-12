@@ -79,3 +79,47 @@ def test_a_run_killed_while_measuring_leaves_no_collection_without_its_statistic
     with pytest.raises(RuntimeError, match="killed"):
         ensure(client, killed)
     assert not client.collection_exists(COLLECTION)
+
+
+def test_a_refused_collection_names_the_command_that_builds_it_again_and_that_command_does(client, capsys):
+    # MT-F7: a collection of another shape, or statistics another analyser froze, stopped every build and named no
+    # way out but a bench that also deletes the vector cache, an hour of the GPU.
+    import argparse
+
+    from needtoknow.index import frequencies
+    from needtoknow.ingest.manifest import opened
+    with opened() as db:
+        db.execute("INSERT INTO files VALUES ('DOC_1', 'doc.md', 1, 1, 1, 1, 'h', 'md', 'utf-8', 'en', 'v', 1)")
+        db.execute("""INSERT INTO units VALUES ('u1', 'DOC_1', 's', 'prose', '["sales"]', '["Title"]', 'cat dog', 0, 1, 'en', 1)""")
+    vectors, sparse = collection.config()
+    vectors = {collection.DENSE: vectors[collection.DENSE].model_copy(update={"size": 768})}
+    client.create_collection(COLLECTION, vectors_config=vectors, sparse_vectors_config=sparse)
+    with frequencies.opened(COLLECTION) as db:
+        frequencies.count(db, [("sales", [1, 2])], 1)
+    assert cmd_index(argparse.Namespace(action="create", replace=False), client=client) == 1
+    assert "ntk index create --replace builds it again, keeping the vector cache" in capsys.readouterr().out
+    assert cmd_index(argparse.Namespace(action="create", replace=True), client=client) == 0
+    out = capsys.readouterr().out
+    assert "documents_v2 deleted, to be built again; the vector cache kept" in out and "documents_v2: created" in out
+    assert problems(client.get_collection(COLLECTION)) == []
+    with frequencies.opened(COLLECTION) as db:
+        assert db.execute("SELECT COUNT(*) FROM df").fetchone()[0] == 0
+
+
+def test_statistics_another_analyser_froze_are_one_line_naming_the_command_that_rebuilds_them(client, capsys):
+    # MT-F7: "rebuild the sparse side", naming nothing, and from ntk index a traceback.
+    import argparse
+    import json
+
+    from needtoknow.ingest.manifest import opened
+    with opened() as db:
+        db.execute("INSERT INTO files VALUES ('DOC_1', 'doc.md', 1, 1, 1, 1, 'h', 'md', 'utf-8', 'en', 'v', 1)")
+        db.execute("""INSERT INTO units VALUES ('u1', 'DOC_1', 's', 'prose', '["sales"]', '["Title"]', 'cat dog', 0, 1, 'en', 1)""")
+    assert cmd_index(argparse.Namespace(action="create", replace=False), client=client) == 0
+    stats = json.loads(lexical.stats_path().read_bytes())
+    lexical.stats_path().write_bytes(json.dumps({**stats, "analyser": "another"}).encode("utf-8"))
+    capsys.readouterr()
+    assert cmd_index(argparse.Namespace(action="create", replace=False), client=client) == 1
+    line = capsys.readouterr().out.strip()
+    assert line.startswith("index: ") and line.endswith("ntk index create --replace rebuilds them with the collection, "
+                                                          "keeping the vector cache")

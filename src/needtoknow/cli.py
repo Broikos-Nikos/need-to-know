@@ -49,6 +49,8 @@ def build_parser() -> argparse.ArgumentParser:
                         help="watch: keep the manifest current and leave the index alone")
     index = commands.add_parser("index", help="create the Qdrant collection, or bring it to the manifest")
     index.add_argument("action", choices=("create", "sync"))
+    index.add_argument("--replace", action="store_true", help="delete the collection, its frequency table and its "
+                                                              "lexical statistics first; the vector cache stays")
     find = commands.add_parser("search", help="the candidates a role's question finds, fused, best first")
     find.add_argument("question")
     find.add_argument("--as", dest="role", required=True, help="a role of config/policy.toml")
@@ -166,17 +168,24 @@ def cmd_index(args: argparse.Namespace, out=None, client=None) -> int:
     then, for sync, delete what the manifest no longer explains and upsert what the collection lacks (T3.4)."""
     import json
 
-    from needtoknow.index.collection import COLLECTION, CollectionError, ensure
+    from needtoknow.index.collection import COLLECTION, CollectionError, drop, ensure
+    from needtoknow.lexical import LexicalError
+    rebuild = "; ntk index create --replace rebuilds them with the collection, keeping the vector cache"
     from needtoknow.ingest.manifest import opened
     from needtoknow.ingest.units import passage
     from needtoknow.embed.model import EmbedError
     out = out or sys.stdout
     try:
         client = client or server.client()
+        if getattr(args, "replace", False) and drop(client):
+            print(f"{COLLECTION} deleted, to be built again; the vector cache kept", file=out, flush=True)
         with opened() as db:
             result = ensure(client, lambda: (passage(json.loads(p), t) for p, t in db.execute("SELECT path, text FROM units")))
     except (CollectionError, server.ServerError) as error:
         print(f"index: {error}", file=out, flush=True)
+        return 1
+    except LexicalError as error:  # said here, so lexical.py, whose bytes are the analyser's version, stays (MT-F7)
+        print(f"index: {error}{rebuild}", file=out, flush=True)
         return 1
     except Exception as error:
         if server_down(error, out, "index"):
@@ -191,6 +200,9 @@ def cmd_index(args: argparse.Namespace, out=None, client=None) -> int:
             done = sync(client, report=lambda line: print(line, file=out, flush=True))
         except EmbedError as error:
             print(f"index: {error}", file=out, flush=True)
+            return 1
+        except LexicalError as error:
+            print(f"index: {error}{rebuild}", file=out, flush=True)
             return 1
         except Exception as error:
             if server_down(error, out, "index"):
