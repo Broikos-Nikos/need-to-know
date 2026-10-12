@@ -331,7 +331,11 @@ def assemble_doc(doc: dict, source: Path, w: dict, out: Path, legacy: str | None
     text = render(doc["format"], title, meta_line, sections)
     encoding = "windows-1253" if doc["id"] == legacy else "utf-8"
     path = out / f"{doc['id']}.{doc['format']}"
-    path.write_bytes(text.encode("cp1253" if encoding == "windows-1253" else "utf-8", errors="replace"))
+    try:
+        data = text.encode("cp1253" if encoding == "windows-1253" else "utf-8")
+    except UnicodeEncodeError as error:  # never a silent "?" in the legacy file (DR-F4)
+        raise ValueError(f"{doc['id']}: {error.object[error.start]!r} at {error.start} has no place in {encoding}") from None
+    path.write_bytes(data)
     meta = {"doc_id": doc["id"], "title": title, "owner": doc["owner"], "language": lang, "version": doc["version"],
             "type": doc["type"], "default_audience": doc["owner"], "classification": "internal",
             "format": doc["format"], "encoding": encoding}

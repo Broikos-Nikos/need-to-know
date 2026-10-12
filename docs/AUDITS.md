@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**62 findings, 27 closed, 35 open**, from 10 reviews. Each audit pass took one perspective and nothing else.
+**62 findings, 28 closed, 34 open**, from 10 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -41,14 +41,14 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 
 ## `DR`, the deep reviewer
 
-An audit pass on correctness, read in the logic rather than the comments. 6 findings, 4 closed.
+An audit pass on correctness, read in the logic rather than the comments. 6 findings, 5 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `DR-F1` | medium | fixed, tick 18 | The light check misses Greek genitive plurals, working days and euro signs as invented values; its zero held only by a broader rescan |
 | `DR-F2` | medium | fixed, tick 17 | 140 of 160 documents repeat a section heading (247 of 900 sections); rename repeats in plan and narrative together before ingestion |
 | `DR-F3` | low | fixed, tick 18 | The light check reads the narrative, not the assembled files (207 of 207 present there, measured) |
-| `DR-F4` | low | open | The Windows-1253 file is written with errors=replace (0 lost characters today) |
+| `DR-F4` | low | fixed, tick 35 | The Windows-1253 file is written with errors=replace (0 lost characters today) |
 | `DR-F5` | low | open | server.stop reports a pid stopped after its wait times out |
 | `DR-F6` | low | fixed, tick 22 | The simulator counts journal lines through an unclosed file |
 
