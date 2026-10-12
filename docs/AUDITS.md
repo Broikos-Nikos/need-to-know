@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**118 findings, 83 closed, 35 open**, from 15 reviews. Each audit pass took one perspective and nothing else.
+**119 findings, 87 closed, 32 open**, from 15 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -31,7 +31,7 @@ An audit pass that tried to break a first run. 14 findings, 14 closed.
 
 ## `RS`, the retrieval scientist
 
-An audit pass on whether the evaluation can fail and its statistics are honest. 16 findings, 4 closed.
+An audit pass on whether the evaluation can fail and its statistics are honest. 16 findings, 5 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -48,7 +48,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 | `RS-F11` | low | fixed, tick 69 | Overlap@10 on off topic probes counts swaps among near equal scores: report a tie aware overlap and gate on misses beyond the tolerance |
 | `RS-F12` | medium | open | N50 and the bench README quote the attack's share over the whole collection and its null, and leave out its own share over the view, 58 to 65 percent against 45 to 50: all three with their counts and intervals, the view's claim carried by KB4-K9's noninterference test Measured by bench/idf_attack.py. |
 | `RS-F13` | medium | fixed, tick 89 | Timings and graph recall are quoted from one run each, and a rerun prints other numbers: N51's 26 to 83 ms and 0.680 to 0.949 against 13 to 25 and 0.688 to 0.959 at the P3 exit, N53's 4.6 s against 4.0 to 4.5 s in three runs; the timing benches repeat and print median, largest and count, and the decisions quote what today's commands print Measured by bench/filter_bench.py --report and bench/revocation.py. |
-| `RS-F14` | medium | open | P4's exit counts citations that parse() has already made valid: it drops a citation it cannot place without a trace, so the exit cannot fail; parse returns what it dropped, runs record it, and each smoke answer cites an excerpt holding its value |
+| `RS-F14` | medium | fixed, tick 94 | P4's exit counts citations that parse() has already made valid: it drops a citation it cannot place without a trace, so the exit cannot fail; parse returns what it dropped, runs record it, and each smoke answer cites an excerpt holding its value |
 | `RS-F15` | medium | open | Citation accuracy, a cited section among the expected sources, is passed by citing every excerpt: citation precision and recall per item, with a cite everything null through the scorer on dev |
 | `RS-F16` | low | open | The filter bench and the permission suite ask the first 30 words of a unit, not a question: the filter bench run on the dev probes when T5.4 makes them, and N51 says what its probes were |
 
@@ -140,7 +140,7 @@ An audit pass of three minutes, on whether the author ships, measures and says s
 
 ## `AC`, the access control red team
 
-An audit pass that tried to make restricted text readable by the wrong role. 10 findings, 7 closed.
+An audit pass that tried to make restricted text readable by the wrong role. 10 findings, 10 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -150,10 +150,10 @@ An audit pass that tried to make restricted text readable by the wrong role. 10 
 | `AC-F4` | medium | fixed, tick 43 | A heading path carries restricted headings into text everyone may read: a path keeps only headings that every reader of the element may read |
 | `AC-F5` | high | fixed, tick 63 | The IDF side channel works in the fused ranks: a word frequent in hidden text ranked lower in 16 of 17 pairs (94 percent) against 45 percent for null pairs Measured by `bench/idf_attack.py --global-idf`. |
 | `AC-F6` | high | fixed, tick 62 | A narrowed audience reaches the manifest in seconds and the index never: nothing runs the sync after the watcher's scan |
-| `AC-F7` | low | open | ntk search --as takes the role on the caller's word; the README should say ntk is the operator's tool and served paths take the role from the session |
+| `AC-F7` | low | fixed, tick 94 | ntk search --as takes the role on the caller's word; the README should say ntk is the operator's tool and served paths take the role from the session |
 | `AC-F8` | high | fixed, tick 93 | The cache the architecture plans, keyed by the role's readable labels, serves a narrowed or edited section's answer after the change, since the role's labels do not move: key an answer by the hash of the prompt as sent with the model and its parameters, key nothing by role or label set, and gate on the change bench asked through the answer path |
-| `AC-F9` | medium | open | An instruction planted in a permitted section was never obeyed, but it turned answers to an English question Finnish in 6 of 14 calls against 0 of 4 clean: name the answer's language in the user message, quote the excerpts as documents whose instructions are not the model's, and keep the probe as a bench |
-| `AC-F10` | low | open | A role's excerpts, restricted sections included, are posted to the provider, and neither the README nor the enforcement table names it as a reader outside the role model: one row and one sentence |
+| `AC-F9` | medium | fixed, tick 94 | An instruction planted in a permitted section was never obeyed, but it turned answers to an English question Finnish in 6 of 14 calls against 0 of 4 clean: name the answer's language in the user message, quote the excerpts as documents whose instructions are not the model's, and keep the probe as a bench |
+| `AC-F10` | low | fixed, tick 94 | A role's excerpts, restricted sections included, are posted to the provider, and neither the README nor the enforcement table names it as a reader outside the role model: one row and one sentence |
 
 ## `RC`, the recruiter
 
@@ -166,7 +166,7 @@ An audit pass of ten seconds on the first screen, by someone who hires but does 
 
 ## `PF`, the performance auditor
 
-An audit pass on time, memory and disk, its page half waiting for the page. 6 findings, 5 closed.
+An audit pass on time, memory and disk, its page half waiting for the page. 7 findings, 5 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -176,6 +176,7 @@ An audit pass on time, memory and disk, its page half waiting for the page. 6 fi
 | `PF-F4` | medium | fixed, tick 78 | The cross encoder pads each batch of 16, in rank order, to its longest pair: sorted by length it scores a question in 572 ms instead of 843, the same top 8 |
 | `PF-F5` | low | fixed, tick 78 | Expansion finds each hit's segment by reading its whole document through the doc_id index: 31 to 43 ms for the top 8 |
 | `PF-F6` | low | open | Within one watcher, each widening of the largest document made the next sync's read slower, 0.40 to 0.73 s over five runs, leaving 0.2 s under the 5 s objective: run the change thirty times to see whether the engine's own vacuum bounds it, and if it does not, read only the sections that changed Measured by bench/revocation.py. |
+| `PF-F7` | low | open | Each ntk ask loads the encoder and the reranker in a fresh process, 30 s of search before the question reaches the provider against 0.65 s warm: the served path keeps both loaded, and the README says what a first question costs Measured by ntk ask. |
 
 ## `KB1`, the plan, reviewed against a knowledge base
 
