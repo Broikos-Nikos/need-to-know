@@ -1,0 +1,47 @@
+SECTION 1  Working hours and access
+Audience: All staff
+Classification: Internal
+
+Working hours for sales staff are published in the team calendar, and any change must be agreed with the store manager before it takes effect. Access to the sales systems is granted only during the hours of an active shift, and staff who need access outside that window request it in writing. Each member of staff has a personal login, and sharing a login with a colleague is treated as a breach of the access policy. Keys, access cards and badges are issued by the store manager and returned when a member of staff leaves. Staff who arrive late or leave early record it in the attendance tool, so that cover can be planned. Breaks are taken according to the rota, and the team lead makes sure that the sales floor is never left without a trained advisor. Holiday requests go through the leave system and are approved by the store manager against the team plan. Questions about hours and access go to the sales operations desk, which keeps the master timetable.
+
+SECTION 2  Contracts and terms
+Audience: Sales
+Classification: Internal
+
+Contract durations are part of the commitment the customer makes, so advisors must explain them before the order is confirmed. Contracts for fibre broadband run for a minimum of 12 months. Contracts for copper broadband run for a minimum of 24 months. The advisor checks the product code in Atlas to confirm which duration applies, because some older offers carry different terms. Early termination of a contract is explained using the approved template, and the advisor does not describe the charges from memory. Renewals are offered only when the customer has been told in writing that the contract will continue. Customers who ask whether a contract can be shortened are referred to the contracts team, which decides on the basis of the product rules. The contract record shows the start date, the end date and the notice period, and the advisor reads these out to the customer. Any disagreement about the duration is recorded in Atlas before the order is closed.
+
+SECTION 3  Discounts and approvals
+Audience: Sales
+Classification: Internal
+
+Discounts are offered within the limits set for each channel, and the advisor must know those limits before speaking to the customer. A discount above the limit needs approval from the channel manager before it is quoted, and the request is logged in Atlas with the reason. The advisor does not combine discounts from different campaigns without checking the stacking rules, because some combinations are not allowed. Approved discounts are recorded in the contract with the approval reference, so that the billing team can apply them correctly. The advisor does not quote a discount for a period longer than the approval covers. A refused discount is explained with the standard wording, and the advisor does not criticise the approval process. The channel manager reviews the discounts given at the end of each period, to check that the limits are being respected. Staff who consistently ask for approvals outside the limits are discussed in the team review.
+
+SECTION 4  Devices and subsidies
+Audience: Sales
+Classification: Internal
+
+Devices are sold as part of a contract or as a standalone purchase, and the advisor must explain the difference clearly. A standalone device is sold at the full price shown in the price list, with no subsidy attached. Devices sold with a contract may carry a subsidy, and the subsidy is shown as part of the total price of the contract. The advisor checks the stock position in Dock before confirming that a device can be delivered. Devices that are returned under the cooling off right are checked by the returns team before the customer is refunded. Accessories bundled with a device follow the bundle rules, which are set out in the catalogue annex. Advisors do not promise a colour or a storage variant that is not confirmed in the system. Customers who want to compare devices can use the approved comparison sheet, and the advisor does not offer personal opinions on performance.
+
+SECTION 5  Devices and subsidies, part 2
+Audience: Sales
+Classification: Internal
+
+The subsidy rules apply to each contract separately, and the advisor must check the cap before quoting a subsidy. The device subsidy on a new contract for postpaid mobile plans is capped at 290 euros. The advisor records the subsidy amount in the contract and confirms it with the customer before signature. A subsidy is not paid as cash and does not carry over to a new contract if the existing one is cancelled. Subsidy caps are reviewed by the sales director at the start of each campaign, and the new values are published on the internal board. Customers who ask for a higher subsidy are told that the cap applies to all customers and is not negotiable. Any attempt to split a device purchase across several contracts to increase the subsidy is reported to the contracts team. The subsidy record in Atlas is checked by the finance team before the contract is activated.
+
+SECTION 6  Devices and subsidies, part 3
+Audience: Sales
+Classification: Internal
+
+Device protection plans are optional products that cover accidental damage, and the advisor explains the cover, the excess and the exclusions before the customer decides. The plan is sold with the insurance partner INS1 and is recorded in Atlas with the policy reference. Advisors do not describe the cover as equivalent to the manufacturer warranty, because the two are different. The insurance product is not compulsory, and the advisor does not link it to the approval of a subsidy. Claims for protection plans are handled by the insurance team, not by the sales floor. Customers who wish to cancel the plan receive written confirmation and the date on which the cover ends. The advisor keeps a copy of the explanation given to the customer in the case record. Plans sold without a full explanation are reviewed by the compliance team.
+
+SECTION 7  Devices and subsidies, part 4
+Audience: Sales
+Classification: Internal
+
+Trade in offers allow a customer to hand back an older device against the price of a new one. The advisor assesses the old device using the approved grading guide and records the grade in Atlas before quoting the value. The value is conditional on the device matching the grade at collection, and the advisor explains this clearly to the customer. Devices that are not accepted for trade in are returned to the customer, and the advisor records the reason. Personal data must be removed from the device by the customer before collection, and the advisor provides the written instructions. Trade in values are reviewed by the channel manager at the end of each period, and the grading guide is updated when needed. The collection is recorded in Dock, and the device is passed to the returns team for inspection. Customers are told that the final value may change after inspection, and the reason is recorded.
+
+SECTION 8  Repairs under warranty
+Audience: Returns
+Classification: Internal
+
+Warranty repairs are the responsibility of the returns team, and sales staff pass the request on without attempting a diagnosis. The request is recorded in Atlas with the serial number, the purchase date and a description of the fault as given by the customer. The returns team checks whether the fault is covered and decides on repair or replacement. Repair centres are chosen according to the customer region and the current capacity, and the customer is told which centre will handle the device. Devices are packed and sent with the repair reference, and the tracking number is recorded in Dock. The sales advisor informs the customer of the expected return only when the returns team has confirmed it. Customers who are unhappy with the repair are referred to the returns team, not to the sales floor. Repeated failures of the same model are reported to the product team, so that the issue can be raised with the supplier.

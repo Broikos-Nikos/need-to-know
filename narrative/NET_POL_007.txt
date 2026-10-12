@@ -1,0 +1,29 @@
+SECTION 1  Conduct and compliance
+Audience: All staff
+Classification: Internal
+
+Everyone who works on the network, whether in the field, in the control room or in an office, must follow the conduct rules set out in this policy. Staff act with honesty about the state of the network, and they do not hide faults in order to protect a schedule or a reputation. Access to network equipment, configuration tools and monitoring systems is granted only for the tasks a person is assigned to perform. Passwords are personal, are not written on paper and are changed when the system requires it. Visits to customer premises are carried out with the identity badge visible, and the technician confirms the purpose of the visit with the customer before any work starts. Photographs taken in the field are used for the work only and are not shared outside the company. Any person who believes that a colleague is breaking the rules on safety or security must report it to the network manager. Reports are handled confidentially, and no one is penalised for raising a genuine concern.
+
+SECTION 2  Incident response
+Audience: Network Operations
+Classification: Internal
+
+An incident is any event that interrupts or degrades a service for customers, whether it is detected by monitoring or reported by a person. The duty engineer opens an incident record in Relay as soon as the event is confirmed, and records the time, the affected area and the first symptom. The severity is set by the duty engineer according to the number of customers affected and the nature of the fault, and the severity can be raised but not lowered without a written reason. The incident lead coordinates the response, keeps the communication channel open and decides when a technician must be dispatched on site. All actions taken during the incident are logged with a time stamp, so that the sequence can be reconstructed afterwards. Customer facing messages are issued only from the approved template and are cleared by the incident lead. The incident closes when service is restored and verified, and a short report is written within the period set by the policy. Each report names the root cause, the actions taken and the preventive measures proposed.
+
+SECTION 3  Maintenance
+Audience: Network Operations
+Classification: Internal
+
+Planned maintenance is carried out in windows that minimise the impact on customers, and each window is approved by the network manager before it is announced. Every maintenance task is recorded in Compass with its purpose, the equipment involved, the crew and the rollback plan. A rollback plan describes exactly how the team returns the network to its previous state if the work does not go as planned. Maintenance on shared equipment is coordinated with other teams, so that two crews do not work on the same node at the same time. Contractors follow the same rules as employees, and they are not left alone on critical equipment without a named supervisor. Before work begins, the crew confirms the equipment list and checks the spares in stock. After work ends, the engineer runs the standard tests and records the results, and the task is closed only when the network matches the expected state. Maintenance that fails is reviewed in the next planning meeting, so that the lessons are applied in the next window.
+
+SECTION 4  Field visits
+Audience: Network Operations
+Classification: Internal
+
+Field visits are the point where the network meets the customer, and the policy sets the standard for how technicians arrive, work and leave. From 1 July 2025, a fault on copper broadband gets a technician visit within 86 hours. Visits are scheduled in Compass, which links each job to a technician, a vehicle and the required equipment. The technician confirms the address and the contact person before departure, and records the arrival and departure times in the system. Technicians explain the work to the customer in plain language, and they do not make promises about future service that the network cannot guarantee. Where a visit cannot be completed, the technician records the reason, the customer's response and the next step. Evidence of the work, such as photographs of the connection and the removed equipment, is stored with the job. Technicians must leave the premises tidy, and they must not leave tools or cables that could be a hazard to the occupants.
+
+SECTION 5  Availability
+Audience: Network Operations
+Classification: Internal
+
+Availability is the measure of how often the network delivers its service as promised, and the policy sets the method used to calculate it. Each outage is recorded with its start and end time, its cause and the number of customers affected. The availability figure is published to the internal board at the close of each period, together with the outages that contributed most to it. Planned maintenance is shown separately from unplanned outages, so that both can be understood. The network manager reviews availability trends with the engineering leads and agrees the investments needed to improve the weakest areas. Measurement systems are checked regularly against the incident records, so that no outage is missing from the figures. Any change to the calculation method is approved by the network director and explained to the teams before it is used. Availability reports are for internal use, and external statements are cleared by the legal team.

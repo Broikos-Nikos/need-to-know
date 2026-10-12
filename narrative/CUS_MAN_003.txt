@@ -1,0 +1,41 @@
+SECTION 1  Internal support
+Audience: All staff
+Classification: Internal
+
+This manual is the working reference for the customer care floor, and every member of staff should know where to find it on the network. Shops in Epirus open at 09:00 on weekdays. Opening times for the wider network are posted in the operations calendar, which is updated whenever a branch changes its hours. Staff who work remotely have the same access to the manual as those on site, and the version date appears at the top of each page. Questions about the content go to the manual owner in customer care, not to a colleague who may have an older copy. Printed copies are not kept at workstations, since they go out of date quickly. Any gap found during a live call is noted in Relay so that the next revision closes it.
+
+SECTION 2  Escalation
+Audience: Customer Care
+Classification: Internal
+
+The first criterion for escalation to a specialist team is a case that the first handler cannot resolve within the normal process, and the specialist should take it only when the first handler has tried the standard steps. Another criterion applies to cases involving a safety risk, a vulnerable customer or a legal threat, which move immediately regardless of how many steps have been tried. Specialists also take cases that involve more than one service, because a single handler cannot see the whole account. Handlers record the criterion that applies in the case, so that the team lead can check the reasoning later. The criteria are reviewed by the operations manager whenever a new product or process is introduced. Handlers who are unsure which criterion applies ask their team lead before transferring, so that the case is not sent on by guesswork.
+
+SECTION 3  Escalation, part 2
+Audience: Customer Care
+Classification: Internal
+
+A handover between handlers must be written so that the receiving person can act without calling the customer again. The standard handover note sets out the problem, the actions already taken, the customer's stated outcome and the next promised step. The receiving handler reads the note in full before making contact, and confirms in the case that the handover has been accepted. If the note is incomplete, the case returns to the sender with a question, and the sender answers within the same shift. Handovers at the end of a shift are logged with the time and the name of the receiving handler, so that no case is lost between teams. Team leads spot-check handover notes at regular intervals. A handover that lacks the required detail is returned, and the sender is asked to add the missing information before the case moves again.
+
+SECTION 4  Escalation, part 3
+Audience: Customer Care
+Classification: Internal
+
+Customers should always know who is handling their case after an escalation, and the name and direct route for that person must be given in the first reply. The handler tells the customer what will happen next and when the next update can be expected, without giving a date that has not yet been confirmed. If the specialist needs more time, the customer is told before the deadline passes rather than afterwards, and the reason is given in plain language. Handlers do not blame another team when they speak to a customer, even where the delay came from that team, because the customer sees the company as one organisation. Any complaint about the escalation process itself is recorded as a feedback item for the team leader.
+
+SECTION 5  Compensation
+Audience: Customer Care
+Classification: Internal
+
+Compensation decisions are made against the approved schedule, and the handler records which line of the schedule applies before any offer is made. The offer must match the confirmed outage record, and where the record is incomplete the case is held until the network team confirms the facts. Handlers have a limit on the amount they can approve alone, and any amount above it goes to the team lead with the reasoning. Approved compensation is applied through Ledger, and the handler confirms to the customer when the credit will show on the account. A handler who has offered an amount that later proves wrong must report the mistake rather than adjust it quietly, so that the team can learn from it. The compensation record stays with the case and is never edited after the credit has been posted.
+
+SECTION 6  Response times
+Audience: Customer Care
+Classification: Internal
+
+Response times are the measure that customers feel most directly, and this section sets out how they are calculated so that everyone counts from the same starting point. The clock starts when the case reaches the queue, and it stops when the customer receives a reply that answers the question or confirms the next step. Acknowledgements that do not answer the question do not stop the clock, because a message that says the request has been received is not a response. Team leads review the cases that have passed the target at regular intervals, and they look for causes such as missing information or a slow external partner. The target itself is reviewed whenever the service model changes. Any proposal to change the target is discussed with frontline staff first, so that the new figure reflects what handlers can realistically deliver.
+
+SECTION 7  Callbacks and holding
+Audience: Customer Care
+Classification: Internal
+
+Callbacks are promised only when the handler can keep the promise, and the manual sets out the rule for each queue on how far ahead a callback can be booked. The handler records the time window the customer chose and the number to call, and reads both back to the customer before ending the call. When a callback is missed, the handler does not rush to call late with a different message. Instead the case returns to the queue with a note, and the missed callback is reported to the team lead. Holding is used only when the customer agrees to wait, and the handler checks back in before the customer has to ask. Long holds are not hidden behind silence, so the handler gives a plain update on the wait whenever the system allows it.

@@ -1,0 +1,57 @@
+SECTION 1  Conduct and compliance
+Audience: All staff
+Classification: Internal
+
+Everyone who works in the warehouse follows the conduct rules set out in the Company handbook, and these rules apply equally to permanent staff, temporary staff and contractors on site. Staff must report any safety concern to the shift supervisor at once, and nobody should wait for a formal meeting before raising a problem. Personal property stays in the lockers provided, and phones are kept out of the picking areas so that no one is distracted near moving equipment. Breaks are taken in the rest area and not at the workstation, so that goods are never left unattended on a conveyor.
+
+Gifts from carriers or suppliers must be declared to the logistics manager before they are accepted, even when the value is small. Any conflict of interest, such as a family link with a carrier that is bidding for a contract, is disclosed in writing and reviewed by the compliance team. Staff who are unsure whether an action is acceptable should ask before acting, because a question costs far less than a breach. Reports of misconduct go to the compliance team directly, and the identity of the person reporting is protected under the same rules that apply across the Company.
+
+SECTION 2  Warehouse operations
+Audience: Logistics
+Classification: Internal
+
+The warehouse runs on a fixed daily plan that sets the receiving slots, the picking waves and the dispatch windows for every carrier. The shift supervisor confirms the plan at the start of each shift and records any change in Dock, so that the next team knows exactly what is pending. Stock is stored by location code, and every move between locations is scanned at the time it happens rather than written down later. Cycle counts take place in a different zone each day, and any gap between the count and the system is investigated before the record is corrected.
+
+Access to the storage floor is limited to trained staff and to visitors who are escorted at all times. Keys to cages that hold high value items are signed out and signed back in by the duty supervisor, and the log is checked at the end of every shift. Damaged stock is moved to a quarantine area with a clear label, and it is not returned to picking until a team leader has inspected it. The quarantine log is reviewed by the operations manager at the end of each week, so that recurring damage can be traced to its source.
+
+Internal reference: CANARY_A89B3D_LOGISTICS
+
+SECTION 3  Handling and packing
+Audience: Logistics
+Classification: Internal
+
+Every outbound parcel is packed to the standard that matches its contents, its weight class and its destination. Fragile items receive an extra layer of protective material, and the label is placed on the top face where the courier can read it without turning the parcel. Liquids are sealed in a secondary bag before they enter the carton, and the packing slip is placed inside a clear sleeve on the outside of the box. Packers do not reuse old cartons for high value items, because the crushed corners of a reused box are a common cause of complaints.
+
+Before a parcel is sealed, the packer checks the contents against the order line by line and signs the packing record in Dock. Surplus packing material goes back to the store rather than being left on the bench, because clutter increases the risk of mixing up orders. Packing errors are recorded with the packer's code and the type of error, and the team leader reviews the record each week to spot patterns. Repeated errors are handled through coaching, not through public criticism.
+
+SECTION 4  Delivery times
+Audience: Logistics
+Classification: Internal
+
+Delivery times are measured from the moment the parcel leaves the warehouse, not from the moment the order is placed, because every order goes through a completeness check first. The standard delivery times are published in the catalogue for each region, and the figures shown are the times that the Company can keep when the carrier schedule is running normally. Customers are told the expected window at checkout, and the window is never shortened after the order has been confirmed.
+
+When a carrier is late, the duty supervisor records the delay in Dock together with the reason given by the carrier, and informs customer care so that affected customers receive a message. Weather and port closures are recorded separately from operational delays, because they do not reflect the performance of the warehouse. The operations manager reviews the delay reports every month and proposes changes to the carrier schedule where a pattern appears.
+
+SECTION 5  Delivery times, part 2
+Audience: Logistics
+Classification: Internal
+
+Routes are planned by region, and each region has a standard delivery time that customers see before they confirm an order. Standard delivery to Western Macedonia takes 1 working days. Parcels for that region are consolidated into the afternoon run wherever the carrier allows it, because consolidated runs reduce the number of vehicle movements on the road. Consolidation never changes the time promised to the customer, and the team checks that the promise still holds before the run leaves the yard.
+
+Exceptions to the standard times, such as a delivery to an island or to a remote address, are shown in the catalogue as separate entries and are never applied to the standard region. The team confirms each exception with the carrier and records the agreed time in the order notes. Customers in these areas are told about the longer window at checkout, so that the time is not a surprise after payment. Changes to the regional times are approved by the logistics manager and published with an effective date.
+
+SECTION 6  Courier pickups
+Audience: Logistics
+Classification: Internal
+
+Courier pickups are fixed by agreement with each carrier, and the warehouse prepares the outbound area before the courier arrives. The duty supervisor confirms that the parcels are sealed, labelled and placed in the correct bay, and that the manifest matches the scan record. A parcel that is not ready at pickup time is held for the next collection and marked as delayed in Dock, so that the courier does not leave with an incomplete load.
+
+Drivers sign the manifest when they collect the load, and the signed copy is filed with the day's records. If a driver refuses a parcel, the reason is recorded and the parcel returns to the warehouse for correction. Pickup problems that repeat with the same carrier are raised with the carrier's account manager, and the logistics team keeps a written record of each meeting.
+
+SECTION 7  Handling and packing, part 2
+Audience: Logistics
+Classification: Internal
+
+Returned goods are kept apart from outbound stock and are never placed back on the picking shelves until they have been inspected. Each return carries its authorisation code, and the receiving clerk checks that the code matches the record before the parcel is opened. Goods that arrive without a valid code are logged as unmatched and passed to the returns team the same day, so that no item is lost in the system.
+
+Packing materials are stored in a dry area away from direct sunlight, and the duty supervisor checks their condition at the start of each shift. Adhesive tape that has lost its grip is removed from stock and recorded, so that poor sealing does not become a hidden cause of damage. The packing team meets each week to review the damage reports and to agree any changes to the standard.

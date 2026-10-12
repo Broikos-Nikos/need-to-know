@@ -1,0 +1,41 @@
+SECTION 1  Conduct and compliance
+Audience: All staff
+Classification: Internal
+
+Everyone who works on the network or in its support teams follows the same conduct standards, and those standards apply to contractors who visit network sites as well. Technical staff must carry identification when visiting customer premises and must follow the site rules set by the property owner. Information about network design, addresses and capacity is confidential, and it must not be shared outside the company or discussed in public places. Staff who find a weakness in a system report it to the security team and do not test it without approval. Gifts from equipment suppliers are declared under the same rules that apply across the company. Breaches are handled through the disciplinary procedure, and those who report concerns in good faith are protected from retaliation.
+
+SECTION 2  Availability
+Audience: Network Operations
+Classification: Internal
+
+Availability is the share of time that a service is usable by customers, and the operations team measures it from monitoring data rather than from the reports that customers send. Each outage is recorded with a start time, a recovery time and the area affected, so that the figure reflects the real experience of the network. Planned works are recorded separately and are not counted against availability when they have been notified in advance to the customer service desk. Causes outside the company's control, such as works by third parties that damage a cable, are flagged so that they can be excluded from the operational figure while still being reported. Each area is reported with its own figure and compared with the agreed target for that service, and the comparison is discussed at the regular review meeting.
+
+SECTION 3  Incident response
+Audience: Network Operations
+Classification: Internal
+
+Incident response begins with detection, which may come from monitoring alarms, from the customer service desk or from a field engineer who notices a fault during another visit. The on-call engineer classifies the incident by severity soon after detection, and the classification decides who is alerted and in what order. A detected incident is opened in Compass at once, even when the cause is not yet known, so that the record starts at the true time. The engineer records the affected customers, the equipment involved and the first suspected cause, and avoids guessing when the evidence does not yet support a view. Each incident has a single owner who coordinates the work, and that owner changes only with a written handover. The owner keeps the incident record up to date until the incident is closed, so that anyone joining the work can see what has been tried.
+
+SECTION 4  Maintenance
+Audience: Network Operations
+Classification: Internal
+
+Scheduled maintenance is planned in windows that carry the least customer impact, and every window needs approval from the network manager before it is published. The request describes the equipment, the expected duration, the rollback plan and the customers who may be affected. Customer service is told about each window so that call handlers can answer questions with accurate information. Where a window has to move, the change is approved again and the customer notice is updated before the original date passes. A maintenance window that overruns is reported with the reason, and the cause is analysed in the same way as an incident so that the next plan is more realistic. Repeated overruns are raised with the network manager, who decides whether the window size or the team size needs to change.
+
+SECTION 5  Incident response, part 2
+Audience: Network Operations
+Classification: Internal
+
+Response standards depend on the severity of the incident, and the severity sets the expected presence of a technician on the ground. Severity S3 network incidents require an engineer on site within 24 hours. The on-call manager confirms the engineer's arrival in the incident record, and the engineer records the first actions taken and the equipment checked. If the engineer cannot reach the site in time, the manager informs the customer service desk and records the reason, so that the delay is visible in the reports. The standard applies whether the incident is found during working hours or outside them, because the risk to customers does not change with the clock. Night shift managers have the same authority to call in an engineer, and they record the reason whenever that call is not made.
+
+SECTION 6  Incident response, part 3
+Audience: Network Operations
+Classification: Internal
+
+When service is restored, the incident owner writes a review that states what happened, what was done, how long customers were affected and what should change. The review is written in plain language and avoids naming individuals, so that the focus stays on the system rather than on people. Actions from the review are assigned to a named owner with a date for completion, and their status is checked at the regular operations meeting until each action is closed. Reviews are stored with the incident record and can be searched by equipment type, which helps the team spot repeated failures. Where a review finds that a monitoring alarm was missed, the monitoring configuration is corrected at once and the change is recorded. The team uses these reviews to decide which alarms need more attention during future planned work.
+
+SECTION 7  Maintenance, part 2
+Audience: Network Operations
+Classification: Internal
+
+Safety comes first during maintenance, and every engineer checks the site hazards before starting, including live electrical equipment, confined spaces and work at height. Access to exchange rooms and street cabinets is logged, and the engineer leaves the cabinet in the state it was found unless the work plan says otherwise. Materials are removed from the site at the end of the work, and no offcuts or packaging are left in public areas. Any near miss during maintenance is reported on the same day, and the report is reviewed by the safety representative. Engineers who are not confident that a task can be done safely stop the work, inform the duty manager and wait for instructions rather than improvising. Supervisors review each stop-work decision afterwards, so that the reasons can be shared with the team as a learning point.

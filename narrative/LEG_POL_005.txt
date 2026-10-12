@@ -1,0 +1,35 @@
+SECTION 1  Consumer rights
+Audience: Legal
+Classification: Internal
+
+This group policy sets the minimum consumer rights that every customer facing document and process must respect, whatever the product or the channel. The legal team reviews each product launch against these rights before the offer is published, and it records the review in the product file. Consumers must receive clear information about price, duration and cancellation before they are bound by a contract. Any term that removes or reduces a statutory right is void and must be removed from every template in which it appears. Marketing material must not present a right as a privilege, and it must not suggest that a right depends on the customer accepting an add on. Complaints that touch consumer rights are logged as legal matters and are not resolved by frontline staff alone. The team keeps a register of consumer rights questions raised by staff, with the answer given and the template affected. Staff who are unsure whether a practice respects these rights must ask the legal team before continuing.
+
+SECTION 2  Business contracts
+Audience: Legal
+Classification: Internal
+
+Business contracts are governed by a different framework from consumer contracts, but they must still be clear, fair in their main terms and consistent with the rules that apply to the company. The legal team maintains the standard business template, and every deviation from it is reviewed and recorded. Liability limits, indemnities and termination rights are negotiated with particular care, because a single poor clause can affect many customers. Business customers that operate across several sites are offered a single contract unless the commercial team has agreed otherwise in writing. Pricing mechanisms that allow future increases must state the basis of the increase and the notice that will be given. Dispute resolution clauses name the competent court and the governing law, and the legal team checks that these references are still correct. The legal team reviews the business contract library each period and retires any clause that is no longer used. No business contract is signed without a legal review, unless the commercial director has approved an emergency exception in writing.
+
+SECTION 3  Consumer rights, part 2
+Audience: Legal
+Classification: Internal
+
+The duty to inform the consumer is a central part of this policy, and it applies before the contract is signed and again when the contract changes. Information must be provided in a durable form, such as a written document or an email that the customer can keep. The information must be understandable to an average consumer, and it should avoid technical language where a plain word is available. Summaries and key facts sheets must match the full terms, and the legal team checks the match before any sheet is published. Advertising must not omit a condition that changes the price in a material way, such as a charge that applies after a promotional period. Staff must give the consumer the same information in person as in writing, so that no verbal promise contradicts the document. Any gap between the information given and the information in the contract is treated as a defect in the process. The legal team reviews information sheets whenever a product changes, and records the version in the library.
+
+SECTION 4  Consumer rights, part 3
+Audience: Legal
+Classification: Internal
+
+The right to withdraw from a distance contract is explained in plain language and must be available in the channel where the contract was made. The withdrawal period, the method of notice and the consequences of withdrawal must be set out in the contract documents and in the confirmation email. Staff must not discourage a customer from withdrawing, and they must not require a reason as a condition of accepting the notice. Refunds on withdrawal are processed without undue delay after the notice is received, and the legal team checks the timing rules in the refund procedure. Where a product has been used beyond what is necessary to test it, the legal team decides on the deduction, and the decision is explained in writing. Redress for a consumer who has been misled is handled through the complaints process, with a clear route to an independent body where the law requires one. The company does not limit the consumer's right to refer a matter to a regulator, and no contract term may suggest otherwise. The legal team reviews withdrawal cases each period to check that the procedure is being followed.
+
+SECTION 5  Data retention
+Audience: Legal
+Classification: Internal
+
+Personal data is retained only for as long as it is needed for the purpose for which it was collected, and this policy sets the principle that applies to every system. Each category of data has a retention period recorded in the retention schedule, and the schedule is approved by the legal team and the data protection officer. Records of contracts, billing and customer correspondence are kept for the period required by the law, and then they are deleted or anonymised. Retention periods must be applied by the system wherever possible, rather than by a manual clean up that depends on memory. Backups follow the same retention rules, and a restored backup must not reintroduce data that has already been deleted. The legal team reviews the schedule when a new product is launched or when the law changes. Requests to change the retention period for a category must be justified in writing and approved before they are applied. Staff who find personal data kept beyond its period must report it to the data protection officer at once.
+
+SECTION 6  Data retention, part 2
+Audience: Legal
+Classification: Internal
+
+A legal hold suspends the normal deletion of data when a dispute, an investigation or a legal claim is foreseeable. The legal team issues the hold in writing, identifies the categories and systems affected, and records the date on which the hold begins. While a hold is in place, the owners of the affected systems must not delete or alter the relevant records, even if the normal period has passed. The hold register lists every active hold, its scope and the person responsible for it, and it is reviewed at the close of each period. Once the matter is closed, the legal team lifts the hold in writing, and the deletion schedule resumes for the affected records. Deletion of data that is not under hold is carried out through the approved process, which keeps a log of what was removed and when. Requests from data subjects to delete their data are handled within the legal framework, and the legal team checks whether any hold or other obligation prevents deletion. Staff must not use a hold as a reason to keep data that has no other purpose.

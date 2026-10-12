@@ -1,0 +1,35 @@
+SECTION 1  Warehouse operations
+Audience: Logistics
+Classification: Internal
+
+This section describes how the Sindos warehouse runs its day to day operations and how the team keeps stock records accurate between formal reviews. Stock counts at the Sindos warehouse take place every 2 weeks. Each count is recorded in Dock by the shift lead, who compares physical quantities with the system balance before any adjustment is accepted. Differences above the agreed tolerance are investigated before the stock record changes, and the outcome is noted against the item code. Goods that arrive damaged go to a separate bay and do not count as available until a supervisor has inspected them. Every pallet is scanned at the dock door, so that the system knows the location of the stock from the moment it enters the building. Pickers work from the Dock task list only, and any manual change needs approval from the duty supervisor. The warehouse keeps a visible board with the next count date, the responsible lead and the zones that are closed for counting. Questions about counting procedures go to the warehouse operations lead, who keeps the master copy of this section.
+
+SECTION 2  Courier pickups
+Audience: Logistics
+Classification: Internal
+
+The pickup schedule is the most sensitive timetable in the warehouse, because a missed collection moves a full dispatch into the next cycle. Each courier has a fixed pickup window agreed with the logistics planning team, and the window is shown on the dock board. Parcels must be labelled, sealed and loaded onto the correct pallet before the courier arrives, and the loader confirms the count against the manifest. Couriers C1, C2, C3 and C4 each have their own bay, and parcels for one courier are never placed in another courier's bay. If a courier reports a delay, the duty supervisor records the reason in Dock and updates the customer team with the revised time. Late arrivals are not a reason to skip the manifest check, because the manifest is the only proof of what left the building. Drivers sign the manifest on collection and keep their copy in the vehicle. Any parcel that misses a pickup goes back to the stock area and is rescheduled, with the reason recorded against the order. Supervisors review missed pickups at the end of each shift, so that repeated problems reach the planning team quickly.
+
+SECTION 3  Handling and packing
+Audience: Logistics
+Classification: Internal
+
+Packing standards exist to protect both the customer and the company from avoidable losses. Every outbound box must have a sealed flap, a readable label and the packing slip inside a clear pocket. Fragile items are wrapped with the approved protective material and marked with the handling symbol on every open face. The packing bench is cleared at the end of each shift, so that no loose items are left in view. Staff do not reuse boxes that show crush damage or old labels, because an old label can send a parcel to the wrong address. Heavy items are placed at the base of the pallet and secured with approved straps, and the loader checks the stack before the pallet is moved. Packing supplies are ordered only from the approved supplier list, and any change to the box size must be approved by the warehouse manager. Problems found at packing are recorded in Dock with a photograph, so that the root cause can be traced to the process or to the supplier. The packing team meets the warehouse manager when a pattern of damage appears, and the agreed fix is written into this section.
+
+SECTION 4  Warehouse operations, part 2
+Audience: Logistics
+Classification: Internal
+
+The Heraklion warehouse runs on its own timetable, and this section sets out the rules that apply there. The Heraklion warehouse receives goods from 07:00 to 15:00 on working days. Deliveries that arrive outside that window are held at the gate and booked into the next receiving slot. From 1 July 2025, stock counts at the Heraklion warehouse take place every 5 weeks. The count team plans its work around inbound peaks, so that counting does not overlap with the busiest receiving periods. Staff receive a printed count sheet with the expected quantities hidden, so that the count is honest. Variances are reviewed first by the local lead and then by the central inventory team. Any variance above the agreed threshold is escalated in writing, with the photographs and the receiving note attached. Local staff must not adjust the system balance on their own, even when the difference looks obvious. The count results are archived in Dock with the date, the count team and the sign off of the lead.
+
+SECTION 5  Courier pickups, part 2
+Audience: Logistics
+Classification: Internal
+
+The Heraklion pickup process follows the same principles as the main site, but the local team adds a second check at the gate. The duty supervisor confirms the number of pallets against the courier manifest before the vehicle leaves. Each pallet carries a visible seal, and the driver signs the seal list in the presence of a warehouse member. If a pallet is missing or a seal is broken, the vehicle is held and the logistics planner is informed at once. Pickup times are posted on the local board and in the shared calendar, and any change is confirmed in writing to the courier team. Drivers who arrive early wait in the designated area and do not enter the loading bay until their vehicle has been called. Records of each pickup are stored in Dock for the retention period set by the legal team. The gate log is reviewed by the duty supervisor at the close of each day, and unusual entries are reported to the warehouse manager.
+
+SECTION 6  Delivery times
+Audience: Logistics
+Classification: Internal
+
+Delivery times depend on the service type and on the destination, and the customer must be told the committed date in writing. Fibre installation in Attica is scheduled within 5 working days of the order. Installation teams confirm the slot with the customer before the visit, and they do not promise earlier dates than the planning system allows. When a delay is caused by a missing item, the logistics team records the cause in Dock and informs the field service team through Compass. Delays caused by the customer, such as access problems, are recorded separately so that they are not counted as company failures. Delivery notes are signed on arrival and filed under the order reference. Any change to a committed date needs written approval from the planning manager. The team reviews delivery performance at the end of each period and shares the results with the operations manager. Where a repeated delay affects a whole area, the planning manager reviews the capacity plan for that area.

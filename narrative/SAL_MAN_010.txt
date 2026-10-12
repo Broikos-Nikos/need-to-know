@@ -1,0 +1,49 @@
+SECTION 1  Internal support
+Audience: All staff
+Classification: Internal
+
+Operations staff who work across several sites need to know which opening hours apply to each store before they travel or plan a visit. Shops in Western Greece open at 10:00 on weekdays. The hours are kept in the store directory, and the directory is updated by the area manager whenever a site changes its arrangements. Staff should check the directory before they promise a customer a visit, rather than relying on what they remember from the last visit.
+
+Questions about this manual go first to the team leader, who will check whether the question is already covered by an existing instruction. If the manual is unclear, the team leader raises the point in Relay so that the owner of the manual can review the wording. Suggestions for improvement are welcome, and the owner replies to each one in writing, even when the suggestion is not adopted.
+
+SECTION 2  Discounts and approvals
+Audience: Sales
+Classification: Internal
+
+Discount rules in the online channel differ from those used in store, and advisors must follow the online limits when they handle an order that is placed on the website. From 1 July 2025, in the online store, the maximum discount a sales advisor may grant without approval is 22 percent. Any discount above that level goes to the online sales manager, who decides within the same working day and records the decision in Atlas with the reason.
+
+Advisors do not offer online discounts by phone unless the offer is listed in the current campaign calendar, because a discount quoted verbally can differ from the one shown on the website. When a customer quotes an offer from another channel, the advisor checks the calendar and explains the result honestly. A discount that was approved by mistake is corrected through a note in the order, and the correction is reviewed in the weekly sales meeting.
+
+SECTION 3  Contracts and terms
+Audience: Sales
+Classification: Internal
+
+Contracts are issued from the approved templates in the contract library, and the advisor fills in only the fields that the template allows. The contract term, the monthly charge and the cancellation terms must be read aloud to the customer before signature, and the advisor records in Atlas that this step was completed. A contract that is changed by hand will not be accepted by the activation team, so the advisor starts again from the template instead.
+
+Customers may ask for a copy of the terms in advance, and the advisor sends the current version from the library without any changes. Any annex that is added to a contract is listed on the summary page, so that the customer can see every special condition. Advisors who are unsure which template applies ask the contract desk, which replies in writing and keeps the reply on the account.
+
+SECTION 4  Contracts and terms, part 2
+Audience: Sales
+Classification: Internal
+
+Fixed wireless broadband contracts follow their own rules on duration and installation, and advisors must explain these rules before the customer signs. From 1 July 2025, contracts for fixed wireless broadband run for a minimum of 29 months. The advisor shows this period on the summary page and in the contract, and confirms that the customer has understood it before submitting the order.
+
+Installation dates for fixed wireless broadband depend on the field schedule, and the advisor does not promise a date until the scheduling team has confirmed one. Early termination of such a contract is handled by the contract desk, which applies the terms written in the signed document. Advisors do not offer verbal exceptions to these rules, because an exception that is not written down cannot be enforced by either side.
+
+Internal reference: CANARY_57396A_SALES
+
+SECTION 5  Contracts and terms, part 3
+Audience: Sales
+Classification: Internal
+
+Renewal of an existing contract is offered when the customer is nearing the end of the current term, and the advisor reviews the account in Atlas to see which options apply. The renewal offer shows the new terms in full, so that the customer can compare it with the current contract without guessing. Advisors do not renew a contract that the customer has not asked about, because an unrequested renewal is treated as a breach of the sales code.
+
+A customer who wants to end a contract early is referred to the contract desk, and the advisor explains the process without advising on the financial result. The contract desk confirms the amount that applies, based on the terms in the signed document, and records the decision in Atlas. Complaints about renewals are investigated by the team leader, who checks whether the offer was presented clearly.
+
+SECTION 6  Return authorisation
+Audience: Returns
+Classification: Internal
+
+Return authorisations for online orders are issued by the returns team, not by the sales advisor, so that the same rules apply to every order. The authorisation code is sent to the customer with the return instructions, and the instructions state that the code must be written on the outer package. Advisors who receive a return request for an online order pass it to the returns team in Relay on the same day.
+
+An authorisation expires after the period shown in the instructions, and a return that arrives after expiry is referred to the returns team for a decision. The advisor tells the customer about the expiry rule before the code is sent, so that the customer can plan the posting in good time. Problems with authorisations are logged in Relay with the order reference, and the returns team replies to the advisor with the outcome.

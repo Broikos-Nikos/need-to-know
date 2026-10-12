@@ -1,0 +1,35 @@
+SECTION 1  Escalation
+Audience: Customer Care
+Classification: Internal
+
+The escalation rule is simple, but it is easy to apply too late. A complaint is escalated to the second line after 2 unresolved contacts. The count starts with the first contact in which the customer raised the complaint, and not with the first call of the day. Second line resolves an escalated complaint about fibre broadband within 3 working days. The second line team keeps the clock visible in Relay, so the agent can tell the customer exactly when the answer is due. Agents should not wait for a further contact when the customer is clearly distressed, because a delay at that point damages trust more than the escalation itself. The escalation summary must include the account reference, the issue and the steps already taken. Agents who escalate early are supported by their team leader and not criticised, because the rule exists to protect the customer.
+
+SECTION 2  Escalation, part 2
+Audience: Customer Care
+Classification: Internal
+
+A good handover to the second line begins with a clear problem statement written in a few plain sentences, followed by the timeline of contacts. Agents avoid internal shorthand, because the second line may not know the internal product codes, and the customer may read the note later. The handover includes what the customer has already been told, so that the second line does not contradict it. Agents attach any evidence the customer provided, such as screenshots or bill copies, and they note where each item is stored. The handover is marked as urgent only when there is a real risk, for example a service cut that affects a vulnerable customer. The agent remains the contact until the second line confirms that the case has been accepted, and that confirmation is recorded in the case.
+
+SECTION 3  Compensation
+Audience: Customer Care
+Classification: Internal
+
+Compensation is granted in line with the compensation table, which lists the amount for each type of service failure and the evidence needed. Agents check the evidence in the case before offering any amount, and they do not offer an amount verbally before the check is complete. Where the evidence is incomplete, the agent asks the customer for the missing item and explains why it is needed, rather than refusing the claim on the spot. Compensation is paid as a credit on the next bill unless the customer has asked for a different route. The agent confirms the amount, the reason and the expected date in writing. If the customer disagrees, the case goes to the team leader, and the agent does not argue the point on the phone. The team tracks compensation by reason code, which shows where the service needs improvement.
+
+SECTION 4  Escalation, part 3
+Audience: Customer Care
+Classification: Internal
+
+If the second line is not available within the agreed time, the team leader decides whether to extend the timeline, to arrange a call from a different specialist or to offer a provisional credit. The decision is recorded in the case, and the customer is told about the new timeline before the old one expires. Agents do not give the customer a new date on their own authority. Where a complaint has been escalated more than once, the case is flagged for a manager, who reviews the whole history and decides on the best path. The manager's review is documented in a short note that the customer can see if they ask for it. Repeat escalations are reported in the regular service review, so that root causes can be fixed.
+
+SECTION 5  Callbacks and holding
+Audience: Customer Care
+Classification: Internal
+
+A callback promised in the playbook must be booked before the call ends, and the agent reads the booked time back to the customer. Agents do not leave a callback without an owner, because an unowned callback is the most common cause of repeated calls. If the callback cannot be made by the promised time, the agent or team leader updates the customer before that time passes, rather than letting the customer wait in silence. The holding message must give a realistic estimate and mention the option of a callback. Agents must not place the customer on hold for longer than they have said. Callbacks are closed in the system only when the call has been completed, and a callback that does not connect is retried in the same window.
+
+SECTION 6  Compensation, part 2
+Audience: Customer Care
+Classification: Internal
+
+Goodwill is a separate category and is never presented as a right. Agents may offer a goodwill gesture only within the limits in the playbook, and any gesture above those limits needs the team leader's approval. The gesture is recorded with the reason, the amount and the approving name, so that it can be reviewed later. Goodwill must not be used to settle a complaint that should be dealt with under the compensation table, because that creates inconsistency across customers. Agents explain the gesture in simple words and do not describe it as compensation, which would have legal and accounting consequences. Records of goodwill are reviewed each period to check that the limits are being respected. Any repeated gesture to the same customer is noted, so that the pattern is visible to the team leader.

@@ -1,0 +1,23 @@
+SECTION 1  Internal support
+Audience: All staff
+Classification: Internal
+
+Staff who need help with a system, a shop procedure or a customer case should use the internal help queue in Relay rather than calling colleagues directly. The request should include the case reference, the system involved and the exact message shown on screen. Shops in Ionian Islands open at 09:00 on weekdays. Staff rostering for these shops is planned by the regional team, and any change to opening arrangements must be posted in the shared calendar before it takes effect. Customer Care does not answer questions about shop opening times on behalf of the shops, so colleagues should check the calendar first. If a shop cannot open at the planned time, the shop manager notifies the regional team and the contact centre, so that customers calling about the branch receive the correct information. Support requests that concern a locked account are escalated at once, because a customer waiting for access cannot be left without an update. Feedback on the help process goes to the team leader, who reviews it at the regular team meeting.
+
+SECTION 2  Escalation
+Audience: Customer Care
+Classification: Internal
+
+An escalation is appropriate when the agent cannot resolve the issue within their authority, when the customer asks for a supervisor, or when a legal or safety point appears in the conversation. The agent should not escalate simply to end a difficult call, since the next person will need the full history anyway. Before escalating, the agent writes a short case summary in Relay that states what the customer wants, what has been checked and what the customer has already been told. The summary should be written so that a supervisor can act on it without reading the whole call log. The agent tells the customer who will contact them and when, using the wording in the playbook. If a supervisor is not available within the shift, the case passes to the deputy on duty, who confirms the handover in writing. The handover is recorded in the case with the time it was accepted. Escalations are not a sign of weakness; they show that the team is using the right route for a case that needs more authority.
+
+SECTION 3  Compensation
+Audience: Customer Care
+Classification: Internal
+
+Compensation for a service problem depends on whether the outage is confirmed in the network records, and agents must not promise an amount until the records have been checked. Where a credit is due under the standard rule, the system calculates it and the agent confirms the amount to the customer in writing. Goodwill credits are a separate matter and need approval from a team leader, who considers the customer history and the size of the impact. Agents do not offer goodwill as a routine response to a complaint, because customers then expect it every time. When a customer disputes an amount, the agent records the dispute, explains the rule that applied and passes the case to the review queue. The review queue is handled by a different team member, so that the original decision is examined with fresh eyes. Every credit and every goodwill decision is recorded with a reason so that the pattern can be analysed later.
+
+SECTION 4  Escalation, part 2
+Audience: Customer Care
+Classification: Internal
+
+After an escalation, the first agent remains the named contact for the customer until the case is closed, unless the customer asks for a change. The first agent checks the case status in Relay at the time agreed with the customer, and passes any new information to the second line. If the second line gives an answer that differs from what the first agent expected, the first agent explains the difference honestly and does not blame the colleague. Cases that come back to the first line are logged with the reason, so that the playbook can be updated if the same problem keeps returning. Team leaders review a sample of escalated cases from time to time. Customers who escalate more than once in a short period are flagged for a senior review, so that their situation is handled as a whole and not call by call.

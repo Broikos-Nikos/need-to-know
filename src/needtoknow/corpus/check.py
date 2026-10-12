@@ -14,6 +14,7 @@ import re
 import unicodedata
 from collections import Counter
 
+from needtoknow.corpus import narrative_dir
 from needtoknow.corpus.assemble import parse_sections
 from needtoknow.corpus.mutate import corpus_files, entries, read
 from needtoknow.corpus.plan import LABEL_EL, LABEL_EN, header
@@ -50,7 +51,7 @@ def check() -> dict:
     problems: list[str] = []
     invented: list[str] = []
     for doc in docs:
-        path = base / "narrative" / f"{doc['id']}.txt"
+        path = narrative_dir(base) / f"{doc['id']}.txt"
         if not path.is_file():
             problems.append(f"{doc['id']}: no narrative")
             continue

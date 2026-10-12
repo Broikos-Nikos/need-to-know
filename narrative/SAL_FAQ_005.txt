@@ -1,0 +1,47 @@
+SECTION 1  Conduct and compliance
+Audience: All staff
+Classification: Internal
+
+Conduct rules apply to every person who speaks to a customer, whether in a shop, on the phone or in writing, and they are the same for all sales channels. Advisors confirm the identity of the customer before discussing any account, and they never share details with a third party without written authority recorded in Atlas. Pressure selling, misleading comparisons and promises the company cannot keep are not acceptable under any sales target. Advisors who are unsure about a claim say so, and then check the approved product sheet before answering. Gifts from suppliers or customers must be declared to the line manager and are not accepted if they could influence a sale. Complaints about an advisor's conduct are reported to the team leader and recorded without delay. Managers review a sample of recorded calls and written exchanges at the end of each period to check the standard. Anyone who finds that a colleague has broken these rules must report it, and the report is handled confidentially.
+
+SECTION 2  Devices and subsidies
+Audience: Sales
+Classification: Internal
+
+Customers ask which devices are eligible for a subsidy and whether the subsidy is paid in cash. The subsidy is part of the contract price and is applied to the bill over the life of the contract, and it is not paid out as cash. Only the programmes approved by the sales director can be offered, and advisors check the eligibility rules in Atlas before quoting any figure. A subsidy does not transfer to a different contract if the customer cancels the first one. If the customer wants a different device, the subsidy is recalculated using the new device, and the change is recorded in the contract. Advisors do not describe a subsidy as a permanent discount, because the terms of the offer can change. Stock availability is checked in Dock before a device is reserved, and the advisor does not promise a model that is not in stock. The final price payable is always shown in the contract before signature.
+
+SECTION 3  Credit and eligibility
+Audience: Sales
+Classification: Internal
+
+Customers often ask why an application was declined and whether they can apply again. The advisor explains that the decision is made by the automated check in Atlas, which applies published criteria, and not by a personal judgement. A declined customer can apply again only after the details have changed, such as a new address or a corrected income record. The advisor does not change the customer's details to get around a decline, because that is a breach of the policy. A conditional approval means that a requirement must be met before the contract starts, and the advisor explains what that requirement is. The advisor does not say that a future application will be accepted, since the decision depends on the data at the time. Each check is stored with its outcome and reason code, so that the credit team can review the consistency of decisions. Customers can ask for the reason in writing, and the advisor sends the standard explanation.
+
+SECTION 4  Activation
+Audience: Sales
+Classification: Internal
+
+Customers want to know when their line will be active, and the advisor should give the scheduled date shown in the system and nothing more. From 1 July 2025, a new line for postpaid mobile plans is activated within 3 hours of a signed order. The activation starts when the order has passed the activation team's check and the SIM or the equipment has been dispatched. If the customer asks about delivery of the SIM, the request is logged in Dock and the customer receives a tracking reference. Advisors do not ask for passwords to any account to speed up activation, because that is outside their role. If activation is delayed, the customer is told the reason in writing and the new date is recorded in Compass. The advisor explains that activation depends on network availability at the address, without describing internal problems. The activation record in Atlas is linked to the original order, so that the history can be followed from the signature to the first call.
+
+SECTION 5  Commissions
+Audience: Sales
+Classification: Internal
+
+Commission questions are the most common source of disputes, so advisors should explain the basic rules clearly. Commission is calculated on sales that are activated, not on offers that were made but not accepted. The category of the product determines the rate, and the rate table is published in the annex for each period. Advisors can see each sale and its status in Atlas, which shows whether a commission is pending, paid or reversed. A commission is reversed if the contract is cancelled within the period set by the terms, and the reversal appears in the next statement. Advisors do not ask the sales team to change the category of a sale after the period has closed. Any question about the amount should be raised in writing with the sales manager, who replies with the calculation. Commission figures given verbally to a colleague are not binding, and the official record is the statement in Atlas.
+
+SECTION 6  Contracts and terms
+Audience: Sales
+Classification: Internal
+
+Contract questions are frequent during the sales process, and the advisor should use the approved summary rather than memory. The key points are the duration, the recurring charges, the charges after any promotion and the way to cancel. The customer receives the full terms before signing and a copy after signing. The advisor does not add conditions in conversation that are not in the signed document. If a customer asks for a change after signing, the request is recorded and sent to the contracts team, and the advisor does not confirm the change in advance. Contract documents are stored in Atlas with the signature confirmation. Where the customer asks about a specific clause, the advisor reads the wording from the template and does not paraphrase it. Contract templates are updated only by the contracts team, and advisors are told when a change takes effect.
+
+SECTION 7  Credit and eligibility, part 2
+Audience: Sales
+Classification: Internal
+
+Eligibility for a programme is a separate question from credit, and it depends on the customer's current contracts and on the product they have chosen. The advisor checks eligibility in Atlas before explaining the programme, because some programmes exclude customers who already hold a related contract. A customer who is not eligible is told which requirement is missing, without being given the internal criteria. Where eligibility depends on a document, the advisor explains which document is needed and where it should be sent. Eligibility results are valid only for the period shown in the system, and the advisor does not extend them verbally. Exceptions to eligibility are approved by the sales manager and recorded with the reason. A customer who believes the result is wrong may ask for a review, and the review is handled by the credit team. The advisor does not promise a result before the check is complete.
+
+SECTION 8  Return authorisation
+Audience: Returns
+Classification: Internal
+
+Return authorisation is required before any product is sent back to the warehouse, so that the returns team knows what to expect. The advisor issues the authorisation code in Atlas and records the reason for the return. The code is sent to the customer in writing, together with packing instructions that protect the product in transit. A parcel that arrives without a code is logged in Dock as an open item, and the returns lead decides whether it is accepted or sent back. Codes are valid only for the product and the order they were issued for, and they cannot be reused. Products bought through other channels are not covered by this process, and the advisor explains to the customer where the return should be sent. The returns team confirms receipt to the advisor, so that the customer can be told the status of the return.

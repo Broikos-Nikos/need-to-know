@@ -1,0 +1,37 @@
+SECTION 1  Conduct and compliance
+Audience: All staff
+Classification: Internal
+
+The playbook applies to every customer interaction and sets the baseline for behaviour, data protection and the handling of sensitive matters. Staff verify identity before discussing any account, use the approved greeting and never mock or argue with a customer. Information is shared only with the account holder or with a person named in the authority record. Recording a call, taking a note or copying a document must follow the rules in the data protection annex. Staff do not use personal messaging to contact customers, because those messages cannot be audited. Where a customer makes a threat or uses abusive language, the agent follows the safety procedure and informs the team leader. Staff never promise an outcome they cannot deliver, and they say so openly when a decision is not theirs to make. The playbook is reviewed each period, and changes are published before they take effect.
+
+SECTION 2  Compensation
+Audience: Customer Care
+Classification: Internal
+
+The compensation playbook describes how a frontline agent decides whether an offer is appropriate, and it sets the limits of an agent's authority. The first question is whether the company caused the problem, and the agent checks the service record in Atlas before anything else. The second question is whether the amount offered matches the table, and any difference must be justified in writing. Offers are never made verbally without a record, because a verbal offer cannot be checked later. Customers who ask for more are told that the decision is subject to review, and the request is forwarded with the case summary. Agents do not offer compensation to customers who are already in a credit dispute with the billing team, because the two processes must not overlap. The team leader checks a sample of offers each period and gives feedback to individual agents.
+Internal reference: CANARY_DC51D2_CUSTOMERCARE
+
+SECTION 3  Response times
+Audience: Customer Care
+Classification: Internal
+
+The response playbook explains how the team meets the response standard for each type of request. Agents open their queue at the start of each shift and check the items that are close to the standard. An acknowledgement is sent immediately, and a substantive reply follows within the time set for that type of request. If a case cannot be finished in time, the agent sends a holding update that explains the reason and the next step. Team leaders keep the queue balanced by moving cases between agents when one person has too many open items. Agents do not close a case only to improve the figures, because closed cases that reopen cause more work than they save. The response report is discussed with the team at the end of each period, and the lessons are written into the playbook.
+Internal reference: CANARY_B21992_CUSTOMERCARE
+
+SECTION 4  Escalation
+Audience: Customer Care
+Classification: Internal
+
+Escalation to the second line is the final step in the frontline process, and it is used only when the agent has exhausted the steps in the playbook. Second line resolves an escalated complaint about TV packages within 6 working days. Second line resolves an escalated complaint about devices within 9 working days. The agent records the escalation in Relay with the full history and the reason for the escalation. The second line team confirms receipt on the same shift, so that the customer does not wait without a response. The frontline agent remains the contact for the customer and passes on updates from the second line. Repeated escalations of the same issue are reviewed as a process problem rather than an individual one. Escalations that are returned to the frontline include a written reason that the agent must share with the customer. The escalation log is reviewed at the end of each period by the customer care manager.
+
+SECTION 5  Response times, part 2
+Audience: Customer Care
+Classification: Internal
+
+Response times for complaints are measured from the moment the complaint is logged, and the playbook requires that the first contact is made within the standard for the category. The agent sends an acknowledgement that names the person handling the case, so the customer knows who to contact. Updates are sent when there is something new to say, not on a fixed schedule that the team cannot keep. A customer who asks for a status update before the next scheduled step receives an honest answer about what is pending. Agents do not promise a resolution date unless the second line has confirmed it. Where the delay is caused by a third party, the agent says so in general terms without naming the partner. The team uses a standard template for delayed cases, which is approved by the complaints desk. Delayed cases are reviewed at the end of the shift, and the team leader decides whether they need extra support.
+
+SECTION 6  Business contracts
+Audience: Legal
+Classification: Internal
+
+Business customers often ask for changes to contract terms, and the legal team needs to review each request before any change is made. The request is recorded in Relay with the contract reference and the clause that the customer wishes to change. The legal team checks whether the change affects the service level, the pricing or the liability terms of the contract. Standard clauses are kept in the library, and the legal team does not allow bespoke wording to be added without a review. Where a business customer has an agreed dispute resolution route, that route is used before any other step. The legal team confirms the outcome in writing, and the commercial team applies it in Ledger after the approval is recorded. Changes that alter the price or the term are also approved by the finance director. Frontline staff do not promise contract changes to business customers and refer every request to the legal team.

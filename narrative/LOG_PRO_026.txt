@@ -1,0 +1,42 @@
+SECTION 1  Internal support
+Audience: All staff
+Classification: Internal
+
+Logistics staff who need help with a system, a stock issue or a delivery problem should raise a request through the internal queue in Relay. Each request should name the order reference, the location and the step where the problem appeared. Urgent problems that affect a live dispatch are raised by phone with the shift lead, who decides whether to stop the process or continue with a workaround. Requests that concern equipment in the warehouse are logged with the asset number, so that maintenance can be planned. Staff are asked not to fix a system fault themselves, because a local fix can hide the real problem from the technical team. Feedback on the support process is welcome and is reviewed by the logistics team leader. Good requests are quick to answer because they contain the facts from the start.
+
+SECTION 2  Courier pickups
+Audience: Logistics
+Classification: Internal
+
+Courier pickups are booked on the daily schedule, and each booking includes the courier code, the number of parcels and the collection point. The dispatch lead confirms the manifest before the courier arrives and records any parcels that are not ready. Drivers sign for each collection on the handover sheet, and the copy is filed with the day's records. Where a courier is late, the dispatch lead informs the courier desk and records the time of the call. If a parcel is missed, it is rebooked for the next available collection and the customer is updated through the usual channel. The courier codes used in the system must match the contract list exactly, because a mismatch can send a parcel down the wrong route.
+
+SECTION 3  Delivery times
+Audience: Logistics
+Classification: Internal
+
+Delivery times are set out in the route calendar, and the logistics team uses that calendar when it promises dates to customers. The clock starts when the courier collects the parcel, not when the order is placed, so the team checks the collection record before answering a query. A parcel that exceeds the standard time is flagged in Dock with the cause, and the team decides whether to chase the courier or to update the customer. The team does not guess delivery dates for unusual items, because the route calendar does not cover them. Any change to the calendar is published to the team in advance, with the effective date. Exceptions to the calendar, such as a road closure, are agreed with the duty manager and noted on the parcel record so that the customer receives an accurate date.
+
+SECTION 4  Handling and packing
+Audience: Logistics
+Classification: Internal
+
+Handling and packing at this site follow the warehouse guide, which is kept at each packing station and updated when a product line changes. Packers check each item against the order before it is sealed, and they record any substitution in Dock so that the customer is told. Fragile goods are wrapped with extra protection and marked with the handling symbol on every side of the carton. Heavy cartons are lifted with the team's trolleys and are never carried by a single person when the weight is high. Packing stations are cleaned at the end of each shift, and waste is sorted into the correct bins. Any packing material that is damaged or missing is reported to the supplies lead before the next shift starts. Good packing reduces returns, and every return is reviewed with the packer who handled the order.
+
+SECTION 5  Warehouse operations
+Audience: Logistics
+Classification: Internal
+
+Warehouse operations are organised around the receiving window, which is the period when inbound goods can be unloaded and checked. The Aspropyrgos warehouse receives goods from 08:00 to 16:00 on working days. Vehicles that arrive outside that window are asked to wait in the yard or to come back on the next working day, and the duty manager decides whether an exception is possible. Each receipt is booked in Dock before the vehicle enters the bay, so that the bay plan stays accurate. Staff check the seals on the vehicle and note any damage before the doors are opened. The receiving team reports short deliveries to the supplier on the same day, so that the claim is not lost. Hours are reviewed each season in consultation with the carriers.
+
+SECTION 6  Delivery times, part 2
+Audience: Logistics
+Classification: Internal
+
+Standard delivery to Thessaly takes 2 working days. The standard applies to parcels that are collected on time and sent through the regular route, and any delay in collection moves the date. The team tells the customer the date only after the collection has been confirmed, because a date given before collection is an estimate and not a promise. Parcels for remote areas of the region may take longer, and the team confirms that with the courier before quoting. Delivery confirmations are recorded in Dock, and the team checks the proof of delivery where a customer disputes receipt. Repeated delays on the same route are raised with the courier at the contract review. Customers who need a faster option are offered the service that the contract allows, and the team does not promise a service that is not in place.
+Internal reference: CANARY_B93C09_LOGISTICS
+
+SECTION 7  Delivery times, part 3
+Audience: Logistics
+Classification: Internal
+
+Fibre installation in Central Macedonia is scheduled within 10 working days of the order. The installation date is confirmed with the customer and the field team before the order is closed, and the schedule is recorded in Compass. Access to the building must be confirmed by the customer, because a missed access window pushes the installation back and the team has no control over the building owner. Where the customer cannot be reached, the request is paused and the customer is contacted through the agreed channel. Installation teams report the outcome of each visit, including any equipment that was left in place, so that the record is complete. The planning team does not overbook installers to meet a target, because a rushed visit leads to repeat visits that cost more time. Completed installations are checked against the order before the case is closed.

@@ -1,0 +1,35 @@
+SECTION 1  Credit and eligibility
+Audience: Sales
+Classification: Internal
+
+The credit check runs before any order that includes instalments, and the adviser sees only the outcome, not the internal scoring. When the outcome is negative, the adviser explains that the order cannot go ahead on the requested terms and offers a pre-approved alternative from the list. Customers are never told the exact reason for a refusal, because that reason can reveal protected information, and a general explanation is given instead. Advisers who are unsure about a decision send a query to the finance team rather than trying other routes to the same result. Where a customer has an open balance, the order is referred to finance with the full account history and does not move to activation until finance replies. Every outcome is saved against the order with the date and the name of the adviser who ran the check.
+
+SECTION 2  Devices and subsidies
+Audience: Sales
+Classification: Internal
+
+Handset subsidies are shown on the quote as a separate line, so that the customer can see the cost of the device and the cost of the service without adding them up. Stock levels for subsidised devices change throughout the day, and the adviser checks the live list in Dock before reserving a model for a customer. A reservation holds the device only for the current sale, and it is released automatically if the order is not signed within the agreed time. Advisers do not promise a colour or storage variant that is not visible on the screen, because a substitution at the till creates a complaint that is difficult to resolve. Where the chosen model runs out, the adviser offers an equivalent that sits in the same subsidy band and records the customer's choice.
+
+SECTION 3  Devices and subsidies, part 2
+Audience: Sales
+Classification: Internal
+
+A subsidy comes with conditions that the customer must keep to, and the adviser explains them before signature in plain language. If the customer ends the contract during the commitment period, the remaining subsidy is recovered as the contract states, and the adviser shows the calculation on the screen rather than describing it from memory. Paperwork for each subsidised device includes the signed plan, the serial number and the receipt of handover, and these documents must be filed together. Store staff do not keep copies of identity documents for longer than needed, and the copies are destroyed once the order is activated and filed. Where a device is returned in a damaged state, the claim for the subsidy is reviewed by the returns team before the adviser confirms anything to the customer. Any change to a subsidy during the contract needs written approval from the sales manager, and the change is recorded against the original order.
+
+SECTION 4  Credit and eligibility, part 2
+Audience: Sales
+Classification: Internal
+
+Eligibility for promotional offers depends on the customer's existing contracts, the length of the relationship with the company and the products already in use, and the adviser checks these in Atlas rather than relying on what the customer says. A customer who already holds an offer cannot receive it again on a new line, and the system blocks the duplicate, so the adviser should explain the block politely rather than try to override it. Loyalty upgrades are available only to customers whose current contract has reached the stage set by the scheme, and the adviser shows that stage on the screen before quoting. Business customers are eligible for corporate offers only when the account holder signs the request, and an individual cannot apply on behalf of a company without written authority. Any eligibility decision that is not clear is referred to the offers team, and the answer is recorded for the next adviser who sees the same case.
+
+SECTION 5  Contracts and terms
+Audience: Sales
+Classification: Internal
+
+Every contract is produced from the current template in the library, and the adviser does not type or paste clauses from an older document. Key terms, including the recurring charge, the commitment and the notice period, are read aloud to the customer before signature and confirmed in the customer's own words. The customer signs in the place indicated on the form and initials any page that contains a change from the standard terms. The adviser checks that the signature matches the identity document and records the check on the order. A copy of the contract is given to the customer in the format the customer requested, and the adviser notes the delivery method in the record. Where a customer asks for a clause to be removed, the request goes to legal and the adviser does not agree to it at the counter. Signed contracts are scanned and linked to the order, so that the terms can be retrieved quickly if a dispute arises.
+
+SECTION 6  Contracts and terms, part 2
+Audience: Sales
+Classification: Internal
+
+Changes to a signed contract follow a separate route, because the original terms remain binding until the customer and the company both agree a variation. The adviser records the request with the reason, and the change is drafted by the contracts team and sent for signature on a new form. Cancellations within the statutory period are handled under the consumer rules, and the adviser explains the right to withdraw clearly and without pressure. Customers who want to end a contract early are told what the early termination charge is, as shown in the contract, and the figure is never estimated. Where a dispute arises about what was agreed, the signed version is the reference, not the sales notes, which are kept only as a record of the conversation. Each variation or cancellation is linked to the original contract so that the file tells the full story.

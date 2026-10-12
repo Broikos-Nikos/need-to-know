@@ -1,0 +1,47 @@
+SECTION 1  Conduct and compliance
+Audience: All staff
+Classification: Internal
+
+Every member of the finance team, and every person who works with finance records, must follow the conduct standard set out in this procedure. Staff act with integrity in all transactions, and they do not accept gifts or favours from suppliers, customers or contractors that could influence a decision. Conflicts of interest are declared in writing to the finance director as soon as they arise, and the person concerned steps away from the decision. Financial information is shared only with those who have a business need to see it, and copies are not kept on personal devices. Any suspicion of fraud, error or misuse is reported at once to the controller, and the report is treated confidentially. Staff must not override a control, even when a senior person asks them to do so, and they must record the request in writing if it is made. Breaches of this procedure are handled through the disciplinary process, and repeated breaches are reported to the audit committee. Each employee confirms their understanding of this procedure when they join the team and when it is updated.
+
+SECTION 2  Billing
+Audience: Finance
+Classification: Internal
+
+The billing procedure starts when the active contract records are extracted from Ledger for the billing run. Before the run is released, the billing team checks the totals against the control report and investigates any difference. A sample of bills is reviewed line by line against the contract terms, so that errors in the price or the discount are found before the customer sees them. Any bill that fails the check is held, corrected and then released in the next run. The billing lead signs the control report, and the signed copy is archived with the run. Changes to the billing rules are made only through the approved change process, and they are tested on a sample before they are applied to all customers. Records of each run are kept for the period set in the retention schedule, so that any question can be answered later.
+
+SECTION 3  Billing, part 2
+Audience: Finance
+Classification: Internal
+
+Billing corrections follow a fixed sequence that keeps the original record intact. The billing team identifies the error, confirms the correct amount with the contract, and prepares a credit note that refers to the original bill. The credit note is approved by a second person and recorded in Ledger with the reason for the correction. A new bill is issued where the correction changes the amount payable, and it carries the same reference as the original bill with a version number. The customer is informed of the correction in writing, using the approved template, and the explanation states the amount and the reason. Corrections that affect several customers are grouped into a single case and reviewed by the billing lead before they are released. The billing team does not delete an original bill, even when it was issued in error. The correction log is reviewed by the controller at the close of each period.
+
+SECTION 4  Payments
+Audience: Finance
+Classification: Internal
+
+The payments procedure starts with the approved instruction, either an invoice in the system or a signed payment request from an authorised manager. The accounts team checks that the payee is on the approved list and that the bank details match the record. The payment is entered in Ledger with its reference, and a second person reviews the entry before the transfer is released. Payments above the approved threshold go through the dual approval process described in the approvals section. Each transfer is confirmed by the bank, and the confirmation is attached to the payment record in Ledger. Failed or returned payments are investigated the same day, so that the payee is not left waiting without a reason. The payments team does not change bank details based on an email alone, and it calls a known contact before any change is made.
+
+SECTION 5  Payments, part 2
+Audience: Finance
+Classification: Internal
+
+Payment runs are prepared in batches, and each batch is reviewed as a whole before it is authorised. The run report lists every payment, the payee, the amount, the reference and the approval, and it is compared with the total approved in the authority matrix. Any payment that appears on the report without an approval is removed from the batch and investigated. The batch is released only after the controller has signed the run report. After the bank has processed the batch, the payments team reconciles the bank statement with the run report, and any difference is recorded and explained. Reconciliation differences are cleared within the period in which they arise, and an uncleared difference is escalated to the finance director. The reconciliation is retained with the supporting documents for the period set by the retention schedule.
+
+SECTION 6  Approvals
+Audience: Finance
+Classification: Internal
+
+The approvals procedure ensures that every transaction has the authority it needs before it is executed. Each approver receives the request with the supporting documents, and the approver checks the amount, the purpose and the budget before signing. An approval given without the supporting documents is not valid, and the approver must ask for the missing information before deciding. Approvals are recorded in Ledger at the time they are given, with the approver's name and the date. The approver may not approve a request that they initiated or that involves a person they manage. Approvals that are given outside the system are confirmed in the system on the next working day, and the controller reviews any such case. The approval matrix is reviewed each period by the controller, who checks whether the limits still match the organisation.
+
+SECTION 7  Payments, part 3
+Audience: Finance
+Classification: Internal
+
+Refunds and credit payments follow the payments procedure, but they carry an extra check to confirm that the original payment was received. The team confirms the original transaction in Ledger and checks that the refund does not exceed the amount that was paid. The refund is approved by the person with the authority for the amount, and the approval is recorded with the case reference. Refunds are paid to the original payment method unless the customer has agreed to a different method in writing. The refund notice to the customer states the amount, the method and the expected date, which the team confirms with the bank before it is sent. Where a refund is delayed by the bank, the team informs the customer and records the reason. Refunds are reconciled with the customer account at the close of each period, so that no amount is left open without a reason.
+
+SECTION 8  Consumer rights
+Audience: Legal
+Classification: Internal
+
+The finance procedure must respect the consumer rights that apply to billing and payment, and the legal team checks this at each review. A customer who withdraws from a contract is entitled to a refund within the time set by the law, and the finance team must not delay the refund for internal reasons. Charges that are not clearly stated in the contract cannot be collected, and the legal team confirms the wording of each charge before it is added to a template. A consumer who disputes a bill is entitled to a clear explanation, and the dispute is recorded and held before collection action begins. Where the law requires a specific notice before a suspension, the notice is sent in the approved form before any action is taken. The legal team reviews complaints about billing each period and reports any pattern that suggests a systematic issue.

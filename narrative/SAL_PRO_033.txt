@@ -1,0 +1,30 @@
+SECTION 1  Working hours and access
+Audience: All staff
+Classification: Internal
+
+This procedure applies to everyone who works in a sales role, whether in a shop, on the telephone or in a field team. Working hours follow the rota published by the store manager, and a change to the rota must be recorded in the scheduling tool before it takes effect. Access to the store is by personal card, and each card is issued to one person only. Staff who arrive before opening do not enter the sales floor alone unless they hold written authority from the manager. Keys, badges and tills are returned at the end of each shift, and any loss is reported to the manager without delay. Those who work from home for part of their working time use the company's secure connection and follow the same confidentiality rules as on site.
+
+SECTION 2  Discounts and approvals
+Audience: Sales
+Classification: Internal
+
+A discount request starts with the adviser recording the reason, the customer and the product in the case system before making any offer to the customer. The request states the discount that is sought and the list price it is measured against, so that the approver can see the full effect on the sale. The approver responds in the system with approval, refusal or a counter-offer, and each decision is time-stamped. Approval applies only to the sale for which it was given, and it cannot be carried over to another customer or to a later order. Advisers who offer a discount before approval are reported to the sales manager, and the case is recorded for the audit file. The sales manager reviews the file with the adviser before the next discount request is accepted from that adviser.
+Internal reference: CANARY_C451D1_SALES
+
+SECTION 3  Discounts and approvals, part 2
+Audience: Sales
+Classification: Internal
+
+Discounts are shown to the customer as a single reduction on the quote, with the new price and the term it applies to, and the adviser does not describe the internal approval route. Advisers do not mention the maximum discount they could have given, because that information weakens the company's position in future negotiations. Where a customer compares offers across channels, the adviser explains the rules that apply to the channel in use and does not match a price offered elsewhere unless the approver agrees. Discounts that are combined with a promotion must be approved as a combination, even when each part is allowed on its own. The discount record is reviewed at regular intervals to identify advisers who consistently request exceptions. Advisers who receive feedback are given the chance to explain the reasons for their requests before any decision is made.
+
+SECTION 4  Devices and subsidies
+Audience: Sales
+Classification: Internal
+
+Device subsidies follow the list approved by the sales director, and the adviser checks the list before quoting a subsidy to the customer. A subsidy is linked to a specific model and a specific contract term, so changing either requires a new approval. Advisers record the device serial number in the case once the sale is confirmed, and the record stays with the order for the life of the contract. Where stock runs out after the sale, the adviser follows the replacement procedure and does not promise a model that is not available. Subsidised devices are not sold separately from the contract unless the scheme allows it, and any such sale is recorded as an exception. The subsidy list is shared with the store managers at the start of each planning period, so that the whole team works from the same information.
+
+SECTION 5  Return authorisation
+Audience: Returns
+Classification: Internal
+
+Return authorisation is the step that allows a customer to send back a device or accessory, and the returns team issues it only after checking the purchase record in the system. The authorisation includes the product code, the reason and the packing instruction, so that the item can be processed on arrival without further contact with the customer. Returns that arrive without an authorisation are held in the receiving area and are not processed until an authorisation is matched. The returns team reviews authorisations that have been open for too long and contacts the customer when a return has not been started. Authorisations are linked to the original sale so that any refund or credit can be traced to its source. Returns that are refused are explained in writing, and the refusal reason is copied to the sales adviser who made the original sale.

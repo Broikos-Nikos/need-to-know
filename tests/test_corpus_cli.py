@@ -5,8 +5,10 @@ import json
 import pytest
 
 from needtoknow.cli import main
-from needtoknow.corpus import assemble
+from needtoknow.corpus import assemble, narrative_dir
+from needtoknow.corpus.check import check
 from needtoknow.corpus.plan import header
+from needtoknow.settings import repo_root
 
 PROSE = {"en": "The team checks every case against the procedure and records the outcome before it moves on. " * 3,
          "el": "Η ομάδα ελέγχει κάθε υπόθεση με βάση τη διαδικασία και καταγράφει το αποτέλεσμα πριν προχωρήσει. " * 3}
@@ -38,14 +40,28 @@ def state(base):
     return {p.relative_to(base).as_posix(): p.read_bytes() for p in (base / "full").rglob("*") if p.is_file()}
 
 
-def test_plan_then_assemble_on_a_fresh_clone_names_the_missing_narrative_without_a_traceback(monkeypatch, tmp_path, capsys):
+def test_plan_then_assemble_without_a_narrative_names_the_gap_without_a_traceback(monkeypatch, tmp_path, capsys):
     monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path))
     assert main(["corpus", "plan"]) == 0
     assert "160 documents" in capsys.readouterr().out
+    # An empty narrative folder in the data directory takes the place of the committed one.
+    (tmp_path / "corpus" / "narrative").mkdir()
     assert main(["corpus", "assemble"]) == 1
     out = capsys.readouterr().out
     assert out.startswith("nothing assembled: 160 of 160 documents have no narrative") and "unchanged" in out
     assert not (tmp_path / "corpus" / "full").exists()
+
+
+def test_a_fresh_clone_finds_the_committed_narrative_and_it_carries_the_whole_plan(monkeypatch, tmp_path):
+    # MT-F2: the plan is code and the narrative is committed, so a clone has the corpus's whole source.
+    monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path))
+    assert main(["corpus", "plan"]) == 0
+    assert narrative_dir(tmp_path / "corpus") == repo_root() / "narrative"
+    result = check()
+    assert result["problems"] == ["full/: no assembled corpus"]
+    counts = result["counts"]
+    assert counts["documents"] == 160 and counts["facts found"] == counts["facts planned"] > 0
+    assert counts["canaries found"] == counts["canaries planned"] > 0
 
 
 def test_assemble_and_check_through_the_command_line(small, capsys):

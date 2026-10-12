@@ -1,0 +1,37 @@
+SECTION 1  Escalation
+Audience: Customer Care
+Classification: Internal
+
+A question that comes up often is when a complaint should move to the second line. The answer is that a complaint moves once the first contact has failed to resolve it, and the handler records the attempts clearly before passing the case on. Handlers should not escalate simply because a customer is angry, since the second line works from the same notes and can close the case more quickly if the first handler has described it well. When the case moves, the handler writes a short summary in Relay that states the problem, the steps taken and the outcome the customer wants. The colleague who receives the case reads the summary before calling, so the customer does not have to repeat the whole story. If the customer asks for a manager, the request is logged and the case is routed to the team lead, who decides whether a manager is needed.
+
+SECTION 2  Callbacks and holding
+Audience: Customer Care
+Classification: Internal
+
+Customers often ask whether they can be called back instead of waiting, and the answer is yes when the queue is long. The handler offers the option, records a preferred time window and confirms the number to be used before ending the call. A callback should be made by the same handler wherever possible, because a new person asking the same questions is one of the main reasons customers complain. If the call cannot be returned, the note goes back into the queue with the reason. Customers who have already solved the problem through another route should be asked whether the callback is still needed, so that they are not called for nothing. Handlers never promise a callback time that they cannot keep, and they record any missed callback so that the pattern can be reviewed.
+Internal reference: CANARY_770640_CUSTOMERCARE
+
+SECTION 3  Compensation
+Audience: Customer Care
+Classification: Internal
+
+Another frequent question is how much compensation a customer should be offered after an outage. The handler does not decide the amount from feelings, but from the compensation table that the team publishes and that the handler checks against the confirmed outage record in Atlas. If the outage is not confirmed, the handler does not promise anything, and the case goes to the network team for verification. Where the table gives a range rather than a fixed figure, the handler uses the lower end unless the customer has a documented reason for the higher end. Approved amounts are shown to the customer in the same words that appear on the record, so that the customer later sees the same offer. The credit is applied through Ledger, and the handler tells the customer when to expect it to appear on the account.
+
+SECTION 4  Callbacks and holding, part 2
+Audience: Customer Care
+Classification: Internal
+
+Holding customers is a skill that deserves attention, because a silent line feels longer than it is and a long stretch of music can feel like neglect. The handler gives a brief update on the position in the queue only when the system has confirmed it, since an inaccurate estimate causes more anger than a plain statement that the wait may be long. Marketing messages are not played during the hold, and the handler does not offer new products while the customer is still waiting. If the customer chooses to hang up, the handler offers to call back at a time of the customer's choice and does not argue. A customer who stays on the line should be thanked when the call is answered, without any suggestion that the wait was their fault.
+
+SECTION 5  Response times
+Audience: Customer Care
+Classification: Internal
+
+Response times are measured from the moment a case appears in the Relay queue, not from the moment the customer sent it, so the measurement reflects what the team controls. Priority cases, which are those involving a complete outage for an area or a loss of access to an emergency service, are placed at the front of the queue and are never held behind routine cases. Routine requests receive an automatic acknowledgement that shows their place in the queue, and the team leader reviews the cases that have exceeded the target at the end of each shift. The measurement uses system timestamps rather than the estimates of individual handlers, so that the figures can be compared from one period to the next. Any change to the target is announced in advance and recorded in the operations manual.
+Internal reference: CANARY_83B31E_CUSTOMERCARE
+
+SECTION 6  Complaints
+Audience: Legal
+Classification: Internal
+
+Complaints that refer to legal rights, a solicitor or a formal dispute route are passed to the legal team without attempting resolution in the first line. The legal team checks whether the complaint requires a reply within a fixed deadline and records the date of receipt on the file. Handlers must not give written commitments or explain legal consequences, but they can tell the customer that the matter is with the team that will reply. The record of the conversation travels with the complaint, and any attachments are kept under the retention schedule. Every complaint of this kind closes with a written reply signed by the legal team, and the reply is checked against the record before it is sent. Complaints that arrive about the same matter are linked together, so that the legal team can see the whole history of the matter in a single file.

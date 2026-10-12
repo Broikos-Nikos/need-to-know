@@ -1,0 +1,42 @@
+SECTION 1  Internal support
+Audience: All staff
+Classification: Internal
+
+Internal support for the sales floor starts with the shop manager, who is the first point of contact for questions about rotas, equipment and access to the stock room. Shops in Crete open at 09:00 on weekdays. Changes to opening arrangements are announced through Relay so that every channel team works from the same information, and nobody relies on a message from a colleague in another shop. Requests for extra support during a product launch are logged with the regional lead, who checks whether another shop can release staff without weakening its own cover. The sales helpdesk answers questions within the same working session where possible, and recurring questions are added to the staff guide on the internal network. Anyone who is unsure whether a question belongs to sales or to customer care should ask the shop manager, who will route it to the right queue without delay. The helpdesk keeps a record of each query so that patterns can be reviewed by the training team.
+
+SECTION 2  Activation
+Audience: Sales
+Classification: Internal
+
+Activation starts at the moment a signed order reaches Atlas, and the adviser records the signature before the customer leaves the point of sale. A complete record includes the customer details, the product code and the chosen plan, because an incomplete field delays activation without the customer seeing the reason. The activation team checks the orders that have entered the queue, and any order that is not complete is returned to the adviser with a note. The customer receives a confirmation message when the service is live, and the adviser checks that the message reached the right address before closing the case. Where activation is slower than expected, the adviser explains the position honestly rather than promising a new date that has not been confirmed. Delays caused by network faults are recorded separately from errors made at the point of sale, so that the review is fair to both teams.
+Internal reference: CANARY_DC9D24_SALES
+
+SECTION 3  Devices and subsidies
+Audience: Sales
+Classification: Internal
+
+Device subsidies appear on the quote as a separate line, so that the customer can see what they pay for the handset and what they pay for the service. Stock availability changes often, and the adviser checks the current list in Dock before holding a device for a customer. When a device sells out after signature, the customer is told at once and offered a model in the same subsidy band, with the contract unchanged. A subsidy cannot be transferred to another customer, and a request to return a device follows the returns procedure rather than a sales shortcut. Store managers review subsidy entries at the end of each reporting period to catch mistakes in the data before they reach billing. Advisers who are unsure which model qualifies ask the regional lead rather than guessing, since a wrong promise on a subsidised device creates a dispute that is costly to resolve.
+
+SECTION 4  Activation, part 2
+Audience: Sales
+Classification: Internal
+
+The activation desk handles the cases that the standard flow cannot complete, such as a number that is already in use or a delivery address that does not match the billing record. The adviser completes a short handover note that states the problem, the steps already tried and the customer's preferred contact method. The desk contacts the customer through the route the customer chose and does not call the number on the form if a different number has been given in the conversation. A case stays open until the customer confirms that the service works, and the desk records that confirmation against the order. Where a fault is found in the activation system itself, the case is passed to the platform team with the order reference and the time of the first failure. Advisers are told the outcome of each escalated case, so that the same problem is handled correctly the next time it arises.
+
+SECTION 5  Activation, part 3
+Audience: Sales
+Classification: Internal
+
+Before any new line is switched on, the adviser confirms that the address, the identity details and the signed plan match the paperwork in the file. The activation checklist asks for the same information in the same order each time, which keeps the process predictable for customers who call back. If a customer changes a detail after signature, the change is recorded as an amendment with its own date and is not written over the original entry. Amendments that alter the price or the term must be approved again before the line is activated, and the approval is linked to the order. The team reviews a sample of activations at regular intervals to check that the checklist is being followed, and the results go to the regional lead. Advisers who spot a gap in the checklist report it through Relay so that the form can be corrected for everyone.
+
+SECTION 6  Activation, part 4
+Audience: Sales
+Classification: Internal
+
+Contact after activation is where many customers form their view of the company, so the first call after activation must be friendly, short and useful. The adviser checks that the customer can make a call, send a message and reach the billing contact, and notes any difficulty in the record. If the customer reports that the service is not working, the adviser runs the standard diagnostic before escalating, so that the technical team receives a clear description of what has been tested. The adviser does not promise a repair time that the technical team has not confirmed. Customers who have had a difficult activation are given the name of the person handling their case, and that person follows up until the issue is closed. Patterns from these contacts are summarised for the product team so that onboarding material can be improved.
+
+SECTION 7  Commissions
+Audience: Sales
+Classification: Internal
+
+Commission is calculated on net activated sales, which means that a sale counts only when the service is live and has passed the first billing check. Advisers can see the calculation for each order in Atlas, including the rate applied and the category of the product. Sales that are cancelled before activation carry no commission, and a cancellation after activation is deducted in the next cycle with a reference to the original sale. Advisers who believe a figure is wrong raise a query through Relay with the order reference, and the finance team replies in writing. Commission is not paid on items that are not on the approved list for the channel, and advisers are told about the list before they sell. The commission statement is reviewed by the sales manager, who checks that no sale is entered a second time and that each deduction has a clear cause.

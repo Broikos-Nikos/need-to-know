@@ -1,0 +1,31 @@
+SECTION 1  Conduct and compliance
+Audience: All staff
+Classification: Internal
+
+Every member of the sales team treats customers with honesty and respect, and never makes a claim about a product or a price that the advisor cannot support from the system. Advisors who are unsure of an answer say so, and they check the answer before they speak to the customer again. Pressure tactics, such as inventing a deadline, are a breach of this procedure.
+
+Advisors protect customer data in the same way across all channels, and they do not write personal details on paper, in messages or in personal notes. Records are kept in the approved systems only. Any suspected data loss is reported to the store manager at once, and the manager informs the legal team the same day. Advisors are reminded of this rule at the start of each month, so that it remains part of daily practice.
+
+SECTION 2  Commissions
+Audience: Sales
+Classification: Internal
+
+Commission is calculated using the rates in the current sales plan, and the advisor can see the calculation in Atlas for each sale. The procedure asks advisors to check their statement each period against their own records, and to raise any difference in Relay before the statement is closed. Queries that arrive late are handled in the next period.
+
+Commission is paid only for sales that remain active, and a sale cancelled within the cancellation window is reversed automatically. Advisors who see a reversal they do not understand ask the team leader to explain it, rather than trying to recover the amount through another sale. The team leader records the explanation in the advisor's file. Where the reversal reflects an error in the system, the team leader raises a ticket in Relay so that the fault can be corrected.
+
+SECTION 3  Discounts and approvals
+Audience: Sales
+Classification: Internal
+
+Advisors may offer only the discount level that the system shows for the plan and the customer. A request for a larger discount is made in Relay before the offer is shown, and the advisor waits for the decision. The advisor does not agree a discount in conversation and then ask for approval afterwards, because that order reverses the control.
+
+The approved discount is entered in Atlas before the quote is issued, and the final price on the quote and the contract must match. Advisors keep a short note of the reason for each discount, so that the approver and any later reviewer can understand the decision. Discounts that are not recorded are treated as unapproved and are corrected before the sale is completed. Managers review a sample of unrecorded discounts each week to see whether the practice is spreading.
+
+SECTION 4  Commissions, part 2
+Audience: Sales
+Classification: Internal
+
+Commission statements are issued each period and show each sale, the rate, the status and the amount payable. Advisors should review the statement within the period, because a dispute raised within the period is resolved more quickly than one raised after it closes. Each dispute is logged in Relay with the sale reference and the reason for the query.
+
+Where the finance team agrees that an amount is wrong, the correction is shown in the next statement with a clear reference to the original line. Advisors who repeatedly raise queries on the same type of sale are asked to meet the team leader, so that the cause can be found. The procedure aims to keep disputes rare and to keep pay accurate for everyone. Advisors who wish to discuss a statement in person can book a short meeting with the finance team.

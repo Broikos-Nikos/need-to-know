@@ -1,0 +1,29 @@
+SECTION 1  Working hours and access
+Audience: All staff
+Classification: Internal
+
+Customer Care operates on the published rota, and every member of staff must be logged in to the telephony system before the start of the shift. Access to customer records is limited to the role, and staff must not look up accounts for personal reasons. Shift swaps are agreed with the team leader in advance and recorded in the rota system, so that cover is never assumed. Staff who arrive late or need to leave early must tell the team leader directly rather than sending a message to the team channel. Remote access to customer systems is permitted only from approved devices and networks, and remote sessions are logged. Lone working is not permitted when handling payment card details. Everyone is expected to take their breaks at the scheduled time, so that the floor remains covered at all times.
+
+SECTION 2  Callbacks and holding
+Audience: Customer Care
+Classification: Internal
+
+Every callback must be recorded in the case system with the customer's name, the number to call and the reason for the call. A callback booked for a particular time must be made at that time or updated in advance with the customer's agreement. Holding is permitted only for the time needed to complete a specific check, and the customer must be told why they are being held. Customers must not be left in a holding queue without a message, because silence increases complaints and damages trust. Where the holding time exceeds what was said, the agent returns to the line, apologises and explains the current position. Callbacks that cannot be completed are passed to the team leader for reassignment, and no callback may be closed without the outcome recorded.
+
+SECTION 3  Compensation
+Audience: Customer Care
+Classification: Internal
+
+Compensation must follow the compensation policy and must not be offered on the basis of personal judgement alone. Each credit must be supported by evidence in the case record, such as a confirmed outage, a documented billing error or a verified complaint. Agents must not promise a credit amount before the policy check is complete, because a promise that is later withdrawn damages the relationship. Credits above the limit set in the policy require approval from a team leader, who records the decision and the reason. Compensation is not used as a substitute for resolving the underlying fault, and the agent must make sure that the fault is also being addressed. All credits are recorded with a reason code so that they can be reported and checked against the policy.
+
+SECTION 4  Response times
+Audience: Customer Care
+Classification: Internal
+
+Customer requests must receive a first response within the time set for their priority level, and the first response must acknowledge the request and state the next step. Response times are measured from the moment the request enters the queue. Agents must not stop the timer by changing the status of a case without a real action, and a case must not be closed while a customer is still waiting for an answer. Where a response time is at risk, the team leader must be informed so that cover can be arranged. Missed response times are recorded with the reason, and repeated misses are reviewed in the service meeting. The policy is supported by the workforce plan, which sets the number of agents needed for each period of the day.
+
+SECTION 5  Callbacks and holding, part 2
+Audience: Customer Care
+Classification: Internal
+
+When a case moves between agents, the outgoing agent must write a handover note that gives the account details, the history of contacts and any promises made to the customer. The incoming agent must read the note before contacting the customer, and must not ask the customer for information that the note already contains. Handovers at the end of a shift must be completed before the outgoing agent leaves the building, or the team leader must take responsibility for the case. Open cases must be visible to the whole team, so that a customer who calls a different agent can be helped without delay. Each handover is recorded in the system, and the team leader audits a sample of handovers at regular intervals.

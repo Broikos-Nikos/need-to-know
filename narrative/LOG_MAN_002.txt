@@ -1,0 +1,35 @@
+SECTION 1  Handling and packing
+Audience: Logistics
+Classification: Internal
+
+Handling begins the moment a parcel is received at the dock, and every person who touches a parcel is responsible for its condition until it is loaded. Staff check the outer packaging for crushing, moisture or open flaps before the parcel is scanned in. A parcel with visible damage is set aside, photographed and recorded in Dock before any internal movement takes place. Parcels are never stacked against walls or doors, and the stacking pattern follows the marking on each carton. Staff lift with the legs and not the back, and they use trolleys for anything that cannot be carried comfortably with both hands. Loose items are never left on the floor, even briefly, because they are a trip hazard and they are easily mixed with other stock. The team lead checks the handling zones at the start of each shift and records any hazard that needs a fix. Any incident involving a person or a parcel is reported at once to the duty supervisor.
+
+SECTION 2  Courier pickups
+Audience: Logistics
+Classification: Internal
+
+Courier pickups are planned from the dispatch schedule, and each pickup has a fixed window that is shown on the dock board. Before a courier arrives, the loader checks that every parcel for that courier is on the correct pallet and that the labels match the manifest. Couriers C1, C2, C3 and C4 each have a dedicated bay, and the loader does not place parcels in the wrong bay under any pressure. The driver signs the manifest on collection, and the signed copy is filed in Dock with the time of arrival. If a pickup is missed, the duty supervisor records the reason and informs the planning team on the same shift. Parcels that miss a pickup are returned to the stock area and are not loaded onto a different courier's vehicle. Staff do not discuss the contents of the parcels with the driver, and the driver is not allowed into the stock area. The supervisor reviews the pickup log at the end of each shift and reports any repeated gaps.
+
+SECTION 3  Delivery times
+Audience: Logistics
+Classification: Internal
+
+Delivery times are based on the service promised to the customer at the point of order, and the planning team keeps that promise in the schedule. The planning team reviews the expected dates each day and flags any order where the dispatch cannot meet the date. Where the date is at risk, the planning manager decides whether to advance the dispatch, change the courier or inform the customer team. Any change to a committed date must be approved in writing and recorded against the order in Dock. Field installations are scheduled through Compass, and the installation team confirms each visit with the customer before it takes place. Delays caused by weather, access or missing parts are recorded with a clear reason, so that the root cause is visible in the period review. The planning team does not promise dates that the carrier has not confirmed. Customers are informed of changes by the customer team, not by the drivers or the warehouse staff.
+
+SECTION 4  Handling and packing, part 2
+Audience: Logistics
+Classification: Internal
+
+Returned packaging is handled with the same care as outbound packaging, because it is often the only evidence of how a parcel was damaged. Returned boxes are opened by the returns team, and the packing material is recorded before it is discarded. Boxes that are still in good condition are cleaned, emptied and placed in the reuse area, where they are checked again before use. Boxes with crush damage, tears or old labels are removed from the reuse area and sent for recycling. Staff must not reuse a box that has held a fragile item unless the inside has been checked and the protective material replaced. Packaging materials are kept in a closed store with a stock count, and the count is reconciled with the purchase record. The packaging supervisor approves any new reuse rule before it is applied on the floor. Nothing is discarded that could show the cause of a fault until the investigation is complete.
+
+SECTION 5  Handling and packing, part 3
+Audience: Logistics
+Classification: Internal
+
+Fragile and high value items follow the strictest handling rules in the warehouse, and staff must know which items fall into this group before they handle them. Each fragile item carries a visible symbol on the outer box, and the box is stored in the separate fragile zone until dispatch. High value items are counted at each movement, and the count is recorded in Dock with the name of the person who moved them. Insured shipments are sealed with tamper evident tape and photographed before they leave the building. Staff who handle high value items do not work alone, and the handover between shifts is done in person with a signed record. Any missing seal, damaged box or unexplained difference in count is escalated at once to the duty supervisor. Items that cannot be found are reported to the security lead before the search is extended. Records of high value movements are retained for the period set by the legal team.
+
+SECTION 6  Payments
+Audience: Finance
+Classification: Internal
+
+Payments connected with logistics services, such as courier invoices and warehouse charges, are processed by the finance team after the logistics manager has confirmed the service. Each invoice is matched against the dispatch record in Dock and the courier manifest before it is approved for payment. Disputed charges are held and sent back to the logistics manager with a note that explains the mismatch. Payments to couriers follow the approved supplier process, and bank details are checked against the supplier record before every payment run. The finance team does not release a payment for a service that cannot be traced to a manifest or a dispatch record. Warehouse charges that are passed on to a customer are shown on the invoice with a description that matches the contract. Any change to the rates agreed with a courier is approved in writing by the finance director. Reconciliation of courier payments is carried out at the close of each period, and the result is shared with the logistics team.

@@ -1,0 +1,23 @@
+SECTION 1  Repairs under warranty
+Audience: Returns
+Classification: Internal
+
+A customer often asks whether a device is still under warranty, and the answer depends on the purchase date and the proof of purchase on record. The returns agent checks the purchase date in Atlas before giving any answer, because the date in the customer's memory is not always the date in the system. If the proof of purchase is missing, the agent explains which documents can replace it and records the alternative in the case file. Warranty repairs are sent to the approved repair centres, R1 or R2, depending on the region and the device type. The customer is told the route, but not the internal cost of the repair. If the device is out of warranty, the agent explains the options clearly, including the charge and the timing, and does not start any work before the customer agrees. Customers who ask for a faster repair are told that the timing depends on the repair centre and that the agent will chase progress on their behalf.
+
+SECTION 2  Repairs under warranty, part 2
+Audience: Returns
+Classification: Internal
+
+Before a device is sent for repair, the customer should remove personal accounts and save any data they still need, because the repair centre may need to reset the device. The agent explains this clearly and records that the advice was given. The customer receives a prepaid label and packing guidance, and the agent confirms the address and the contact number before the label is issued. If the customer cannot pack the device, the agent arranges collection through the approved courier, and the collection time is confirmed to the customer in writing. Accessories are not sent unless they are needed to diagnose the fault, and the agent notes which accessories were included in the parcel. The customer is told that the repair centre may contact them directly about the fault, and that all communication about the repair is then recorded in the case file.
+
+SECTION 3  Return eligibility
+Audience: Returns
+Classification: Internal
+
+The most common question is whether a device can be returned after the standard period has passed, and the answer depends on the product category and the reason for the return. The agent checks the return window for the product in Atlas, because the window is different for devices and for device insurance. A return for a change of mind is accepted only within the window that applies to the category, and the agent explains that clearly to the customer. A return for a fault is handled under the warranty route, even if the window has passed, provided the fault is covered by the terms. Returns that do not qualify are declined in writing, and the customer is told the reason and their next options. The agent does not describe a return as a goodwill gesture unless a team leader has approved it. All decisions are logged with the reason and the policy clause used.
+
+SECTION 4  Data retention
+Audience: Legal
+Classification: Internal
+
+Returns case files contain personal data, including proof of purchase, contact details and the description of a fault. These files are retained for the period set in the retention schedule, and access is limited to the staff who need the file to handle the case. Photographs of a device taken at intake are stored in the case file and are deleted when the retention period ends, unless a legal hold applies. Where a device is wiped or repaired, the record of the wipe is kept separately so that it can be checked if the customer later claims data loss. Requests from customers to see their returns record are handled under the data subject access procedure, and the legal team checks the release before it is sent. A returns case that is subject to a complaint or an insurance claim is held until the matter is closed, regardless of the normal schedule.

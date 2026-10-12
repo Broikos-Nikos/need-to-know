@@ -1,0 +1,29 @@
+SECTION 1  Conduct and compliance
+Audience: All staff
+Classification: Internal
+
+Everyone who works in logistics follows the conduct code, which covers how staff treat couriers, suppliers and visitors on site. Personal items stay in the lockers provided, and no one takes stock home, even briefly, without a signed transfer note. Staff who see a safety problem on the loading bay stop work in that area and report the problem to the shift leader before anything else happens. Gifts from suppliers follow the same disclosure rules as in the rest of the company, and any offer that could influence an order is declined and recorded. Breaches are reviewed by the compliance team, which keeps the names of people who raise concerns confidential. Training on the code is repeated whenever the code changes, and each team leader keeps a record of attendance.
+
+SECTION 2  Handling and packing
+Audience: Logistics
+Classification: Internal
+
+Goods leave the warehouse in cartons that have been checked for damage, and the packing material is chosen so that the contents cannot move in transit. Each parcel carries a label with the order reference, the consignee name and the destination code, placed on the upper face so that the courier can read it without opening the box. Fragile items are marked with the standard fragile sign and are packed apart from heavy goods, because the weight distribution in the van affects how well they survive the journey. The packer completes the packing slip in the Dock system before the parcel moves to the dispatch zone, and any difference between the slip and the contents is recorded at once. Cartons that show damage are not sent with the rest but moved to a separate area for re-inspection. Packing material is sorted for recycling in line with site rules and is never left in the aisles at the end of a shift.
+
+SECTION 3  Courier pickups
+Audience: Logistics
+Classification: Internal
+
+Courier pickups are planned around the cut-off times that each carrier has agreed, and the dispatch team sets the loading order so that priority parcels sit at the front of the queue. At the Aspropyrgos warehouse, the last pickup for courier C2 is at 14:00. Parcels that are not ready by then stay on the shelf for the next available collection, and the shift leader informs the customer of the new date in writing. The courier driver signs the collection note with the time of arrival and the number of cartons, and the bay controller agrees the count against the manifest before the van leaves. Any difference found at the bay is noted on the same document with a photograph of the carton, and the report goes to the quality team within the same shift.
+
+SECTION 4  Warehouse operations
+Audience: Logistics
+Classification: Internal
+
+Stock control depends on counts that match what the system says is on the shelves, so the warehouse team plans its counting to disturb normal operations as little as possible. Stock counts at the Aspropyrgos warehouse take place every 2 weeks. During a count, movements are paused in the counted zone so that the figures reflect a single moment, and counters work in pairs so that each figure is checked by a second person. Differences above the agreed tolerance are investigated before any adjustment is posted, and the adjustment carries the reference of the investigation. Slow-moving stock is reviewed alongside the count, since items that have not moved for a long period are often the source of later disputes. The result of each count is compared with the previous one to show whether accuracy is improving, and the comparison is shared with the operations manager.
+
+SECTION 5  Approvals
+Audience: Finance
+Classification: Internal
+
+Finance approves logistics spending that exceeds the delegated limit of the warehouse manager, and the approval is recorded against the purchase order before the supplier is paid. The finance team checks that each invoice matches a goods receipt and a purchase order, and where the documents disagree the invoice is held until the difference is explained. Freight invoices are reviewed against the agreed rate card, and any surcharge that is not on the card is returned to the carrier with a written reason. Finance also approves write-offs of damaged stock after the operations team has confirmed the damage, and the write-off note includes photographs and the count reference. Approvals are reviewed on a regular basis by the internal audit team, which checks that no one approved a document they had raised themselves.

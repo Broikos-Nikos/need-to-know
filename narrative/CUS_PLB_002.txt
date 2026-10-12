@@ -1,0 +1,29 @@
+SECTION 1  Internal support
+Audience: All staff
+Classification: Internal
+
+This playbook gives customer care agents a fast route through the most common situations, and it is designed to be read in the moment rather than studied in advance. Shops in Epirus open at 09:00 on weekdays. Shops in Western Macedonia open at 09:00 on weekdays. Agents who take calls about store hours should check the operations calendar, since a branch can change its times at short notice when an event or a refit is planned. Questions about the playbook itself go to the playbook owner in the quality team, who keeps the version history. Agents should never quote a store time from memory when the calendar is available on screen. If a playbook step does not match what the system does, the agent reports it through Relay so that the step can be corrected for everyone.
+
+SECTION 2  Response times
+Audience: Customer Care
+Classification: Internal
+
+Response times are measured from the moment a case enters the queue, and the playbook asks agents to acknowledge each case as soon as it is opened. An acknowledgement tells the customer what happens next and when to expect a substantive answer, and it does not count as the answer itself. Agents use the standard templates for acknowledgement, which keep the wording consistent and avoid promises that cannot be kept. A case that is close to its target is flagged to the team lead so that a colleague can take it over before the deadline. Agents do not reopen a closed case to make the figures look better, because the record of the original time is part of the measurement. Team leads look at the timing data together with the content of the cases, so that speed never comes at the cost of a wrong answer.
+
+SECTION 3  Compensation
+Audience: Customer Care
+Classification: Internal
+
+Compensation in the playbook follows the schedule approved by the operations director, and the agent uses the schedule as written without inventing additional amounts. Before offering any compensation, the agent confirms the outage or delay in the system and records the reference that proves it. The agent states the amount only after the approval has been recorded, and the wording used matches the approved statement in the template. Where the customer disputes the amount, the agent does not negotiate outside the schedule, but offers to pass the case to a supervisor who has the authority to review it. Credits are posted through the billing system, and the agent checks the posting before ending the case. The compensation note is written in neutral language so that it can be read later by an auditor.
+
+SECTION 4  Escalation
+Audience: Customer Care
+Classification: Internal
+
+Escalation in the playbook is triggered by a set of conditions rather than by the customer's tone. A case moves up when it has not been resolved after the agent has tried the steps in the playbook, when it involves a legal threat, or when it includes a vulnerable customer who needs specialist care. The agent writes the escalation summary in Relay before transferring the case, and the summary states the problem, the steps taken and what the customer has been told. The receiving team reads the summary before calling the customer, and the agent stays on the case until the receiving team has accepted it. Customers are told the name of the new handler and the expected next step, so that the transfer does not feel like a dismissal. Each escalation is coded with its trigger so that the quality team can see which conditions produce the most transfers.
+
+SECTION 5  Data retention
+Audience: Legal
+Classification: Internal
+
+Customer care records contain personal details that the company must protect, and the playbook sets out how long each type of record is kept. The legal team maintains the retention table, and the table states the purpose of each record type so that agents know why a record should not be deleted early. Recordings of calls and notes on accounts are handled separately, because they are often needed in a later complaint. When a customer asks for their data to be removed, the request is passed to the legal team, who decide which records must be kept for legal reasons and which can be removed. Agents do not copy customer details into personal notes or messaging applications. Any access to a record outside the normal workflow is logged and reviewed.

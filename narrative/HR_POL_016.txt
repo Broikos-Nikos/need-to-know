@@ -1,0 +1,30 @@
+SECTION 1  Ways of working
+Audience: Human Resources
+Classification: Internal
+
+The company supports flexible ways of working where the role allows it, and the decision is made between the employee and the line manager. Working arrangements must be agreed in writing, and they must state where the work is done, which hours are core hours and how the team will stay in touch. Employees working away from the office use only approved equipment and secure connections, and they keep company information out of personal storage. Line managers judge output and quality rather than time at the desk, and they set clear expectations for responsiveness. Where a role requires presence, for example in a shop or a warehouse, the arrangement must be explained to the employee at the point of hire. Changes to working arrangements are reviewed when the team's work changes, and not simply because an employee asks for them.
+
+SECTION 2  Leave
+Audience: Human Resources
+Classification: Internal
+
+Leave requests are made through the internal portal and are approved by the line manager after checking the team's cover. The manager must not refuse leave for a reason that is unrelated to the work, such as a family event, unless the business need is clearly stated and recorded. Sickness absence is reported to the manager as early as possible on the first day, and the employee confirms the return date when they come back. Medical details are kept confidential and are not shared beyond the people who need to know about the absence. Unused leave balances are visible in the portal, and managers encourage employees to plan their leave so that they do not lose entitlement at the end of the year. Carry over rules are set by the leave policy and applied consistently across all teams.
+
+SECTION 3  Training
+Audience: Human Resources
+Classification: Internal
+
+Training is part of every role, and every employee has a personal development plan that is agreed with the line manager. The plan lists the courses, the skills to be developed and the way progress will be measured. Mandatory training, such as data protection and safety, must be completed before the deadline set by the course owner, and managers are responsible for checking completion. Learning is recorded in the HR system, and certificates are kept in the personnel file. Internal programmes are given priority where they reflect the company's own processes, because they use the same examples that employees see at work. Budgets for external training are approved by the head of department and are reviewed against the business plan at the end of each year. Employees who finish a course are asked for brief feedback, which the training team uses to improve the content.
+Internal reference: CANARY_FF43F3_HR
+
+SECTION 4  Leaving
+Audience: Human Resources
+Classification: Internal
+
+Leaving the company is a process that protects both the employee and the business, and it begins with the written resignation. Employees who resign give 3 weeks of notice. The line manager confirms receipt of the notice in writing and starts the handover plan on the same day. The handover covers open tasks, access to systems and the transfer of any customer or supplier relationships. HR confirms the final date, the outstanding leave and the return of company property, and it explains the final payment process. Exit interviews are offered to every leaver and are used to improve how the company manages its people. Information from exit interviews is reported in aggregate, so that individual comments cannot be identified. Employees who leave are told how to request a reference, and the process is explained in writing.
+
+SECTION 5  Leaving, part 2
+Audience: Human Resources
+Classification: Internal
+
+Access to company systems is removed on the last working day, in the order set by the access procedure, so that no one keeps access after they have left. The line manager confirms that all company property has been returned, including laptops, phones, badges and documents. Personal data about the leaver is kept only for the period required by the retention schedule, and the leaver's mailbox is archived rather than deleted immediately. Leavers who have signed confidentiality agreements or restrictive covenants are reminded of their obligations in writing, and the legal team is consulted where a question arises. References are given only by HR, using the approved template, and only with the employee's consent where the law requires it. Rehire eligibility is recorded in the HR system, with the reason, so that later applications are handled consistently.

@@ -1,0 +1,24 @@
+SECTION 1  Working hours and access
+Audience: All staff
+Classification: Internal
+
+Sales staff work the published shift pattern, and each consultant must be logged in to the sales system before the first customer contact of the day. Access to the customer file is granted for the purpose of a live sale and is removed when the sale is closed. Consultants must not share their login with a colleague, even for a short period, because every action in the system is traced to the person who made it. Breaks are taken at the scheduled time, and the sales floor is covered at all times. Consultants who work from the showroom or from a partner site follow the same access rules and use only the approved equipment. Requests for changes to the rota or to access go through the sales manager, who confirms the change in writing.
+
+SECTION 2  Activation
+Audience: Sales
+Classification: Internal
+
+Activation of a sale begins once the customer has signed and the sales record matches the contract in every detail. The consultant confirms the customer name, the address and the contact details against the identity document. The activation request is sent through Atlas with the contract reference, and the operations team confirms receipt. The consultant explains to the customer what to expect in the first days of service, including how to contact support if the service does not work. The activation is complete when the service has been tested and the customer has confirmed that it works. Consultants follow up on any activation that has not been completed within the expected window, so that the customer is not left waiting.
+
+SECTION 3  Credit and eligibility
+Audience: Sales
+Classification: Internal
+
+Credit checks are run before the contract is offered, and the consultant does not confirm a customer's eligibility until the check result has been recorded. The consultant asks for the customer's consent before running any check, and explains which information will be used. Customers who are not approved are told the result in a neutral way, and the consultant offers a route for review where one exists. The consultant does not discuss the detailed reasons for a refusal, because the information is confidential. Credit decisions are recorded with the reference number, and the record is kept for the period set in the retention schedule. Consultants must not run repeated checks on the same customer in search of a different answer.
+
+SECTION 4  Contracts and terms
+Audience: Sales
+Classification: Internal
+
+Contracts for TV packages run for a minimum of 24 months. The consultant explains this term before the customer signs, and makes clear what happens if the customer wants to end the contract early. The standard contract template is used for every package, and special conditions are added only as a named schedule approved by the sales manager. The consultant reads out the key terms, including the cancellation rights and the way prices are reviewed during the contract. The customer receives a copy of the signed contract before leaving the store or before the online session ends. Any question about a term is referred to the legal team, and the consultant does not offer an interpretation that the contract does not state.
+Internal reference: CANARY_E264CE_SALES

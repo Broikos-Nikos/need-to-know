@@ -1,0 +1,47 @@
+SECTION 1  Commissions
+Audience: Sales
+Classification: Internal
+
+Accessories are one of the easiest ways to increase the value of a sale, and the commission on them is set in the sales plan. Advisors earn a commission of 3 percent on sales of accessories. The rate is applied to the price paid by the customer after any approved discount, so that the commission reflects the real value of the sale rather than the list price. Advisors should check the current rate in the sales plan before they quote a commission figure to anyone.
+
+A good playbook habit is to offer accessories at the moment the customer chooses the device, not at the till when the customer is ready to leave. The advisor shows a short list of options that match the device, but does not push items the customer does not need, because a returned accessory costs more than the commission it earned. Accessories that are suggested with care tend to be kept, and that keeps the return rate low for the whole team.
+
+SECTION 2  Discounts and approvals
+Audience: Sales
+Classification: Internal
+
+Playbook guidance on discounts is simple: offer the approved level first, then explain what the customer gets for the price. Advisors who lead with the value of the plan usually need fewer discounts, because the customer sees the price as fair. A discount is a tool to close a sale that would otherwise be lost, not a default that appears in every conversation.
+
+When a customer asks for more than the approved level, the advisor records the request, asks the store manager for a decision and explains the outcome honestly. The advisor does not invent a reason for refusing, and does not blame the system in front of the customer, because a clear reason is easier to accept than a vague one. Requests that are refused are noted, so that the team can see whether the offer is in the right place.
+
+SECTION 3  Commissions, part 2
+Audience: Sales
+Classification: Internal
+
+Commission is shown on the monthly statement with each sale line, so the advisor can check it against the notes made during the sale. A line that looks wrong should be queried in Relay with the sale reference before the statement closes and the figure is locked. Queries raised after the close are answered in the next statement, which can delay the payment.
+
+Advisors keep their own simple log of the sales they make each day, with the customer reference and the product. The log is not a replacement for the official statement, but it helps the advisor spot a missing line quickly and raise it on time. Managers encourage this habit, because a well kept log reduces disputes for everyone in the team. Logs are kept for the same period as the statements, so that any question can be checked against both records.
+
+SECTION 4  Discounts and approvals, part 2
+Audience: Sales
+Classification: Internal
+
+Some discounts combine with campaign offers, and others do not. The playbook asks advisors to check the combination rule in Atlas before they put offers together, rather than trying to guess from memory. A combination that the system refuses should never be forced through by a manual entry, because the entry will be reversed later and the customer will be upset.
+
+Advisors who are unsure about a combination rule ask the store manager, who will check the campaign notes and reply within the same working day. The manager records the answer so that the same question does not return to the team. The rule book is updated when a combination question is repeated, to save time for everyone who uses it. Each update is announced in the team meeting, so that every advisor works from the same version.
+
+SECTION 5  Activation
+Audience: Sales
+Classification: Internal
+
+Business customers expect their lines to be ready quickly, and the activation process is designed to meet that expectation. A new line for business mobile plans is activated within 2 hours of a signed order. The advisor confirms the business details before the order is sent, because a wrong company name or address is the most common reason for delay.
+
+The advisor stays in touch with the business customer until the line is working, and reports any delay to the activation desk without waiting for a complaint. A short update message helps a busy owner plan the day, and it shows that the order is being followed. When the line is working, the advisor checks that the customer can make and receive a call before leaving the account. The advisor notes the test result in Atlas so that the activation record is complete.
+
+SECTION 6  Commissions, part 3
+Audience: Sales
+Classification: Internal
+
+Commission for business lines is calculated on the same basis as consumer lines, but the sales plan sets a separate rate for each category. The advisor should check which rate applies before presenting the offer, because the rate changes the value that the advisor can share with the customer. Questions about rates are answered in writing by the commercial team, and the answer is kept on file.
+
+Advisors who are coached on commission rules are asked to repeat the rule back to the team leader in their own words, so that misunderstandings are caught early. The playbook is not a replacement for the sales plan, which remains the official source. Where the sources differ, the sales plan prevails, and the playbook is corrected at the next review. Advisors who notice a difference are asked to report it in Relay so that the correction can be made quickly.

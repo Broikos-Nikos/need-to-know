@@ -1,0 +1,24 @@
+SECTION 1  Conduct and compliance
+Audience: All staff
+Classification: Internal
+
+Group policy on returns applies to every team that handles a returned item, from the shop floor to the warehouse and the repair centre. Every member of staff who handles a return must treat the customer with respect, explain the outcome clearly and avoid promising a result before the decision has been made. Returned goods must be handled with care, and staff must not try on, test or use an item beyond what the check requires. Any suspicion of fraud, such as the return of an item that was never sold or a switched product, is reported to the returns lead rather than resolved on the spot. Customer records are confidential and are used only for the purpose of the return. Breaches of this policy are handled through the normal disciplinary process.
+
+SECTION 2  Refund approval
+Audience: Returns
+Classification: Internal
+
+Refunds are approved by the returns team using the authority matrix in this policy, and the amount decides the level of approval needed before any credit is issued. Smaller amounts can be approved by the team lead alone, while higher amounts require the returns manager and, above a further threshold, the finance director. No one approves a refund on their own return or on a return for someone they know personally, and any such conflict must be declared before the decision is taken. Refund approvals are issued through the billing system, and each approval is linked to the return record so that the chain of decisions is visible. A refund is never promised to a customer before the approval has been recorded. Staff who are asked for a refund outside the approval route refer the request straight to the returns lead without discussing the amount.
+
+SECTION 3  Repairs under warranty
+Audience: Returns
+Classification: Internal
+
+Repairs under warranty are governed by the same policy for every product family, although the repair route differs by product type. The returns team confirms that the claim is inside the warranty period and that the fault is not the result of damage by the customer before a device is sent to a repair partner. Repair partners report results through the returns system, and the team checks each report against the original claim before the device is released to the customer. Where a repair is refused as outside warranty, the decision and the evidence are kept on file, and the customer receives a written explanation that cites the relevant condition. Repeated repairs of the same device are reviewed by the quality team to identify design or supply issues.
+Internal reference: CANARY_F00A7D_RETURNS
+
+SECTION 4  Refund approval, part 2
+Audience: Returns
+Classification: Internal
+
+Every refund decision must be documented with the reason, the evidence and the approver's name, and the record must be complete before the refund is processed. Exceptions to the standard policy, such as refunds outside the stated return period, are allowed only where a senior manager signs an exception note that explains the business reason. Exception notes are reviewed each time the policy is updated, so that repeated exceptions can be turned into rules or stopped. Staff who receive an unusual request must not agree to it at the counter, but must record it and refer it to the returns team for a decision. Audit samples of refund approvals are taken at regular intervals, and any approval that does not match the matrix is reported to the finance director.

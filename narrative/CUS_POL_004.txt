@@ -1,0 +1,29 @@
+SECTION 1  Callbacks and holding
+Audience: Customer Care
+Classification: Internal
+
+Group policy on callbacks applies to every customer care team in the company, and local procedures may add detail but must not weaken the rules set here. Callbacks should be offered whenever a customer's wait is expected to be longer than the team's standard, and the offer must be recorded with the customer's chosen window. Callbacks are not used to push customers away from a queue that is open, and a team that routinely turns calls into callbacks will be reviewed. Each team must keep a list of outstanding callbacks, with the age of each entry and the agent responsible, and the list is checked by the team lead during the shift. A callback that cannot be made is reported with its reason, so that the group can see patterns across teams.
+
+SECTION 2  Compensation
+Audience: Customer Care
+Classification: Internal
+
+Compensation under group policy applies to customers whose service was interrupted by an outage that the company has confirmed, and to customers who experienced a delay caused by an internal error in provisioning. Customers who lost service because of their own equipment, or because of a fault on a third-party network, are not eligible under this policy, although the agent may explain the options available to them. Eligibility is decided on the basis of the outage record and not on the customer's description of the event. Where an outage affected a whole area, the same rule applies to every customer in that area without requiring individual claims. Eligibility decisions are documented so that they can be checked by the group complaints team. Staff who disagree with an eligibility decision raise it with their team lead, who consults the policy owner before any change is made.
+
+SECTION 3  Compensation, part 2
+Audience: Customer Care
+Classification: Internal
+
+Each compensation decision must be approved by a person with the right authority, and the approval must be recorded in the customer record at the time it is made. The record includes the outage reference, the calculation and the name of the approver, and it cannot be altered after the credit has been posted. Corrections are made by adding a new entry that explains the change, rather than by editing the original. Agents must not make promises about compensation that have not been approved, even where a customer asks for a figure in advance. The group audit team samples approved compensation at regular intervals to check that the rules have been applied consistently across teams. Any gaps found in the audit are reported to the group policy owner, who decides whether the wording or the training needs to change.
+
+SECTION 4  Compensation, part 3
+Audience: Customer Care
+Classification: Internal
+
+The credit rate for confirmed outages is set by this policy, and agents must apply it exactly as written, without rounding up for goodwill. Customers receive a credit of 0.5 euros for each full hour of a confirmed outage. Partial hours do not count towards the credit, and a long outage that is split into separate confirmed periods is calculated period by period. The calculation is shown in the record, so that the customer can be told exactly how the figure was reached if they ask. Any request for a higher amount is referred to the team lead, who decides whether the case falls under a separate rule, and the decision is recorded with its reason. Requests that are declined are explained to the customer in plain words, and the agent offers the next available step.
+
+SECTION 5  Callbacks and holding, part 2
+Audience: Customer Care
+Classification: Internal
+
+Holding is a service that the customer experiences directly, so the policy sets a clear limit on how long a customer can be kept in the queue before the team offers a change. Callers should not be kept on hold for more than 8 minutes. When the limit is reached, the agent offers a callback or a transfer to a different queue with a shorter expected wait, and records the choice that the customer made. Hold music must be neutral and free of marketing messages, and its volume must be checked by the team leader during the shift. Each team keeps a short log of holding times, so that the average wait can be compared between queues and the best practice shared. Customers who are told how long they may wait are less likely to hang up before the call is answered.

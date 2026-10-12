@@ -1,0 +1,48 @@
+SECTION 1  Conduct and compliance
+Audience: All staff
+Classification: Internal
+
+Customer contact is conducted with respect, accuracy and confidentiality at all times. Staff verify the identity of the caller before discussing any account, and they never reveal account details to a third party without a valid authority on file. Recording of calls is disclosed at the start of each call, and the recording is used only for quality, training and dispute purposes. Staff must not pressure customers into decisions, and they must not describe a product in a way that is misleading. Notes on the case must be factual, polite and free of personal opinions, because the customer may request a copy of the record. Any suspected breach of these rules is reported to the team leader immediately, so that the risk can be contained.
+
+SECTION 2  Callbacks and holding
+Audience: Customer Care
+Classification: Internal
+
+When a customer must wait, the agent explains the reason for the wait and offers a callback if the wait is expected to be long. A callback is booked in the system with the best number and the agreed time window. The agent confirms the booking to the customer before ending the call, and reads the time back to them. If the agent places the customer on hold, the agent returns to the line at the time stated, or sends a message through the channel the customer prefers. Calls are never disconnected while the customer is still waiting for an answer. Where a callback cannot be completed, the agent records the reason and reschedules it within the same working day.
+
+SECTION 3  Response times
+Audience: Customer Care
+Classification: Internal
+
+The first response must be given within the time set for the case priority, and the agent records the time of the response in the system. The first response must include the reference number, the next step and the expected time for the next update. Agents do not use automatic replies as a first response, because a customer needs to know that a person has read the case. Where the case is complex, the agent tells the customer that more time is needed and explains what is being done in the meantime. A response that does not answer the question is not a complete response, and the agent must follow up before closing the case. Response times are measured from the moment the request is logged, so the logging must be done without delay.
+
+SECTION 4  Compensation
+Audience: Customer Care
+Classification: Internal
+
+Compensation is applied according to the compensation table, and the agent must not offer an amount that is not in the table without team leader approval. The agent checks the evidence in the case before confirming any credit to the customer. A credit is confirmed in writing with the amount, the reason and the date on which it will appear on the account. Where a customer asks for compensation for an event that has not been recorded, the agent opens a new case so that the event can be checked. Compensation is never offered as a condition for the customer to withdraw a complaint. Each compensation decision is recorded with a reason code, so that the team can monitor consistency across all cases.
+
+SECTION 5  Response times, part 2
+Audience: Customer Care
+Classification: Internal
+
+Customers who are waiting for a resolution receive updates at the times promised, even when there is no new information. An update that says the case is still open and the agent is still checking is better than silence. The agent records every update in the case with the time it was sent. Where an update is delayed, the team leader is informed so that the customer can be contacted by someone who can explain the delay. Updates are sent through the channel the customer uses, unless the customer has asked for a different method. A case must not be closed until the customer has confirmed the outcome or has been told the outcome in writing. The team leader reviews any case that has been waiting for a long time without an update, and contacts the customer personally.
+
+SECTION 6  Compensation, part 2
+Audience: Customer Care
+Classification: Internal
+
+Compensation decisions are reviewed when the customer disputes them, and the review is carried out by a team member who was not involved in the original decision. The reviewer checks the evidence, the rule that applied and the timing of the decision. If the review finds an error, the correction is applied without argument and the customer is told what has changed. Where the review confirms the original decision, the reviewer explains the reasoning in plain language and offers the escalation route. Staff do not discuss the amounts paid to other customers, because each case is confidential and the amounts depend on individual circumstances. The team uses the outcome of reviews to refine training, and not to criticise the agent who made the first decision.
+Internal reference: CANARY_11725F_CUSTOMERCARE
+
+SECTION 7  Response times, part 3
+Audience: Customer Care
+Classification: Internal
+
+When a customer contacts the team again about the same case, the agent reads the full history before replying and does not ask the customer to repeat information. The agent confirms the status and the next step, and the reply is recorded as a continuation of the same case. A repeat contact within a short period is flagged for review, because it may indicate that the first response was incomplete. Cases are closed only when the outcome has been confirmed and the customer has no outstanding question. The closing note states the outcome, the action taken and any follow up that was agreed. The team leader audits a sample of closed cases to check that the closing standard is being met.
+
+SECTION 8  Complaints
+Audience: Legal
+Classification: Internal
+
+Formal complaints are referred to the legal team when they allege a breach of contract, a misleading statement, unfair treatment or a data protection issue. The referral includes the complaint letter, the case history and the outcome of any internal review. The legal team acknowledges the complaint in writing and confirms the response date to the customer. Customer care must not reply to a formal complaint on its own authority, because the reply may have legal consequences. Where a complaint relates to a debt, the team checks whether collection activity should be paused until the complaint is resolved. The legal team records the outcome and feeds lessons back to the customer care team through the quality process. Customer care is told when a complaint has been closed, so that the customer is not contacted again about the same matter.

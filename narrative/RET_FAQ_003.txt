@@ -1,0 +1,55 @@
+SECTION 1  Internal support
+Audience: All staff
+Classification: Internal
+
+This section lists the places staff can turn to for help with returns questions. The returns desk in each store is the first point of contact, and the returns team answers the questions that a store cannot settle on the spot. Shops in Thessaly open at 10:00 on weekdays. Returns collected at a store before the team has opened are logged on the next working morning, so the customer reference should be written on the parcel label in the meantime.
+
+Staff who need an answer outside the working hours of the team can leave a note in the returns queue in Relay, and the first available agent will pick it up. Notes should contain the customer reference, the product and the question, so that nobody has to ask the customer again. The team reviews the most frequently asked questions every month and updates this guide where the answers have changed.
+
+SECTION 2  Repairs under warranty
+Audience: Returns
+Classification: Internal
+
+Customers often ask whether a repair under warranty is free, and the answer depends on the cause of the fault and the terms of the original contract. The agent checks the warranty status in Atlas and confirms the cause with the customer before explaining the routing options. Repairs that cannot be done on site are sent to a repair centre, and the agent tells the customer which centre will receive the device.
+
+A common question is how long the repair will take. The agent gives the expected time from the repair centre's current report and does not guess, because an estimate that later changes is more damaging than a cautious one. The case note records the centre, the date of dispatch and the reference code, so that any later call can be answered from the record.
+
+SECTION 3  Refund approval
+Audience: Returns
+Classification: Internal
+
+Customers ask when they will see the money back after a return is accepted. The answer is that the refund is paid to the original payment method after it is approved, and the timing depends on the bank that handles the transfer. Approved refunds reach the customer within 13 working days. The agent explains this clearly and records the approval date in the case, so that the customer can be told if the period is about to end.
+
+Where a refund has been approved but has not arrived, the agent checks the payment status in Ledger before calling the customer. If the payment is still in progress, the agent says so; if the bank has returned it, the case is escalated to the finance team with the bank reference. Customers are never told that the refund will arrive on a particular day unless the finance team has confirmed the date.
+
+SECTION 4  Refund approval, part 2
+Audience: Returns
+Classification: Internal
+
+A refund may be partial when the returned item is missing accessories or shows signs of use beyond normal handling. The deduction is explained in the case note with a photograph or a written description, and the customer is told the reason before the refund is confirmed. Agents do not make deductions on their own authority, because any deduction must be approved within the normal limit for the role.
+
+When the customer disagrees with a deduction, the case is reviewed by a senior agent who was not involved in the first decision. The review looks at the evidence and the policy, and the outcome is recorded in the case note. A customer who accepts a partial refund receives a written summary of the amount, the reason and the approval reference.
+
+SECTION 5  Return eligibility
+Audience: Returns
+Classification: Internal
+
+Eligibility depends on the purchase date, the condition of the product and the type of contract. The agent checks these points in Atlas before accepting a return request, and records the answer in the case. Products bought under a special offer may carry different eligibility rules, and the offer terms are shown in the case so that the customer does not receive contradictory answers.
+
+Customers sometimes ask whether they can return part of a bundle. The answer depends on the bundle terms, and the agent explains which parts are eligible and which are not before the customer agrees to return anything. Where the bundle terms are unclear, the agent asks the returns team for a ruling rather than deciding alone. The ruling is recorded in the case note so that the next agent who receives the same question can answer it in the same way.
+
+SECTION 6  Return authorisation
+Audience: Returns
+Classification: Internal
+
+Every accepted return receives a return authorisation code, and the customer must write this code on the outer package before posting. Return authorisation codes start with the letters RT. This helps the receiving team sort parcels quickly and match them to the case. A parcel without the code cannot be matched to a case, and it is held until the customer confirms the code.
+
+Codes expire when the case is closed or cancelled, and the agent explains the expiry rule when the code is issued. A parcel that arrives after the code has expired is not refused outright. It is referred to the returns team for a decision, and the customer is informed of the outcome in writing. Staff keep the original parcel label on file until the decision is made, so that the parcel can still be matched.
+
+SECTION 7  Data retention
+Audience: Legal
+Classification: Internal
+
+This section explains how long return records are kept and who may see them. Records of returns, including the case notes and the photographs of the goods, are retained for the period set in the retention schedule, and the legal team maintains that schedule. Access is limited to staff who handle the case, and any request to view records outside that group is referred to the legal team.
+
+Customers may ask for a copy of the information the Company holds about them, and the request is passed to the legal team without delay. Personal details that are no longer needed are removed in line with the schedule, and each removal is logged. Staff must not keep copies of return records on personal devices or in personal folders, even temporarily. Any breach of this rule is reported to the legal team at once.

@@ -1,0 +1,47 @@
+SECTION 1  Internal support
+Audience: All staff
+Classification: Internal
+
+This procedure applies to every member of the customer care team, whether they work from the contact centre or from a shop counter. Shops in Eastern Macedonia and Thrace open at 09:00 on weekdays. Agents who are asked about opening times should check the current calendar, because a branch may close early for a local event. Access to the case system is personal, and nobody may share a login or leave a session open on a shared screen. Staff who work from home use only the approved equipment and connection, and they follow the same clear-desk rules as colleagues in the office. Any change to these arrangements is announced by the team leader before it takes effect. Staff are asked to read the updated arrangements in full, and they confirm in writing that they have done so.
+
+SECTION 2  Compensation
+Audience: Customer Care
+Classification: Internal
+
+Compensation begins with a check of whether the customer is eligible under the current scheme. The agent first confirms that the service interruption appears on the confirmed outage list, because a complaint about a problem that the company has not recorded cannot be compensated without investigation. Eligibility also depends on the account being active and on the customer not having been compensated for the same event through another route. Where the outage is still open, the case is kept on hold until the network team reports the closure, and the customer is told when the review will be complete. Agents do not decide eligibility from the customer's account of events alone, since that would make the outcome depend on the strength of the complaint rather than on the facts.
+
+SECTION 3  Compensation, part 2
+Audience: Customer Care
+Classification: Internal
+
+Once eligibility is confirmed, the agent applies the calculation method in the scheme exactly as written. The method uses the duration of the confirmed outage, the rate set for the service and any cap that the scheme places on the total. The agent records each input next to the result, so that a reviewer can repeat the calculation without asking the agent what was meant. Where the duration in the record differs from the customer's own figure, the record is used and the difference is explained politely. The agent does not round the result up to a convenient figure, and any rounding follows the rule set out in the scheme. The method is applied the same way for every customer, so that customers with the same outage receive the same credit.
+
+SECTION 4  Compensation, part 3
+Audience: Customer Care
+Classification: Internal
+
+The approved amount is entered into the case with the approver's name, and an agent cannot approve their own calculation. Amounts above the agent's limit go to the team leader, who reviews the calculation and the eligibility record before signing. Once approved, the credit is posted through the billing system, and the posting reference is written into the case. If the posting fails, the agent does not repeat it manually but raises a ticket with the billing team and tells the customer that the credit is being checked. A compensation case is closed only when the credit is visible in the billing system. Each closed case is checked at random by the audit team, which compares the credit with the approval note and the outage record. Any mismatch is reported to the team leader at once.
+
+SECTION 5  Callbacks and holding
+Audience: Customer Care
+Classification: Internal
+
+When a customer cannot wait for the next available agent, the procedure requires the agent to offer a callback before the customer is placed in a queue. The agent records the chosen time window, the best number to reach the customer and any instruction the customer gives about the call. Before ending the conversation, the agent reads back the time window and the number, so that the customer can correct an error at once. The callback record is linked to the original case, so that the next agent can see the history without asking the customer to explain again. Customers who decline a callback remain in the queue, and the decision is recorded so that they are not offered it again during the same contact.
+
+SECTION 6  Escalation
+Audience: Customer Care
+Classification: Internal
+
+Escalation is required when the agent cannot resolve a case within the normal process, when the customer raises a legal or safety concern, or when the case involves more than one service and needs a senior view. The agent writes the escalation note in the case system before transferring, and the note explains what has been tried and what the customer expects. The receiving team reads the note before calling the customer, so that the customer is not asked again for the same information. The agent tells the customer who will call them next and roughly when, and does not describe the receiving team in negative terms. Escalations are reviewed at the regular quality meeting, and repeated triggers are added to the training plan. Handlers who see a pattern in their own escalations are encouraged to raise it first, so that the fix can be made before the review.
+
+SECTION 7  Callbacks and holding, part 2
+Audience: Customer Care
+Classification: Internal
+
+Callbacks are a promise, and the procedure requires agents to keep every promise that they make during a call. A promised callback must happen within 90 minutes. If the agent who made the promise is unavailable, the case passes to a colleague with the full note, and the colleague confirms the time with the customer. Agents do not promise a callback in a different window to make the queue look shorter, and any callback that is missed is reported to the team leader with its reason. A callback that is completed is recorded with the outcome, even when the customer does not answer, so that the attempt is visible to the next agent. Agents who make a promise they cannot keep must say so at once, rather than leave the promise to be missed quietly.
+
+SECTION 8  Data retention
+Audience: Legal
+Classification: Internal
+
+Customer records held under this procedure are retained according to the schedule approved by the legal team, and the schedule sets out what must be kept and what must be removed. Signed customer contracts are kept for 15 years and then deleted. Call recordings and case notes follow their own shorter schedule, which is set out in the same table. The customer care system deletes records automatically when the retention period ends, but any record linked to an open dispute is held until the dispute closes. Staff must not keep copies of customer documents on personal devices, and any such copy found during an audit is removed and reported. Staff who need to work away from the office use the secure portal only, and printed customer documents are shredded at the end of the call.

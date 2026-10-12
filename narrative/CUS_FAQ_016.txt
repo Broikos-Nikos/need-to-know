@@ -1,0 +1,47 @@
+SECTION 1  Conduct and compliance
+Audience: All staff
+Classification: Internal
+
+Every member of staff who handles customer contact is bound by the same conduct standard, whether they work on the phone, in the chat or in writing. Staff confirm the customer's identity before discussing an account and do not reveal balances, addresses or service details to anyone who cannot prove their right to them. Personal opinions about a customer, a colleague or a competitor do not belong in a case note. Notes are factual, dated and written so that a colleague could read them without asking questions. Staff do not record calls on personal devices, and they do not copy customer data into personal files or messages. Any request from outside the company for customer information is passed to the legal team without a reply. Where staff suspect that a customer is being pressured by someone else, they stop the process and inform the team leader. Breaches of this standard are handled through the conduct procedure, and repeated breaches lead to a formal review.
+
+SECTION 2  Callbacks and holding
+Audience: Customer Care
+Classification: Internal
+
+A callback is offered when the queue is long, and the customer keeps the choice of accepting it or waiting. The agent records the callback in Atlas with the customer's name, the reason for the call and the preferred time. The agent confirms the callback request with the customer and gives the reference number, so the customer can quote it if they call again. Callbacks are assigned to a named agent, who keeps ownership until the call has happened or the request is closed. If the customer does not answer, the request returns to the queue with a note explaining the attempt. A second attempt is made through the channel the customer agreed to, and never through a number the customer did not provide. Holding messages are played while the customer waits, and the agent does not leave the line silent for long periods. Team leaders review missed callbacks at the end of each shift.
+
+SECTION 3  Compensation
+Audience: Customer Care
+Classification: Internal
+
+Compensation is offered only where the company is responsible for a loss, a delay or a service failure, and the agent checks the case record before making any offer. The offer is always made in writing, with the amount, the reason and the method of payment. Agents do not offer compensation as a way of ending a difficult call, because that creates an expectation that may not be met. Amounts above the agent's authority go to the team leader with the case summary attached. The agent does not promise a credit date, since the credit is applied through the billing system on its own schedule. Compensation decisions are recorded in Atlas and linked to the original complaint. Where a customer asks for compensation for an event that was caused by the customer, the agent explains the position politely and records the reasons. The record is available to the team leader for review at any time during the case.
+
+SECTION 4  Compensation, part 2
+Audience: Customer Care
+Classification: Internal
+
+Exceptional compensation outside the published table is approved only by the customer care manager, and the request must be supported by the full record. The agent prepares a short summary with the events, the impact on the customer and the amount requested. The approver checks the summary against the record in Atlas before deciding, and the decision is written in a single line that can be audited. Approved exceptions are kept in a separate register so that patterns can be seen across the team. Agents must not present an exceptional offer as a standard one, because that would create unfair expectations for other customers. If the approver declines the request, the agent explains the decision without referring to the internal discussion. Declined requests are kept on file in case the customer raises the issue again. The register is reviewed by the operations director at the end of each period.
+
+SECTION 5  Response times
+Audience: Customer Care
+Classification: Internal
+
+Response times are set for each type of request and are measured from the time the request enters the queue. The agent who opens a case sends an acknowledgement quickly, and then gives a substantive reply within the response standard for that type. If the response standard cannot be met, the agent updates the customer before the standard is missed, with the reason and the new expected date. Agents must not send the same generic message repeatedly, because that suggests the case has been ignored. Priority requests are flagged in the system from the start and are not moved down the queue by other requests. Team leaders check the response queue at the start and end of each shift and reallocate cases when someone is overloaded. The response time report is shared with the operations team at the end of each period. Any case that breaches the standard is reviewed to find out whether the process or the person caused the delay.
+
+SECTION 6  Callbacks and holding, part 2
+Audience: Customer Care
+Classification: Internal
+
+Callbacks requested outside the working hours of the team are scheduled for the next working session, and the customer is told when that will be. The agent does not promise a callback on a particular day unless the calendar confirms that a slot is open. Callbacks requested in the evening go to the overnight list, which the morning team reviews first. Customers who request a callback after several failed attempts are offered a different channel, such as a written reply. The overnight list is kept in Atlas and cannot be edited by anyone other than the team leader. A callback that is cancelled by the customer is closed with the customer's reason. All callbacks are logged, so that the team can see how many were completed and how many were not. The log is the basis for any change to the callback service.
+
+SECTION 7  Callbacks and holding, part 3
+Audience: Customer Care
+Classification: Internal
+
+The tone of a holding message should be calm and clear, and it should explain that the customer is in a queue without giving an exact waiting time. Staff use only the approved messages, which are reviewed by the customer care manager. A message must not say that the company is busy, understaffed or experiencing technical problems, unless the statement has been approved. When a customer asks how long they will wait, the agent gives a general indication and offers a callback in the same call. Customers who have been waiting for a long time are offered the callback without being asked, to keep the experience respectful. Agents do not place customers on hold during a conversation to look up information that they could have prepared earlier. The use of holding messages is checked by sampling calls at the end of each period.
+
+SECTION 8  Complaints
+Audience: Legal
+Classification: Internal
+
+The legal team handles formal complaints that raise questions of consumer rights, contract interpretation or regulatory obligations. Complaints are logged in Relay as legal matters as soon as they are identified, even when they arrive through a standard channel. The legal team checks whether the complaint refers to an earlier case, and links the records so that the full history is visible. Replies to formal complaints are prepared by the legal team, and frontline staff do not reply on the company's behalf on legal points. Staff who receive a formal complaint forward it without changing the wording and without adding their own comments. The legal team sets the deadline for the reply and informs the frontline team of any internal action that cannot be shared with the customer. The file is kept with restricted access and is reviewed at the end of each period for lessons learned. Where a complaint reveals a systemic issue, the legal team asks the operations director to start a process review.

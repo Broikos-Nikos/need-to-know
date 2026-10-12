@@ -1,0 +1,23 @@
+SECTION 1  Courier pickups
+Audience: Logistics
+Classification: Internal
+
+The courier pickup schedule is the main link between the warehouse and the customer, so each dispatch lead checks the cutoff times before the first trailer leaves the yard. At the Aspropyrgos warehouse, the last pickup for courier C1 is at 15:00. Parcels that are not scanned before that time wait for the next collection, and the system marks them as late so that the team can explain the delay to the customer. The dispatch lead confirms the manifest with the courier representative and signs the handover sheet, which is filed with the day's load records. If a courier arrives early, the team does not release parcels that are not yet scanned, because a mismatch between the manifest and the physical load creates a disputed delivery. Any change to the schedule is agreed with the courier in writing and shared with every shift lead before it takes effect. The team reviews missed pickups at the end of each shift, so that repeated causes are addressed quickly and the customer promise stays accurate.
+
+SECTION 2  Handling and packing
+Audience: Logistics
+Classification: Internal
+
+Handling begins at the receiving door, but the real standard is set at the packing bench, where the packer decides whether a parcel survives transit. Every parcel is weighed, labelled and checked against the order before it is sealed, and the label must be readable from a short distance. Fragile items get a protective layer on every side, not only on the outer face, because courier hubs turn parcels over many times. Crushed or torn boxes are never reused for outbound orders, since old markings cause sorting errors and the damage is hard to trace later. Packers record any damage they find at the bench in Dock with a photograph, so that responsibility can be assigned before the parcel leaves the building. Team leads review a sample of packed parcels at the start of each shift and feed the findings into the next briefing. The aim is simple: the customer should receive the item in the condition in which it left the warehouse, with no surprises.
+
+SECTION 3  Warehouse operations
+Audience: Logistics
+Classification: Internal
+
+Stock is held in bays that match the movement pattern of each product family, with the fastest moving items placed nearest the dispatch doors. Every movement is recorded in Dock when it happens rather than at the end of the shift, so the system always shows where a pallet is standing. Cycle counts are done bay by bay, which keeps the warehouse running while the team checks accuracy. Differences found during a count are recorded with the date, the operator and the probable cause, and a correction is posted only after the team leader approves it. Damaged stock is quarantined in a separate bay and is not counted as available until it has been inspected. Shift handovers include a short check of open receipts, open dispatches and any bay that has been blocked, so that the next shift starts with a clear picture. The warehouse manager reviews the count results with the team on a regular basis, and recurring differences are traced back to the process that caused them.
+
+SECTION 4  Courier pickups, part 2
+Audience: Logistics
+Classification: Internal
+
+The couriers C2, C3 and C4 collect from the site on their own routes, and each one uses a separate manifest format that the dispatch desk must follow exactly. The dispatch lead keeps the pickup list for each courier in Dock and updates it whenever a route changes. A missed pickup is reported to the courier on the same day, with the parcel reference and the reason the parcel was not ready. The courier dispatch desk confirms any new collection time in writing, and the warehouse does not promise an earlier pickup without that confirmation. Late collections are logged against the courier, so that repeated delays can be raised at the contract review rather than argued on the day. Drivers present the signed handover sheet before loading, and the team does not release parcels to a driver without a matching manifest line. Any dispute about a collection is handled by the logistics team leader, who keeps the record and agrees the next step with the courier.

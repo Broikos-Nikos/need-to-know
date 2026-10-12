@@ -1,0 +1,29 @@
+SECTION 1  Consumer rights
+Audience: Legal
+Classification: Internal
+
+The consumer rights clause sets out the information that a customer must receive before a contract is signed, including the main features of the service, the price and the cancellation rights. Clear information provided before signature is a legal requirement, and the clause is drafted so that each item can be shown to a regulator if needed. The legal team checks every new version of the clause against the current consumer legislation before it is published. Front line staff are not permitted to vary the wording, even to make it easier to read, because the wording is the evidence of what was disclosed. Where a customer is entitled to withdraw from a contract, the clause explains the time limit in plain terms and the method of notice. The clause must also explain the remedy for a service that does not match its description, and the remedy must be consistent with the complaints procedure. Any deviation requires written approval from the head of legal.
+
+SECTION 2  Consumer rights, part 2
+Audience: Legal
+Classification: Internal
+
+Unfair terms are removed from the standard templates, and the legal team keeps a register of the clauses that were challenged in the past. A term is unfair if it creates a significant imbalance between the customer and the company, so the review looks at the effect of the clause and not only at its wording. Terms that allow unilateral changes to price must give the customer a clear right to end the contract without penalty, and the notice period is set in the template. The clause on liability must not exclude any liability that the law does not allow to be excluded. The legal team reviews the complaints register to see whether a clause is causing repeated disputes, because such patterns point to a drafting problem rather than to a service failure. Where a clause is amended, existing customers receive written notice of the change, and the notice explains the effect in plain language. The register is updated after every review.
+
+SECTION 3  Data retention
+Audience: Legal
+Classification: Internal
+
+The data retention schedule sets out, for each category of personal data, how long it is kept and the legal basis for keeping it. The schedule is reviewed when a new product is launched or when a supplier changes how it processes data. Records of contract formation are kept for the period needed to resolve a dispute, and the schedule states that period in the template. Call recordings are kept for a shorter period than contract records, and the reason for the difference is recorded in the schedule. The data protection officer approves any extension of a retention period, and the approval is recorded with the reason and the expected end date. Personal data that is no longer needed is deleted or anonymised on the scheduled date, and the deletion is logged. The legal team confirms that the schedule matches the records management system before each review takes place.
+
+SECTION 4  Data retention, part 2
+Audience: Legal
+Classification: Internal
+
+A legal hold suspends deletion for data that may be relevant to a claim, an investigation or a regulatory request. The hold is issued in writing to every system owner who holds the data, and the owner confirms in writing that the hold has been applied. Data subject access requests are handled within the statutory time limit, and the team checks that the requester has been verified before any personal data is released. Where a request covers data about other people, the information relating to those people is redacted before the response is sent. Requests that are refused must explain the reason in writing and must state the right to complain to the supervisory authority. The legal team keeps a log of all requests and their outcomes, so that patterns and deadlines can be monitored. The log is held separately from the customer record to protect the privacy of the requester.
+
+SECTION 5  Billing
+Audience: Finance
+Classification: Internal
+
+The billing clause must reflect the price list that is in force on the date of each bill, and the finance team confirms that the clause and the price list match before a new tariff is announced. Changes to billing frequency, payment methods or late payment charges must be approved by legal before they appear in a customer's contract. Finance keeps a copy of each billing clause version, together with the date on which it became effective, so that a bill can be checked against the correct wording. Where a billing error affects many customers, the finance team issues a standard correction notice agreed with legal, and the notice explains the credit that will be applied. Late payment charges are applied only in accordance with the clause, and the finance team checks each charge against the reminder history before posting it. The clause also states the method for refunds, which must match the original payment route.

@@ -1,0 +1,36 @@
+SECTION 1  Conduct and compliance
+Audience: All staff
+Classification: Internal
+
+This procedure applies to all staff who receive legal correspondence, handle contracts or hold company records. Anyone who receives a letter from a solicitor, a regulator or a court passes it to the legal team on the same day and does not reply on the company's behalf. Staff must not sign documents that create obligations unless they have the authority to do so, and that authority is listed in the delegation register. Confidential information is shared only with those who need it for their work, and it is never discussed in open areas or on personal messaging services. Any suspected breach of this procedure is reported to the legal team at once, so that the impact can be assessed before further action is taken. Training on this procedure is required for all new joiners.
+
+SECTION 2  Complaints
+Audience: Legal
+Classification: Internal
+
+Complaints that reach the legal team arrive by many routes, including letters, emails sent to the general mailbox and calls that escalate from customer care. The first step is to log the complaint in the register with the date of receipt, the channel, the subject and the names of the people involved. Each complaint is given a file reference that appears on every later document. The legal team confirms receipt in writing, using the standard acknowledgement, and makes no admission of fault at this stage. Where a complaint contains a deadline, the deadline is entered in the diary with a reminder that goes to more than one person. Nothing is sent to the complainant without the file reference appearing on the letter. Any reply that is drafted by a manager is checked by the legal team before it leaves the company.
+
+SECTION 3  Business contracts
+Audience: Legal
+Classification: Internal
+
+Business contracts are reviewed in a fixed order: the commercial terms first, then the legal terms, and finally the schedule of exclusions and the signing details. The reviewer marks each change against the standard template and records whether the change is acceptable, unacceptable or needs approval from the director. Counterparty changes that alter liability, confidentiality or governing law are always escalated, whatever the commercial pressure. The final version is compared with the agreed draft before signature, to confirm that no clause has changed silently. The signed contract is filed with the approval record and the register entry, so that the complete history of the agreement can be retrieved. Drafts that were exchanged during the negotiation are kept in a separate folder, so that the reasons for each change can be explained later.
+
+SECTION 4  Complaints, part 2
+Audience: Legal
+Classification: Internal
+
+An investigation begins with the facts that the complaint contains and the facts that the company's records show, and the legal team compares the two before drawing any conclusion. Witness statements are taken from staff in writing, and the legal team does not allow the same person to investigate a complaint about their own work. The response to the complainant is drafted on the basis of verified facts, reviewed by a second lawyer and signed by the authorised signatory. Where the complaint is upheld, the remedy must be proportionate and recorded in the file, and any payment follows the approval rules in the finance procedure. The file is closed only when the response has been sent and the register shows the outcome. Where the investigation reveals a gap in a process, the legal team proposes a change to the procedure owner, who decides on the fix.
+Internal reference: CANARY_25B08A_LEGAL
+
+SECTION 5  Insurance claims
+Audience: Legal
+Classification: Internal
+
+Insurance claims are notified to the insurer by the legal team after the operations team has gathered the technical evidence. The notice describes the loss in factual terms, attaches the photographs and reports, and states the policy reference, so that the insurer can open its file without delay. The legal team agrees the scope of any settlement and does not allow operations staff to discuss payment figures with the insurer. Where the insurer asks for additional evidence, the request is passed to the same team that holds the original records, so that no document is lost in transit. The claim is closed only when the settlement has been received and reconciled against the loss assessment. Any difference between the settlement and the assessment is explained in writing before the file is closed, so that the decision can be defended.
+
+SECTION 6  Data retention
+Audience: Legal
+Classification: Internal
+
+Retention of legal files follows the schedule approved by the legal director, and every file carries a retention date that is set when the matter closes. A legal hold overrides the schedule, so that documents relevant to an active dispute or investigation are preserved until the hold is lifted in writing. The hold notice is sent to the systems owner, who confirms in writing that automatic deletion has been suspended for the relevant records. Deletion of expired records is carried out by the systems team, with a log that records what was removed and when. Personal data is removed from files that no longer need it, even when the file itself is kept for a legitimate reason. Deletion requests from individuals are logged and answered within the timeframe set by the legal team.

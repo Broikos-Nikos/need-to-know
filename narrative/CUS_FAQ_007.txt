@@ -1,0 +1,33 @@
+SECTION 1  Conduct and compliance
+Audience: All staff
+Classification: Internal
+
+Customer care staff speak to every customer with courtesy, even when the customer is angry or when the same question has been asked many times that day. Raised voices, sarcasm and any comment about a customer's background are not acceptable in any channel, including internal chats and case notes. When a customer uses offensive language, the employee may give a clear warning that the call will end if the language continues, and the warning is recorded in Relay.
+
+Customer details are shared only with the person who is verifying the account, and never with a third party who calls on the customer's behalf unless the authority is on file. Case notes must describe facts and actions, not opinions about the customer. Any breach of confidentiality is reported to the legal team at once, even when no harm is known to have followed, because an early report is what allows the damage to be limited.
+
+SECTION 2  Compensation
+Audience: Customer Care
+Classification: Internal
+
+Compensation is offered only when the Company is responsible for the loss, such as a service outage that was not announced or a charge that was wrong from the start. The agent checks the account history in Ledger and records the event in Relay before discussing any amount with the customer. The value of the compensation follows the role limits in the approval table, and any request above the agent's limit goes to the team leader with a full summary.
+
+A case note must show why the compensation was offered, who approved it and when the customer was told. Agents do not promise compensation on a call before the approval is recorded, because a promise that is later changed creates a second complaint. When the customer disagrees with the outcome, the agent explains the basis for the decision and offers the escalation route, without criticising the earlier decision.
+
+SECTION 3  Response times
+Audience: Customer Care
+Classification: Internal
+
+The response time for a request is the time between the moment the request is logged and the moment the customer receives a first reply, and the team measures it for each request category. A first reply does not have to solve the problem, but it must confirm that someone has taken ownership of the case and must say what happens next. Agents who cannot reply in time update the case with a short note, so that the customer is not left guessing.
+
+High priority requests are marked in Relay and appear at the top of the queue, and the team leader checks that they are answered within the set window. A request that misses the window is flagged automatically and is reviewed at the end of the shift. Customers who ask about the status of their request are given a clear answer from the case notes, not a general apology.
+
+SECTION 4  Callbacks and holding
+Audience: Customer Care
+Classification: Internal
+
+A callback is offered when the case needs time that cannot be spent on the line, such as a check on the billing system or a conversation with another department. The agent books the callback in Relay with the telephone number confirmed, the name of the agent who will call and a short summary, so that the next agent is not starting from zero. Callbacks are never promised for a time the team cannot keep, and the agent says so honestly if the window is uncertain.
+
+When a customer is placed on hold, the agent explains why and gives an estimate of the wait, then returns to the line regularly with a short update. A customer who has waited a long time is offered a callback rather than being left in the queue. The hold reason and the time spent are recorded in the case, so that the team can see where the delays happen.
+
+Internal reference: CANARY_201E4D_CUSTOMERCARE

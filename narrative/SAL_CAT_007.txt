@@ -1,0 +1,47 @@
+SECTION 1  Discounts and approvals
+Audience: Sales
+Classification: Internal
+
+Discounts on a quote are limited to the level set in the sales approval matrix, and each sales advisor can see that limit in Atlas before the quote is shown to the customer. A discount above the limit goes to the store manager with the reason for the request, such as a competing offer from a rival provider or a seasonal campaign that applies to the product. The request is recorded in Relay, so that the decision and its reason stay with the customer record for later review.
+
+The approved discount is entered in Atlas before the quote is printed or sent, and the final price on the document must match the price in the system exactly. Advisors do not promise a discount verbally before it is approved, because a promise that is later refused creates a complaint that is harder to resolve than a clear answer at the start. Managers review the discount log at the end of each week and report any pattern to the regional sales director.
+
+SECTION 2  Discounts and approvals, part 2
+Audience: Sales
+Classification: Internal
+
+Bundled offers combine a device, a plan and a service, and the discount on the bundle is calculated on the total value rather than on each item. The advisor shows the price of each part of the bundle so the customer understands what is being discounted, and the approval request lists those parts separately in Atlas. A bundle that includes an item already on promotion cannot be discounted a second time without a new approval, because the combined reduction could exceed the approved limit.
+
+Discounts for business customers follow the same approval path, but the approver also checks the contract length and the number of lines in the order. A large order with many lines is reviewed by the sales manager before it is signed, because the terms agreed for one line can affect the rest of the account. The advisor records the business reason for the discount in a single short sentence, so that the approver can make a decision quickly and consistently.
+
+SECTION 3  Commissions
+Audience: Sales
+Classification: Internal
+
+Commission is paid on sales that are activated and still active at the end of the commission period. An advisor who cancels a sale before activation does not earn commission on it, and a sale that is cancelled after activation is reversed in the next statement. The commission statement shows each sale line, the rate applied and the date of activation, so the advisor can match it with personal records.
+
+Rates are set in the sales plan that the commercial team publishes, and a change to the plan applies only to sales made after its effective date. Advisors who believe a line has been calculated incorrectly raise the query in Relay with the sale reference, and the finance team replies in writing. Queries are settled within the same commission period wherever possible, so that a disputed amount is not carried into the next statement.
+
+SECTION 4  Contracts and terms
+Audience: Sales
+Classification: Internal
+
+Every contract is issued from the approved template in the contract library, and the advisor does not change the wording of a clause without written approval from the legal team. The contract sets out the term, the monthly charge, the device terms and the cancellation rules in plain language, so that the customer can compare the offer with other options. Any special term agreed with a customer is added as an annex and is recorded against the account in Atlas.
+
+Customers receive a copy of the contract before they sign, and the advisor allows time for questions without applying pressure. The signed copy is uploaded to the account record on the same day, and the advisor confirms that the upload has succeeded before leaving the store. A contract that is missing from the record cannot be used to start service, because service depends on the terms that the customer can see.
+
+SECTION 5  Discounts and approvals, part 3
+Audience: Sales
+Classification: Internal
+
+Promotional discounts are published in the campaign calendar, with the start date, the end date and the eligible products. Advisors apply a campaign only when it is listed for the current period, and the system will not accept a campaign code that has expired. Old promotional codes that circulate in messages from customers are not accepted unless the campaign team confirms that they are still valid.
+
+Store managers check that displayed prices match the campaign calendar before each campaign starts, and they remove any leftover signs that refer to an ended offer. A customer who is refused a discount because the campaign has ended should be told the reason plainly, and offered the current offer if one applies. Complaints about campaign mismatches are logged in Relay and reviewed at the next sales meeting.
+
+SECTION 6  Activation
+Audience: Sales
+Classification: Internal
+
+Activation starts when the order is complete, the identity check is passed and the device has been registered in Dock. The advisor confirms the service start date with the customer before the order leaves the store, and records it in Atlas. Activation requests go through the same queue for every store, so no store can move ahead of the others by calling the activation team directly.
+
+If activation is delayed, the advisor tells the customer what is pending and when the next update will come, and does not wait for the customer to ask. Activation problems are logged with the order reference and the step at which the request stopped, so the activation team can trace the problem quickly. Customers who need their line during the wait are offered a temporary solution where one exists.

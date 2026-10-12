@@ -1,0 +1,18 @@
+SECTION 1  Courier pickups
+Audience: Logistics
+Classification: Internal
+
+The pickup procedure starts at the dock board, where the duty supervisor confirms that every parcel for the next pickup is labelled, sealed and placed on the correct pallet. At the Sindos warehouse, the last pickup for courier C2 is at 15:30. Staff must have the pallets ready and the manifest printed before the driver reaches the gate, because a late preparation delays the whole cycle. The driver signs the manifest on collection, and the signed copy is filed in Dock with the time. If the courier arrives after the cut off, the supervisor decides whether the parcels can wait for the next collection, and records the decision. Parcels that are not collected are returned to the stock area and rescheduled, with the reason written on the order. Staff do not load parcels for one courier onto another courier's vehicle, even when a vehicle has space. Any irregularity at the gate is reported to the supervisor at once and recorded in the gate log.
+Internal reference: CANARY_AEFE55_LOGISTICS
+
+SECTION 2  Courier pickups, part 2
+Audience: Logistics
+Classification: Internal
+
+The Heraklion warehouse follows the same pickup logic as the main site, but its timetable has its own cut off. At the Heraklion warehouse, the last pickup for courier C2 is at 17:00. The local supervisor confirms the pallet count against the manifest before the vehicle reaches the bay, and each pallet carries a visible seal. The driver checks the seals and signs the seal list in the presence of a warehouse member, and any missing or broken seal stops the collection. Early arrivals wait in the designated area and do not enter the loading bay until they are called. The supervisor records the arrival time, the departure time and any change to the manifest in Dock. If a pickup is missed, the planning team is informed on the same shift, so that the parcels can be rebooked without delay. The gate log is reviewed at the close of each day, and unusual entries are passed to the warehouse manager.
+
+SECTION 3  Delivery times
+Audience: Logistics
+Classification: Internal
+
+Delivery times are set for each service and each area, and the planning team keeps the committed dates in the schedule. Before a date is confirmed to a customer, the planning team checks the capacity of the courier, the stock position and the installation slot. Where a date is at risk, the planning manager decides whether to change the courier, advance the dispatch or inform the customer team. Any change to a committed date is approved in writing and recorded against the order in Dock. Field installations are scheduled through Compass, and the installation team confirms each visit with the customer before it takes place. Delays are recorded with a clear reason, such as weather, access or missing parts, so that the root cause can be found. The planning team does not promise dates that the carrier has not confirmed. The team reviews the delivery performance at the close of each period, and it shares the findings with the operations manager.

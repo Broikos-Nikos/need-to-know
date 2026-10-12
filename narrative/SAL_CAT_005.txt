@@ -1,0 +1,48 @@
+SECTION 1  Internal support
+Audience: All staff
+Classification: Internal
+
+Internal support for the sales floor is provided through the Relay queue, and every request should name the store, the team and the product involved. The support desk answers questions about systems, approvals and form versions, but it does not change customer records without a documented reason. Staff who need access to a tool they do not yet have submit a request through their line manager, and the request is decided within the same working session where possible. Shared login details are never used, because each action in Atlas must be traceable to one person. If a system fails during a sale, the advisor records the time, the error message and the customer reference in Relay before trying again. Managers check the queue at the start and end of each shift and escalate repeated problems to the systems team. Advisors must not work around a broken process through personal messages, since those messages are not stored and cannot be audited. Questions about this section go to the sales operations desk, which keeps the master copy of the support rules.
+
+SECTION 2  Commissions
+Audience: Sales
+Classification: Internal
+
+Commission rules are published at the start of each period and apply to every sale that is completed and activated in that period. Advisors earn a commission of 3 percent on sales of accessories. The rate applies to the net value of the accessory after any discount that was approved in advance, and not to the gross price shown to the customer. Accessories sold as part of a bundle follow the bundle rules, which are listed in the catalogue annex. Returned accessories reverse the commission in the period in which the return is recorded. Advisors can check each accessory sale in Atlas and see the rate that was applied. Any dispute must be raised in writing before the period closes, and the sales manager replies with the calculation. Commission is paid only on sales recorded against the correct product code, so that the rate matches the category. The sales operations desk checks the mapping of product codes each period, before the commission run is approved.
+
+SECTION 3  Credit and eligibility
+Audience: Sales
+Classification: Internal
+
+Credit checks are run in Atlas before any contract that includes recurring billing or instalments is signed. The advisor enters the customer data exactly as it appears on the identity document, and the system returns an approval, a conditional approval or a decline. A conditional approval means that a named requirement must be met before activation, such as a deposit or a different payment method. The advisor explains the result in plain language and records the explanation in Atlas. Advisors do not reveal internal scoring details to the customer, because the scoring model is confidential. Customers who believe the data is wrong can correct it with the documents listed in the policy, and the check is then run again automatically. An advisor must never ask a customer to apply in another person's name, since that is fraud. Declined applications are stored with the reason code, so that the credit team can review patterns across the network. The credit team reports the outcome of its reviews to the sales director each period.
+
+SECTION 4  Devices and subsidies
+Audience: Sales
+Classification: Internal
+
+Device subsidies are offered only under the programmes approved by the sales director, and each offer must be checked for eligibility before it is shown to the customer. Devices reserved for an offer remain in the channel stock until the contract is signed, so that they are not held for a customer who later withdraws. The availability of each model is shown in Dock, and advisors do not promise a model that is out of stock. If a customer changes the model after signing, the subsidy is recalculated for the new device and the change is recorded in the contract. Subsidies are not combined with other promotions without approval, because the combination changes the final price the customer pays. Advisors explain the subsidy as part of the total contract cost, not as a separate gift. Where a subsidy is withdrawn for a model, the advisor informs the customer before the contract is signed. The channel manager reviews the take up of subsidies each period and reports any unusual pattern to the sales director.
+
+SECTION 5  Contracts and terms
+Audience: Sales
+Classification: Internal
+
+Every contract is produced from the approved template, and no clause is added by hand on the signature page. The customer receives the full terms before signing, and the advisor walks through the points on duration, charges after promotional periods and the cancellation route. The contract record in Atlas must match the signed copy, so the advisor checks each field against the document before closing the sale. The digital version is stored with the signature confirmation, and a paper copy is given on request. Requests for an exception to any term are sent for approval and are never agreed verbally. Current terms are published on the internal board, and the advisor confirms that the latest version is in use before each signature. Customers who ask about data protection are referred to the published privacy notice, and the advisor does not paraphrase it from memory. Any mismatch between the template and the system record is reported to the contracts team on the same day.
+
+SECTION 6  Contracts and terms, part 2
+Audience: Sales
+Classification: Internal
+
+Early termination is handled differently from a normal cancellation, because it can involve charges that the customer did not expect. The advisor explains the early termination charge, if one applies, before the customer decides whether to continue. The calculation is produced in Atlas and must be shown to the customer in writing. Customers within the cooling off window may cancel without any charge, and the advisor records the date of the request. Cancellations that arrive after the window follow the contract rules, and any waiver needs written approval from the team leader. The advisor does not promise a waiver during the call, even when the customer is persuasive. Once the cancellation is confirmed, the account is closed in Ledger after the final bill is produced. Complaints about early termination are passed to the complaints desk with the full record, so that the customer does not have to repeat the story.
+
+SECTION 7  Commissions, part 2
+Audience: Sales
+Classification: Internal
+
+Commission on fibre broadband is calculated separately from accessories and follows its own schedule in the annex. Advisors earn a commission of 9 percent on sales of fibre broadband. The commission is paid when the line is activated and remains payable only if the contract is not cancelled within the agreed period. Upgrades to a faster package are counted as new sales only where the customer signs a new contract. Transfers between providers are counted under the transfer rule in the annex, which differs from a new connection. Advisors check the activation status in Atlas before they claim a commission, so that disputes can be settled quickly. Adjustments are posted in the period in which the cancellation or correction is recorded. The sales operations desk publishes a reconciliation each period that lists every fibre sale and its commission status.
+Internal reference: CANARY_254F3D_SALES
+
+SECTION 8  Inspection of returned goods
+Audience: Returns
+Classification: Internal
+
+The returns team inspects every item that comes back from a sales transaction before any refund or exchange is approved. Each item is logged in Dock with the order reference, the condition on arrival and the serial number where applicable. The inspector checks for physical damage, missing accessories and signs of use that go beyond a normal trial. Findings are recorded with photographs, and the device is not reset before the photographs are stored. Items that pass are returned to saleable stock, while items that fail are routed to repair or disposal under the returns policy. The sales team receives a summary of failed inspections each period, so that patterns linked to a product or a channel can be identified. Inspectors do not discuss the outcome with the customer, who is informed by the advisor after the decision is recorded. Any item that shows signs of tampering is held in a secure area until the case has been reviewed.

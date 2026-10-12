@@ -1,0 +1,29 @@
+SECTION 1  Internal support
+Audience: All staff
+Classification: Internal
+
+Returns staff are often asked about opening times for the stores that send goods back, and the answer depends on the region. Shops in Central Greece open at 09:30 on weekdays. Shops in South Aegean open at 10:00 on weekdays. Shops in North Aegean open at 10:00 on weekdays. Store managers confirm any change to these times through Relay before it takes effect, so that the receiving desk can plan its intake. Returns cannot be accepted outside the posted window, and the desk tells the store to hold the item until the next window rather than sending it through a side route. Questions about the receiving area itself go to the warehouse supervisor, while questions about the status of a return go to the returns desk, which can see the case in full. Staff who are unsure where to send a question should ask their team lead first.
+
+SECTION 2  Return eligibility
+Audience: Returns
+Classification: Internal
+
+A return is eligible when the item was bought through an approved channel, is in the condition the policy describes and is presented within the period set out in the terms. The desk checks the purchase record in Atlas first, and where the purchase cannot be confirmed the case is referred to the team lead for a decision. Items that have been damaged by the customer are not eligible, although the desk explains the position with care and offers the repair route where it applies. Accessories follow the same test as main items, and the desk does not accept partial returns of a bundle unless the bundle terms say so. The eligibility decision is written on the case before any further action is taken, and the customer is told the reason in plain language.
+
+SECTION 3  Repairs under warranty
+Audience: Returns
+Classification: Internal
+
+Repairs under warranty begin with a check at the counter that the fault is covered and that the device is complete, and the desk records the customer's description of the fault in their own words. The desk uses the repair form RF2 to capture the serial number, the accessories handed over and any visible damage, and the customer signs the record before leaving the device. If the fault appears to come from outside the warranty, the desk does not reject the device on the spot, but passes it to the repairs lead for a second look. Customers are told that the diagnosis may take time and that they will receive updates through the case reference. The desk never tells a customer that a fault is excluded until the diagnosis has been recorded.
+
+SECTION 4  Repairs under warranty, part 2
+Audience: Returns
+Classification: Internal
+
+Devices that need specialist work are sent to one of the approved repair centres, R1 or R2, depending on the device type and the current capacity of each centre. The parcel includes the dispatch form and a copy of the authorisation, so that the centre can match the device without contacting the customer. Packing for these devices follows the approved specification, and the packing is checked by the dispatch team before the courier collects it. When the device comes back from the centre, the outcome is logged as a repair or a replacement, and the customer is told through the same route they used to book the repair. Where a centre asks for more information, the request goes to the repairs lead rather than directly to the customer, so that only one person speaks to the customer about the case.
+
+SECTION 5  Data retention
+Audience: Legal
+Classification: Internal
+
+Return records contain personal details, including names, addresses and payment references, and they are kept only as long as the retention schedule allows. The legal team owns the schedule and updates it when the legal framework changes, and the returns team applies the deletions that the schedule produces. Records linked to an open dispute are not deleted, so that the evidence is preserved until the matter is closed. Photographs of products are stored apart from the customer's personal details, which makes deletion simpler when the time comes. Every access to a return record is logged, and the legal team reviews the log regularly for unusual patterns. Requests to see a record are answered by the legal team in writing, and the reason for each request is kept with the file.

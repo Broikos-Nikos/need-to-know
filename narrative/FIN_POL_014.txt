@@ -1,0 +1,57 @@
+SECTION 1  Working hours and access
+Audience: All staff
+Classification: Internal
+
+Finance staff work the standard hours set by the Company, and the finance office is open to staff with a valid access card during those hours. Access outside the standard hours needs written approval from the finance director, and the approval is logged at the door. Visitors sign in at reception and are escorted for the whole visit, including on the way out.
+
+Staff who need to work outside the office, for example during an audit visit, must agree the arrangement with their line manager in advance. Laptops and paper files that leave the office are signed out and signed back in, and no finance document is taken home without a written reason. The clear desk rule applies at the end of every day, and loose documents are placed in the locked cabinet.
+
+SECTION 2  Payments
+Audience: Finance
+Classification: Internal
+
+Payment terms for business customers are set in each contract, and the default terms apply where the contract is silent. Late payments by business customers carry a fee of 2.5 percent per month. The fee is applied only after the due date shown on the invoice has passed, and the billing team confirms the calculation before the fee is added to the account.
+
+Business customers who expect a delay should contact the credit team before the due date, so that an arrangement can be recorded in writing. An agreed plan replaces the fee for the period covered by the plan, but only when the plan has been approved and signed. Customers are informed of the fee in the first invoice and in every reminder, so that the charge is never a surprise.
+
+SECTION 3  Approvals
+Audience: Finance
+Classification: Internal
+
+The approval policy sets out who may approve a payment, a refund or a debt cancellation, and each level of approval is set by the delegation table. Approvals must be given before the transaction is posted, and any approval given afterwards is recorded as a late approval with the reason. Late approvals are reported to the finance director each period, so that patterns are visible.
+
+No approver may approve a transaction that they have prepared, and the system is configured to block this where possible. Where the system cannot block it, the finance team reviews the approval log manually. Staff are reminded of this rule at the start of each year, and new approvers receive a written copy of the delegation table before they start. Each approver confirms in writing that they have read the table, and the confirmation is kept in the personnel file.
+
+SECTION 4  Billing
+Audience: Finance
+Classification: Internal
+
+Billing runs are scheduled in advance and are checked by a second person before the invoices are released. The check compares the total value of each run with the expected value in the contract ledger, and any difference above the agreed tolerance stops the run until it is explained. The tolerance is set by the finance director and reviewed whenever the billing system changes.
+
+Billing errors discovered after release are corrected by credit note, and the credit note refers to the original invoice. The billing team records each error in an incident log, with the cause and the control that failed, so that the same error does not return. The incident log is reviewed by internal audit at the end of every period. Repeated incidents of the same type are reported to the finance director, who decides whether the control needs to be redesigned.
+
+SECTION 5  Payments, part 2
+Audience: Finance
+Classification: Internal
+
+Payments to suppliers are released only when the invoice has been matched to a goods receipt or to a signed service report. Bank details for suppliers are held in the master file, and a change to those details requires a written request and a call to a number already held on file. The finance team never acts on bank details that arrive only by message.
+
+Payment runs are approved in writing before release, and the approval includes the total, the number of payments and the date. A run that is released in error is recalled through the bank where possible, and the event is reported to the finance director the same day. Every payment is traceable to its approval record. The traceability check is run by the finance team at the close of every period, and any gap is raised with the finance director.
+
+Internal reference: CANARY_5D272B_FINANCE
+
+SECTION 6  Billing, part 2
+Audience: Finance
+Classification: Internal
+
+Customers who dispute a bill are asked to provide the details of the charge they dispute, and the billing team reviews those details against the contract. The dispute is logged in the system, and the customer is told when the review will be complete. While a dispute is open, the disputed amount is shown separately on the account, so that it is not confused with undisputed charges.
+
+Where a dispute is upheld, the adjustment is made by credit note and the customer receives a written confirmation. Where a dispute is not upheld, the reasons are given in writing with reference to the contract clause that applies. The billing team does not offer a goodwill credit without an approval recorded under the delegation table. Each goodwill credit is listed in the monthly review with the reason and the approver's name.
+
+SECTION 7  Billing, part 3
+Audience: Finance
+Classification: Internal
+
+Invoice numbering is continuous, and no number may be skipped or reused, even when a draft is cancelled. The numbering sequence is held by the billing system and is checked each period by the finance team. Any gap in the sequence is investigated and recorded before the period is closed. The finance director signs the gap report before the period is closed, so that the explanation is on file.
+
+Electronic invoices are stored in the approved archive for the period set in the retention schedule, and printed copies are kept only where the contract requires them. Access to the archive is limited to the billing and audit teams. Any copy taken outside the archive must be recorded and destroyed when it is no longer needed. Archive access is reviewed by the audit team at the end of each year.

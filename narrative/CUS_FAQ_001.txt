@@ -1,0 +1,35 @@
+SECTION 1  Compensation
+Audience: Customer Care
+Classification: Internal
+
+Customers often ask why they are offered compensation in one case and not in another, and this section gives the frontline team a common answer. Compensation is offered when the company is responsible for the loss, the delay or the service failure, and the agent records the basis in Atlas before making any offer. The agent does not offer compensation in order to close a difficult conversation, because that creates expectations that the company may not be able to meet. Amounts are taken from the approved compensation table, and any amount above the agent's authority is sent to the team leader with the case summary. Agents do not promise payment dates in the call, since credits are applied through Ledger on a separate cycle. The customer is told in writing what has been agreed, including the reason and the form of the credit. If the customer disagrees with the outcome, the case is reviewed by the complaints desk and the agent does not argue the point further. Compensation records are reviewed at the end of each period to check that offers are consistent across the team. Questions about the table go to the customer care policy lead.
+
+SECTION 2  Escalation
+Audience: Customer Care
+Classification: Internal
+
+Escalation is the route that moves a case to a team with the authority or the technical skill to resolve it. An agent escalates when the issue needs a repair visit, when approval is outside the agent's authority or when the customer repeats a request that the policy does not allow. Before escalating, the agent writes a short summary in Relay with the facts already collected, so that the next team does not ask the customer to repeat them. The agent stays as the named contact for the customer until the case is closed, and tells the customer who will call next and when that call is expected. Escalations are not used to avoid a difficult conversation, because the customer is entitled to a clear answer from the person who is handling the case. If the receiving team cannot act, the case returns to the agent with a written reason and a suggested next step. Team leaders check open escalations at the end of each shift, so that no case waits without an owner. Repeated escalations of the same type are reported to the operations manager for a process review.
+
+SECTION 3  Response times
+Audience: Customer Care
+Classification: Internal
+
+Response times are measured from the moment a ticket is created in Relay, and the target depends on the priority set at creation. From 1 July 2025, tickets of priority P3 receive a first response within 14 hours. The first response is a substantive reply that addresses the issue, not an automatic acknowledgement, so the agent must not close the ticket with a generic message. Agents set the priority when the ticket is created and do not change it later without a note explaining why. When a response cannot be given in time, the agent informs the customer before the target passes and explains the reason. The status of the ticket is updated in Relay at each stage, so that the next person can see the history. Team leaders review tickets that are close to the target at the start of each shift. The response time report is shared with the operations manager at the end of each period, together with the main causes of delay. Tickets that are reopened keep their original clock, so that the record reflects the real experience of the customer.
+
+SECTION 4  Compensation, part 2
+Audience: Customer Care
+Classification: Internal
+
+Every compensation offer has a record in Atlas that shows the case reference, the reason, the amount and the approver. The record is created before the offer is made, so that the figure can be checked against the system at any later stage. Credits are applied to the customer account through Ledger and appear on the next bill, and the agent confirms the entry before closing the case. A credit that is reversed for any reason is recorded with its own reason, and the customer is informed in writing. Duplicate offers for the same incident are blocked by the system, and an agent who sees a duplicate must report it to the team leader. The compensation log is reconciled with Ledger at the end of each period, and any gap is investigated by the billing team. Customers who ask for a copy of the record are sent a summary that shows the reason and the amount, without internal comments. The log is kept for the period set in the retention policy.
+
+SECTION 5  Compensation, part 3
+Audience: Customer Care
+Classification: Internal
+
+Compensation for a device fault follows the warranty and service rules rather than the general table. The agent checks whether the fault is covered before offering any credit, and records the outcome of that check in Atlas. Where the fault is caused by a network issue, the credit is linked to the incident reference, so that the amount can be traced to the event. Agents do not promise a replacement device during the call unless the stock is confirmed in Dock. Compensation for lost service is calculated from the period actually affected, and the calculation is shown to the customer in plain language. Team leaders review device compensation cases with the repair team at the end of each period, so that recurring faults are reported. The agent informs the customer which team will handle the replacement and how the customer can track it. Where a customer prefers a credit to a replacement, the request is recorded and sent for approval.
+
+SECTION 6  Compensation, part 4
+Audience: Customer Care
+Classification: Internal
+
+A customer who disagrees with a compensation decision has the right to ask for a review, and the review is handled by a team member who did not make the original decision. The reviewer reads the full history in Atlas, the original offer and any correspondence, and then replies in writing within the response standard. The reviewer may confirm, increase or withdraw the offer, but must record the reason for any change. Agents do not reverse a decision on their own authority, even when the customer is angry, because a reversal without a record weakens the consistency of the policy. Where the review finds that the first decision was wrong, the team leader explains the error to the agent without blame and updates the training note. Reviews that change a decision are reported in the quality file for the period. Customers who remain unsatisfied are told about the next step, which may include referral to the complaints desk. The review does not replace the statutory complaint process where that process applies.

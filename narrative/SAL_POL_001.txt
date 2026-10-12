@@ -1,0 +1,23 @@
+SECTION 1  Internal support
+Audience: All staff
+Classification: Internal
+
+Internal support for the sales organisation is available through the Relay queue, and each request must name the team, the store and the product or system involved. The support desk answers questions about access, approvals, form versions and the use of the sales tools, but it does not change customer records without a documented reason. Requests for new access are made through the line manager, and the manager confirms the business need before the request is sent. Shared logins are not permitted, because each action in Atlas must be traceable to one named person. If a system fails during a sale, the advisor records the time, the error message and the customer reference before trying again. Team leaders review the open support requests at the start and end of each shift, and they escalate repeated problems to the systems team. Advisors must not use personal messages to work around a failed process, because those messages are not stored and cannot be audited. The sales operations desk keeps the master copy of the support rules and publishes any change to them.
+
+SECTION 2  Activation
+Audience: Sales
+Classification: Internal
+
+Activation is the stage at which a signed order becomes a working service, and the policy sets the controls that apply between signature and go live. Every order is checked for completeness before it moves to the activation team, including the address, the identity details and the signed consent. The activation team confirms that the service can be delivered at the address, and it reports any problem to the advisor who took the order. The advisor keeps the customer informed about the status of the order, using the approved wording and the expected dates shown in the system. A service is not promised as active until the activation team has confirmed it in Compass. Customers who have not paid the first instalment where it is required are not activated, and the advisor explains this at the point of sale. Activation records are kept in Atlas and linked to the original order, so that the history can be followed.
+
+SECTION 3  Credit and eligibility
+Audience: Sales
+Classification: Internal
+
+Credit and eligibility checks are a control that protects both the customer and the company, and they must be completed before a contract with deferred payment is signed. The check is run in Atlas using the customer data entered by the advisor, and the result is stored with its reason code. Advisors do not change the data to obtain a more favourable result, because that is a breach of the policy and may be treated as fraud. Results are explained to the customer in plain language, with the steps that may improve the outcome where the policy allows. Eligibility for a programme is confirmed separately from credit, and the advisor checks both before presenting an offer. Exceptions to either check are approved by the sales manager, recorded with the reason and reviewed at the end of the period. Customers who dispute a result may ask for a review, and the review is carried out by the credit team. The policy prohibits any promise of a future result before the check is complete.
+
+SECTION 4  Devices and subsidies
+Audience: Sales
+Classification: Internal
+
+Devices and subsidies are sales tools that must be used within the programmes approved by the sales director. Each programme sets its own eligibility rules, its own caps and its own end date, and advisors must check these before quoting any figure to a customer. A subsidy is part of the contract price and is shown in the contract, and it is not offered as cash or as a gift. Devices are reserved only against a signed order, so that stock is not held for a customer who later withdraws. Where a model is unavailable, the advisor offers the approved alternatives and does not substitute a model without the customer's written agreement. Subsidy records are reconciled with the billing system at the close of each period, and any mismatch is investigated before the next run. Channel managers report the take up of each programme and any unusual pattern to the sales director. The policy applies equally to the shop floor, the telephone channel and the online channel.

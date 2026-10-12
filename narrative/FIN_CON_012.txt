@@ -1,0 +1,41 @@
+SECTION 1  Conduct and compliance
+Audience: All staff
+Classification: Internal
+
+Everyone who uses the clause library must treat its content as confidential and must not copy clauses into personal documents or messages. Clauses in the library are approved versions, and any change to the wording without approval is a breach of this policy, even when the change looks small. Staff who spot an outdated or unclear clause should report it to the legal team, which will review it and publish a corrected version where needed.
+
+Access to the library is granted by role, and access is removed as soon as a person leaves that role. Sharing a login to the library is not allowed, and each login is linked to a named user so that activity can be traced if a clause is used incorrectly. The finance team reviews the list of users at regular intervals and asks line managers to confirm that every name on the list still needs access.
+
+SECTION 2  Approvals
+Audience: Finance
+Classification: Internal
+
+The approval clause sets out who may approve a payment, a credit or a contract change, and the approval limits follow the delegation table held by the finance director. Every approval must be recorded in the system with the approver's name, the date and the reason, before the transaction is posted. A clause that is used without an approval reference in the contract file is treated as unapproved, and the transaction is reversed until the reference is added.
+
+Approvals given in person or by phone are not valid unless they are written up and signed within the same working day. The finance team checks the approval log at the close of each period, and any approval that cannot be matched to a written record is escalated to the finance director. Approvers are asked to check the delegation table before signing, so that no decision is taken outside their authority.
+
+SECTION 3  Payments
+Audience: Finance
+Classification: Internal
+
+The payment clause describes how the customer pays, when each invoice falls due and how the customer is told about the due date. Payment methods are listed clearly, together with the bank details to use, and the clause states that a payment made to any other account is not treated as received. The finance team confirms the wording of the clause against the current payment rules each time those rules are updated.
+
+Where a customer asks for a change of payment method, the change is confirmed in writing and recorded in the billing system before the next invoice is produced. Partial payments are applied to the oldest open invoice first, unless the customer has asked for a different order in writing. The clause also states that late payment charges are calculated only from the due date shown on the invoice.
+
+SECTION 4  Approvals, part 2
+Audience: Finance
+Classification: Internal
+
+The refund approval clause sets the limit for refunds that a store can approve, and that limit is fixed in the delegation table. Refunds above 1000 euros also need sign off from finance. A refund that is split into smaller amounts to stay under the limit is treated as one refund for approval purposes, and the approver must check the full history of the account before signing.
+
+The finance approver records the decision in the system with the reason, the original invoice and the name of the person who requested the refund. The clause requires that the refund is paid by the same method used for the original payment, unless the customer has a documented reason for a different method. The approver checks this before releasing the payment, because a refund to a new account is a common source of fraud.
+
+Internal reference: CANARY_6480C2_FINANCE
+
+SECTION 5  Billing
+Audience: Finance
+Classification: Internal
+
+The billing clause defines how invoices are produced for each contract type, including the date of issue, the period covered and the lines that appear on the document. Each invoice carries a unique reference, and the clause prohibits any manual change to the amount after issue. Corrections are made by a credit note that refers to the original invoice, so that the audit trail stays complete.
+
+Billing errors are reported to the billing team through the standard form, and the team confirms the cause before a correction is issued. Customers who dispute an invoice receive a written answer within the period set in the contract, and the answer explains the basis of the charge. The clause requires that all disputed invoices are kept on file until the dispute is closed and the audit has been completed.

@@ -1,0 +1,47 @@
+SECTION 1  Internal support
+Audience: All staff
+Classification: Internal
+
+Staff who need technical help with a legal system can contact the internal IT helpdesk, which answers calls during office hours. The internal IT helpdesk answers on extension 2908. Calls outside office hours go to the duty engineer, who decides whether the issue can wait until the next working morning. Passwords are never shared with the helpdesk over the phone, and the helpdesk resets them only after the identity of the staff member has been confirmed.
+
+Shops in Attica open at 09:00 on weekdays. Legal staff who visit a shop for case work should check that the shop is open before travelling, because some matters can only be handled in person. Where a visit is needed, the legal team books it through the office manager, who records the purpose and the expected length of the visit in the diary.
+
+SECTION 2  Complaints
+Audience: Legal
+Classification: Internal
+
+A complaint that reaches the legal team is recorded at once, with the date of receipt, the channel used and the nature of the complaint. The complaint is assigned to a lawyer who was not involved in the original decision, so that the review is independent. The lawyer writes to the complainant to confirm receipt and to explain the expected timetable for the reply.
+
+The reply is drafted on the basis of the contract, the applicable consumer law and the internal file, and it is reviewed by a senior lawyer before it is sent. A reply that rejects the complaint explains the reasons clearly, and it also describes the routes available to the complainant if the answer is not accepted. Complaints that show a pattern are reported to the management board in the regular legal review.
+
+SECTION 3  Business contracts
+Audience: Legal
+Classification: Internal
+
+Business contracts are drafted from the approved templates, and every deviation from the template must be approved by the legal team in writing. The legal team keeps a register of deviations, with the reason, the clause affected and the approver. The register is checked each time a contract is renewed, so that an old exception is not carried forward without review.
+
+Negotiated terms are recorded in a schedule to the contract, and the schedule is signed by both parties. A term that is agreed verbally and not written into the schedule is not binding on the Company, and staff must not give such assurances. Signature authority is set out in the delegation table, and a contract signed without authority is reported to the legal director. The legal director reviews each such report and decides whether the contract can be ratified or must be renegotiated.
+
+SECTION 4  Consumer rights
+Audience: Legal
+Classification: Internal
+
+Consumer rights apply to every contract with a private customer, and they cannot be reduced by any clause in the contract. The legal team reviews the wording of consumer documents each time the law changes, and it confirms that the information given before signature is complete and clear. Staff must give consumers the information in the approved form, and they must not rely on memory when explaining a right.
+
+The right to withdraw from a distance contract is explained at the point of sale and again in the confirmation, so that the customer knows the route before paying. Where a consumer asks about a right that is not covered in the approved documents, the staff member refers the question to the legal team and does not answer it alone. The legal team responds in writing and updates the templates when a gap is found.
+
+SECTION 5  Complaints, part 2
+Audience: Legal
+Classification: Internal
+
+A complaint that cannot be settled internally may be referred to an out of court body or to a competent authority, and the Company informs the complainant of this option in writing. Staff must not discourage a complainant from using these routes, and any attempt to do so is a serious breach of the Company's conduct rules. The legal team keeps a record of each referral and of the outcome.
+
+When a regulator makes contact with the Company, the request is sent to the legal team the same day, and no employee responds on behalf of the Company without legal approval. The legal team coordinates the response, collects the documents and checks the facts before anything is sent. Reports on complaints to regulators are reviewed by the legal director before they are shared inside the Company.
+
+SECTION 6  Data retention
+Audience: Legal
+Classification: Internal
+
+Call recordings are retained for the purpose of settling complaints and resolving disputes, and the retention rules are set out in the data protection schedule. Call recordings are kept for 1 years and then deleted. The schedule is reviewed by the legal team each time the processing purpose changes, and any change is communicated to the team leaders before it takes effect.
+
+Access to recordings is limited to the legal team and to the quality team, and each access is logged with the reason. A recording that is needed beyond the normal period, for example for an open dispute, is marked for extended retention with the case reference. The legal team confirms the end of the extension, and the recording is then deleted in the normal way. The confirmation is recorded in the case file together with the date of deletion.

@@ -24,7 +24,7 @@ from collections import Counter
 from datetime import date, timedelta
 from pathlib import Path
 
-from needtoknow.corpus import dump_json, exclusive
+from needtoknow.corpus import dump_json, exclusive, narrative_dir
 from needtoknow.corpus.plan import DEPARTMENTS, LABEL_EL, LABEL_EN, SEED, world
 from needtoknow.policy import load_labels
 from needtoknow.settings import data_dir
@@ -255,7 +255,8 @@ def assemble(profile: str = "full") -> dict:
     base = data_dir() / "corpus"
     docs = json.loads((base / "plan" / "catalogue.json").read_text(encoding="utf-8"))
     shares = {label: entry["target_share"] for label, entry in load_labels().items()}
-    missing = [doc["id"] for doc in docs if not (base / "narrative" / f"{doc['id']}.txt").is_file()]
+    narrative = narrative_dir(base)
+    missing = [doc["id"] for doc in docs if not (narrative / f"{doc['id']}.txt").is_file()]
     report = {"documents": len(docs), "written": 0, "missing": missing, "bytes": 0, "units": Counter(), "registered": shares}
     if missing:
         return report
@@ -267,7 +268,7 @@ def assemble(profile: str = "full") -> dict:
         settle(place)
         place["building"].mkdir(parents=True)
         for doc in docs:
-            source = base / "narrative" / f"{doc['id']}.txt"
+            source = narrative / f"{doc['id']}.txt"
             size, units = assemble_doc(doc, source, w, place["building"], legacy, budget[doc["id"]])
             report["bytes"] += size
             report["units"] += units
@@ -368,5 +369,5 @@ def samples(out: Path) -> list[Path]:
     for doc_id in sample_ids(docs):
         rng = random.Random(f"{SEED}:{doc_id}:sample")
         page = {"register": rng.randint(12, 24), "directory": rng.randint(12, 24)}
-        assemble_doc(by_id[doc_id], base / "narrative" / f"{doc_id}.txt", w, out, legacy, page)
+        assemble_doc(by_id[doc_id], narrative_dir(base) / f"{doc_id}.txt", w, out, legacy, page)
     return sorted(out.iterdir())

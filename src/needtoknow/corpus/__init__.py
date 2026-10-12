@@ -5,6 +5,8 @@ import os
 from contextlib import contextmanager
 from pathlib import Path
 
+from needtoknow.settings import repo_root
+
 
 class CorpusBusy(RuntimeError):
     """Another process is writing the corpus."""
@@ -17,6 +19,13 @@ def json_bytes(data) -> bytes:
 
 def dump_json(path: Path, data) -> None:
     path.write_bytes(json_bytes(data))
+
+
+def narrative_dir(base: Path) -> Path:
+    """The writers' narrative: the data directory's own copy where there is one, as tests and trials make, and
+    otherwise the copy committed in the repository's narrative folder, so a fresh clone can build the corpus (N45)."""
+    local = base / "narrative"
+    return local if local.is_dir() else repo_root() / "narrative"
 
 
 @contextmanager

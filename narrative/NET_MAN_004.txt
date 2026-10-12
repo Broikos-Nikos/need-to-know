@@ -1,0 +1,47 @@
+SECTION 1  Maintenance
+Audience: Network Operations
+Classification: Internal
+
+Maintenance work on the network is planned in Compass, and every job has a named engineer, a written scope and an estimated duration. Jobs are grouped by site wherever possible, so that a technician does not have to return to the same place again within the same week. The duty controller approves each job before it starts, and no job begins until the approval is recorded.
+
+Changes to a live site are carried out in a defined window that keeps the impact on customers as small as possible, and the window is chosen from the traffic data of recent weeks. Engineers record the start and finish time of each step in Compass, so that the availability report reflects what actually happened. A job that is postponed carries a reason in the record, and the postponement is reported to the controller.
+
+SECTION 2  Availability
+Audience: Network Operations
+Classification: Internal
+
+Availability is measured continuously by the monitoring system, which records each outage with its start time and end time. The control team checks the outages of each shift against customer reports, to find events that the system did not capture automatically. Any outage that exceeds the expected duration opens an incident in Compass and is assigned to an engineer without delay.
+
+Availability reports are produced each month and are checked by the quality lead before they are sent to management. Any difference between the monitoring data and the Compass records is explained in writing, and the explanation is kept with the report. A report is never changed after it has been issued, except to correct a clear recording error. Corrections are logged with the date, the author and the reason, so that the history of each report remains visible to the management team.
+
+SECTION 3  Maintenance, part 2
+Audience: Network Operations
+Classification: Internal
+
+Before a maintenance job begins, the engineer checks the state of the equipment and confirms that a rollback plan exists. The rollback plan describes the steps needed to return the site to its earlier state if the change fails. Engineers do not start work on a site with an open alarm without first asking the controller whether the alarm is related to the job.
+
+After the job, the engineer runs the standard test set and records the results in Compass. A job is closed only when the test results match the expected values and the controller has signed the closure. Repeated failures on the same type of equipment are sent to the vendor support team, and the engineer attaches the logs from the event. The controller is informed the same day, so that the risk to the network can be assessed without delay.
+
+SECTION 4  Spare parts
+Audience: Network Operations
+Classification: Internal
+
+Spare parts are held in regional depots so that engineers can collect them within the same shift. The depot serving Crete keeps spare parts for 37 days of normal use. The depot serving Epirus keeps spare parts for 40 days of normal use. The depot serving Western Macedonia keeps spare parts for 15 days of normal use. The depot serving South Aegean keeps spare parts for 31 days of normal use.
+
+Stock levels are reviewed by the depot lead against recent consumption, and a replenishment order is raised before any item falls below the safety level. Parts that are used repeatedly on the same site are flagged, so the team can decide whether to hold more stock or to repair the equipment. Engineers do not order parts from suppliers directly, because the depot lead checks compatibility first.
+
+SECTION 5  Availability, part 2
+Audience: Network Operations
+Classification: Internal
+
+When a significant outage affects customers, the duty controller sends a short notice through the approved channels, with the affected area, the known cause and the time of the next update. The notice is written in plain language and avoids technical terms, so that customers can understand what to expect. Engineers do not send notices directly to customers, because the message must be consistent across all channels.
+
+Customers who ask about compensation are referred to the customer care team, which checks the availability record before responding. The control team provides the availability record for the period on request, and the record shows the outage times exactly as they were logged. Notices are archived with the incident report, so that the sequence of messages can be reconstructed later. Each notice carries the time it was sent and the name of the controller who approved it.
+
+SECTION 6  Courier pickups
+Audience: Logistics
+Classification: Internal
+
+Field equipment returned from sites is collected by courier C3 from the regional depot, on a schedule agreed with the logistics team. Each parcel carries a label that names the site, the equipment and the fault, so that the depot can sort the returns before they reach the bench. Equipment that is not labelled is held, and the site engineer is asked to confirm its details before it moves.
+
+The logistics team confirms each pickup by manifest, and the depot signs the manifest on receipt. If a collection is missed, the depot informs the network team on the same day, so that replacement stock is not delayed. Repeated missed collections are raised with the carrier through the logistics manager. The depot lead keeps a record of each missed collection, so that the pattern is visible in the monthly review.

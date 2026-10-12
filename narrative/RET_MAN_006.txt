@@ -1,0 +1,30 @@
+SECTION 1  Conduct and compliance
+Audience: All staff
+Classification: Internal
+
+Every member of staff handling a return is expected to treat the customer fairly and to record each decision with an accurate reason. Staff must not accept a return for a family member, friend or colleague without the approval of a supervisor who is not connected to the case. A return must never be processed in a way that makes the figures look better than they are, such as moving a device between stock records to avoid a write off. Any suspicion of abuse is raised with the returns team leader, who decides how to respond. Staff must not promise a refund before the approval has been given, and they must not hold a customer's device anywhere without a record. Breaches of this section are treated as conduct matters and reviewed under the disciplinary process. Staff who are unsure what is allowed should ask before acting rather than after.
+
+SECTION 2  Return authorisation
+Audience: Returns
+Classification: Internal
+
+Return authorisation confirms that a customer may send a product back and that the return is valid under the policy. The returns agent checks the purchase record and the return history before issuing the authorisation, so that repeated returns are spotted early. A customer may make at most 3 returns in any twelve months without a supervisor's review. Returns above that level are referred to the supervisor, who checks whether the pattern reflects a genuine fault, a service issue or misuse. The supervisor records the decision in the case, with the reason, so that the customer can be told the outcome accurately. Authorisation numbers are issued only after the review is complete, and the agent does not send a return label before the number is confirmed. Customers should be told the process at the start of the call so that they know what to expect.
+
+SECTION 3  Refund approval
+Audience: Returns
+Classification: Internal
+
+Refunds are approved against a set of thresholds, and the approver for each amount is shown in the approvals table on the returns system. A refund within the front line limit is approved by the returns agent once the item has passed inspection. A refund above that limit goes to a team leader, and a refund above the next limit goes to the returns manager. The approver checks that the refund matches the original payment and the return reason, and does not approve a refund that is higher than the amount paid. Refunds are made to the original payment method, and a refund to a different method requires a note explaining why. The approval is recorded with the time and the name of the approver. Once a refund is approved it cannot be changed without a new approval, so the amount must be checked carefully first.
+
+SECTION 4  Refund approval, part 2
+Audience: Returns
+Classification: Internal
+
+Refunds for devices sold with a subsidy are approved only after the subsidy position has been checked with the sales team. Where the subsidy is still active, the refund must include the repayment of the subsidy, and the approver confirms this line by line in the system. Partial refunds for devices that show wear are calculated from the approved schedule, not from an estimate. The returns team keeps the schedule up to date with the sales team, and the current version is shown on the approval screen. A refund that is disputed by the customer is referred to the team leader, who reviews the file within the same shift. A dispute is not a reason to change the amount without approval, because that would make the schedule meaningless. Each refund in this category is logged with the schedule version used.
+Internal reference: CANARY_4DD791_RETURNS
+
+SECTION 5  Refund approval, part 3
+Audience: Returns
+Classification: Internal
+
+Once a refund is approved, the payment is released to the original card or account within the normal payment cycle, and the returns agent records the expected date for the customer. The agent does not promise a faster date than the cycle allows. Finance checks the refund batch before release, and any batch that does not match the approvals is held until the difference is explained. Customers who ask about a refund are told the status shown in Atlas, and the agent does not guess a date. Refund records are kept with the return file, including the approval, the payment reference and the confirmation sent to the customer. Refunds that the customer has not received are traced with the payment provider, and the team keeps the customer informed of each step until the money arrives.

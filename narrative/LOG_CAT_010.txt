@@ -1,0 +1,39 @@
+SECTION 1  Internal support
+Audience: All staff
+Classification: Internal
+
+This section explains where staff should go for help when a system, a device or a process does not work as expected. The first point of contact is always the shift supervisor, who can open a request in Relay and decide whether the issue needs the IT helpdesk or the facilities team. Staff should not try to repair hardware themselves, and they should not borrow access codes from colleagues to get around a locked system. Written requests are answered faster than verbal ones, because they create a record that the next person can follow.
+
+Support requests are grouped by urgency, and the urgent group covers anything that stops dispatch or puts a person at risk. Requests about pay, leave or contracts go to the people team rather than to the warehouse, so that the right person answers each question. Staff who have waited a long time for an answer may raise the matter with their team leader, who will check the status of the request and give an honest update. Feedback about the support service is welcome and is reviewed each month.
+
+SECTION 2  Courier pickups
+Audience: Logistics
+Classification: Internal
+
+Courier pickups at each site follow a timetable agreed with the carrier, and the timetable is reviewed whenever the carrier contract is renewed. At the Heraklion warehouse, the last pickup for courier C2 is at 17:00. Parcels that arrive after the last pickup wait in the holding area until the next collection, unless the duty supervisor arranges an earlier handover with the same carrier. Every late arrival is logged in Dock with the time it was received, so that the reason for the delay can be checked later.
+
+Before the courier arrives, the outbound team checks that every parcel has a valid label, a sealed carton and an entry on the manifest. The driver signs the manifest on collection, and any parcel refused by the driver is returned to the warehouse with a note explaining why. Repeated refusals are raised with the carrier, because a missed pickup affects the promise made to the customer for that day.
+
+SECTION 3  Delivery times
+Audience: Logistics
+Classification: Internal
+
+Delivery times differ by product and by region, and the catalogue states the time for each combination. Fibre installation in North Aegean is scheduled within 8 working days of the order. This time depends on the availability of the field crew and on the access arrangements for the building, so the team confirms the date with the customer as soon as the crew is assigned. A confirmed date is not moved without written notice to the customer, because a change made without notice is one of the most common complaints.
+
+Where an installation needs a site visit, the scheduling team records the visit in Compass and confirms the appointment window with the customer. If the crew cannot attend, the team offers the next available date and explains the reason clearly. Delays caused by the customer, such as a missing access card, are recorded separately so that they do not count against the performance figures of the Company.
+
+SECTION 4  Handling and packing
+Audience: Logistics
+Classification: Internal
+
+Installation kits follow the same packing standard as outbound parcels, with the addition of a serial number check for each router or modem that leaves the store. The packer confirms that the serial matches the order and records it in Dock before the box is sealed. Kits that contain loose parts are packed in a labelled bag inside the carton, so that the installer does not have to search for components on site.
+
+Returned kits are inspected before they go back into stock, and any missing part is recorded against the original order. Kits with damaged packaging are not reissued until the damage has been reviewed. The team keeps a list of the parts that are most often missing, and the list is reviewed with the supplier each season so that the packing checklist can be improved.
+
+SECTION 5  Approvals
+Audience: Finance
+Classification: Internal
+
+Approvals for logistics spending follow the approval matrix held by the finance team, and no purchase order is raised until the matrix has been applied. The logistics manager prepares each request with the quotation, the business reason and the budget line, and sends it to the approver in one complete package so that nothing is missing. Approval is recorded in the finance system with the approver's name and the date, and the warehouse does not place the order until the record is complete.
+
+Urgent approvals are allowed only when the duty director confirms that a delay would stop dispatch or breach a customer commitment. Even in an urgent case, the approver signs the request on the same day, and the finance team reviews the approval the following morning. Any spending that was approved urgently is listed in the monthly review, so that the reason can be checked against the policy.

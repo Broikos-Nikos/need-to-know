@@ -1,0 +1,55 @@
+SECTION 1  Discounts and approvals
+Audience: Sales
+Classification: Internal
+
+Discounts are a tool for closing sales, and this policy sets the limits within which each role may offer them. The limits are shown in the approval table, which is maintained by the sales director and published to all advisors. An advisor who needs a discount above the limit submits a request in Relay, and the request is decided before the offer is shown to the customer.
+
+Discounts must be recorded in the system with the reason, and the final price must be the same on the quote, the contract and the receipt. Any discount applied outside the system is a breach of this policy, whatever the intention behind it. The sales director reviews discount levels each period and adjusts the table where a pattern shows that the limits are too high or too low.
+
+SECTION 2  Devices and subsidies
+Audience: Sales
+Classification: Internal
+
+Device subsidies are offered within the limits published in the device plan, and the plan states the maximum subsidy for each product category. The advisor shows the subsidy as a separate line on the quote, so that the customer can see the device price and the subsidy separately. Subsidies are not offered on products that are not in the plan, and no advisor may create a subsidy by changing the price on the device line.
+
+Subsidies are linked to a new contract and are paid only if the contract remains active for the period set in the terms. A subsidy is not transferable to another line or to another customer, and it is recorded against the account. When a customer cancels early, the terms in the contract explain how the subsidy is treated, and the advisor explains them before the signature.
+
+SECTION 3  Devices and subsidies, part 2
+Audience: Sales
+Classification: Internal
+
+Devices are allocated from the regional stock held in Dock, and each store can request stock from the depot according to recent sales. The advisor does not reserve a device for a customer until the contract is signed, because an unsigned reservation locks stock without any result. Allocations are reviewed each week, and stores with unused stock are asked to return it to the depot.
+
+Devices damaged in store are reported to the store manager, who records the damage in Dock and decides whether the device can be sold as a return or must be written off. A device that is written off is reviewed by the finance team, and the store manager explains the cause in writing. The allocation policy ensures that no store is left without the models its customers ask for.
+
+SECTION 4  Commissions
+Audience: Sales
+Classification: Internal
+
+Commission is part of the reward for sales, and this policy sets out how it is calculated, when it is paid and when it may be withheld. Commission is withheld only where a sale has been cancelled, reversed or found to breach the rules, and each decision to withhold is recorded with its reason. Advisors are told in writing when a commission amount is withheld.
+
+The commission plan is published by the commercial team and applies from the date stated in the plan. Changes are not applied retrospectively unless the plan says so, and any retrospective change is announced to every advisor before it takes effect. Questions about commission are answered in writing, and the answer is kept with the advisor's file. Where a question shows a gap in the commission plan, the commercial team updates the plan and tells every advisor.
+
+SECTION 5  Credit and eligibility
+Audience: Sales
+Classification: Internal
+
+Credit checks protect the Company and the customer from taking on debt that cannot be repaid, and this policy sets out when a check is required. From 1 July 2025, a credit check is required for any order above 1020 euros. The check is run through the approved service, and the result is recorded in Atlas before the order is submitted.
+
+Customers who fail the check are told that the order cannot proceed at this time, and they are given the reason in general terms without any detail of the check. Advisors do not run a second check to achieve a different result, and a customer may request a review through the credit team. The eligibility rules for each plan are shown in Atlas, so that the advisor can explain them without guessing.
+
+SECTION 6  Discounts and approvals, part 2
+Audience: Sales
+Classification: Internal
+
+Approval of a discount is a control, not a courtesy, and the policy expects every approver to read the request fully before deciding. An approval given without reading the request is treated as a breach. The approver records the decision and the reason, and the record is kept with the sale for audit. Approvals that are later found to be inconsistent are reviewed by the sales director within the same period.
+
+Store managers may not approve discounts on their own sales, and the regional sales director approves those cases instead. This rule prevents the same person from requesting and approving a benefit. The sales director reviews a sample of approvals each period to confirm that the rule is being followed. Repeated failures to follow this rule lead to a formal review of the store manager's approval authority.
+
+SECTION 7  Repairs under warranty
+Audience: Returns
+Classification: Internal
+
+Repairs under warranty are handled by the returns team, and the customer is told the route that applies to the device. Devices sent to repair centre R1 come back within 8 working days. The returns team tracks each device in Dock and tells the customer when it has been dispatched and when it is expected back.
+
+A device that cannot be repaired is replaced where the contract allows it, and the replacement is recorded against the original case. Customers are told in writing if the device will not be repaired, and the policy requires a clear explanation of the options available. Repair centre performance is reviewed each period, and the results are shared with the sales team so that advice to customers reflects the real service. Advisors who notice a repeated delay report it to the returns team in Relay.

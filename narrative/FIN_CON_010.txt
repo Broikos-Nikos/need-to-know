@@ -1,0 +1,36 @@
+SECTION 1  Payments
+Audience: Finance
+Classification: Internal
+
+This clause set governs how the company receives payments from consumers and business customers, and every template must reference the current payment terms. Payment methods accepted include direct debit, card payment and bank transfer to the company account. Each payment must carry the reference number printed on the invoice, so that matching in Ledger can be automatic. Where a customer pays part of an invoice, the clause requires that the amount is applied to the oldest open item first. Partial payments do not change the due date of the remaining balance unless the contract says otherwise. Any payment that arrives without a reference is parked in the suspense account and reviewed by the collections team. The clause states that the company will provide a receipt on request, in the format defined in the annex. Changes to payment methods must be approved by the finance director before they appear in any template.
+
+SECTION 2  Payments, part 2
+Audience: Finance
+Classification: Internal
+
+The late payment clause sets out the sequence of steps taken when an invoice remains unpaid after its due date. The first step is a written reminder sent to the billing address on record, and the reminder states the amount, the invoice reference and the due date. The second step is a notice of the measures that may follow if the balance is not settled, and this notice must be sent before any service is restricted. Service restriction is permitted only after all earlier steps have been completed and recorded in Ledger. Late payment charges are shown separately on the invoice and are not added to the principal amount. The clause does not apply to invoices under dispute, and the collections team confirms the dispute before taking any action. Customers who have an agreed instalment plan are not charged late fees while they keep to the plan. The collections lead checks the sequence for each account, so that no step is skipped and no step is repeated without a reason.
+
+SECTION 3  Approvals
+Audience: Finance
+Classification: Internal
+
+The approvals clause describes who may authorise a payment, a credit or a waiver, and at what level each approval is required. Each approval is recorded in Ledger with the name of the approver, the date and the reason for the decision. A person may not approve a transaction they initiated, and the system blocks any attempt to do so. Approval thresholds are set in the authority matrix, which the finance director signs each period. Where the amount exceeds the limit of a single approver, a second approver must review the request before it is released. Verbal approvals are not valid and must be confirmed in writing before the transaction is processed. Approvals given in an emergency are recorded within the same working day and reviewed by the controller at the next close. The clause requires that approval records are kept with the supporting documents for the period set by the retention policy.
+Internal reference: CANARY_00760E_FINANCE
+
+SECTION 4  Approvals, part 2
+Audience: Finance
+Classification: Internal
+
+The waiver clause covers situations where the company agrees not to collect an amount that is otherwise due. A waiver is valid only when it is documented in writing, states the amount and gives the reason. Waivers requested by customers are assessed by the collections lead and then by the finance controller, depending on the value. Staff must not offer a waiver during a customer call, even to close a complaint quickly, because the offer creates an expectation that cannot always be met. Where a waiver is granted for a repeated issue, the case is reviewed to find the cause and prevent the same waiver being needed again. The clause also requires that waivers are reported to the audit team each period, with the approver and the reason. A waiver that is later found to have been granted without authority is escalated to the finance director. The template includes standard wording for the customer letter, which must be used without changes.
+
+SECTION 5  Payments, part 3
+Audience: Finance
+Classification: Internal
+
+Supplier payments are governed by a separate clause, because the company is the buyer in these transactions and not the seller. Supplier invoices are paid within 45 days of receipt. The accounts payable team checks each invoice against the purchase order and the goods receipt before it is released for payment. Mismatches are returned to the buying department with a short note stating which item does not agree. The clause requires that payments are made by bank transfer to the account on the approved supplier record only. Changes to supplier bank details are verified by a call to a known contact before the record is updated. Early payment discounts are taken only where the discount is written in the supplier contract and the cash position allows it. Payment runs are approved in batches, and each batch is reconciled to the bank statement before the next run starts.
+
+SECTION 6  Billing
+Audience: Finance
+Classification: Internal
+
+The billing clause sets out when consumer bills are produced and how their content is controlled. Consumer bills for TV packages are issued on day 25 of each month. Bills are generated in Ledger from the active contract records, and the billing team reviews a sample before the run is released. Any change to the price of a package must be included in the template with its effective date, so that the bill reflects the agreed price. Customers receive a clear breakdown of the charges, including taxes and any one off items, in a format that complies with the consumer protection rules. Bills that are reissued for a correction carry the original reference and a short explanation of the change. The clause forbids the use of estimated figures unless the customer has agreed to that in writing. The billing lead signs off each run and keeps the record for audit purposes.

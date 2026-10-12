@@ -1,0 +1,55 @@
+SECTION 1  Conduct and compliance
+Audience: All staff
+Classification: Internal
+
+Everyone who works on the network, whether as an employee or as a contractor, follows the conduct rules in this policy and in the Company handbook. Network staff handle sensitive equipment and customer connections, so they must never access a site or a system for personal reasons, and they must not discuss customer details outside the work that requires them. Any suspicion of misuse is reported to the duty controller at once.
+
+Staff who are asked by a customer or a neighbour to make a quick change on a site must refuse and refer the request to the duty controller, however small the change appears to be. Unauthorised changes, even when they appear to fix a fault, breach the change control rules and are treated as serious incidents. The policy applies on and off site, including when staff discuss network matters in public.
+
+SECTION 2  Field visits
+Audience: Network Operations
+Classification: Internal
+
+A field visit starts with a booked job in Compass, and no engineer travels to a site on an informal request. The engineer confirms the job details, the access arrangements and the equipment needed before leaving the depot. Visits to customer premises require the permission of the occupier, recorded in Compass, and the engineer carries identification at all times.
+
+Safety comes first on every visit. An engineer who judges a site to be unsafe, for example because of weather, unstable structures or live electrical equipment, stops the work and reports the reason to the duty controller. A stopped visit is recorded with the reason and is rebooked, and it is never counted as a failure of the engineer. The duty controller reviews stopped visits each week to see whether the safety guidance needs to be clarified.
+
+SECTION 3  Availability
+Audience: Network Operations
+Classification: Internal
+
+The Company is committed to the availability levels set out in customer contracts, and the network team measures performance against those levels every day. Availability is measured from the monitoring system and checked against the incident log. Where the figures differ, the difference is investigated and explained before any report is issued. The explanation is written in plain language and is available to any manager who asks to see the workings.
+
+The network team reports availability to management each period, with a short commentary on the main outages and the actions taken. The commentary avoids blame and focuses on the causes that can be prevented. Improvements that reduce outages are prioritised in the maintenance plan, and their progress is shown in the next report. Progress is also discussed at the regular management review with the operations director.
+
+SECTION 4  Spare parts
+Audience: Network Operations
+Classification: Internal
+
+Spare parts are held in regional depots, and each depot keeps stock sized to the demand of its area. The depot serving Thessaly keeps spare parts for 45 days of normal use. The stock level is reviewed by the depot lead each period, and the review considers recent failures, the age of the equipment and the lead time of the supplier.
+
+Spare parts that are no longer needed are returned to the central store or transferred to another depot, so that stock is not tied up without use. Obsolete parts are recorded and removed from the register according to the asset policy. The depot lead confirms each removal and keeps the record for audit. Parts that are returned from the field are checked against the register before they are added to any depot stock.
+
+SECTION 5  Availability, part 2
+Audience: Network Operations
+Classification: Internal
+
+Customers are told about planned work in advance, through the approved notice channel, and the notice gives the date, the time window and the likely effect on the service. Customers are also told when planned work is moved, so that they can plan around the change. No notice is sent without approval from the duty controller, and no notice promises a restoration time that has not been confirmed.
+
+Where an unplanned outage affects a large number of customers, the Company gives an update at regular intervals until service is restored. The update is short, factual and free of technical language. Staff who take calls from customers during an outage use the approved script, and they log each call in Relay with the outcome. Calls that raise a new concern are passed to the duty controller without delay.
+
+SECTION 6  Incident response
+Audience: Network Operations
+Classification: Internal
+
+Every incident is opened in Compass with a severity rating, a named owner and the time of detection. The owner makes the first assessment within the time set for that severity, and the duty controller is informed of any incident that threatens a large part of the network. The response team meets as needed, and each meeting is recorded with its decisions and owners.
+
+Once service is restored, the owner completes a short review that records the cause, the timeline and the actions that will prevent a repeat. The review is written without blame and is shared with the teams that were involved. Actions are tracked in Compass until they are closed, and overdue actions are escalated to the operations manager. The owner of each action reports progress at the next incident review, so that repeat causes are identified early.
+
+SECTION 7  Maintenance
+Audience: Network Operations
+Classification: Internal
+
+Planned maintenance follows the change control process, and no change is made to a live site without an approved change record. The change record describes the work, the risk, the rollback plan and the test to be run after the change. The change is approved by the duty controller and, for high risk changes, by the operations manager.
+
+Maintenance windows are published in advance and are kept as far as possible. A window that must be moved is announced to the affected teams as early as possible, with the reason and the new time. Maintenance records are kept in Compass for the period required by the retention policy, so that the history of each site can be traced. Engineers check the record of the previous visit before they start any new work on the same site.

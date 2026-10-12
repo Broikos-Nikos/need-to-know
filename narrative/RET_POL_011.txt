@@ -1,0 +1,35 @@
+SECTION 1  Repairs under warranty
+Audience: Returns
+Classification: Internal
+
+A device that develops a fault within the warranty period is repaired at no cost to the customer, provided the fault is not caused by misuse or by unauthorised repair. The returns team decides whether a fault is covered, and the decision is recorded with the evidence used. The repair route is chosen according to the repair centre's capacity and the region of the customer, and the customer is kept informed of the expected turnaround. Where a repair cannot be completed, the team considers a replacement under the same policy, and the replacement is authorised by a team leader. Warranty claims are closed only when the device has been returned to the customer and the customer has confirmed that it works. The policy is reviewed when the warranty terms change or when a repeated fault appears across many devices.
+
+SECTION 2  Refund approval
+Audience: Returns
+Classification: Internal
+
+Refund approval is delegated to the shop floor within clear limits, so that customers receive a quick answer where the amount is small. From 1 July 2025, a shop manager may approve refunds up to 420 euros. Any refund above that amount goes to the regional returns manager, who checks the purchase history and the reason for return. The shop manager may not approve a refund for a family member, a colleague or a connected account, and must refer such cases upwards. Each approval is recorded in the returns system with the reason, the amount and the time, and the record is checked by the regional team at the end of each period. The limit applies per refund and must not be avoided by splitting a refund into several smaller payments.
+
+SECTION 3  Return authorisation
+Audience: Returns
+Classification: Internal
+
+Return authorisation is the formal permission to send a product back, and it is issued through the returns system once the eligibility has been confirmed. No product may be posted back without an authorisation number, and the courier will refuse a parcel that does not carry one. Authorisation numbers are single use, so that the same number cannot support separate returns. The agent records the reason for return in the system and selects the correct code, because the code drives the inspection route. Customers are told how to attach the number to the parcel and how long the return process usually takes. An authorisation can be cancelled if the customer changes their mind before the product is dispatched, and the cancellation is recorded in the case.
+
+SECTION 4  Return eligibility
+Audience: Returns
+Classification: Internal
+
+Eligibility for return is set by product category, and the policy table shows the period that applies to each category from the date of purchase. Returns that fall within the period are accepted if the product is complete and undamaged apart from normal wear. The date of purchase is taken from the sales record, not from the customer's receipt alone. Where the sales record and the receipt disagree, the returns team asks the sales team to confirm the correct date before a decision is made. Products bought as part of a package are judged by the category of the main item unless the package terms state otherwise. The eligibility decision is recorded with the category code and the date used in the calculation.
+
+SECTION 5  Return eligibility, part 2
+Audience: Returns
+Classification: Internal
+
+Exceptions to the eligibility rules are rare and must be approved by the returns manager in writing. An exception may be granted where the product was faulty from new, where the customer was given wrong information by the company, or where a serious personal circumstance is documented. The reason for the exception is recorded with the approval, and the exception is not used as a precedent for other cases. Customers who request an exception are told the outcome in writing, with a short explanation of the criteria used. The team does not promise an exception before the review is complete, because an unfulfilled promise leads to a complaint. Exceptions are reviewed at the end of each period to check that they remain rare and consistent.
+
+SECTION 6  Return authorisation, part 2
+Audience: Returns
+Classification: Internal
+
+Authorisations are monitored for patterns that suggest misuse, such as repeated returns of the same model by the same account or returns shortly before a promotion ends. Where a pattern is identified, the returns team refers the case to a supervisor, who reviews the history before taking any action. The customer is not accused of misuse without evidence, and the response must be fair and factual. Accounts that are placed under review keep their normal rights until the review is complete. Results of pattern reviews are reported to the returns manager, who decides whether the policy needs to change. The monitoring must be proportionate, so that honest customers are not affected by controls designed for a small minority of cases.

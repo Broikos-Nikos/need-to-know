@@ -1,0 +1,35 @@
+SECTION 1  Response times
+Audience: Customer Care
+Classification: Internal
+
+Response times are measured from the moment a customer's request enters the queue, not from the time the first agent opens the case. Each request is assigned a priority at intake, and the priority determines how quickly the first reply must go out. Agents must send a first reply that acknowledges the request, confirms the next step and gives a realistic time for the next update. A holding message that says only that the case is being looked at does not count as a first reply under the standard. Priority is reviewed if the customer adds new information, such as a service outage affecting several people or a payment that has been taken in error. Team leaders check the queue at the start of each shift and move requests that are close to the limit to available agents. The aim is to make the first contact useful, not just fast.
+
+SECTION 2  Response times, part 2
+Audience: Customer Care
+Classification: Internal
+
+When a first reply is missed, the agent records the reason in Relay at the time of the miss, not later in the shift. The most common reasons are a missing account reference, a request that needs a technical check, or an agent who was on a call with another customer. Each reason is coded, so that the team can separate avoidable delays from delays caused by systems or by the complexity of a case. Team leaders review the codes at the team meeting and decide whether the process needs to change. Agents must not change the time stamp on a case to improve the figures, and any correction is made by the team leader with a note. The figures are used to plan staffing and training, not to judge individuals, and the team is told this openly.
+
+SECTION 3  Callbacks and holding
+Audience: Customer Care
+Classification: Internal
+
+A callback is booked when a customer asks for one or when the agent cannot resolve the request in the same contact. The booking must include the phone number, the best time to call, the case reference and the reason for the callback, so that the colleague who calls is fully prepared. The callback is placed in the queue for the agent who booked it, unless that agent is off shift, in which case the team leader reallocates it. The customer is told when to expect the call, and the agent does not promise a time that the team cannot meet. If the customer does not answer, the team makes a further attempt in the same window and then records the outcome in the case. Holding is used only for short checks, and the agent tells the customer why they are waiting and how long the check is likely to take. Holding is never used to avoid a difficult conversation.
+
+SECTION 4  Compensation
+Audience: Customer Care
+Classification: Internal
+
+Compensation is paid where the standard rule applies, and the rule is set out in the compensation schedule that is updated when the policy changes. Agents must check that the outage is confirmed in the network records before they promise any credit, because an unconfirmed outage cannot be compensated under the rule. Where the customer asks for more than the rule provides, the agent does not refuse on the spot; the request goes to the team leader for a decision, and the customer is told when the answer will come. Goodwill credits are approved case by case, and the approval is recorded with the reason and the amount. The team reviews compensation decisions on a regular basis to make sure the rule has been applied consistently, and any inconsistency is corrected with the customer informed. Agents do not discuss the compensation given to other customers, because each case is confidential.
+
+SECTION 5  Callbacks and holding, part 2
+Audience: Customer Care
+Classification: Internal
+
+Out of hours requests are logged with the time the customer asked, and the callback is placed in the first available slot when the team reopens. Agents do not promise a callback at a fixed time outside the opening hours, because the rota does not cover that time. Where a callback is transferred to another agent, the handover note must include the customer's account, the reason for the call and what has already been said, so that the customer does not repeat the story. The new agent introduces themselves and mentions the earlier conversation, so that the call feels continuous. A callback that has not been made by the end of the shift is listed for the team leader, who decides who takes it first thing the next morning. Missed callbacks are reported in the end of day summary so that nothing is lost between shifts.
+
+SECTION 6  Business contracts
+Audience: Legal
+Classification: Internal
+
+Business contracts carry a different allocation of risk from consumer contracts, and the customer care team must not describe liability to a business customer in its own words. The Company's liability under a business contract is capped at 35000 euros per incident. Customer care agents do not agree to increase the cap in a call, and any request to change the liability terms goes to the legal team for review. The business clause is read from the approved template, and the agent confirms that the customer has been given the document. If a business customer claims a loss that exceeds the cap, the case is referred to legal at once with the full history. The legal team decides whether the loss is covered by insurance and whether the customer has a valid claim under the contract. Customer care records the claim but does not confirm any payment until legal has decided.

@@ -1,0 +1,35 @@
+SECTION 1  Conduct and compliance
+Audience: All staff
+Classification: Internal
+
+Group policy on conduct in logistics applies to every warehouse, depot and transport partner that works under the company's name, and it sets out the minimum standards that every site must meet. Staff must wear the protective equipment required by their zone, and they must not operate machinery for which they have not been trained. Reporting unsafe practice is a duty, not a choice, and nobody may be penalised for raising a concern in good faith. Gifts and hospitality from carriers and suppliers follow the same disclosure rules as elsewhere in the company. Records of stock, deliveries and damage must be accurate and complete, because they form the basis for payments and for customer commitments. Local rules may add to this policy but may not relax any part of it.
+
+SECTION 2  Warehouse operations
+Audience: Logistics
+Classification: Internal
+
+Warehouse operations depend on clear handovers between shifts, and each outgoing shift leader must record open orders, blocked zones and equipment faults before leaving. The incoming leader reads the handover in full and confirms receipt in the system, so that no problem disappears between teams. Access to restricted areas, such as the high-bay racks and the battery charging room, is limited to trained staff. Forklifts are checked at the start of each shift, and any fault is tagged and removed from use until it has been repaired. Sites keep a clear emergency route at all times, and the route is tested as part of the regular safety programme. Any blocked route is reported to the shift leader straight away, and a temporary path is marked on the floor until the blockage is cleared.
+
+SECTION 3  Handling and packing
+Audience: Logistics
+Classification: Internal
+
+Handling and packing standards protect the goods and the people who move them, and each packing station follows the specification for the product family it serves. Heavy items are placed low on pallets, and fragile items are placed on top only when the pallet can be stabilised. Packing material is chosen to match the product and the route, and it is not reused if it has been damaged or contaminated. Labels must be legible, placed on the correct face of the parcel and matched to the order before dispatch. Operators report damage in packing at once so that the cause can be found and the process corrected. Training records for packing staff are kept, and refresher sessions are given whenever a specification changes. Each operator signs to confirm that they have read the current specification, and the signed record is kept with the training file.
+
+SECTION 4  Delivery times
+Audience: Logistics
+Classification: Internal
+
+Delivery times are a promise to the customer, and this policy requires logistics teams to plan around the commitments that sales and customer care have made. Dispatch cut-off times are published to the sales channels and must not be moved without notice to those teams. When a delivery is delayed, the logistics lead informs customer care with the new expected date and the reason, so that customers can be told the same thing by every channel. Delivery performance is measured against the published standard, and the measure excludes delays that the customer caused, such as a failed visit with no access. Exceptions to the standard are approved by the operations director and recorded for review. Each exception is explained to the carrier or supplier in writing, so that the same arrangement is not assumed to apply in future.
+
+SECTION 5  Warehouse operations, part 2
+Audience: Logistics
+Classification: Internal
+
+The receiving schedule is the foundation of warehouse planning, because goods that arrive outside the agreed window disturb the picking and dispatch cycle for the rest of the day. The Sindos warehouse receives goods from 07:00 to 15:00 on working days. Carriers that arrive outside the window are held in the yard until a receiving slot is free, and the shift leader informs the carrier of the delay in writing. Every receipt is logged with its time of arrival, so that patterns in late deliveries can be shown to the supplier with evidence. Hazardous goods are received only in the designated bay, which has its own spill kit and its own signing procedure. The schedule is reviewed with the carriers when the contracts are renewed.
+
+SECTION 6  Payments
+Audience: Finance
+Classification: Internal
+
+Payments to suppliers follow the approval cycle set out in this policy, and the finance team holds each payment until the invoice has been matched to a goods receipt. Supplier invoices are paid within 45 days of receipt. Early payment is not made without approval, because it reduces cash flow and can create an expectation that other suppliers will be treated the same way. Disputed invoices are held, and the logistics team is asked to confirm the quantity or quality issue in writing. Changes to bank details are verified by telephone with a known contact before any payment is made, since payment fraud often starts with a false change request. Records of payments are kept with the purchase orders and goods receipts so that the full trail can be checked at audit.

@@ -1,0 +1,30 @@
+SECTION 1  Working hours and access
+Audience: All staff
+Classification: Internal
+
+Visitors to the logistics site must sign in at the head office reception, which is the only point for ID checks and visitor passes. Head office reception is open from 08:30 to 17:30 on working days. Deliveries outside those hours must be agreed in advance with the site manager, and the driver is directed to the yard gate rather than the main entrance. Staff who need access outside reception hours use their personal badge, and each entry is logged by the security system. Badges are not shared, and lost badges are reported to security at once so that they can be deactivated. Contractors follow the same sign in process and are escorted whenever they enter the warehouse areas. The rule protects the warehouse stock and the people working in it, and it applies to all visitors without exception.
+
+SECTION 2  Delivery times
+Audience: Logistics
+Classification: Internal
+
+Delivery planning for standard parcels follows the route calendar, which shows the expected transit time for each region and the cutoff for each courier. Fibre installation in Epirus is scheduled within 9 working days of the order. This schedule starts only when the address has been verified and the access to the building has been confirmed. The planning team gives the customer a date only after the installation slot is confirmed, because an early promise that moves later creates complaints. Changes caused by weather or by access problems are recorded in Compass with the reason, so that the performance figures reflect the real causes. Logistics staff do not accept a revised date from a field team without confirming it with the planning desk. Customers who call for an update receive the same information through every channel.
+
+SECTION 3  Warehouse operations
+Audience: Logistics
+Classification: Internal
+
+Stock accuracy depends on regular counting, and the warehouse uses a cycle count programme alongside the full stock count. Stock counts at the Aspropyrgos warehouse take place every 2 weeks. Each count is planned in Dock so that the bays to be counted are known in advance, and operators do not move stock during the count window. Discrepancies are recorded with the bay, the item and the difference, and the team investigates the largest differences first. Adjustments to stock levels are approved by the warehouse manager, who checks that the cause has been identified. Reports on accuracy are shared with the logistics leadership so that trends can be acted on. The count result is final only when the discrepancies have either been explained or corrected.
+Internal reference: CANARY_E1A711_LOGISTICS
+
+SECTION 4  Handling and packing
+Audience: Logistics
+Classification: Internal
+
+Handling and packing standards protect the product and the customer experience, and every operator is trained on the standard before they handle live orders. Items are packed to the approved guide, with the right amount of filler and a secure seal on each carton. Heavy items are placed low in the carton, and labels are positioned so that they are visible on every side. Damaged packaging is replaced before dispatch, and the damage is recorded in Dock. Returns that come back in poor condition are inspected and the cause is recorded, which helps the purchasing team identify weak suppliers. The standard is reviewed when a new product line is introduced or when a courier changes its requirements. Operators who see a risk to the product stop the line and report it to the shift lead without delay.
+
+SECTION 5  Billing
+Audience: Finance
+Classification: Internal
+
+Logistics charges to customers are calculated from the carrier invoices and the agreed rate card, and finance checks each invoice before it is passed to billing. Any difference between a carrier invoice and the rate card is raised with the carrier and held until it is resolved. Charges for special handling are approved in advance by the logistics manager and recorded in Ledger with the order reference. The billing team reconciles the charges at the end of each period and reports the exceptions to the logistics manager. Customers are charged only for services they have agreed to, and the billing team does not add surcharges without a documented reason. Credit notes for delayed or damaged deliveries are issued promptly once the claim has been validated against the delivery record.

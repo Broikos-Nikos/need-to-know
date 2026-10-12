@@ -1,0 +1,35 @@
+SECTION 1  Discounts and approvals
+Audience: Sales
+Classification: Internal
+
+Discounts for business customers are set out in the approved catalogue, and the consultant applies only the discount that the system shows for the customer segment. Any request beyond that level must be submitted through Atlas before the customer signs, with the reason, the competitor reference if one exists, and the proposed term. The sales manager approves routine requests within the same working session, while exceptional cases go to the commercial policy office for a decision. A verbal promise is not a discount, and consultants must not confirm one in writing or in a message to the customer before approval is recorded. Approved discounts are written into the contract as a named condition, so that billing applies the same figure from the first invoice to the last. Discounts that were given without approval are reviewed at the end of the period, and the difference is charged to the consultant who gave it. The team publishes a summary of approved exceptions so that consultants learn from precedent rather than from guesswork.
+
+SECTION 2  Contracts and terms
+Audience: Sales
+Classification: Internal
+
+Every business contract uses the standard template from the clause library, and the consultant must not edit the body of the agreement to suit a customer request. Special terms are placed in a schedule attached to the main contract, with a page reference, so that the legal team can review them quickly. Contracts for business mobile plans run for a minimum of 12 months. The consultant explains this period in plain terms before signature, including what happens if the customer wants to leave early, and the explanation is noted in Atlas. Cancellation rights and notice periods are read out to the customer, and the consultant confirms that the customer has understood them before the document is signed. Changes after signature go through a formal amendment that both parties sign, and an amendment cannot shorten the minimum term without approval from the legal team. Copies of all signed contracts are archived in the same session, and the archive is the only version used for billing and disputes.
+
+SECTION 3  Activation
+Audience: Sales
+Classification: Internal
+
+Activation starts when the contract is fully signed and the customer's details match the signed document, including the legal entity name and the tax reference. The consultant does not activate a line on the basis of a draft, a scanned copy without a signature, or a verbal confirmation. Once the activation request is submitted in Atlas, the operations team checks the line status and confirms the activation date with the customer. Devices are linked to the line only after the serial number has been recorded, and the device record is cross checked against the warehouse stock. Customers receive a welcome message that explains how to contact the business support line and what to do if the service does not work on the first day. If activation is delayed for a technical reason, the consultant tells the customer what is happening and when the next update will come, without promising a date that the operations team has not confirmed. Each activation is closed only when the service has been tested and the customer has confirmed that it works.
+
+SECTION 4  Devices and subsidies
+Audience: Sales
+Classification: Internal
+
+Device subsidies are attached to the contract term, and the consultant must explain that the subsidy is repaid through the line charge over the contract period. Customers often think a handset is free, so the explanation must show the full device price, the subsidy amount and the schedule for the remaining balance. The consultant does not present a subsidy as a discount on the device, because the terms differ and the customer may later compare the two. Eligibility for a device upgrade depends on the length of the contract and on the payment history, and the system shows the position before the consultant gives an answer. Devices sold without a subsidy follow the standard price list, and the consultant must not mix the offers in a single quote. Every device sale is recorded in Ledger with the subsidy type, so that finance can match the sale with the correct accounting treatment. The device guide is updated when the supplier changes its range, and consultants receive a short note on the changes before they use it with customers.
+
+SECTION 5  Commissions
+Audience: Sales
+Classification: Internal
+
+Commissions are calculated on the net value of the signed contract and are shown in the consultant's profile once the sale is finalised. A commission is not payable for a sale that is cancelled within the review period, and any amount already paid is recovered through the next commission run. The commission rate for each product family is published in the commission schedule, and the consultant can check the rate that applies to a specific sale before the contract is signed. Sales that are rejected by the credit check do not earn a commission, because the sale is not complete until the credit decision is final. Disputes about commission are settled before the payment run, not after the consultant has complained. Finance keeps the commission calculations in Ledger, and every change to the rate is recorded with the date it takes effect, so that earlier sales are not recalculated by mistake. Consultants who question a calculation receive a written breakdown that shows each line of the figure.
+
+SECTION 6  Devices and subsidies, part 2
+Audience: Sales
+Classification: Internal
+
+When a customer returns a device inside the cancellation window, the consultant records the return in Atlas before the contract is changed. The subsidy is reversed in full where the return happens early in the contract, and the consultant explains the reversal in writing so that the customer knows the effect on the account. A device that is faulty is not treated as a return; it goes through the repair route described in the returns procedures, and the customer keeps the line active during the repair. Swaps between device models require approval from the sales manager, because the subsidy and the price differ between the models. The consultant does not offer a swap as a goodwill gesture without that approval. Records of each swap are kept with the contract, including the serial numbers of both devices. Finance checks the reversal entries at the end of each period, and any mismatch between the device record and the subsidy record is raised with the sales operations team.

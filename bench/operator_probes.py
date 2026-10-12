@@ -71,11 +71,12 @@ def main() -> int:
         (base / "narrative").mkdir()
         (base / "plan" / "facts.json").write_bytes(json.dumps([f for f in facts if f["placements"]], ensure_ascii=False).encode("utf-8"))
         (base / "plan" / "catalogue.json").write_bytes(json.dumps(picked, ensure_ascii=False).encode("utf-8"))
-        written = (real / "narrative").is_dir() and not args.synthetic
+        narrative = real / "narrative" if (real / "narrative").is_dir() else Path(__file__).resolve().parents[1] / "narrative"
+        written = narrative.is_dir() and not args.synthetic
         for d in picked:
             target = base / "narrative" / f"{d['id']}.txt"
             if written:
-                shutil.copy(real / "narrative" / f"{d['id']}.txt", target)
+                shutil.copy(narrative / f"{d['id']}.txt", target)
                 continue
             lines = []
             for n, section in enumerate(d["sections"], 1):

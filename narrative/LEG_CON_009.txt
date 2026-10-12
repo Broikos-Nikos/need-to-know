@@ -1,0 +1,29 @@
+SECTION 1  Conduct and compliance
+Audience: All staff
+Classification: Internal
+
+The contract and clause library is the single source for every standard document the company uses with customers and suppliers. Staff must not copy clauses from older agreements, forward drafts through personal email accounts or change wording in a shared template. Requests for a new clause go to the legal team through Relay with a clear description of the situation, and the team decides whether the change is general or relevant to one contract only. Anyone who signs a contract is responsible for checking that the version used is the current one, and the version number must be recorded on the signed document. Conflicts of interest must be declared before a contract is discussed with a supplier, and a personal relationship with a supplier cannot be used to shorten the approval path. Breaches of these rules are reviewed by the compliance team, and deliberate misuse of templates is treated as a disciplinary matter.
+
+SECTION 2  Consumer rights
+Audience: Legal
+Classification: Internal
+
+The library holds the pre-contract information that consumers must receive, and the legal team checks that each text states the consumer's rights in clear and complete wording. The withdrawal right must be explained in writing on a separate page and accompanied by the model form that the customer can use if they wish to withdraw. Terms must not contain wording that prevents consumers from using their rights, and any such wording is withdrawn from the library immediately. When legislation changes, the team updates every affected template at the same time, so that competing versions do not circulate in parallel. Customers who ask for explanations about their rights are directed to the text in the library, not to a verbal interpretation from a member of staff. Each change to a consumer template is logged with the reason and the name of the approver.
+
+SECTION 3  Business contracts
+Audience: Legal
+Classification: Internal
+
+Business contracts in the library cover supply, service and partnership agreements, and each clause carries a short note explaining when it should be used and when it should be replaced. The liability clause limits recovery to direct loss, and it excludes indirect losses unless the counterparty negotiates a specific carve-out that the legal team has approved. The confidentiality clause covers financial information, access credentials and network design documents, and it binds the signatory to ensure that their own staff respect it. The governing law and dispute resolution clause sits at the end of the agreement in identical wording in every template, so that reviewers never have to search for it. Any change to these core clauses is recorded in the change table at the front of the library and is communicated to the sales and procurement teams before use.
+
+SECTION 4  Business contracts, part 2
+Audience: Legal
+Classification: Internal
+
+Termination for business relationships is governed by notice provisions that set out how a contract may be ended and when the ending takes effect. Business customers must give 30 days of written notice to terminate. The notice must be delivered by the method stated in the clause, and receipt is evidenced in the file so that the date can be confirmed later. Early termination charges are tied to the remaining commitment period and are set out in a schedule, which the legal team reviews whenever the commercial terms change. Where a counterparty disputes a notice, the matter is passed to the disputes group before any reply is sent, to avoid a statement that could be read as an admission. Standard notice wording must not be shortened for a particular customer without written approval, because a shorter period can create an obligation that the company did not intend.
+
+SECTION 5  Insurance claims
+Audience: Legal
+Classification: Internal
+
+Insurance clauses require the customer or partner to notify the company of any loss that the policy covers, within the time that the contract sets out. The clause names the insurer, INS1, where the cover relates to network equipment, so that there is no doubt about which party is responsible for the claim. The customer must keep the evidence of the loss, including photographs and engineer reports, until the claim file is closed. The clause does not allow the customer to accept a settlement without the company's written consent, because an early settlement can close the right to full indemnity. Exclusions from cover are listed in a separate schedule, which must be attached to every contract that contains an insurance clause. The legal team checks the accuracy of these references each time a template is renewed.

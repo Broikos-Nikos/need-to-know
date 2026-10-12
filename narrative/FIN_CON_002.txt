@@ -1,0 +1,29 @@
+SECTION 1  Working hours and access
+Audience: All staff
+Classification: Internal
+
+The clause library is open to staff during normal working hours, and access is granted through individual accounts that are linked to a role. Staff members who change roles request an update to their permissions before the move, so that they do not keep access to clauses they no longer need. Read access is available to most staff, while edit access is restricted to the legal team and to named contract owners in each department. Every login and every export is recorded, and the record is reviewed when there is a question about the use of a document. Documents in the library carry a version number and an effective date, so that users can see which text applies to a contract signed on a given day. Old versions are kept for reference but are marked clearly, and no one should use an old version for a new customer without checking with the legal team first. Questions about access go to the library administrator, who answers them within the same working day.
+
+SECTION 2  Billing
+Audience: Finance
+Classification: Internal
+
+The billing clause sets out when a customer receives a bill, how it is calculated, and what happens if a payment is late. Consumer bills for fibre broadband are issued on day 13 of each month. The clause also explains that bills include any pro rata adjustments for activation or cancellation in the middle of a cycle, and that these adjustments appear as separate lines. Customers can request a copy of the bill at any time through the portal, and the copy shows the same figures as the original. Finance checks that the bill run has completed before the clause is quoted to a customer, because a delayed run changes the date on which a customer will see the bill. Changes to the billing cycle are notified in advance, and the notice explains the transition period in plain language. The clause must not be used to promise a particular date to a customer who has not yet been activated.
+
+SECTION 3  Billing, part 2
+Audience: Finance
+Classification: Internal
+
+Credit notes are used to correct a charge that was issued in error, and the clause requires each credit to reference the original invoice. A disputed charge is not removed from the account until the dispute has been investigated, but the customer is told that the charge is under review. Where the dispute is upheld, the credit appears on the next bill or is paid to the customer's account, depending on the terms of the contract. Finance records each credit with a reason code, so that recurring errors can be traced to a process or to a system fault. Customers receive a written explanation of the outcome, and the explanation avoids internal terms that the customer cannot check. The clause also covers the situation where a bill is wrong in the customer's favour, which must be corrected under the same process. A correction in either direction is recorded in the ledger on the day it is approved.
+
+SECTION 4  Approvals
+Audience: Finance
+Classification: Internal
+
+Approvals for payments, credits and bad debt write offs follow the delegation table, which sets the maximum value that each role may authorise. The approver must not be the same person who prepared the transaction, and the system blocks any approval by the preparer where that is technically possible. Where a transaction exceeds the limit for a single approver, the sign off of a second approver is recorded before the entry is posted. Manual approvals outside the system are allowed only in exceptional circumstances, and each one must be written up and reported to the finance manager on the same day. The delegation table is reviewed when the reporting lines change, and new approvers confirm that they understand the limits before they use them. Approvals are reviewed at period end to check that the table is being followed, and any breach is reported to the chief financial officer. The clause does not allow an approver to split a transaction to avoid a limit, because splitting is treated as a breach of policy.
+
+SECTION 5  Data retention
+Audience: Legal
+Classification: Internal
+
+The data retention clause tells customers how long their personal data is kept, and why. Financial records are retained for the period required by tax law, and the clause states that some records must be kept beyond the end of the contract. Marketing data is retained only while the customer keeps their consent, and any withdrawal of consent is processed within the period set by the policy. The clause explains the customer's right to ask for a copy of their data, and it gives the contact point for those requests. Deletion takes place on schedule, and the clause commits the company to remove copies held by suppliers where the contract allows it. The legal team reviews the clause on a regular basis, and each change is checked against the current retention schedule before it is published. Customers who object to a retention period are referred to the data protection officer, who gives a written answer.

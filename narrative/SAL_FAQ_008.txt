@@ -1,0 +1,55 @@
+SECTION 1  Internal support
+Audience: All staff
+Classification: Internal
+
+Sales staff often ask about store opening hours and about who to contact when a store is closed. Shops in Central Macedonia open at 10:00 on weekdays. Shops in Peloponnese open at 09:00 on weekdays. Opening hours are published on the internal board, and any change is sent to all store managers before it takes effect, so that advisors can give customers the right time.
+
+Advisors who need help after a store has closed can leave a request in Relay for the area manager, who will answer on the next working morning. Urgent matters, such as a device that will not activate for a customer who is waiting in the store, go to the regional duty line. Staff should not give customers opening hours from memory, because a change that has not reached a store can cause a wasted journey.
+
+SECTION 2  Discounts and approvals
+Audience: Sales
+Classification: Internal
+
+Discounts on postpaid plans follow the approval table, and the advisor may apply only the level shown for the plan in Atlas. A request for a larger discount is recorded in Relay with the reason, and the store manager decides within the same day. The advisor does not show the customer any discount that has not been approved, even if a competitor has made a similar offer.
+
+Where a discount is approved, the final price appears in the contract summary and in the receipt, and both documents must match the price recorded in the system. The store manager checks a sample of discounted sales each week to make sure the approvals were applied correctly. Any mismatch is logged and corrected before the sale is finally recorded. The store manager also confirms that the customer received the same price on the printed receipt.
+
+SECTION 3  Activation
+Audience: Sales
+Classification: Internal
+
+Activation of a new postpaid line starts when the contract is signed and the identity check is passed. The advisor checks that the device has been registered and that the service address is correct in Atlas before submitting the request. A request with missing details is returned to the advisor rather than processed, so that the activation team does not have to chase the customer later.
+
+After activation, the advisor confirms the start date with the customer and explains how to contact the support line if the service does not work. Activation problems are reported with the order reference, the time of the attempt and the error shown, so that the technical team can trace the fault. The advisor follows up with the customer on the same day to confirm that the service is working.
+
+SECTION 4  Discounts and approvals, part 2
+Audience: Sales
+Classification: Internal
+
+Discounts can be combined only when the campaign rules say that they can be combined, and the advisor checks the rules in Atlas before adding a second discount. Discounts that overlap cannot be applied to the same line, and the system will reject the later one. The advisor should explain this to the customer before the offer is presented, not after the customer has accepted it.
+
+A customer who asks for a discount that was available last week may not be eligible today, and the advisor explains that the offer has ended without criticising the customer. Store managers record each refusal with the reason, so that the team can see which campaigns cause the most questions. A clear explanation at the counter prevents a complaint later. Advisors are encouraged to share the campaign calendar with customers who ask about future offers.
+
+SECTION 5  Commissions
+Audience: Sales
+Classification: Internal
+
+Commission rules explain how advisors are paid for each type of sale, and the rules are updated in the sales plan that the commercial team publishes. Advisors earn a commission of 3 percent on sales of postpaid mobile plans. The commission is paid only after the line is active and the first billing cycle has been completed, so that a cancelled sale does not leave an overpayment behind.
+
+Advisors who have questions about a commission figure raise them in Relay with the sale reference, and the finance team replies in writing. The statement shows the sale date, the plan, the rate and the status of each line, so that the advisor can match the statement with personal records. A correction that changes an earlier statement is shown in the next statement with a clear note.
+
+SECTION 6  Discounts and approvals, part 3
+Audience: Sales
+Classification: Internal
+
+Approval thresholds apply to each sale, not to each customer, so repeated small discounts for the same person may need a new approval if they add up beyond the limit. The system tracks the total discount for each account in Atlas, and the advisor sees the running total before submitting a request. Store managers are asked to look at accounts with frequent discounts and to report any pattern to the regional sales director.
+
+Advisors must not split an order into several smaller orders to avoid an approval limit. This practice is treated as a breach and is reported to the sales director, whatever the intention behind it. Where a legitimate reason exists for separate orders, the advisor records that reason in the notes so that the approver can see the full picture.
+
+SECTION 7  Return authorisation
+Audience: Returns
+Classification: Internal
+
+A customer who wants to return a device bought in store needs a return authorisation before the device is sent back. The advisor issues the authorisation in Relay and gives the customer the code, which must be written on the outer package. Without the code the package cannot be matched to the case, and the returns team holds it until the customer confirms the details.
+
+Authorisations are valid only for the device and the case they were issued for, and they cannot be transferred to another customer or another product. Advisors explain the expiry rule when the code is given, so that the customer does not post the device too late. Problems with authorisations are reported to the returns team, which checks the case and decides whether a new code should be issued.
