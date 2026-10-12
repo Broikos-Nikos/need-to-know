@@ -28,7 +28,7 @@ NUMBERED = re.compile(r"(\d{1,2}(?:\.\d{1,2})*)\.?\s+\S")
 
 @dataclass(frozen=True)
 class Element:
-    kind: str                       # "heading", "paragraph" or "row"
+    kind: str                       # "heading", "paragraph" or "row"; "audience" once segments has read it
     text: str
     start: int
     end: int
@@ -37,6 +37,7 @@ class Element:
     cells: tuple[str, ...] = ()
     header: bool = False
     audience: str | None = None
+    labels: tuple[str, ...] = ()    # set by segments: who may read it, first label first
 
 
 def heading_level(line: str) -> int:

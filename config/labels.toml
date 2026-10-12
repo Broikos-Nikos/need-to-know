@@ -1,8 +1,10 @@
 # The audiences written on sections, with the name the files themselves use. A
-# section's audience line names one or more of these; a section with none is
-# "unlabelled", and only a role that lists "unlabelled" reads it. Target shares are
-# what the corpus generator aims for, as a share of units; they are plans, and
-# `ntk corpus verify` will report the real shares.
+# section's audience line names one or more of these; a section without one takes
+# its document's default, and a name no label knows leaves its text "unlabelled",
+# which only a role that lists "unlabelled" reads. A target share is the share of
+# units whose first label is this one, so the shares sum to 1 however many labels a
+# section names (RS-F10). The corpus generator budgets its tables to meet them, and
+# `ntk corpus coverage` reports the shares the parsed corpus actually has.
 
 [labels.general]
 el = "Όλο το προσωπικό"

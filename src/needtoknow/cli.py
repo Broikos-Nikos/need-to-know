@@ -34,11 +34,34 @@ def build_parser() -> argparse.ArgumentParser:
     qdrant.add_argument("action", choices=("start", "stop", "status"))
     checkup = commands.add_parser("doctor", help="whether this machine can build and search the index, one line per check")
     checkup.add_argument("--offline", action="store_true", help="skip the live calls to DeepSeek")
-    corpus = commands.add_parser("corpus", help="plan the corpus, assemble it from the writers' narrative, check it, or change it")
-    corpus.add_argument("action", choices=("plan", "assemble", "check", "mutate", "samples"))
+    corpus = commands.add_parser("corpus", help="plan the corpus, assemble it from the writers' narrative, check it, "
+                                                "measure who may read it, or change it")
+    corpus.add_argument("action", choices=("plan", "assemble", "check", "coverage", "mutate", "samples"))
     corpus.add_argument("--count", type=int, default=9, help="mutate: how many changes to apply")
     corpus.add_argument("--seed", type=int, default=1, help="mutate: the seed that picks documents and values")
     return parser
+
+
+def cmd_coverage(out) -> int:
+    """Units by label as ingestion reads them, against config/labels.toml (T2.4, KB3-K5, RS-F10)."""
+    from needtoknow.ingest.segments import ROWS_PER_UNIT, corpus_coverage
+    from needtoknow.policy import UNLABELLED, load_labels
+    from needtoknow.settings import data_dir
+    full = data_dir() / "corpus" / "full"
+    if not full.is_dir():
+        print(f"no assembled corpus in {full}: run ntk corpus assemble first", file=out)
+        return 1
+    coverage = corpus_coverage(full)
+    units = sum(coverage.first.values())
+    print(f"units {units}, a paragraph or {ROWS_PER_UNIT} rows of one table each; by first label, which sums to all "
+          f"units, against the registered share, and the share each label can read", file=out)
+    registered = load_labels()
+    for label in [*registered, UNLABELLED]:
+        target = f"{registered[label]['target_share']:.2f}" if label in registered else "none"
+        print(f"  {label:<14} first {coverage.first[label] / max(units, 1):.3f}  registered {target}  "
+              f"readable {coverage.readable[label] / max(units, 1):.3f}", file=out)
+    print(f"audience names no label knows: {', '.join(sorted(set(coverage.unknown))) or 'none'}", file=out)
+    return 1 if coverage.unknown else 0
 
 
 def cmd_corpus(args: argparse.Namespace, out=None) -> int:
@@ -77,6 +100,8 @@ def cmd_corpus(args: argparse.Namespace, out=None) -> int:
         for entry in mutate(args.count, args.seed):
             print(f"{entry['seq']:>3} {entry['kind']:<17} {entry['doc_id']:<14} {entry['expected']}", file=out)
         return 0
+    if args.action == "coverage":
+        return cmd_coverage(out)
     from needtoknow.corpus.check import check
     result = check()
     for key, value in result["counts"].items():

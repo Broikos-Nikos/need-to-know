@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**65 findings, 31 closed, 34 open**, from 11 reviews. Each audit pass took one perspective and nothing else.
+**65 findings, 34 closed, 31 open**, from 11 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -23,7 +23,7 @@ An audit pass that tried to break a first run. 8 findings, 8 closed.
 
 ## `RS`, the retrieval scientist
 
-An audit pass on whether the evaluation can fail and its statistics are honest. 11 findings, 1 closed.
+An audit pass on whether the evaluation can fail and its statistics are honest. 11 findings, 2 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -36,7 +36,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 | `RS-F7` | medium | open | The accuracy has an 18 percent floor (9 of 50 by always answering not_found) and no null or oracle run is planned: run both through the scorer, publish them |
 | `RS-F8` | low | open | A multi valued experiment has no rule for choosing among its values: compare each with the incumbent, adopt the cheapest that clears an arm, or Holm within it |
 | `RS-F9` | low | open | Part of the simulation's false claims is an assumed probe coin (0.12 to 0.18 without it): print the assumption or simulate the probe arm |
-| `RS-F10` | low | open | Target shares must sum to 1 while a section may name several labels: define the share by first label, or check at least 1 |
+| `RS-F10` | low | fixed, tick 39 | Target shares must sum to 1 while a section may name several labels: define the share by first label, or check at least 1 |
 | `RS-F11` | low | open | Overlap@10 on off topic probes counts swaps among near equal scores: report a tie aware overlap and gate on misses beyond the tolerance |
 
 ## `DR`, the deep reviewer
@@ -64,14 +64,14 @@ An audit pass that killed the pipeline mid build and mid change. 3 findings, 3 c
 
 ## `MA`, the measurement auditor
 
-An audit pass on whether every number can be produced again. 5 findings, 2 closed.
+An audit pass on whether every number can be produced again. 5 findings, 3 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `MA-F1` | medium | fixed, tick 25 | Two commit messages carry numbers that no command in the repository produces (5547561: 24, 15, 9, 1; fbd9532: one file changed, 42 writes): commit the probes as a bench script, before numbers runnable on the parent commit, and only numbers a committed command prints go into commit messages |
 | `MA-F2` | low | open | 'N tests pass' counts this machine: 135 passed as built, 129 passed and 6 skipped without the GPU and the Qdrant binary; give passed and skipped and say which tests need what |
 | `MA-F3` | low | open | The doctor's 15 GB floor has no measurement behind it (the data directory holds 415 MB): measure the full build's peak disk use and set the floor from it |
-| `MA-F4` | low | open | 35974c7 states the plan's 22 percent as what hr's filter sends (measured about 5 percent), and labels.toml promises an `ntk corpus verify` that does not exist: the coverage report prints planned and measured shares and the comment names it |
+| `MA-F4` | low | fixed, tick 39 | 35974c7 states the plan's 22 percent as what hr's filter sends (measured about 5 percent), and labels.toml promises an `ntk corpus verify` that does not exist: the coverage report prints planned and measured shares and the comment names it |
 | `MA-F5` | low | fixed, tick 26 | Finding ids in commits and code resolve to no document in the repository (D20): docs/AUDITS.md lists every cited id, and a gate fails on any it lacks |
 
 ## `MT`, the maintainer in six months
@@ -138,12 +138,12 @@ The same session's review of the evaluation protocol. 2 findings, 0 closed.
 
 ## `KB3`, the corpus at P1 exit, reviewed against a knowledge base
 
-The same session's review of the generated corpus. 5 findings, 0 closed.
+The same session's review of the generated corpus. 5 findings, 1 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `KB3-K3` | medium | open | The annex mass is 1,164 row shapes and its glossary six definitions repeated 602,893 times: named columns with a header in every table, one glossary per document, revisions dated in order; the dense intrusion rate of annex units measured at P3 |
 | `KB3-K4` | medium | open | An overlap cap stated as a share of the question still lets it carry every word that decides retrieval: items rewritten without the planted sentence in view, overlap capped on the three rarest stems, about 20 dev items with a paraphrase twin |
-| `KB3-K5` | low | open | Label shares by unit follow annex bytes, not the registered shares (general 0.0 against 0.20, hr 4.7 against 0.02): shop directories under general, annex rows budgeted per label; the coverage report prints registered and measured shares |
+| `KB3-K5` | low | fixed, tick 39 | Label shares by unit follow annex bytes, not the registered shares (general 0.0 against 0.20, hr 4.7 against 0.02): shop directories under general, annex rows budgeted per label; the coverage report prints registered and measured shares |
 | `KB3-K6` | low | open | The prose cannot compare paragraph and section units (685 of 900 sections are one paragraph): the README and any units claim say so |
 | `KB3-K7` | low | open | Templated tells: a capital letter after the date frame in 14 sentences, one effective date for all versioned facts, and N39's stale canary count (corrected at tick 23) |

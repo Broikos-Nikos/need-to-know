@@ -24,6 +24,9 @@ repository that produces it.
   `uv run python bench/operator_probes.py` and `uv run python bench/crash_points.py`.
 * Every block the parsers read from the corpus resolves back to its span in the
   file: `uv run python bench/parse_corpus.py`.
+* Every paragraph and table row knows who may read it, from its section's audience
+  line, and each label's share of the corpus meets its registered share:
+  `ntk corpus coverage`.
 * Every audit finding the history cites, open or fixed, is in `docs/AUDITS.md`.
 
 ## Run it
