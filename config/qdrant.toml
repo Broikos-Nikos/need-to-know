@@ -1,0 +1,16 @@
+# The local Qdrant server. The binary is the release asset below, unpacked outside
+# the repository under NTK_DATA_DIR/bin, and ntk checks its sha256 before every
+# start. It listens on the loopback interface only and answers nothing but its
+# health checks without the key named in key_env.
+
+version = "1.19.2"
+asset = "https://github.com/qdrant/qdrant/releases/download/v1.19.2/qdrant-x86_64-pc-windows-msvc.zip"
+# GitHub's digest for that asset, matched by the download on 2026-10-12.
+asset_sha256 = "7d86596f16c6e85d45a50312f5e16ccb51e059b62e3d7308110cb65b4c799a4d"
+# qdrant.exe inside it.
+exe_sha256 = "b25bcc612583333289b00754907639ee97cd28b8741d50f1b4ce0e2bd1ad12eb"
+host = "127.0.0.1"
+# Qdrant's defaults, 6333 and 6334, stay free for other projects on the same machine.
+http_port = 6433
+grpc_port = 6434
+key_env = "QDRANT_API_KEY"

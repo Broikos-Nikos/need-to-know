@@ -8,6 +8,7 @@ import urllib.error
 import urllib.request
 
 from needtoknow import __version__
+from needtoknow.index import server
 from needtoknow.providers import deepseek_account
 from needtoknow.providers.catalog import load_catalog
 from needtoknow.settings import setting
@@ -30,7 +31,34 @@ def build_parser() -> argparse.ArgumentParser:
         help="configured providers, whether each key is set, and DeepSeek's live models and balance",
     )
     providers.add_argument("--offline", action="store_true", help="skip the two live calls to DeepSeek")
+    qdrant = commands.add_parser("qdrant", help="start, stop or check the local Qdrant server")
+    qdrant.add_argument("action", choices=("start", "stop", "status"))
     return parser
+
+
+def cmd_qdrant(args: argparse.Namespace, out=None) -> int:
+    """Exit 0 when the action succeeded; for status, when the server is running and ready."""
+    out = out or sys.stdout
+    config = server.load_config()
+    where = f"{config['host']}:{config['http_port']}"
+    try:
+        if args.action == "start":
+            pid, seconds, created = server.start(config)
+            if created:
+                print(f"wrote a new {config['key_env']} to .env", file=out)
+            print(f"qdrant {config['version']} started as pid {pid} on {where}, ready in {seconds:.2f} s", file=out)
+            return 0
+        if args.action == "stop":
+            pid = server.stop(config)
+            print(f"stopped pid {pid}" if pid else "not running", file=out)
+            return 0
+        pid = server.running(config)
+        ready = server.http_status(config, "/readyz") == 200
+        print(f"running as pid {pid} on {where}, ready: {'yes' if ready else 'no'}" if pid else "not running", file=out)
+        return 0 if pid and ready else 1
+    except server.ServerError as error:
+        print(f"qdrant: {error}", file=out)
+        return 1
 
 
 def cmd_providers(args: argparse.Namespace, out=None) -> int:
@@ -71,6 +99,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.command == "providers":
         return cmd_providers(args)
+    if args.command == "qdrant":
+        return cmd_qdrant(args)
     parser.print_help()
     return 0
 
