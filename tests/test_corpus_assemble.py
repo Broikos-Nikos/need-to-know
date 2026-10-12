@@ -2,6 +2,7 @@
 corpus and a journal that agree, and the check names every file that is missing or unexplained (OP-F1)."""
 
 import json
+import os
 import shutil
 from pathlib import Path
 
@@ -127,3 +128,16 @@ def test_a_swap_killed_at_any_step_leaves_the_corpus_and_its_journal_agreeing(ba
     assemble.settle(assemble.places(base, "full"))
     assert state(base) == (fresh if survive == 3 else before) and leftovers(base) == []
     assert check.check()["problems"] == []
+
+
+def test_a_change_left_pending_is_named_until_the_next_run_finishes_it(base, monkeypatch):
+    # OP-F2: the journal line is written, then the simulator dies before the change is made.
+    def killed(*args, **kwargs):
+        raise KeyboardInterrupt("killed between the journal line and the change")
+
+    with monkeypatch.context() as m:
+        m.setattr(os, "replace", killed)
+        with pytest.raises(KeyboardInterrupt):
+            mutate.mutate(count=1, seed=3)
+    assert check.check()["problems"] == ["journal change 1 (value_update) is pending: the next ntk corpus mutate finishes it"]
+    assert mutate.mutate(count=0) == [] and check.check()["problems"] == []

@@ -14,7 +14,7 @@ import random
 import shutil
 from pathlib import Path
 
-from needtoknow.corpus import dump_json
+from needtoknow.corpus import dump_json, exclusive
 from needtoknow.corpus.plan import LABEL_EL, LABEL_EN, SEED, world
 from needtoknow.settings import data_dir
 
@@ -126,24 +126,25 @@ def assemble(profile: str = "full") -> dict:
     docs = json.loads((base / "plan" / "catalogue.json").read_text(encoding="utf-8"))
     w = world()
     place = places(base, profile)
-    settle(place)
-    place["building"].mkdir(parents=True)
     report = {"written": 0, "missing": [], "bytes": 0}
     legacy = legacy_id(docs)
-    for doc in docs:
-        source = base / "narrative" / f"{doc['id']}.txt"
-        if not source.is_file():
-            report["missing"].append(doc["id"])
-            continue
-        report["bytes"] += assemble_doc(doc, source, w, place["building"], legacy)
-        report["written"] += 1
-    # The old corpus goes aside with its journal, since the new one has had no changes yet.
-    if place["corpus"].exists():
-        place["corpus"].rename(place["retired"])
-    if place["journal"].exists():
-        place["journal"].rename(place["retired journal"])
-    place["building"].rename(place["corpus"])
-    settle(place)
+    with exclusive(base):
+        settle(place)
+        place["building"].mkdir(parents=True)
+        for doc in docs:
+            source = base / "narrative" / f"{doc['id']}.txt"
+            if not source.is_file():
+                report["missing"].append(doc["id"])
+                continue
+            report["bytes"] += assemble_doc(doc, source, w, place["building"], legacy)
+            report["written"] += 1
+        # The old corpus goes aside with its journal, since the new one has had no changes yet.
+        if place["corpus"].exists():
+            place["corpus"].rename(place["retired"])
+        if place["journal"].exists():
+            place["journal"].rename(place["retired journal"])
+        place["building"].rename(place["corpus"])
+        settle(place)
     return report
 
 

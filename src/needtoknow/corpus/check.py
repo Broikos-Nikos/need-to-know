@@ -15,7 +15,7 @@ import unicodedata
 from collections import Counter
 
 from needtoknow.corpus.assemble import parse_sections
-from needtoknow.corpus.mutate import corpus_files, read
+from needtoknow.corpus.mutate import corpus_files, entries, read
 from needtoknow.corpus.plan import LABEL_EL, LABEL_EN, header
 from needtoknow.settings import data_dir
 
@@ -98,16 +98,15 @@ def check() -> dict:
     report["files assembled"] = len(files)
     report["megabytes"] = round(sum(p.stat().st_size for p in files) / 2**20, 1)
     if full.is_dir():
-        journal = journal_entries(base / "full.journal.jsonl")
+        journal = entries(base / "full.journal.jsonl")
+        for e in journal:
+            if e.get("state") != "applied":
+                problems.append(f"journal change {e['seq']} ({e.get('kind')}) is {e.get('state')}: the next ntk corpus mutate finishes it")
         inventory(full, docs, journal, report, problems)
         assembled_facts(full, facts, journal, report, problems)
     else:
         problems.append(f"{full.name}/: no assembled corpus")
     return {"counts": dict(report), "problems": problems, "invented_examples": invented[:15]}
-
-
-def journal_entries(path) -> list[dict]:
-    return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line] if path.is_file() else []
 
 
 def inventory(full, docs: list[dict], journal: list[dict], report: Counter, problems: list[str]) -> None:

@@ -1,10 +1,16 @@
 """The change simulator on a small corpus built in a temporary folder: each change does what its journal says."""
 
 import json
+import os
+import shutil
+import subprocess
+import sys
+import time
+from pathlib import Path
 
 import pytest
 
-from needtoknow.corpus import assemble, mutate
+from needtoknow.corpus import CorpusBusy, assemble, exclusive, mutate
 
 FACT_EN = "Returned items are inspected within 3 working days of arrival at the warehouse."
 FACT_EL = "Τα επιστρεφόμενα είδη ελέγχονται εντός 3 εργάσιμων ημερών από την άφιξή τους στην αποθήκη."
@@ -37,8 +43,9 @@ def corpus(monkeypatch, tmp_path):
 
 def test_every_kind_of_change_is_applied_and_journaled(corpus):
     entries = mutate.mutate(count=len(mutate.KINDS), seed=3)
-    journal = [json.loads(line) for line in (corpus / "full.journal.jsonl").read_text(encoding="utf-8").splitlines()]
+    journal = mutate.entries(corpus / "full.journal.jsonl")
     assert [e["seq"] for e in journal] == list(range(1, len(mutate.KINDS) + 1))
+    assert all(e["state"] == "applied" for e in journal) and not (corpus / "full.staging").exists()
     assert all(e["expected"] for e in entries)
     # A fallback is journaled as what was done, with what was asked beside it.
     assert all(e["kind"] in mutate.KINDS and e["requested"] in mutate.KINDS for e in journal)
@@ -86,3 +93,104 @@ def test_a_rename_and_a_re_encode_keep_the_text(corpus):
     for entry in (renamed, encoded):
         file, _, meta = files[entry["doc_id"]]
         assert mutate.read(file, meta) == texts[entry["doc_id"]]
+
+
+def journal_and_corpus(base: Path):
+    """The journal's changes and every byte under full/: what a crash and the next run must leave agreeing."""
+    changes = [{k: v for k, v in e.items() if k != "finished_after_a_crash"} for e in mutate.entries(base / "full.journal.jsonl")]
+    return changes, {p.relative_to(base / "full").as_posix(): p.read_bytes() for p in (base / "full").rglob("*") if p.is_file()}
+
+
+def test_a_crash_at_any_write_of_a_change_is_finished_or_dropped_by_the_next_run(corpus, monkeypatch):
+    """OP-F2. Every write of nine changes is killed in turn, a journal line cut in half where the write is one.
+    The next run must leave the corpus and journal exactly as a run without the crash left them after the
+    same number of changes: a change journaled before the kill is finished, any other is dropped."""
+    pristine = corpus.parent / "pristine"
+    shutil.copytree(corpus / "full", pristine)
+    expected, writes = [journal_and_corpus(corpus)], []
+
+    def run(kill_at=None):
+        def counted(real, name):
+            def write(*args, **kwargs):
+                if len(writes) == kill_at:
+                    if name == "append":
+                        line = (json.dumps(args[1], ensure_ascii=False) + "\n").encode("utf-8")
+                        with open(args[0], "ab") as handle:
+                            handle.write(line[: len(line) // 2])
+                    raise KeyboardInterrupt(f"killed at write {kill_at}, {name}")
+                writes.append(name)
+                result = real(*args, **kwargs)
+                if kill_at is None and name == "append" and args[1]["state"] == "applied":
+                    expected.append(journal_and_corpus(corpus))
+                return result
+            return write
+
+        with monkeypatch.context() as m:
+            m.setattr(mutate, "append", counted(mutate.append, "append"))
+            m.setattr(os, "replace", counted(os.replace, "replace"))
+            m.setattr(Path, "write_bytes", counted(Path.write_bytes, "write_bytes"))
+            m.setattr(Path, "unlink", counted(Path.unlink, "unlink"))
+            mutate.mutate(count=len(mutate.KINDS), seed=3)
+
+    run()
+    clean = list(writes)
+    assert len(expected) == len(mutate.KINDS) + 1 and {"append", "replace", "write_bytes", "unlink"} == set(clean)
+    for kill_at in range(len(clean)):
+        shutil.rmtree(corpus / "full")
+        shutil.copytree(pristine, corpus / "full")
+        (corpus / "full.journal.jsonl").unlink(missing_ok=True)
+        shutil.rmtree(corpus / "full.staging", ignore_errors=True)
+        writes.clear()
+        with pytest.raises(KeyboardInterrupt):
+            run(kill_at)
+        assert mutate.mutate(count=0) == []
+        changes, files = journal_and_corpus(corpus)
+        assert all(c["state"] == "applied" for c in changes), kill_at
+        assert (changes, files) == expected[len(changes)], f"killed at write {kill_at}, {clean[kill_at]}"
+        assert not (corpus / "full.staging").exists(), kill_at
+        # The journal takes the next change cleanly, so nothing of a line cut short was left in it.
+        mutate.mutate(count=1, seed=11)
+        assert [c["seq"] for c in mutate.entries(corpus / "full.journal.jsonl")] == list(range(1, len(changes) + 2)), kill_at
+
+
+def test_one_writer_at_a_time(corpus):
+    # OP-F3: two simulators, or a simulator and a build, would interleave their writes and their journal.
+    with exclusive(corpus):
+        with pytest.raises(CorpusBusy):
+            mutate.mutate(count=1)
+        with pytest.raises(CorpusBusy):
+            assemble.assemble()
+    assert not (corpus / "full.journal.jsonl").exists()
+    assert [e["seq"] for e in mutate.mutate(count=1)] == [1]
+
+
+HOLD = ("import pathlib, sys, time\nfrom needtoknow.corpus import exclusive\n"
+        "with exclusive(pathlib.Path(sys.argv[1])):\n    print('held', flush=True)\n    time.sleep(60)\n")
+
+
+def test_a_writer_that_dies_leaves_no_lock_behind(corpus):
+    holder = subprocess.Popen([sys.executable, "-c", HOLD, str(corpus)], stdout=subprocess.PIPE, text=True)
+    try:
+        assert holder.stdout.readline().strip() == "held"
+        with pytest.raises(CorpusBusy):
+            mutate.mutate(count=1)
+    finally:
+        holder.kill()
+        holder.wait()
+        holder.stdout.close()
+    for _ in range(50):
+        try:
+            assert [e["seq"] for e in mutate.mutate(count=1)] == [1]
+            break
+        except CorpusBusy:
+            time.sleep(0.1)
+    else:
+        pytest.fail("the lock outlived the process that held it")
+
+
+def test_the_simulator_leaves_no_file_open(corpus):
+    # DR-F6: measured with -X dev, the first simulator left the journal open after counting its lines.
+    code = "from needtoknow.corpus.mutate import mutate\nmutate(9, seed=3)\nmutate(9, seed=4)\n"
+    run = subprocess.run([sys.executable, "-X", "dev", "-c", code], capture_output=True, text=True, encoding="utf-8", errors="replace")
+    assert run.returncode == 0, run.stderr[-2000:]
+    assert "ResourceWarning" not in run.stderr, run.stderr[-2000:]
