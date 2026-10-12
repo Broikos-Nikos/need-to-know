@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**69 findings, 40 closed, 29 open**, from 12 reviews. Each audit pass took one perspective and nothing else.
+**71 findings, 40 closed, 31 open**, from 13 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -115,6 +115,15 @@ An audit pass that tried to make restricted text readable by the wrong role. 4 f
 | `AC-F2` | high | fixed, tick 41 | An audience line in another case or with another separator is ignored and the section falls back to the document owner: recognise any case, accents and separator |
 | `AC-F3` | high | fixed, tick 41 | In html an audience line overrides a narrower data-audience: take the intersection when they disagree, and count it |
 | `AC-F4` | medium | fixed, tick 43 | A heading path carries restricted headings into text everyone may read: a path keeps only headings that every reader of the element may read |
+
+## `RC`, the recruiter
+
+An audit pass of ten seconds on the first screen, by someone who hires but does not build. 2 findings, 0 closed.
+
+| id | severity | status | finding |
+|---|---|---|---|
+| `RC-F1` | medium | open | The README opens with jargon, a vector database RAG project, and the plain idea comes forty words in: lead with what it does for a person |
+| `RC-F2` | medium | open | Nothing in the first screen can be seen or tried: the capture goes above everything when P6 lands |
 
 ## `KB1`, the plan, reviewed against a knowledge base
 
