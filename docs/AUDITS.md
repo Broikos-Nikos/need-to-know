@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**147 findings, 105 closed, 42 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**148 findings, 105 closed, 43 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -34,7 +34,7 @@ An audit pass that tried to break a first run. 17 findings, 15 closed.
 
 ## `RS`, the retrieval scientist
 
-An audit pass on whether the evaluation can fail and its statistics are honest. 22 findings, 12 closed.
+An audit pass on whether the evaluation can fail and its statistics are honest. 23 findings, 12 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -60,6 +60,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 | `RS-F20` | low | fixed, tick 101 | The items' language and category shares are checked in the spec, not in the hashed protocol: add them to item_properties with how close they must match |
 | `RS-F21` | low | fixed, tick 114 | The test items were drafted with the planted sentences in view, against the registered rewrite without them; the cap on shared rare terms holds them and eval/golden/README.md says so: the dev items are drafted from the registry's topic and value alone |
 | `RS-F22` | medium | open | The categories overlap: A, B and C items also sit in mixed files (T02 and T05, A; T12 and T14, C; D026, D031 and D032 in dev), so a D against A comparison understates what a mixed file costs: report beside each item whether a file it is planted in, that its role reads, holds a section the role may not, and give the mixed file effect over every answered item by that property |
+| `RS-F23` | medium | open | F07V04's current value, a 29 month minimum term for fixed wireless broadband, breaks the EU's 24 month cap on a consumer's commitment (Directive (EU) 2018/1972, Article 105(1)), and its former value is exactly that cap: a model that knows the law answers the superseded value, so a miss on the three dev G items D013 to D015 may be knowledge, not recency; the closed book run must mark them and G be reported with and without them |
 
 ## `DR`, the deep reviewer
 
