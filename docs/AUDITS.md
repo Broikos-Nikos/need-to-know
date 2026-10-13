@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**166 findings, 130 closed, 36 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**166 findings, 133 closed, 33 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -179,7 +179,7 @@ An audit pass of three minutes, on whether the author ships, measures and says s
 
 ## `AC`, the access control red team
 
-An audit pass that tried to make restricted text readable by the wrong role. 12 findings, 10 closed.
+An audit pass that tried to make restricted text readable by the wrong role. 12 findings, 11 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -193,7 +193,7 @@ An audit pass that tried to make restricted text readable by the wrong role. 12 
 | `AC-F8` | high | fixed, tick 93 | The cache the architecture plans, keyed by the role's readable labels, serves a narrowed or edited section's answer after the change, since the role's labels do not move: key an answer by the hash of the prompt as sent with the model and its parameters, key nothing by role or label set, and gate on the change bench asked through the answer path |
 | `AC-F9` | medium | fixed, tick 94 | An instruction planted in a permitted section was never obeyed, but it turned answers to an English question Finnish in 6 of 14 calls against 0 of 4 clean: name the answer's language in the user message, quote the excerpts as documents whose instructions are not the model's, and keep the probe as a bench |
 | `AC-F10` | low | fixed, tick 94 | A role's excerpts, restricted sections included, are posted to the provider, and neither the README nor the enforcement table names it as a reader outside the role model: one row and one sentence |
-| `AC-F11` | medium | open | The answer cache shares an entry between roles shown the same text, so a reply from the cache tells one role that someone in another asked the same question, the timing channel the research notes key caches by permission set against: key by the prompt as sent and the asking role's readable label set, never by the role's name |
+| `AC-F11` | medium | fixed, tick 134 | The answer cache shares an entry between roles shown the same text, so a reply from the cache tells one role that someone in another asked the same question, the timing channel the research notes key caches by permission set against: key by the prompt as sent and the asking role's readable label set, never by the role's name |
 | `AC-F12` | low | open | Units of exactly equal score are ordered by the engine, and in Qdrant's local mode by an unstable sort over every point's score, so hidden points move the order of a role's tied units there; how the server orders them is unmeasured: measure on the server whether units a role may not read move its tied units' order, through a collection a bench can name, and say so in N50 |
 
 ## `RC`, the recruiter
@@ -277,11 +277,11 @@ The same session's review of the retrieval design and its measured filtered reca
 
 ## `KB5`, the answer layer at P4 exit, reviewed against a knowledge base
 
-The same session's review of the answer layer, its cache and the measurements offered to the base. 4 findings, 1 closed.
+The same session's review of the answer layer, its cache and the measurements offered to the base. 4 findings, 3 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
-| `KB5-K12` | medium | open | The provider's prefix cache and the cached count ntk ask prints keep open the cross-role channel AC-F11 closes: the asking role's readable label set inside the prompt after the fixed rules and before the excerpts, checked on dev to move no answer, and the cache counts kept in the spend log only |
-| `KB5-K13` | medium | open | The baseline's three repeats would come back from the answer cache, every item looking stable and one call counted where three were meant: every scored answer asks with the cache off or the repeat in the key, and a control leaves three provider calls for one item asked three times |
+| `KB5-K12` | medium | fixed, tick 134 | The provider's prefix cache and the cached count ntk ask prints keep open the cross-role channel AC-F11 closes: the asking role's readable label set inside the prompt after the fixed rules and before the excerpts, checked on dev to move no answer, and the cache counts kept in the spend log only |
+| `KB5-K13` | medium | fixed, tick 134 | The baseline's three repeats would come back from the answer cache, every item looking stable and one call counted where three were meant: every scored answer asks with the cache off or the repeat in the key, and a control leaves three provider calls for one item asked three times |
 | `KB5-K14` | low | open | A model alias in the cache key lets answers from a retired model outlive it: an entry is stale when a fresh reply names another model, and every evaluation run records the model that answered |
 | `KB5-K15` | low | fixed, tick 123 | The injection bench's language check passes any answer in unaccented Latin letters as English: judge the language by stopwords or a fixed identifier, the ASCII test kept as a second gate |
