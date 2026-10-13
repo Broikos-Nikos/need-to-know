@@ -1,0 +1,97 @@
+"""Another draw of the corpus (T5.5e, RS-F6): the same documents, sections and writers' prose, with the facts'
+values and the annexes drawn again from a seed, so a retrieval figure can be read across draws of the generator and
+not only on the one corpus every other number comes from.
+
+`ntk corpus draw --seed S --every N` writes every Nth document of the catalogue to `NTK_DATA_DIR/corpus/draw-S/`,
+each with its sidecar, and the draw's plan to `draw-S/plan/`, the catalogue cut to those documents and every fact
+with the value it holds there. A single fact or a regional variant takes a new value from its own template under the
+seed, written into every sentence that plants it; a versioned fact and the one it superseded keep theirs, since their
+pair is what their items ask about. The annexes, each document's register, directory and small tables, are assembled
+under the seed, sized as in the whole corpus. The base seed keeps every value and every annex, so its draw is the
+corpus's own documents, byte for byte.
+"""
+
+from __future__ import annotations
+
+import json
+import random
+import re
+from pathlib import Path
+
+from needtoknow.corpus import dump_json, narrative_dir
+from needtoknow.corpus.assemble import assemble_doc, budgets, legacy_id
+from needtoknow.corpus.mutate import as_written
+from needtoknow.corpus.plan import SEED, TEMPLATES, num, world
+from needtoknow.policy import load_labels
+from needtoknow.settings import data_dir
+
+
+class DrawError(RuntimeError):
+    """A draw that could not write a fact's new value where the plan put it."""
+
+
+def swap(sentence: str, old: str, new: str) -> str:
+    """The value as a whole token: no letter, digit, point or comma before it, and no digit after it or after a
+    following point or comma, so the 7 of 7.5 or of 17 is never taken for it, while a full stop or a Greek ordinal's
+    ending, 17η, may follow."""
+    return re.sub(rf"(?<![\w.,]){re.escape(old)}(?!\d|[.,]\d)", lambda _: new, sentence, count=1)
+
+
+def redraw(facts: list[dict], seed: int) -> list[dict]:
+    """The facts with each single fact's and regional variant's value drawn again from its template under the seed."""
+    if seed == SEED:
+        return [dict(f) for f in facts]
+    out = []
+    for f in facts:
+        g = dict(f)
+        if f["kind"] in ("single", "variant"):
+            values = TEMPLATES[int(f["family"][1:3])][5]
+            raw = values(random.Random(f"{seed}:{f['id']}"), int(f["id"][4:6]))
+            value = raw if isinstance(raw, tuple) else num(raw)
+            g["values"] = list(value)
+            for lang, old, new in (("en", f["values"][0], value[0]), ("el", f["values"][1], value[1])):
+                g[lang] = swap(f[lang], old, new)
+                if old != new and g[lang] == f[lang]:
+                    raise DrawError(f"{f['id']}: {old!r} is not a whole token of its {lang} sentence")
+        out.append(g)
+    return out
+
+
+def draw(seed: int, every: int) -> dict:
+    """Every `every`th document of the plan, its values and annexes drawn under `seed`; what was written."""
+    base = data_dir() / "corpus"
+    catalogue = json.loads((base / "plan" / "catalogue.json").read_text(encoding="utf-8"))
+    facts = json.loads((base / "plan" / "facts.json").read_text(encoding="utf-8"))
+    drawn = redraw(facts, seed)
+    docs = catalogue[::every]
+    out = base / f"draw-{seed}"
+    (out / "plan").mkdir(parents=True, exist_ok=True)
+    (out / "narrative").mkdir(parents=True, exist_ok=True)
+    w = world()
+    shares = {label: entry["target_share"] for label, entry in load_labels().items()}
+    budget = budgets(catalogue, shares, w, seed)
+    legacy = legacy_id(catalogue)
+    narrative = narrative_dir(base)
+    report = {"seed": seed, "documents": len(docs), "values": sum(f["values"] != g["values"] for f, g in zip(facts, drawn)),
+              "sentences": 0, "bytes": 0}
+    for doc in docs:
+        lang = doc["language"]
+        text = (narrative / f"{doc['id']}.txt").read_text(encoding="utf-8")
+        for f, g in zip(facts, drawn):
+            if doc["id"] in f["placements"] and f[lang] != g[lang]:
+                if f[lang] not in text:
+                    raise DrawError(f"{doc['id']}: the planted sentence of {f['id']} is not in its narrative")
+                text = text.replace(f[lang], g[lang])
+                report["sentences"] += 1
+        source = out / "narrative" / f"{doc['id']}.txt"
+        source.write_bytes(text.encode("utf-8"))
+        size, _ = assemble_doc(doc, source, w, out, legacy, budget[doc["id"]], seed)
+        written = (out / f"{doc['id']}.{doc['format']}").read_bytes().decode(
+            "cp1253" if doc["id"] == legacy else "utf-8")
+        for g in drawn:
+            if doc["id"] in g["placements"] and as_written(g[lang], doc["format"]) not in written:
+                raise DrawError(f"{doc['id']}: {g['id']}'s sentence is not in the assembled file as its format writes it")
+        report["bytes"] += size
+    dump_json(out / "plan" / "catalogue.json", docs)
+    dump_json(out / "plan" / "facts.json", drawn)
+    return report

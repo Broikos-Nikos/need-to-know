@@ -144,9 +144,10 @@ def directory_rows(lang: str, rng: random.Random, w: dict, n: int) -> list[str]:
             f"{rng.randint(30000, 89999)}" for _ in range(n)]
 
 
-def small_tables(doc: dict, w: dict) -> list[tuple[str, str, list[str]]]:
-    """The forms, the glossary and the revision history, as (kind, audience, rows): small, and fixed per document."""
-    lang, rng = doc["language"], random.Random(f"{SEED}:{doc['id']}:small")
+def small_tables(doc: dict, w: dict, seed: int = SEED) -> list[tuple[str, str, list[str]]]:
+    """The forms, the glossary and the revision history, as (kind, audience, rows): small, and fixed per document and
+    seed; another seed is another draw of the corpus (RS-F6)."""
+    lang, rng = doc["language"], random.Random(f"{seed}:{doc['id']}:small")
     forms = []
     for number in rng.sample(range(10, 100), rng.randint(2, 5)):
         for field in rng.sample(FIELDS[lang], rng.randint(4, len(FIELDS[lang]))):
@@ -182,7 +183,7 @@ def rows_per_unit(kind: str, lang: str) -> float:
     return SAMPLE_ROWS / units_of(kind, lang, rows)
 
 
-def budgets(docs: list[dict], shares: dict[str, float], w: dict) -> dict[str, dict[str, int]]:
+def budgets(docs: list[dict], shares: dict[str, float], w: dict, seed: int = SEED) -> dict[str, dict[str, int]]:
     """Rows of each document's register and directory, so that every label's share of units meets its share.
 
     The plan's sizes set the scale, UNITS_PER_MB units per planned megabyte. General's
@@ -193,7 +194,7 @@ def budgets(docs: list[dict], shares: dict[str, float], w: dict) -> dict[str, di
     total = UNITS_PER_MB * sum(d["target_mb"] for d in docs)
     units = Counter(s["label"] for d in docs for s in d["sections"])
     for d in docs:
-        for kind, audience, rows in small_tables(d, w):
+        for kind, audience, rows in small_tables(d, w, seed):
             units[audience] += units_of(kind, d["language"], rows)
     out = {d["id"]: {"register": 0, "directory": 0} for d in docs}
 
@@ -331,9 +332,10 @@ def legacy_id(docs: list[dict]) -> str | None:
 
 
 def assemble_doc(doc: dict, source: Path, w: dict, out: Path, legacy: str | None,
-                 budget: dict[str, int]) -> tuple[int, Counter]:
-    """One document and its sidecar into `out`; returns the bytes written and the units by label."""
-    lang, rng = doc["language"], random.Random(f"{SEED}:{doc['id']}")
+                 budget: dict[str, int], seed: int = SEED) -> tuple[int, Counter]:
+    """One document and its sidecar into `out`, its annexes drawn under `seed`; returns the bytes written and the
+    units by label."""
+    lang, rng = doc["language"], random.Random(f"{seed}:{doc['id']}")
     sections = [(head, body, None) for head, body in parse_sections(source.read_text(encoding="utf-8"))]
     units = Counter(s["label"] for s in doc["sections"])
     owner_name = LABEL_EL[doc["owner"]] if lang == "el" else LABEL_EN[doc["owner"]]
@@ -341,7 +343,7 @@ def assemble_doc(doc: dict, source: Path, w: dict, out: Path, legacy: str | None
     meta_line = (f"Έγγραφο {doc['id']}, έκδοση {doc['version']}, η Εταιρεία, εσωτερική χρήση" if lang == "el"
                  else f"Document {doc['id']}, version {doc['version']}, the Company, internal use")
     tables = [(doc["owner"], doc["owner"], register_rows(doc["owner"], lang, rng, w, budget["register"])),
-              ("directory", "general", directory_rows(lang, rng, w, budget["directory"]))] + small_tables(doc, w)
+              ("directory", "general", directory_rows(lang, rng, w, budget["directory"]))] + small_tables(doc, w, seed)
     prefix = "Παράρτημα" if lang == "el" else "Annex"
     for letter, (kind, audience, rows) in enumerate(t for t in tables if t[2]):
         en, el, columns_en, columns_el = TITLES[kind]

@@ -37,9 +37,11 @@ def build_parser() -> argparse.ArgumentParser:
     checkup.add_argument("--offline", action="store_true", help="skip the live calls to DeepSeek")
     corpus = commands.add_parser("corpus", help="plan the corpus, assemble it from the writers' narrative, check it, "
                                                 "measure who may read it, or change it")
-    corpus.add_argument("action", choices=("plan", "assemble", "check", "coverage", "mutate", "samples"))
+    corpus.add_argument("action", choices=("plan", "assemble", "check", "coverage", "mutate", "samples", "draw"))
     corpus.add_argument("--count", type=int, default=9, help="mutate: how many changes to apply")
-    corpus.add_argument("--seed", type=int, default=1, help="mutate: the seed that picks documents and values")
+    corpus.add_argument("--seed", type=int, default=1, help="mutate: the seed that picks documents and values; draw: "
+                                                            "the seed the values and annexes are drawn under")
+    corpus.add_argument("--every", type=int, default=8, help="draw: every this many documents of the catalogue")
     ingest = commands.add_parser("ingest", help="cut the assembled corpus into units and record them in the manifest")
     ingest.add_argument("action", choices=("build", "scan", "watch"))
     # Half a second: a change waits two intervals before its scan, and a look costs 9 ms (N53).
@@ -626,6 +628,17 @@ def cmd_corpus(args: argparse.Namespace, out=None) -> int:
                                for label, share in report["registered"].items())
             print(f"units {units}, a prose section or a group of rows as the units step cuts it; share by label, registered in "
                   f"brackets: {shares}", file=out)
+        return 0
+    if args.action == "draw":
+        from needtoknow.corpus.draw import DrawError, draw
+        try:
+            report = draw(args.seed, args.every)
+        except (DrawError, OSError) as error:
+            print(f"corpus draw: {error}", file=out, flush=True)
+            return 1
+        print(f"draw {report['seed']}: {report['documents']} documents, every {args.every}th; {report['values']} facts "
+              f"drawn a new value, {report['sentences']} planted sentences rewritten; {report['bytes']:,} bytes in "
+              f"corpus/draw-{report['seed']}", file=out, flush=True)
         return 0
     if args.action == "samples":
         from needtoknow.corpus.assemble import samples
