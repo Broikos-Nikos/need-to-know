@@ -28,9 +28,12 @@ FACTS = [
 ]
 CATALOGUE = [{"id": "D1", "language": "en", "sections": [{"label": "sales", "facts": ["F06V00", "F09V00", "F09V00OLD"]}]},
              {"id": "D2", "language": "el", "sections": [{"label": "legal", "facts": ["F38V00", "F34V00"]}]}]
-SPLIT = {"split": [{"id": "F06V00", "split": "test", "facts": ["F06V00"]},
-                   {"id": "F38V00", "split": "test", "facts": ["F38V00", "F34V00"]},
-                   {"id": "F09V00", "split": "dev", "facts": ["F09V00", "F09V00OLD"]}]}
+SPLIT = {"split": [{"id": "F06V00", "split": "test", "kind": "single", "label": "sales", "defaults": {},
+                    "facts": ["F06V00"]},
+                   {"id": "F38V00", "split": "test", "kind": "single", "label": "legal",
+                    "defaults": {"F34V00": "the 14 days of withdrawal"}, "facts": ["F38V00", "F34V00"]},
+                   {"id": "F09V00", "split": "dev", "kind": "versioned", "label": "sales", "defaults": {},
+                    "facts": ["F09V00", "F09V00OLD"]}]}
 RARE = {"maximum": 1, "percent": 2, "discount": 3, "shop": 9}  # every other term common
 
 
@@ -134,3 +137,23 @@ def test_the_committed_test_items_keep_their_rules():
     summary, problems = G.check()
     assert summary["test"]["items"] == 35
     assert [p for p in problems if not p.startswith("dev")] == []
+
+
+def test_a_line_that_is_json_but_no_item_and_a_missing_split_are_refused_by_name(tmp_path, monkeypatch, ctx):
+    # HS-F16: both reached the command as a traceback.
+    (tmp_path / "test.jsonl").write_text(json.dumps(item()) + "\n[1, 2]\n", encoding="utf-8")
+    monkeypatch.setattr(G, "golden_path", lambda split: tmp_path / f"{split}.jsonl")
+    with pytest.raises(G.GoldenError, match="test.jsonl line 2 is JSON but not an item"):
+        G.check(ctx)
+    monkeypatch.setattr(G, "split_path", lambda: tmp_path / "families.json")
+    with pytest.raises(G.GoldenError, match="no families.json: ntk eval split writes it"):
+        G.Context(protocol=ctx.protocol, facts=FACTS, catalogue=CATALOGUE, policy=POLICY, df=ctx.df)
+
+
+def test_the_writers_view_blanks_the_value_and_the_rare_words_and_names_the_stems(ctx):
+    # RS-F21: items are drafted without the words that decide retrieval in view.
+    assert G.masked("From 1 March 2024, an upgrade comes after 24 months.", ["24"], ["march", "upgrad"]) == \
+        "From 1 ___ 2024, an ___ comes after [value] months."  # a value of 24 leaves the year whole
+    view = "\n".join(G.draft_view("test", ctx))
+    assert "In shops the ___ ___ is [value] ___" in view and "[rare: maximum, percent, discount;" in view
+    assert "maximum discount" not in view and "F09V00" not in view  # a dev family stays out of the test's view

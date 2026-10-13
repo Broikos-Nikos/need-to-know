@@ -68,8 +68,10 @@ def build_parser() -> argparse.ArgumentParser:
     reply.add_argument("--no-cache", action="store_true", help="ask the provider even when the cache holds the answer")
     evaluation = commands.add_parser("eval", help="draw the fact families' split by the protocol, or check the golden "
                                                   "items against it")
-    evaluation.add_argument("action", choices=("split", "check"))
-    evaluation.add_argument("--check", action="store_true", help="draw again and compare with eval/families.json")
+    evaluation.add_argument("action", choices=("split", "check", "draft"))
+    evaluation.add_argument("--check", action="store_true", help="split: draw again and compare with eval/families.json")
+    evaluation.add_argument("--split", choices=("dev", "test"), default="dev",
+                            help="draft: the split whose families to show, planted sentences masked")
     embed = commands.add_parser("embed", help="embed every unit of the manifest whose passage the vector cache lacks")
     embed.add_argument("--budget", type=int, help="padded tokens per batch; config/models.toml sets the default")
     return parser
@@ -311,6 +313,15 @@ def cmd_eval(args: argparse.Namespace, out=None) -> int:
     out = out or sys.stdout
     if args.action == "check":
         return cmd_eval_check(out)
+    if args.action == "draft":
+        from needtoknow.eval.golden import Context, GoldenError, draft_view
+        try:
+            lines = draft_view(args.split, Context())
+        except (GoldenError, ProtocolError, SplitError) as error:
+            print(f"eval draft: {error}", file=out, flush=True)
+            return 1
+        print("\n".join(lines), file=out, flush=True)
+        return 0
     try:
         result = split()
     except (SplitError, ProtocolError) as error:

@@ -32,6 +32,7 @@ the rest, so every figure can be given by layer (KB1-F8).
 from __future__ import annotations
 
 import json
+import re
 import sqlite3
 from collections import Counter
 from collections.abc import Callable
@@ -67,9 +68,12 @@ def load_items(path: Path) -> list[dict]:
     for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
         if line.strip():
             try:
-                items.append(json.loads(line))
+                item = json.loads(line)
             except ValueError as error:
                 raise GoldenError(f"{path.name} line {number} is not JSON: {error}") from None
+            if not isinstance(item, dict):
+                raise GoldenError(f"{path.name} line {number} is JSON but not an item: an item is an object")
+            items.append(item)
     return items
 
 
@@ -92,6 +96,8 @@ class Context:
 
     def __init__(self, protocol=None, split=None, facts=None, catalogue=None, policy=None, df=None):
         self.protocol = protocol or load_protocol()
+        if split is None and not split_path().is_file():
+            raise GoldenError(f"no {split_path().name}: ntk eval split writes it")
         result = split or json.loads(split_path().read_text(encoding="utf-8"))
         self.families = {f["id"]: f for f in result["split"]}
         if facts is None or catalogue is None:
@@ -106,6 +112,39 @@ class Context:
         fact = self.facts[fact_id]
         return [(doc_id, next(s for s in self.docs[doc_id]["sections"] if fact_id in s["facts"]))
                 for doc_id in fact["placements"]]
+
+
+def masked(sentence: str, values: list[str], rare: list[str]) -> str:
+    """A planted sentence with its value and every word holding one of its rarest terms blanked."""
+    for value in sorted(set(values), key=len, reverse=True):  # whole numbers only: a value of 24 leaves 2024 alone
+        sentence = re.sub("(?<![0-9])" + re.escape(value) + "(?![0-9])", "[value]", sentence)
+    return " ".join("___" if set(lexical.terms(word)) & set(rare) else word for word in sentence.split())
+
+
+def draft_view(split: str, ctx: Context) -> list[str]:
+    """The split's families as a writer drafts from them (RS-F21): each fact's planted sentence with its value and its
+    three rarest terms blanked, so the subject is plain and the words that decide retrieval are not in view; and where
+    it sits, each document's language, the section's label and the other labels in the file, for C, D and E."""
+    lines = []
+    count = ctx.protocol["items"]["rare_terms"]
+    for fid, family in sorted(ctx.families.items()):
+        if family["split"] != split:
+            continue
+        lines.append(f"{fid}: {family['kind']}, {family['label']}"
+                     + (f"; defaults {', '.join(sorted(family['defaults']))}" if family["defaults"] else ""))
+        for fact_id in family["facts"]:
+            fact = ctx.facts[fact_id]
+            for language_of in sorted({ctx.docs[d]["language"] for d in fact["placements"]}):
+                rare = rare_terms(fact[language_of], ctx.df, count)
+                lines.append(f"  {fact_id} {fact['kind']} {language_of}: {masked(fact[language_of], fact['values'], rare)}"
+                             f"  [rare: {', '.join(rare)}; at most one in a question]")
+            where = []
+            for doc_id, section in ctx.sections(fact_id):
+                others = sorted({s["label"] for s in ctx.docs[doc_id]["sections"]} - {section["label"]})
+                where.append(f"{doc_id} {ctx.docs[doc_id]['language']} {section['label']}"
+                             + (f" beside {', '.join(others)}" if others else ""))
+            lines.append(f"    value {fact['values']}; {'; '.join(where)}")
+    return lines
 
 
 def layer(item: dict) -> str:
