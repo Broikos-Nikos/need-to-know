@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**157 findings, 120 closed, 37 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**157 findings, 121 closed, 36 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -34,14 +34,14 @@ An audit pass that tried to break a first run. 17 findings, 15 closed.
 
 ## `RS`, the retrieval scientist
 
-An audit pass on whether the evaluation can fail and its statistics are honest. 27 findings, 20 closed.
+An audit pass on whether the evaluation can fail and its statistics are honest. 27 findings, 21 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `RS-F1` | high | fixed, tick 9 | The baseline's redraw lets a test score choose the split, and a redraw moves read dev families into test: balance at construction on outcome free properties, report the dev and test difference only |
 | `RS-F2` | medium | fixed, tick 98 | Repeats have no registered aggregation: register three repeats, the per item mean and an interval over items, for every release and for the incumbent on dev |
 | `RS-F3` | medium | fixed, tick 102 | The overlap guard counts surface words; measure it with the lexical analyser BM25 uses (Greek: 0 of 6 surface, 3 of 6 stems on one example) |
-| `RS-F4` | medium | open | Probes have no overlap guard and dev probes decide E2 and E5: question templates disjoint from statement templates, the stemmed guard, the overlap distribution reported |
+| `RS-F4` | medium | fixed, tick 126 | Probes have no overlap guard and dev probes decide E2 and E5: question templates disjoint from statement templates, the stemmed guard, the overlap distribution reported |
 | `RS-F5` | medium | open | Pooled recall counts a general fact nine times and a department's fact twice: each probe once under its most selective permitted role, per role beside it |
 | `RS-F6` | medium | open | Every number comes from one corpus draw: the small profile at two more seeds, the spread of the retrieval numbers reported, accuracy stated as one corpus |
 | `RS-F7` | medium | fixed, tick 119 | The accuracy has an 18 percent floor (9 of 50 by always answering not_found) and no null or oracle run is planned: run both through the scorer, publish them |
