@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**178 findings, 147 closed, 31 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**178 findings, 149 closed, 29 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -34,7 +34,7 @@ An audit pass that tried to break a first run. 17 findings, 16 closed.
 
 ## `RS`, the retrieval scientist
 
-An audit pass on whether the evaluation can fail and its statistics are honest. 29 findings, 28 closed.
+An audit pass on whether the evaluation can fail and its statistics are honest. 29 findings, 29 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -43,7 +43,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 | `RS-F3` | medium | fixed, tick 102 | The overlap guard counts surface words; measure it with the lexical analyser BM25 uses (Greek: 0 of 6 surface, 3 of 6 stems on one example) |
 | `RS-F4` | medium | fixed, tick 126 | Probes have no overlap guard and dev probes decide E2 and E5: question templates disjoint from statement templates, the stemmed guard, the overlap distribution reported |
 | `RS-F5` | medium | fixed, tick 127 | Pooled recall counts a general fact nine times and a department's fact twice: each probe once under its most selective permitted role, per role beside it |
-| `RS-F6` | medium | open | Every number comes from one corpus draw: the small profile at two more seeds, the spread of the retrieval numbers reported, accuracy stated as one corpus |
+| `RS-F6` | medium | fixed, tick 146 | Every number comes from one corpus draw: the small profile at two more seeds, the spread of the retrieval numbers reported, accuracy stated as one corpus |
 | `RS-F7` | medium | fixed, tick 119 | The accuracy has an 18 percent floor (9 of 50 by always answering not_found) and no null or oracle run is planned: run both through the scorer, publish them |
 | `RS-F8` | low | fixed, tick 98 | A multi valued experiment has no rule for choosing among its values: compare each with the incumbent, adopt the cheapest that clears an arm, or Holm within it |
 | `RS-F9` | low | fixed, tick 122 | Part of the simulation's false claims is an assumed probe coin (0.12 to 0.18 without it): print the assumption or simulate the probe arm |
@@ -70,7 +70,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 
 ## `DR`, the deep reviewer
 
-An audit pass on correctness, read in the logic rather than the comments. 30 findings, 27 closed.
+An audit pass on correctness, read in the logic rather than the comments. 30 findings, 28 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -102,7 +102,7 @@ An audit pass on correctness, read in the logic rather than the comments. 30 fin
 | `DR-F26` | low | fixed, tick 142 | The scorer misses a Greek time range written with its articles: D053's third answer, 'από τις 07:00 έως τις 15:00', is right and was scored wrong, the form '07:00 έως 15:00' not standing whole in it: read the articles between a range's words and its times as nothing, test it both ways, and score the baseline's dev answers again at the new scorer hash |
 | `DR-F27` | high | fixed, tick 145 | The closed book run asks under the same rules as the open one, which forbid the model's own knowledge and any guess, so every closed book answer was a refusal, and the zero the baseline report calls the model's own knowledge is the instruction's; KB1-F7 was closed on it: ask the closed book questions under rules that let the model answer from what it knows, report that floor with the deliberate defaults and the item against the law apart, keep the run under the real rules as the check that they hold with no documents, and say in the README which is which |
 | `DR-F28` | low | fixed, tick 145 | A run resumed with another book, split or purpose is accepted into the same file under the first provenance, a last line cut mid write stops any resume with a JSONDecodeError, and the baseline report prints the test run's provenance for all four runs: compare the sidecar on a resume, set a cut last line aside, and compare the four provenances in the report |
-| `DR-F29` | low | open | ntk corpus draw prints new values counted over the plan's facts beside sentences counted in its own documents, takes 0 and negatives for --every, and writes a plan whose facts point at documents its catalogue lacks, on which the probe generator stops with a KeyError: count what the drawn documents hold, refuse --every below 1, and cut the draw's plan to the facts its documents plant |
+| `DR-F29` | low | fixed, tick 146 | ntk corpus draw prints new values counted over the plan's facts beside sentences counted in its own documents, takes 0 and negatives for --every, and writes a plan whose facts point at documents its catalogue lacks, on which the probe generator stops with a KeyError: count what the drawn documents hold, refuse --every below 1, and cut the draw's plan to the facts its documents plant |
 | `DR-F30` | low | open | The other append only line files break on a last line a stopped write cut, the shape DR-F28 fixed in the runner: spend() and the canary scan raise on such a line of the spend log, and the change journal skips it but decodes the whole file first, so a cut inside a Greek letter raises, and its crash recovery appends after it, gluing the next record to it: one helper that cuts such a line before appending and reads whole lines as bytes, used by every reader and writer of these files |
 
 ## `OP`, the pipeline operator
