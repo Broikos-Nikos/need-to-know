@@ -28,7 +28,7 @@ from pathlib import Path
 
 from needtoknow.eval.golden import Context, golden_path, load_items
 from needtoknow.eval.protocol import check_use
-from needtoknow.eval.score import FAMILY, Sources, over_repeats
+from needtoknow.eval.score import FAMILY, Sources, over_repeats, scorer_hash
 from needtoknow.eval.stats import difference, unit_means, wilson
 
 
@@ -68,7 +68,8 @@ def main() -> int:
     print(f"baseline at {first.get('commit', '?')[:12]}{'' if first.get('clean') else ', tree not clean'}; protocol "
           f"version {first.get('protocol_version')}; {first.get('model')} at temperature "
           f"{first.get('settings', {}).get('temperature')}; manifest run {(first.get('manifest') or {}).get('run')}, "
-          f"{(first.get('manifest') or {}).get('units')} units; {len(runs['test']['repeats'])} repeats")
+          f"{(first.get('manifest') or {}).get('units')} units; {len(runs['test']['repeats'])} repeats; scorer "
+          f"{scorer_hash()[:16]}")
     test = runs["test"]
     scores = test["scores"]
     family = [item for item in items["test"] if item["category"] in FAMILY]
@@ -84,6 +85,12 @@ def main() -> int:
         for axis, groups in run["by"].items():
             print(f"  by {axis}: " + "; ".join(f"{key} {g['rate']:.3f} of {g['items']}" for key, g in groups.items()
                                                if g["rate"] is not None))
+        misses = run["misses"]
+        print(f"  wrong answers to answerable items over the repeats: {len(misses['not shown'])} not shown a section "
+              f"planting every fact they needed" + (f" ({', '.join(misses['not shown'])})" if misses["not shown"]
+                                                    else "") + f"; {len(misses['shown'])} shown every one"
+              + (f" ({', '.join(misses['shown'])})" if misses["shown"] else ""))
+        print(f"  verdicts that differ between two repeats: {run['discordance']:.4f} of the items, over every pair")
     for split in ("test", "dev"):
         closed = runs[split + "-closed"]
         on_defaults = [item["id"] for item in items[split] if item["category"] == "E" and closed["leaked"].get(item["id"])

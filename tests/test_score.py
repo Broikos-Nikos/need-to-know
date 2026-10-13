@@ -47,6 +47,10 @@ def answer(text="The cap is 7 percent.", status="answered", citations=(("D1", "P
     ("About 7.5 percent.", "7 percent", False),
     ("A fee of 2,5% a month.", "2.5%", True),
     ("Collected at 15:30 each day.", "15.30", False),  # a time matches as its forms give it
+    # DR-F26: an answer writes the Greek article before a time, a form leaves it out.
+    ("Από τις 07:00 έως τις 15:00 τις εργάσιμες ημέρες.", "07:00 έως 15:00", True),
+    ("Στις 9:00 το πρωί.", "9:00", True),
+    ("Τις εργάσιμες ημέρες.", "εργάσιμες ημέρες", True),  # an article before a word is left alone, and holds
 ])
 def test_matching_reads_both_languages_numbers_and_units_and_keeps_a_form_whole(text, form, found):
     assert S.holds(text, form) is found
@@ -171,6 +175,20 @@ def test_the_prose_items_are_grouped_by_table_rows_shown_and_g_by_a_value_a_law_
     assert figures["by"]["G, on a value a law contradicts"] == {"yes": {"correct": 0, "items": 1, "rate": 0.0},
                                                                "no": {"correct": 1, "items": 1, "rate": 1.0}}
     assert S.score_item(item(), answer(), CTX, SOURCES)["table_rows_shown"] is None  # a run that recorded none
+
+
+def test_a_miss_says_whether_its_excerpts_held_a_section_planting_every_fact():
+    # MA-F17: the README credited the weak categories to retrieval, and some misses had been shown their facts.
+    shown = {**answer("No idea.", "not_found", ()), "excerpts": [{"doc_id": "D1", "section": "Policy > SECTION 2"}]}
+    hidden = {**shown, "excerpts": [{"doc_id": "D7", "section": "Commissions > SECTION 3"}]}
+    assert S.score_item(item(), shown, CTX, SOURCES)["shown_facts"] is True
+    assert S.score_item(item(), hidden, CTX, SOURCES)["shown_facts"] is False
+    assert S.score_item(item(), answer(), CTX, SOURCES)["shown_facts"] is None  # a run that recorded no excerpts
+    run = S.over_repeats([item(), {**item(), "id": "D02"}],
+                         [{**shown, "repeat": 0}, {**hidden, "id": "D02", "repeat": 0},
+                          {**answer(), "repeat": 1}, {**hidden, "id": "D02", "repeat": 1}], CTX, SOURCES)
+    assert run["misses"] == {"not shown": ["D02", "D02"], "shown": ["D01"]}
+    assert run["discordance"] == 0.5  # D01 right in one repeat and wrong in the other; D02 wrong in both
 
 
 def test_a_runs_repeats_score_each_item_by_its_mean_and_mark_a_changed_verdict_unstable():

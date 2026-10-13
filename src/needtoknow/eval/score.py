@@ -87,6 +87,9 @@ UNITS = {"working": "working", "business": "working", "εργασιμες": "wor
          "χρονος": "year", "χρονια": "year", "χρονου": "year",
          "minute": "minute", "minutes": "minute", "λεπτο": "minute", "λεπτα": "minute", "λεπτων": "minute"}
 CURRENCY = {"eur", "euro", "euros", "ευρω", "€"}
+# Greek articles before a number, which an answer writes and a form leaves out: "από τις 07:00 έως τις 15:00" holds
+# "07:00 έως 15:00" (DR-F26). In plain spelling, the final sigma folded.
+ARTICLES = {"τισ", "στισ", "τα", "στα", "το", "στο", "την", "στην", "τησ", "των", "του", "τουσ"}
 # Words that mark a value as the one no longer in force. "Until", "έως" and "μέχρι" are left out: they as often mean
 # "up to", as in "έως 15:00".
 FORMER = ("former", "formerly", "previous", "previously", "used to", " was ", " were ", "earlier", "replaced",
@@ -166,6 +169,8 @@ def normalise(text: str) -> str:
     text = re.sub("[0-9]+(?:[.,][0-9]+)+", number, text)
     tokens = re.findall("[0-9]+(?:[.:][0-9]+)*|[a-zα-ω]+|[^ a-zα-ω0-9]", text)
     tokens = [UNITS_PLAIN.get(t, t) for t in words_to_digits(tokens) if t not in CURRENCY_PLAIN]
+    tokens = [t for n, t in enumerate(tokens)
+              if not (t in ARTICLES and n + 1 < len(tokens) and tokens[n + 1][:1].isdigit())]
     return " ".join(t for t in tokens if t not in {"(", ")", "«", "»", '"', "'", ",", "?", "!", ":", ";"})
 
 
@@ -275,7 +280,9 @@ def score_item(item: dict, answer: dict, ctx, sources: Sources) -> dict:
               "recall": None, "mixed": None,
               "against_law": any(e.get("fact_id") in AGAINST_LAW for e in expect.get("facts") or []),
               # Whether the excerpts shown held table rows, as a run records it; N43's reversal reads it (KB1-F8).
-              "table_rows_shown": answer["tables_shown"] > 0 if isinstance(answer.get("tables_shown"), int) else None}
+              "table_rows_shown": answer["tables_shown"] > 0 if isinstance(answer.get("tables_shown"), int) else None,
+              # Whether they held a section planting every expected fact, so a miss says whose it was (MA-F17).
+              "shown_facts": None}
     if category in REFUSALS:
         for entry in expect.get("forbidden") or []:
             forms = entry.get("forms") or []
@@ -304,10 +311,13 @@ def score_item(item: dict, answer: dict, ctx, sources: Sources) -> dict:
             if present and not all(marked_former(text, form) for form in present):
                 correct = False
     result["correct"] = correct
+    wanted = [sources.of_row(item["row"])] if category == "I" else \
+        [sources.of_fact(e["fact_id"]) for e in facts if e.get("fact_id")]
+    if isinstance(answer.get("excerpts"), list) and wanted:
+        shown = {(e.get("doc_id"), e.get("section")) for e in answer["excerpts"] if isinstance(e, dict)}
+        result["shown_facts"] = all(places & shown for places in wanted)
     if status == "answered":
         cited = {(c.get("doc_id"), c.get("section")) for c in answer.get("citations") or [] if isinstance(c, dict)}
-        wanted = [sources.of_row(item["row"])] if category == "I" else \
-            [sources.of_fact(e["fact_id"]) for e in facts if e.get("fact_id")]
         every = set().union(*wanted) if wanted else set()
         result["precision"] = len(cited & every) / len(cited) if cited else None
         result["recall"] = sum(bool(cited & places) for places in wanted) / len(wanted) if wanted else None
@@ -376,6 +386,16 @@ def figures(results: list[dict]) -> dict:
             "by": by, "scorer": scorer_hash()}
 
 
+def discordance(by_item: dict[str, list[dict]]) -> float | None:
+    """The mean, over every pair of repeats, of the share of items whose verdict differs between the two."""
+    repeats = min((len(results) for results in by_item.values()), default=0)
+    pairs = [(i, j) for i in range(repeats) for j in range(i + 1, repeats)]
+    if not pairs:
+        return None
+    return sum(sum(results[i]["correct"] != results[j]["correct"] for results in by_item.values()) / len(by_item)
+               for i, j in pairs) / len(pairs)
+
+
 def over_repeats(items: list[dict], answers: list[dict], ctx, sources: Sources | None = None) -> dict:
     """A run of several repeats scored as the protocol registers (`[baseline]`): each repeat's figures; every item's
     score its mean over the repeats, and the answerable, refusal, overall and grounded figures as means of those; the
@@ -408,6 +428,13 @@ def over_repeats(items: list[dict], answers: list[dict], ctx, sources: Sources |
             "unstable": sorted(item for item, results in by_item.items() if len({r["correct"] for r in results}) > 1),
             "leaks": sum(figures_["leaks"] for _, figures_ in runs),
             "scores": {r["id"]: r["score"] for r in originals},
+            # The answerable items' wrong answers, by whether their excerpts held every fact's section (MA-F17).
+            "misses": {name: [r["id"] for results, _ in runs for r in results if not r["correct"]
+                              and r["category"] in ANSWERED and r["shown_facts"] is value]
+                       for name, value in (("not shown", False), ("shown", True))},
+            # The share of items whose verdict differs between two repeats, over every pair: the noise any two runs
+            # of one configuration share, beside the discordance N60 assumes of an experiment.
+            "discordance": discordance(by_item),
             "verdicts": {item: [float(r["correct"]) for r in results] for item, results in by_item.items()},
             "leaked": {item: sum(r["leak"] for r in results) for item, results in by_item.items()}}
 

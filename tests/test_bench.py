@@ -247,7 +247,7 @@ def test_the_readme_and_n43_quote_the_recall_benchs_saved_run():
     same = [r for r in selective if not r["across"]]
     across = [r for r in selective if r["across"]]
     readme = " ".join((repo_root() / "README.md").read_text(encoding="utf-8").split())
-    for phrase in (f"top 10 for {at(selective, 10)} of them: {at(same, 10)} when the question",
+    for phrase in (f"top 10 for {at(selective, 10)} of the {len(selective)}: {at(same, 10)} when the question",
                    f"and {at(across, 10)} across languages", f"{at(across, 1)} against {at(same, 1)}.",
                    f"take {share(selective, 'tables', 'top')} percent of that top 10 and "
                    f"{share(selective, 'shown_tables', 'shown_units')} percent of the excerpts' units shown"):

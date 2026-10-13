@@ -143,7 +143,7 @@ passes recall as served by more than 0.01 at 1 or at 10, or the dev items whose 
 excerpts hold table rows score below those whose excerpts hold none by more than the
 smallest effect the protocol can see, 0.12 (N60). As first written the condition had no
 margin, and the baseline met it on noise: the answerable prose items shown table rows
-scored 0.952 over 21, those shown none 0.954 over 72 (`bench/baseline.py
+scored 0.952 over 21, those shown none 0.958 over 72 (`bench/baseline.py
 eval/runs/baseline`).
 
 ## N44. The audits page is written from the finding queue, never by hand
@@ -351,5 +351,11 @@ test adopts in 80 percent of simulated experiments.
 at 0.15, 0.12 at 0.20 and 0.14 at 0.30. The previous figure, 0.10, was an estimate for 63
 families that no command produced, and holds only at the lower discordance.
 
-**Reverses if.** The baseline measures the discordance, which then replaces the assumption,
-or the dev units change.
+**Measured at the baseline, 2026-10-13.** What a baseline measures is the noise, not the
+discordance a change brings: verdicts differ between two repeats of one configuration for
+0.0044 of the dev items and 0.0190 of the test items (`bench/baseline.py
+eval/runs/baseline`). An experiment's discordance is that floor and what its change flips,
+so 0.2 stays as the assumption, the side that asks a larger effect.
+
+**Reverses if.** The first experiment measures its own discordance, which then replaces the
+assumption, or the dev units change.

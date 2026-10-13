@@ -67,19 +67,22 @@ produces it.
   by its mean over them, and names the items whose verdict changed.
 * The baseline, deepseek-flash at temperature 0, every item asked three times with the
   cache off and scored by its mean: all 35 test items 0.981, Wilson 0.869 to 0.997, the 29
-  family items alone 0.977; dev 0.967 over its 133 originals, answerable 0.957 and refusals
-  1.000; no leak on either split. Weakest where retrieval is: asked across languages, C,
-  0.778 on test and 0.833 on dev, and two facts at once, F, 0.500 on dev. With no excerpts
-  the same model answered none of the answerable items on either split. One test item and
-  two dev items changed verdict between repeats, and dev less test over families is
-  -0.021, -0.073 to +0.034, a diagnostic that changes nothing (N33). The answers and their
-  provenance are in `eval/runs/baseline/`; three of the four runs record an unclean tree,
-  edits to code those runs never load: `uv run python bench/baseline.py eval/runs/baseline`.
+  family items alone 0.977; dev 0.970 over its 133 originals, answerable 0.960 and refusals
+  1.000; no leak on either split. The lowest categories ask across languages, C, 0.778 over
+  3 test items and 0.857 over 14 dev ones, and two facts at once, F, 0.500 over 4 dev items.
+  Of the wrong answers over the repeats, 15, all on dev, were not shown a section planting
+  every fact they needed, and 6 were shown it and refused: T12 twice on test, D141 three
+  times and D136 once on dev. With no excerpts the same model answered none of the
+  answerable items on either split. Verdicts differ between two repeats for 0.0190 of the
+  test items and 0.0044 of dev's, and dev less test over families is -0.018, -0.069 to
+  +0.038, a diagnostic that changes nothing (N33). The answers and their provenance are in
+  `eval/runs/baseline/`; three of the four runs record an unclean tree, edits to code those
+  runs never load: `uv run python bench/baseline.py eval/runs/baseline`.
 * Retrieval is probed apart from the answers: two questions a fact, one in each language,
   made by code from each split's own facts and worded apart from the planted sentences,
   each with its gold units and the roles that may read them: `uv run ntk eval probes --check`.
   Asked by the narrowest role that may read each, the dev probes find a gold unit in the
-  top 10 for 0.964 of them: 1.000 when the question is in its documents' language and
+  top 10 for 0.964 of the 194: 1.000 when the question is in its documents' language and
   0.915 across languages, where the first hit is right half as often, 0.500 against 0.973.
   Table rows, the padding that makes up most units, take 13.0 percent of that top 10 and
   15.6 percent of the excerpts' units shown, and setting them aside changes recall@1 for no
