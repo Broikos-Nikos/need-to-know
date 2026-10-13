@@ -119,14 +119,18 @@ The lexical side channel attack of AC-F5, run as a role through the retrieval AP
 pairs of words the role sees equally rarely, one of them frequent in text it may not
 read, asked together; the share whose hidden-frequent word's unit ranks below the other,
 against the same share in pairs where neither word occurs in hidden text, in the fused
-order, before any reranking. `--global-idf` gives the weights as they were before N50,
-counted over the whole collection, and the shares part; over the role's view, the ranks
-depend on readable text alone. It needs the manifest and the index on the running
-server.
+order, before any reranking, each with its count and Wilson interval, and pooled when
+several roles are asked. `--global-idf` gives the weights as they were before N50,
+counted over the whole collection, and the shares part. Over the role's view a smaller
+gap remains, which a matched pair cannot tell from how the words sit in the role's own
+text; that the view reads no hidden text is held by `tests/test_noninterference.py`
+instead. It needs the manifest and the index on the running server, and writes its
+counts to NTK_DATA_DIR/bench/idf_attack_view.json or idf_attack_whole.json, to which
+`tests/test_bench.py` holds N50.
 
 ```
-uv run python bench/idf_attack.py --role sales
-uv run python bench/idf_attack.py --role sales --global-idf
+uv run python bench/idf_attack.py --role sales,hr,returns
+uv run python bench/idf_attack.py --role sales,hr,returns --global-idf
 ```
 
 ## rerank_latency.py

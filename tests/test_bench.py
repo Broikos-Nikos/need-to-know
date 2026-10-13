@@ -265,6 +265,35 @@ def test_the_readme_and_n43_quote_the_recall_benchs_saved_run():
         assert phrase in n43, phrase
 
 
+def test_n50_quotes_the_attacks_saved_runs():
+    # Tick 131, RS-F12: N50 gave the shares over the whole collection and the null and left out the view's; all
+    # three, pooled, with their counts and Wilson intervals, are held to the attack's saved runs. A machine without
+    # both skips.
+    import json
+
+    from needtoknow.eval.stats import wilson
+    from needtoknow.settings import data_dir, repo_root
+    runs = {}
+    for mode in ("whole", "view"):
+        path = data_dir() / "bench" / f"idf_attack_{mode}.json"
+        if not path.is_file():
+            pytest.skip(f"no idf_attack_{mode}.json here: bench/idf_attack.py makes it")
+        runs[mode] = json.loads(path.read_bytes())
+    text = " ".join((repo_root() / "docs" / "DECISIONS.md").read_text(encoding="utf-8").split())
+    start = text.index("## N50. ")
+    n50 = text[start:text.index(" ## ", start)]
+    quoted = []
+    for mode in ("whole", "view"):
+        assert sorted(runs[mode]["roles"]) == ["hr", "returns", "sales"], mode
+        for name in ("test pairs, hidden-frequent first", "null pairs"):
+            lower, kept = (sum(role[name][i] for role in runs[mode]["roles"].values()) for i in (0, 1))
+            low, high = wilson(lower, kept)
+            quoted.append(f"{lower} of {kept}")
+            assert re.search(rf"{lower} of {kept}[^()]*\(Wilson {low:.2f} to {high:.2f}\)", n50), (mode, name)
+    # In the order the decision reads: the whole collection, its null, the view, its null.
+    assert [n50.index(q) for q in quoted] == sorted(n50.index(q) for q in quoted), quoted
+
+
 def test_the_row_draw_names_a_register_the_corpus_lacks(monkeypatch, tmp_path):
     # DR-F23's class: rng.choice of no table units was an IndexError.
     import sqlite3

@@ -2,6 +2,7 @@
 text it may not read?
 
     uv run python bench/idf_attack.py [--role sales] [--pairs 60] [--seed 60] [--global-idf]
+    uv run python bench/idf_attack.py --role sales,hr,returns [--global-idf]
 
 Needs the manifest and the index on the running server, with the embed extra. It analyses
 every passage as the index does and keeps the words the role sees one to three times. A
@@ -15,11 +16,14 @@ where the weights act. `--global-idf` asks with the weights as they were before 
 Qdrant's IDF modifier counted every point whatever the role: the same BM25 IDF over every
 label set's frequencies, on today's index (MA-F7), since the collection that had the
 modifier is gone. With those weights the two shares part. With the role's view (N50) the
-ranks are a function of text the role may read and one average length, so a gap that
-remains measures how such words sit in the role's own text, since a null pair matches
-how often the role sees a word, not the units that hold it. Tick 74, as sales, hr and
-returns: 82 to 88 percent over the whole collection, 58 to 65 over the view, 45 to 50 for
-null pairs; as hr on the sparse side alone, 97, 55 and 44.
+ranks are built from text the role may read and one average length, which
+tests/test_noninterference.py holds; a gap that remains is one a matched pair cannot tell
+from how such words sit in the role's own text, since a null pair matches how often the
+role sees a word, not the units that hold it. Each share is printed with its count and
+Wilson interval (RS-F12), several roles are pooled, and the counts are saved for N50.
+Tick 131, pooled over sales, hr and returns: 74 of 88 over the whole collection, 53 of 88
+over the view, 61 of 126 null pairs; tick 74, as hr on the sparse side alone, 97, 55 and
+44 percent.
 """
 
 from __future__ import annotations
@@ -35,13 +39,15 @@ from needtoknow import lexical
 from needtoknow.index import server
 from needtoknow.index.search import search
 from needtoknow.ingest.manifest import manifest_path
+from needtoknow.eval.stats import wilson
 from needtoknow.ingest.units import passage
 from needtoknow.policy import load_policy, readable
+from needtoknow.settings import data_dir
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    parser.add_argument("--role", default="sales")
+    parser.add_argument("--role", default="sales", help="a role, or several joined by commas, pooled at the end")
     parser.add_argument("--pairs", type=int, default=60)
     parser.add_argument("--seed", type=int, default=60)
     parser.add_argument("--sides", default="dense,sparse", help="the searches to run; sparse alone shows the weights")
@@ -54,7 +60,36 @@ def main() -> int:
         frequencies.weights = lambda db, terms, _view: real(db, terms, [s for (s,) in db.execute("SELECT label_set FROM sets")])
     sys.stdout.reconfigure(encoding="utf-8")
     policy = load_policy()
-    reads = readable(policy, args.role)
+    client = server.client()
+    over = "the whole collection" if args.global_idf else "the role's view"
+    counts = {}
+    for role in args.role.split(","):
+        counts[role] = attack(role, args, policy, client, over)
+    if len(counts) > 1:
+        for name in NAMES:
+            lower, kept = (sum(c[name][i] for c in counts.values()) for i in (0, 1))
+            print(f"pooled over {', '.join(counts)}, {name}: both units ranked in {kept}, {share(lower, kept)}")
+    out = data_dir() / "bench" / f"idf_attack_{'whole' if args.global_idf else 'view'}.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_bytes((json.dumps({"sides": args.sides, "pairs": args.pairs, "seed": args.seed, "roles": counts},
+                                indent=1) + "\n").encode("utf-8"))
+    return 0
+
+
+NAMES = ("test pairs, hidden-frequent first", "null pairs")
+
+
+def share(lower: int, kept: int) -> str:
+    """The pairs whose first word's unit ranks lower, as a count, a share and its Wilson interval (RS-F12)."""
+    if not kept:
+        return "no pair to read"
+    low, high = wilson(lower, kept)
+    return f"the first word's unit lower in {lower} ({lower / kept:.0%}, Wilson {low:.2f} to {high:.2f})"
+
+
+def attack(role: str, args, policy: dict, client, over: str) -> dict[str, list[int]]:
+    """One role's test and null pairs asked, each as [lower, both ranked, asked]."""
+    reads = readable(policy, role)
     db = sqlite3.connect(f"file:{manifest_path().as_posix()}?mode=ro", uri=True)
     seen = defaultdict(lambda: [0, 0, None])  # term: passages the role reads, passages it may not, one unit it reads
     for unit_id, labels, path, text in db.execute("SELECT unit_id, labels, path, text FROM units"):
@@ -65,19 +100,18 @@ def main() -> int:
                 entry[0 if visible else 1] += 1
                 if visible:
                     entry[2] = unit_id
+    db.close()
     heavy = sorted(t for t, (v, h, _) in seen.items() if 1 <= v <= 3 and h >= 30)
     clean = sorted(t for t, (v, h, _) in seen.items() if 1 <= v <= 3 and h == 0)
-    over = "the whole collection" if args.global_idf else "the role's view"
-    print(f"as {args.role}, searching {args.sides}, weights over {over}: words seen 1 to 3 times, frequent in hidden text {len(heavy)}, "
-          f"absent from it {len(clean)}")
+    print(f"as {role}, searching {args.sides}, weights over {over}: words seen 1 to 3 times, frequent in hidden text "
+          f"{len(heavy)}, absent from it {len(clean)}")
     rng = random.Random(args.seed)
-    client = server.client()
 
     def lower(t: str, u: str) -> int | None:
         question = f"{t} {u}" if rng.random() < 0.5 else f"{u} {t}"
         # The fused order, where the weights act: since T3.6 the search reranks by default, and the cross encoder,
         # which reads no weight, would decide the order the attack reads (tick 74).
-        hits = search(client, question, args.role, policy, limit=100, sides=tuple(args.sides.split(",")), rerank="none")
+        hits = search(client, question, role, policy, limit=100, sides=tuple(args.sides.split(",")), rerank="none")
         rank = {h["unit_id"]: h["rank"] for h in hits}
         rt, ru = rank.get(seen[t][2]), rank.get(seen[u][2])
         return None if rt is None or ru is None or seen[t][2] == seen[u][2] else int(rt > ru)
@@ -88,11 +122,12 @@ def main() -> int:
 
     test = [lower(t, partner(t, clean)) for t in rng.sample(heavy, min(args.pairs, len(heavy)))]
     null = [lower(t, partner(t, clean)) for t in rng.sample(clean, args.pairs)]
-    for name, results in (("test pairs, hidden-frequent first", test), ("null pairs", null)):
+    found = {}
+    for name, results in zip(NAMES, (test, null)):
         kept = [r for r in results if r is not None]
-        print(f"{name}: {len(results)}, both units ranked in {len(kept)}, the first word's unit lower in {sum(kept)} "
-              f"({sum(kept) / max(len(kept), 1):.0%})")
-    return 0
+        found[name] = [sum(kept), len(kept), len(results)]
+        print(f"{name}: {len(results)}, both units ranked in {len(kept)}, {share(sum(kept), len(kept))}", flush=True)
+    return found
 
 
 if __name__ == "__main__":

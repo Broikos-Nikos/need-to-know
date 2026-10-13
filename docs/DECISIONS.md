@@ -173,11 +173,21 @@ summed over the label sets the role may read. One collection, the fusion in the 
 and a change to the policy takes effect at the next query.
 
 **Evidence.** Weighted over the whole collection, ranks told a role which words were
-common in text it may not read: the hidden-frequent word's unit ranked lower in 82 to
-88 percent of matched pairs, against 45 to 50 for null pairs; over the view the ranks
-depend on readable text alone (`bench/idf_attack.py` and `--global-idf`). A collection
-per role would have given the same weights at three times the storage, with a rebuild
-for every policy change.
+common in text it may not read. Asked as sales, hr and returns, the hidden-frequent
+word's unit ranked lower in 74 of 88 matched pairs (Wilson 0.75 to 0.90), against 60 of
+126 null pairs (Wilson 0.39 to 0.56); weighted over the view, in 53 of 88 (Wilson 0.50 to
+0.70), its null 61 of 126 (Wilson 0.40 to 0.57)
+(`bench/idf_attack.py --role sales,hr,returns`, and `--global-idf`). The view's gap over
+its null is one this statistic cannot read: a null pair matches how often the role sees
+a word, not how its units sit in the role's text. The view's claim rests on construction
+instead, ranks from text the role may read and one statistic over every unit, the
+average passage length frozen at build, and on a test: builds that differ only in text a
+role may not read, rewritten or dropped, give every role the same weights, fused order
+and scores, and reranked order (`tests/test_noninterference.py`). Units of exactly equal
+score are put in order by the engine; Qdrant's local mode reads every point's score to
+do it, so the test sorts those stably, and how the server orders them is not measured
+here. A collection per role would have given the same weights at three times the
+storage, with a rebuild for every policy change.
 
 **Reverses if.** The view's frequency table cannot be kept in step with the index.
 
