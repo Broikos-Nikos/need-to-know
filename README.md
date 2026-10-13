@@ -63,6 +63,16 @@ produces it.
   `uv run ntk eval run --split dev --purpose development --out <file>`. Then
   `uv run ntk eval score <file> --purpose development` scores each repeat, then each item
   by its mean over them, and names the items whose verdict changed.
+* The baseline, deepseek-flash at temperature 0, every item asked three times with the
+  cache off and scored by its mean: all 35 test items 0.981, Wilson 0.869 to 0.997, the 29
+  family items alone 0.977; dev 0.967 over its 133 originals, answerable 0.957 and refusals
+  1.000; no leak on either split. Weakest where retrieval is: asked across languages, C,
+  0.778 on test and 0.833 on dev, and two facts at once, F, 0.500 on dev. With no excerpts
+  the same model answered none of the answerable items on either split. One test item and
+  two dev items changed verdict between repeats, and dev less test over families is
+  -0.021, -0.073 to +0.034, a diagnostic that changes nothing (N33). The answers and their
+  provenance are in `eval/runs/baseline/`; three of the four runs record an unclean tree,
+  edits to code those runs never load: `uv run python bench/baseline.py eval/runs/baseline`.
 * Retrieval is probed apart from the answers: two questions a fact, one in each language,
   made by code from each split's own facts and worded apart from the planted sentences,
   each with its gold units and the roles that may read them: `uv run ntk eval probes --check`.

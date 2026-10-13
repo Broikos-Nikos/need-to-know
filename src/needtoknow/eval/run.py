@@ -11,7 +11,9 @@ alone (KB1-F7). `ntk eval score` reads the file, a repeat at a time and then ove
 Before the first call a run writes its provenance beside the answers, `<file>.provenance.json`: the commit and whether
 the tree was clean, the protocol's version and fingerprint, the split, purpose, repeats and book, the provider, the
 model alias and the settings it is asked with, the manifest's last run and unit count, and the lexical analyser's
-version. A run is resumed only at the commit it started at, so one file never holds two versions of the code.
+version. A run is resumed only at the commit it started at, so one file never holds two versions of the code, and a
+run for the baseline or a release starts only on a clean tree, the commit alone being what made it: tick 139's test
+and closed book runs began while the report was being written beside them.
 """
 
 from __future__ import annotations
@@ -36,7 +38,10 @@ def table_layers(units: list[str]) -> int:
 
 
 class RunError(RuntimeError):
-    """A run that would mix two versions of the code in one file."""
+    """A run that would mix two versions of the code in one file, or publish one the commit does not name."""
+
+
+PUBLISHED = ("baseline", "release")
 
 
 def commit() -> tuple[str, bool]:
@@ -82,6 +87,8 @@ def run(split: str, purpose: str, repeats: int, out: Path, client, closed_book: 
     check_use(split, purpose)
     sidecar = out.with_name(out.name + ".provenance.json")
     now = (made_by or provenance)(split, purpose, repeats, closed_book)
+    if purpose in PUBLISHED and not now.get("clean", True):
+        raise RunError(f"a {purpose} run names the commit that made it, and the tree holds changes: commit them first")
     if sidecar.is_file():
         then = json.loads(sidecar.read_text(encoding="utf-8"))
         if then["commit"] != now["commit"]:

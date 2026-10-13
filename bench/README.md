@@ -260,6 +260,22 @@ the GPU and a DeepSeek key, and asks the protocol first.
 uv run python bench/reader_line.py
 ```
 
+## baseline.py
+
+The baseline's report from a folder of runs, `ntk eval run`'s answers with their
+provenance: the headline, all test items' share right, each item scored by its mean over
+the repeats, with its Wilson interval, and the family items alone beside it; each split's
+four figures apart, the grounded accuracy, the leaks, the unstable items, and the figures
+by category, layer, language, table rows shown and a value a law contradicts; the closed
+book runs beside, their E items answered with a deliberate default apart; dev less test
+over fact families with its interval, a diagnostic that changes nothing (N33); and how
+many items were shown the same units in every repeat. It needs the plan, the frequency
+table and the manifest the scorer reads.
+
+```
+uv run python bench/baseline.py eval/runs/baseline
+```
+
 ## null_runs.py
 
 The scorer's floor, ceiling and citation null, three answer sets no model wrote: every item

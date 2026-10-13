@@ -36,6 +36,16 @@ def test_the_bootstrap_interval_holds_the_mean_and_is_seeded():
     assert low < sum(diffs) / len(diffs) < high and (low, high) == T.bootstrap(diffs)
 
 
+def test_the_difference_of_two_unpaired_sets_of_units_holds_its_mean_and_is_seeded():
+    # N33's diagnostic: dev less test over families, the two splits' families drawn apart, never paired.
+    gap, low, high = T.difference([1.0, 1.0, 0.0, 1.0], [0.0, 1.0, 0.0])
+    assert gap == pytest.approx(0.75 - 1 / 3) and low < gap < high and (low, high) == T.difference(
+        [1.0, 1.0, 0.0, 1.0], [0.0, 1.0, 0.0])[1:]
+    assert T.difference([0.5] * 5, [0.5] * 7) == (0.0, 0.0, 0.0)
+    with pytest.raises(ValueError):
+        T.difference([], [1.0])
+
+
 def test_the_unit_is_the_family_an_item_pair_the_pair_and_an_own_item_itself():
     items = [{"id": "D1", "families": ["F06V00"]}, {"id": "D2", "families": ["F06V00"]},
              {"id": "D3", "families": ["F40V00", "F26V01"]}, {"id": "D4", "families": []}]

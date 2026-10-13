@@ -89,6 +89,21 @@ def bootstrap(diffs: list[float], resamples: int = 10000, level: float = 0.95, s
     return low, high
 
 
+def difference(first: list[float], second: list[float], resamples: int = 10000, level: float = 0.95,
+               seed: int = SEED) -> tuple[float, float, float]:
+    """The mean of the first units less the mean of the second, and its percentile bootstrap interval, each side
+    drawn with replacement from its own units: two sets of units that are not paired, such as two splits' families."""
+    if not first or not second:
+        raise ValueError("no units to resample")
+    rng = random.Random(seed)
+    observed = sum(first) / len(first) - sum(second) / len(second)
+    gaps = sorted(sum(first[rng.randrange(len(first))] for _ in first) / len(first)
+                  - sum(second[rng.randrange(len(second))] for _ in second) / len(second) for _ in range(resamples))
+    low = gaps[int(math.floor((1 - level) / 2 * resamples))]
+    high = gaps[min(resamples - 1, int(math.ceil((1 + level) / 2 * resamples)) - 1)]
+    return observed, low, high
+
+
 def decide(diffs: list[float], alpha: float, margin: float, smallest_visible: float, cost_cut: float | None = None,
            cost_ratio: float | None = None, probe_diffs: list[float] | None = None) -> dict:
     """The registered arms over one comparison. `cost_ratio` is the candidate's cost over the incumbent's, USD a

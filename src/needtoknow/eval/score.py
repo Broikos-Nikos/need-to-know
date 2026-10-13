@@ -406,7 +406,10 @@ def over_repeats(items: list[dict], answers: list[dict], ctx, sources: Sources |
             "overall": over(originals),
             "grounded": over([r for r in originals if r["category"] in ANSWERED], "held"),
             "unstable": sorted(item for item, results in by_item.items() if len({r["correct"] for r in results}) > 1),
-            "leaks": sum(figures_["leaks"] for _, figures_ in runs)}
+            "leaks": sum(figures_["leaks"] for _, figures_ in runs),
+            "scores": {r["id"]: r["score"] for r in originals},
+            "verdicts": {item: [float(r["correct"]) for r in results] for item, results in by_item.items()},
+            "leaked": {item: sum(r["leak"] for r in results) for item, results in by_item.items()}}
 
 
 def score(items: list[dict], answers: list[dict], ctx, sources: Sources | None = None) -> tuple[list[dict], dict]:

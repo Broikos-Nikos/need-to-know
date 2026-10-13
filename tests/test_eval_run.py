@@ -76,6 +76,16 @@ def test_a_run_writes_its_provenance_first_and_is_resumed_only_at_its_commit(tmp
     assert len(lines(out)) == 3  # nothing asked at the other commit
 
 
+def test_a_baseline_run_starts_only_on_a_clean_tree(tmp_path):
+    # Tick 139: the test and closed book runs began while the report was being written beside them, and their
+    # provenance says so; a published run's commit must be all that made it.
+    dirty = lambda split, purpose, repeats, closed_book: {"commit": "c" * 40, "clean": False}
+    with pytest.raises(R.RunError, match="commit them first"):
+        run("dev", "baseline", 1, tmp_path / "dev.jsonl", None, ask=Asker(), tables=lambda u: 0, made_by=dirty)
+    assert not (tmp_path / "dev.jsonl").exists()
+    run("dev", "development", 1, tmp_path / "dev.jsonl", None, ask=Asker(), tables=lambda u: 0, made_by=dirty)
+
+
 def test_a_closed_book_run_asks_with_no_excerpts_and_the_protocol_is_asked_first(tmp_path):
     asker = Asker()
     run("dev", "development", 1, tmp_path / "closed.jsonl", None, closed_book=True, ask=asker, tables=lambda u: 0)

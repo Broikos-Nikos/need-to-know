@@ -79,6 +79,26 @@ questions were the ones filtered search lost (`03-retrieval-rag/11` section 7).
 
 **Reverses if.** A role is defined without `general`.
 
+## N33. The split's balance is checked as it is built, and no test score moves it
+
+**Call.** The baseline reports dev less test over fact families, with its interval, as a
+diagnostic that changes nothing. The split is balanced when it is built, on properties
+that carry no outcome: the families' placements, document size, language and salience
+when the split is drawn, and each item's stemmed overlap when it is written, each as a
+standardized mean difference under 0.1. A failing split is redrawn before any item
+exists, an unbalanced item is rewritten and never moved, and after the first scored run
+no family changes split (`eval/protocol.toml`, `[splits.balance]` and `[baseline]`).
+
+**Evidence.** The rule this replaces redrew the split at the baseline when dev and test
+disagreed beyond noise. Here the baseline is the first release and its test score is
+published, and the dev items are read during development: a redraw would let a test
+outcome choose the split, and would move dev families whose answers had been read into
+the new test split.
+
+**Reverses if.** Development stops reading dev items before the baseline and the
+baseline stops being published; the redraw would then fit again, as a new protocol
+version.
+
 ## N39. The corpus: one plan in code, prose by language models, annexes by code
 
 **Call.** A plan in code, `needtoknow.corpus.plan` at a fixed seed, fixes 164 facts in
@@ -119,8 +139,12 @@ recall@1 is the same for every role, and recall@10 moves from 0.964 to 0.969, an
 0.918 to 0.943 for admin (`bench/probe_recall.py`). The annexes stay as written.
 
 **Reverses if.** Table units cost what their share stood for: recall with them set aside
-passes recall as served by more than 0.01 at 1 or at 10, or at the baseline the dev items
-whose shown excerpts hold table rows score below those whose excerpts hold none.
+passes recall as served by more than 0.01 at 1 or at 10, or the dev items whose shown
+excerpts hold table rows score below those whose excerpts hold none by more than the
+smallest effect the protocol can see, 0.12 (N60). As first written the condition had no
+margin, and the baseline met it on noise: the answerable prose items shown table rows
+scored 0.952 over 21, those shown none 0.954 over 72 (`bench/baseline.py
+eval/runs/baseline`).
 
 ## N44. The audits page is written from the finding queue, never by hand
 
