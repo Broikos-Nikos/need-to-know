@@ -129,13 +129,34 @@ def test_the_probe_recall_bench_counts_ranks_and_the_shown_excerpts_as_it_says()
     assert recall.summarise(rows) == ("4 probes; recall@1 0.250, @5 0.500, @10 0.500; MRR 0.354; "
                                       "in the shown excerpts 0.500")
     hits = [{"unit_id": "u9"}, {"unit_id": "u2"}, {"unit_id": "u1"}]
+    layer = {"u9": "table", "u2": "prose", "u1": "prose", "u8": "table"}
     found = recall.measure({"question": "q", "gold": ["u1", "u5"]}, "sales", None, lambda c, q, r: hits,
-                           lambda h: [{"units": ["u9", "u1"]}])
-    assert found == {"rank": 3, "shown": True}
+                           lambda h: [{"units": ["u9", "u8", "u1"]}], lambda units: layer)
+    assert found == {"rank": 3, "shown": True, "top": 3, "tables": 1, "shown_units": 3, "shown_tables": 2, "aside": 2}
     # Among the hits but cut from the excerpts the prompt shows: found, not shown.
     cut = recall.measure({"question": "q", "gold": ["u1"]}, "sales", None, lambda c, q, r: hits,
-                         lambda h: [{"units": ["u9", "u2"]}])
-    assert cut == {"rank": 3, "shown": False}
+                         lambda h: [{"units": ["u9", "u2"]}], lambda units: layer)
+    assert (cut["rank"], cut["shown"]) == (3, False)
+
+
+def test_the_recall_bench_says_what_the_table_units_take_and_what_recall_is_without_them():
+    # RS-F28: N43 reverses if the annexes take a real share of a prose question's top 10, which the filter bench
+    # measured on the dense side alone; this bench measures it through the whole search, as ask searches.
+    spec = importlib.util.spec_from_file_location("probe_recall", BENCH / "probe_recall.py")
+    recall = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(recall)
+    hits = [{"unit_id": u} for u in ("t1", "t2", "p1", "g1", "p2", "t3", "p3", "p4", "p5", "p6", "t4")]
+    layer = {u["unit_id"]: "table" if u["unit_id"].startswith("t") else "prose" for u in hits}
+    row = recall.measure({"question": "q", "gold": ["g1"]}, "sales", None, lambda c, q, r: hits,
+                         lambda h: [{"units": ["t1", "t2"]}, {"units": ["g1"]}], lambda units: layer)
+    assert (row["rank"], row["aside"], row["tables"], row["top"]) == (4, 2, 3, 10)
+    missed = {"rank": None, "shown": False, "top": 10, "tables": 0, "shown_units": 1, "shown_tables": 0, "aside": None}
+    assert recall.annex([row, missed]) == ("table units 15.0% of the top 10 and 50.0% of the shown excerpts' units; "
+                                           "set aside, recall@1 0.000 and @10 0.500")
+    # A table unit that is gold stays in the hits set aside.
+    gold_table = recall.measure({"question": "q", "gold": ["t2"]}, "sales", None, lambda c, q, r: hits,
+                                lambda h: [{"units": ["t2"]}], lambda units: layer)
+    assert (gold_table["rank"], gold_table["aside"]) == (2, 1)
 
 
 def test_n51_and_n43_quote_the_filter_benchs_saved_runs():
@@ -202,6 +223,45 @@ def test_n51_and_n43_quote_the_filter_benchs_saved_runs():
         assert phrase in n51, phrase
     assert questions["first"]["outside counsel"] is None
     for phrase in (f"first 30 words: {units['annex']}", f"questions: {questions['annex']}"):
+        assert phrase in n43, phrase
+
+
+def test_the_readme_and_n43_quote_the_recall_benchs_saved_run():
+    # Tick 130, RS-F28: the README's recall on the dev probes and N43's table share through the whole search are
+    # held to the recall bench's saved run. A machine without it skips.
+    import json
+
+    from needtoknow.settings import data_dir, repo_root
+    path = data_dir() / "bench" / "probe_recall_dev.json"
+    if not path.is_file():
+        pytest.skip("no probe_recall_dev.json here: bench/probe_recall.py makes it")
+    run = json.loads(path.read_bytes())
+    selective, admin = run["selective"], run["per_role"]["admin"]
+
+    def at(rows: list[dict], k: int, key: str = "rank") -> str:
+        return f"{sum(r[key] is not None and r[key] <= k for r in rows) / len(rows):.3f}"
+
+    def share(rows: list[dict], part: str, whole: str) -> str:
+        return f"{100 * sum(r[part] for r in rows) / sum(r[whole] for r in rows):.1f}"
+
+    same = [r for r in selective if not r["across"]]
+    across = [r for r in selective if r["across"]]
+    readme = " ".join((repo_root() / "README.md").read_text(encoding="utf-8").split())
+    for phrase in (f"top 10 for {at(selective, 10)} of them: {at(same, 10)} when the question",
+                   f"and {at(across, 10)} across languages", f"{at(across, 1)} against {at(same, 1)}.",
+                   f"take {share(selective, 'tables', 'top')} percent of that top 10 and "
+                   f"{share(selective, 'shown_tables', 'shown_units')} percent of the excerpts' units shown"):
+        assert phrase in readme, phrase
+    text = " ".join((repo_root() / "docs" / "DECISIONS.md").read_text(encoding="utf-8").split())
+    start = text.index("## N43. ")
+    n43 = text[start:text.index(" ## ", start)]
+    assert all(at(rows, 1) == at(rows, 1, "aside") for rows in run["per_role"].values())
+    for phrase in (f"{share(selective, 'tables', 'top')} percent of the top 10 and "
+                   f"{share(selective, 'shown_tables', 'shown_units')} of the shown excerpts' units",
+                   f"{share(admin, 'tables', 'top')} and {share(admin, 'shown_tables', 'shown_units')} for admin",
+                   "recall@1 is the same for every role",
+                   f"recall@10 moves from {at(selective, 10)} to {at(selective, 10, 'aside')}, and from "
+                   f"{at(admin, 10)} to {at(admin, 10, 'aside')} for admin"):
         assert phrase in n43, phrase
 
 

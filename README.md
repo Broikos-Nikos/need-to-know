@@ -60,7 +60,9 @@ produces it.
   Asked by the narrowest role that may read each, the dev probes find a gold unit in the
   top 10 for 0.964 of them: 1.000 when the question is in its documents' language and
   0.915 across languages, where the first hit is right half as often, 0.500 against 0.973.
-  An upper bound, since templated questions sit near the planted text:
+  Table rows, the padding that makes up most units, take 13.0 percent of that top 10 and
+  15.6 percent of the excerpts' units shown, and setting them aside changes recall@1 for no
+  role (N43). An upper bound, since templated questions sit near the planted text:
   `uv run python bench/probe_recall.py`.
 * Every audit finding the history cites, open or fixed, is in `docs/AUDITS.md`, and
   every decision the code cites is in `docs/DECISIONS.md`.

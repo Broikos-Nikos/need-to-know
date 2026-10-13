@@ -107,12 +107,20 @@ bought until the evaluation's dev items show the retrieval has no headroom.
 shapes, one glossary written 602,893 times, and label shares by unit following annex
 bytes rather than the registered shares.
 
-**Reverses if.** The dense search's annex intrusion shows annex units taking a real
-share of a prose question's top 10. Measured at P3 on units' first 30 words: 0.7 percent
-of the top 10, where tables are 99.7 percent of all units
-(`bench/filter_bench.py --report`). On the dev probes' questions: 14.7 percent
-(`--questions dev --report`), on the dense side alone; the fused and reranked top 10,
-which an answer's excerpts come from, decides it.
+**Measured on questions, 2026-10-13.** This call first reversed on annex units taking a
+real share of a prose question's top 10. Measured at P3 on units' first 30 words: 0.7
+percent of the top 10, where tables are 99.7 percent of all units
+(`bench/filter_bench.py --report`). On the dev probes' questions: 14.7 percent of the
+dense top 10 (`--questions dev --report`), and through the whole search, fused and
+reranked as an answer's excerpts are, 13.0 percent of the top 10 and 15.6 of the shown
+excerpts' units for each probe's narrowest reader, 18.4 and 24.6 for admin. The share is
+real; the cost it stood for is not. With the table units set aside from the same hits,
+recall@1 is the same for every role, and recall@10 moves from 0.964 to 0.969, and from
+0.918 to 0.943 for admin (`bench/probe_recall.py`). The annexes stay as written.
+
+**Reverses if.** Table units cost what their share stood for: recall with them set aside
+passes recall as served by more than 0.01 at 1 or at 10, or at the baseline the dev items
+whose shown excerpts hold table rows score below those whose excerpts hold none.
 
 ## N44. The audits page is written from the finding queue, never by hand
 
