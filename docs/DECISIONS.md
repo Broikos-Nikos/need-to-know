@@ -381,3 +381,21 @@ retrieval. It errs high, since the scorer credits a guessed range that holds the
 **Reverses if.** The bound grows past a few items, when a run that may decline is needed to
 tell what the model holds with confidence from what it guesses well; or the answer rules
 change.
+
+## N62. Each draw is built in a data folder of its own and searched in Qdrant's local mode
+
+**Call.** `ntk corpus draw` makes each draw a data folder of its own, and `bench/draws.py`
+builds it there and indexes it in Qdrant's local mode, in the bench's own memory, at one
+document in four of the catalogue.
+
+**Evidence.** A second collection on the running server would search as the served index
+does, but the collection's name is one constant across the index code, and `ntk index
+sync` run with NTK_DATA_DIR on a draw would sync the draw's manifest into the served
+collection, deleting every point the draw does not explain. Local mode reaches no server.
+It scores every point the filter passes, as the exact path does (N51), and differs from
+the server only in the order of equal scores (AC-F12). One document in eight planted too
+few dev facts to read a spread across draws; one in four doubles them for twice the build.
+
+**Reverses if.** The draws differ by more than their probes' intervals and the server's
+exact path is needed to rule local mode out as the cause, or a draw must be searched
+through the filtered graph.

@@ -18,6 +18,23 @@ def run(script: str, *args: str) -> subprocess.CompletedProcess:
                           encoding="utf-8", errors="replace")
 
 
+def test_the_draws_bench_reuses_a_draw_only_at_the_same_share_and_states_each_share_with_its_count(monkeypatch,
+                                                                                                   tmp_path):
+    # RS-F6: a draw folder left from another share of the catalogue would be built and probed as if it were this one.
+    monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path))
+    build()
+    spec = importlib.util.spec_from_file_location("draws", BENCH / "draws.py")
+    draws = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(draws)
+    said = []
+    first = draws.made(7, 80, said.append)
+    assert draws.made(7, 80, said.append) == first and said[-1] == f"draw 7: found, {first['documents']} documents"
+    with pytest.raises(SystemExit, match="not one in 40"):
+        draws.made(7, 40, said.append)
+    assert draws.rate(9, 10).startswith("0.900 (9 of 10, Wilson ") and draws.rate(0, 0) == "no probes"
+    assert draws.spread([0.5, 0.9, 0.7]) == "0.500 to 0.900"
+
+
 def test_the_baseline_report_names_every_provenance_field_its_runs_differ_on():
     # DR-F28: the report printed the test run's provenance as the baseline's and never compared the others.
     spec = importlib.util.spec_from_file_location("baseline", BENCH / "baseline.py")
@@ -329,9 +346,13 @@ def test_a_probe_whose_gold_unit_is_gone_is_set_apart():
 
 
 def test_every_bench_that_asks_the_probes_sets_lost_ones_apart():
-    # MT-F16: the filter bench's question mode, written beside DR-F25's fix, kept the old shape.
-    asking = [path.name for path in sorted(BENCH.glob("*.py"))
-              if "needtoknow.eval.probes import" in path.read_text(encoding="utf-8")]
-    assert {"filter_bench.py", "permission_suite.py", "probe_recall.py"} <= set(asking), asking
-    for name in asking:
-        assert "lost(" in (BENCH / name).read_text(encoding="utf-8"), name
+    # MT-F16: the filter bench's question mode, written beside DR-F25's fix, kept the old shape. Every bench that asks
+    # probes names those it sets apart; one that reads the committed probes sets apart those whose gold unit the
+    # manifest lacks now, and one that makes its own, as the draws bench does, those its generator found none for.
+    asking = {path.name: path.read_text(encoding="utf-8") for path in sorted(BENCH.glob("*.py"))
+              if "needtoknow.eval.probes import" in path.read_text(encoding="utf-8")}
+    assert {"draws.py", "filter_bench.py", "permission_suite.py", "probe_recall.py"} <= set(asking), sorted(asking)
+    for name, text in asking.items():
+        assert "left out: {', '.join(" in text, name
+        if "probes import load" in text:
+            assert "lost(" in text, name

@@ -2,13 +2,18 @@
 values and the annexes drawn again from a seed, so a retrieval figure can be read across draws of the generator and
 not only on the one corpus every other number comes from.
 
-`ntk corpus draw --seed S --every N` writes every Nth document of the catalogue to `NTK_DATA_DIR/corpus/draw-S/`,
-each with its sidecar, and the draw's plan to `draw-S/plan/`, the catalogue cut to those documents and every fact
-with the value it holds there. A single fact or a regional variant takes a new value from its own template under the
-seed, written into every sentence that plants it; a versioned fact and the one it superseded keep theirs, since their
-pair is what their items ask about. The annexes, each document's register, directory and small tables, are assembled
-under the seed, sized as in the whole corpus. The base seed keeps every value and every annex, so its draw is the
-corpus's own documents, byte for byte.
+`ntk corpus draw --seed S --every N` makes `NTK_DATA_DIR/draws/S/` a data folder of its own: every Nth document of
+the catalogue in its `corpus/full/`, each with its sidecar, the narrative they were assembled from in
+`corpus/narrative/`, and the draw's plan in `corpus/plan/`, the catalogue cut to those documents and the facts they
+plant, each with the value it holds there and its placements cut to them (DR-F29). With NTK_DATA_DIR set to it, the
+ingest, the embedder and the probes read the draw as they read the corpus. A single fact or a regional variant takes
+a new value from its own template under the seed, written into every sentence that plants it; a versioned fact and
+the one it superseded keep theirs, since their pair is what their items ask about. The annexes, each document's
+register, directory and small tables, are assembled under the seed, sized as in the whole corpus. The base seed keeps
+every value and every annex, so its draw is the corpus's own documents, byte for byte.
+
+What a draw reports is counted over its own documents: how many facts they plant, how many of those took a new value,
+and how many planted sentences were written again.
 """
 
 from __future__ import annotations
@@ -57,41 +62,53 @@ def redraw(facts: list[dict], seed: int) -> list[dict]:
     return out
 
 
+def draw_dir(seed: int) -> Path:
+    """The data folder a draw makes, which NTK_DATA_DIR names to work on it."""
+    return data_dir() / "draws" / str(seed)
+
+
 def draw(seed: int, every: int) -> dict:
     """Every `every`th document of the plan, its values and annexes drawn under `seed`; what was written."""
+    if every < 1:  # 0 stopped in a traceback and a negative step read the catalogue from its end (DR-F29)
+        raise DrawError(f"every {every}: a draw takes every Nth document of the catalogue, N at least 1")
     base = data_dir() / "corpus"
     catalogue = json.loads((base / "plan" / "catalogue.json").read_text(encoding="utf-8"))
     facts = json.loads((base / "plan" / "facts.json").read_text(encoding="utf-8"))
     drawn = redraw(facts, seed)
     docs = catalogue[::every]
-    out = base / f"draw-{seed}"
-    (out / "plan").mkdir(parents=True, exist_ok=True)
-    (out / "narrative").mkdir(parents=True, exist_ok=True)
+    held = {doc["id"] for doc in docs}
+    placed = [(f, g) for f, g in zip(facts, drawn) if held & set(f["placements"])]
+    root = draw_dir(seed)
+    out, plan, sources = (root / "corpus" / name for name in ("full", "plan", "narrative"))
+    for folder in (out, plan, sources):
+        folder.mkdir(parents=True, exist_ok=True)
     w = world()
     shares = {label: entry["target_share"] for label, entry in load_labels().items()}
     budget = budgets(catalogue, shares, w, seed)
     legacy = legacy_id(catalogue)
     narrative = narrative_dir(base)
-    report = {"seed": seed, "documents": len(docs), "values": sum(f["values"] != g["values"] for f, g in zip(facts, drawn)),
-              "sentences": 0, "bytes": 0}
+    report = {"seed": seed, "documents": len(docs), "facts": len(placed),
+              "values": sum(f["values"] != g["values"] for f, g in placed), "sentences": 0, "bytes": 0,
+              "folder": root}
     for doc in docs:
         lang = doc["language"]
         text = (narrative / f"{doc['id']}.txt").read_text(encoding="utf-8")
-        for f, g in zip(facts, drawn):
+        for f, g in placed:
             if doc["id"] in f["placements"] and f[lang] != g[lang]:
                 if f[lang] not in text:
                     raise DrawError(f"{doc['id']}: the planted sentence of {f['id']} is not in its narrative")
                 text = text.replace(f[lang], g[lang])
                 report["sentences"] += 1
-        source = out / "narrative" / f"{doc['id']}.txt"
+        source = sources / f"{doc['id']}.txt"
         source.write_bytes(text.encode("utf-8"))
         size, _ = assemble_doc(doc, source, w, out, legacy, budget[doc["id"]], seed)
         written = (out / f"{doc['id']}.{doc['format']}").read_bytes().decode(
             "cp1253" if doc["id"] == legacy else "utf-8")
-        for g in drawn:
+        for _, g in placed:
             if doc["id"] in g["placements"] and as_written(g[lang], doc["format"]) not in written:
                 raise DrawError(f"{doc['id']}: {g['id']}'s sentence is not in the assembled file as its format writes it")
         report["bytes"] += size
-    dump_json(out / "plan" / "catalogue.json", docs)
-    dump_json(out / "plan" / "facts.json", drawn)
+    dump_json(plan / "catalogue.json", docs)
+    # The facts these documents plant, placed only in them, so the plan agrees with itself (DR-F29).
+    dump_json(plan / "facts.json", [g | {"placements": [d for d in g["placements"] if d in held]} for _, g in placed])
     return report

@@ -41,7 +41,8 @@ def build_parser() -> argparse.ArgumentParser:
     corpus.add_argument("--count", type=int, default=9, help="mutate: how many changes to apply")
     corpus.add_argument("--seed", type=int, default=1, help="mutate: the seed that picks documents and values; draw: "
                                                             "the seed the values and annexes are drawn under")
-    corpus.add_argument("--every", type=int, default=8, help="draw: every this many documents of the catalogue")
+    corpus.add_argument("--every", type=int, default=4, help="draw: one document in this many of the catalogue, 1 or "
+                                                             "more")
     ingest = commands.add_parser("ingest", help="cut the assembled corpus into units and record them in the manifest")
     ingest.add_argument("action", choices=("build", "scan", "watch"))
     # Half a second: a change waits two intervals before its scan, and a look costs 9 ms (N53).
@@ -642,9 +643,11 @@ def cmd_corpus(args: argparse.Namespace, out=None) -> int:
         except (DrawError, OSError) as error:
             print(f"corpus draw: {error}", file=out, flush=True)
             return 1
-        print(f"draw {report['seed']}: {report['documents']} documents, every {args.every}th; {report['values']} facts "
-              f"drawn a new value, {report['sentences']} planted sentences rewritten; {report['bytes']:,} bytes in "
-              f"corpus/draw-{report['seed']}", file=out, flush=True)
+        # Counted over the drawn documents alone, never the plan's facts beside their sentences (DR-F29).
+        print(f"draw {report['seed']}: {report['documents']} documents, one in {args.every}, planting "
+              f"{report['facts']} facts, {report['values']} of them drawn a new value; {report['sentences']} planted "
+              f"sentences rewritten; {report['bytes']:,} bytes in draws/{report['seed']}, a data folder of its own",
+              file=out, flush=True)
         return 0
     if args.action == "samples":
         from needtoknow.corpus.assemble import samples
