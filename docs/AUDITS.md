@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**166 findings, 133 closed, 33 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**166 findings, 136 closed, 30 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -10,7 +10,7 @@ A finding's numbers are what its audit measured when it filed it, by that audit'
 
 ## `HS`, the hostile stranger
 
-An audit pass that tried to break a first run. 17 findings, 15 closed.
+An audit pass that tried to break a first run. 17 findings, 16 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -28,7 +28,7 @@ An audit pass that tried to break a first run. 17 findings, 15 closed.
 | `HS-F12` | low | fixed, tick 79 | Out of range numbers are taken: --limit -5 prints 95 results, --limit 0 nothing, --interval -1 a traceback, --interval 0 a busy loop |
 | `HS-F13` | low | fixed, tick 79 | An empty or blank question returns three arbitrary table rows |
 | `HS-F14` | low | fixed, tick 79 | ntk doctor says 9 of 9 ok with the index's server stopped |
-| `HS-F15` | medium | open | An English question that names a Greek place is answered in Greek: one Greek letter makes the language Greek, the prompt asks for a Greek answer and the refusal comes in Greek; decide by the question's majority script, English on a tie |
+| `HS-F15` | medium | fixed, tick 135 | An English question that names a Greek place is answered in Greek: one Greek letter makes the language Greek, the prompt asks for a Greek answer and the refusal comes in Greek; decide by the question's majority script, English on a tie |
 | `HS-F16` | low | fixed, tick 105 | ntk eval check ends in a traceback on a golden line that is no object and on a missing eval/families.json: refuse each in one line, by line number and with the command that writes the file |
 | `HS-F17` | low | open | A corrupted answer cache ends ntk ask in a traceback after both models load: set it aside in one line that names the file and says it can be deleted, answer without it, and note it in the spend log |
 
@@ -69,7 +69,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 
 ## `DR`, the deep reviewer
 
-An audit pass on correctness, read in the logic rather than the comments. 25 findings, 22 closed.
+An audit pass on correctness, read in the logic rather than the comments. 25 findings, 23 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -90,7 +90,7 @@ An audit pass on correctness, read in the logic rather than the comments. 25 fin
 | `DR-F15` | medium | fixed, tick 85 | A hit the manifest has dropped, between a scan and its sync, crashes the reranked search (KeyError) and ntk search (TypeError) |
 | `DR-F16` | low | open | The Greek stemmer turns έως into an empty term, so every unit holding it shares one meaningless term in the lexical index: make it a stopword when lexical.py next changes, with MT-F9's fix, since any edit to it stales the frozen statistics |
 | `DR-F17` | medium | fixed, tick 117 | parse raises on a reply whose citations are not a list (TypeError) or hold a digit int cannot read such as a superscript (ValueError), where its docstring promises status invalid: read a non list as invalid or a bare integer as one citation, take a string only when isdecimal and ASCII, and test each; the class, found the same tick: the adapters read choices, output, content and candidates with .get on what they assume are objects, so a reply of the wrong shape there ends in a traceback too |
-| `DR-F18` | medium | open | A reply cut off mid body raises http.client.IncompleteRead, no OSError, so it escapes call.post's retries after one attempt as a raw exception: catch HTTPException with the network errors and test four attempts then a ProviderError |
+| `DR-F18` | medium | fixed, tick 135 | A reply cut off mid body raises http.client.IncompleteRead, no OSError, so it escapes call.post's retries after one attempt as a raw exception: catch HTTPException with the network errors and test four attempts then a ProviderError |
 | `DR-F19` | medium | fixed, tick 123 | quoted escapes only lower case document tags, so </DOCUMENT> or <Document inside a document reaches the model as written, against the docstring's promise that no text opens or closes a quotation: escape case insensitively, with any space after < or / |
 | `DR-F20` | medium | fixed, tick 110 | A table item's row is taken on the writer's word: no check that one unit of the document holds the key, is a table under a label the role reads and holds the value; T30 and T31 were checked by hand and are right; T5.1h writes eight more |
 | `DR-F21` | low | fixed, tick 110 | Context.sections and split.salience see a fact planted twice in one document through its first section and first occurrence only; F22R12 sits in two logistics sections of LOG_MAN_007, so nothing decides wrongly yet: yield every section, measure each occurrence |
@@ -207,7 +207,7 @@ An audit pass of ten seconds on the first screen, by someone who hires but does 
 
 ## `PF`, the performance auditor
 
-An audit pass on time, memory and disk, its page half waiting for the page. 9 findings, 5 closed.
+An audit pass on time, memory and disk, its page half waiting for the page. 9 findings, 6 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -218,7 +218,7 @@ An audit pass on time, memory and disk, its page half waiting for the page. 9 fi
 | `PF-F5` | low | fixed, tick 78 | Expansion finds each hit's segment by reading its whole document through the doc_id index: 31 to 43 ms for the top 8 |
 | `PF-F6` | low | open | Within one watcher, each widening of the largest document made the next sync's read slower, 0.40 to 0.73 s over five runs, leaving 0.2 s under the 5 s objective: run the change thirty times to see whether the engine's own vacuum bounds it, and if it does not, read only the sections that changed Measured by bench/revocation.py. |
 | `PF-F7` | low | open | Each ntk ask loads the encoder and the reranker in a fresh process, 30 s of search before the question reaches the provider against 0.65 s warm: the served path keeps both loaded, and the README says what a first question costs Measured by ntk ask. |
-| `PF-F8` | medium | open | The spend log books the models' loading as search time: each process's first question shows 28 to 35 s of search against a 0.77 s median, cached answers too, so the log's p95 of 28 s is loading, not search: load the models before the clock and record the load apart, or mark cold questions and report cold and warm apart |
+| `PF-F8` | medium | fixed, tick 135 | The spend log books the models' loading as search time: each process's first question shows 28 to 35 s of search against a 0.77 s median, cached answers too, so the log's p95 of 28 s is loading, not search: load the models before the clock and record the load apart, or mark cold questions and report cold and warm apart |
 | `PF-F9` | low | open | The golden checks read the whole manifest for ten keys: the table items' check scans every unit's text, 5.2 of ntk eval check's 7.1 s, and the row draw scans once per candidate key, its test the suite's slowest at 43 s of 139: count each key's units in one pass and cache it beside the manifest under its last run id |
 
 ## `KB1`, the plan, reviewed against a knowledge base
