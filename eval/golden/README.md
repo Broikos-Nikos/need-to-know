@@ -59,5 +59,10 @@ and original is reported (N59).
   reasoning over many dates.
 * A value a model may know without the documents, such as the 14 days of withdrawal from a
   distance contract, is asked only by an item whose right answer is a refusal.
+* `seeds.md` holds ten questions written from public documents of the domain, EU consumer
+  and electronic communications law and the Greek complaint procedure, beside what each
+  document and this corpus say. They are not scored. Where the two meet they agree, save one
+  planted value that breaks the EU's 24 month cap on a consumer's commitment; and the corpus
+  says nothing of porting, which the law regulates in detail.
 * The documents are synthetic, and the facts sit early in short paragraphs about one thing,
   so a retrieval figure measured here is an upper bound for real manuals.

@@ -232,6 +232,18 @@ def test_the_dev_twins_pair_the_items_the_seed_draws():
     assert [twin["twin"] for twin in dev if twin.get("twin")] == G.draw_twins(dev, test, 20)
 
 
+def test_the_seed_questions_are_ten_from_public_documents_with_the_corpus_beside_each():
+    # KB1-F11: ten questions written from the domain's public documents anchor a set a model's prose surrounds.
+    from needtoknow.settings import repo_root
+    text = (repo_root() / "eval" / "golden" / "seeds.md").read_text(encoding="utf-8")
+    rows = [line.split("|")[1:-1] for line in text.splitlines()
+            if line.startswith("| ") and line.split("|")[1].strip().isdigit()]
+    assert [int(cells[0]) for cells in rows] == list(range(1, 11))
+    assert all(len(cells) == 5 and all(cell.strip() for cell in cells) for cells in rows)
+    assert sum(G.language(cells[1]) == "el" for cells in rows) == 5  # as many in Greek as in English
+    assert all("Directive" in cells[2] or "procedure" in cells[2] for cells in rows)  # each names its document
+
+
 def test_the_dev_table_items_are_the_rows_the_seed_draws():
     # MT-F11: the draw ran from a script outside the repository; ntk eval rows repeats it.
     from needtoknow.ingest.manifest import manifest_path
