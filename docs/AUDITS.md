@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**144 findings, 101 closed, 43 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**147 findings, 101 closed, 46 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -124,7 +124,7 @@ An audit pass on whether every number can be produced again. 13 findings, 8 clos
 
 ## `MT`, the maintainer in six months
 
-An audit pass on whether a fresh clone can be rebuilt and changed safely. 9 findings, 8 closed.
+An audit pass on whether a fresh clone can be rebuilt and changed safely. 12 findings, 8 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -137,6 +137,9 @@ An audit pass on whether a fresh clone can be rebuilt and changed safely. 9 find
 | `MT-F7` | low | fixed, tick 82 | A changed collection or analyser is refused with no command to rebuild it, short of a bench that also deletes the vector cache |
 | `MT-F8` | low | fixed, tick 82 | bench/README.md opens by saying every bench runs with no GPU, key or network; eight of fifteen files need the GPU or the server |
 | `MT-F9` | low | open | An edit anywhere in lexical.py stales the index's frozen statistics: the analyser's version is the whole file's hash |
+| `MT-F10` | medium | open | The README never mentions the golden items, ntk eval check and what it needs, ntk eval draft, or that the protocol changes only by a dated entry; two docstrings still say protocol version 4; nothing tells whoever edits prompt.py's rules to rerun bench/injection.py |
+| `MT-F11` | medium | open | The dev set rests on two checks no command repeats: the table rows' seeded draw and each absent fact's and near miss's search of the corpus prose ran from the session's scratchpad; a regenerated narrative could answer one in passing, as it already mentions a courier C3: each J and N item names its probe words and ntk eval check confirms none is held, the row draw a committed command |
+| `MT-F12` | low | open | ntk eval split writes over eval/families.json whatever it draws, though the split's salience reads narrative/ and the items were written against the registered split: refuse a differing result once items exist, behind a flag the protocol history records |
 
 ## `SC`, the supply chain auditor
 
