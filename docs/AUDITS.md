@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**124 findings, 87 closed, 37 open**, from 15 reviews. Each audit pass took one perspective and nothing else.
+**128 findings, 87 closed, 41 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -236,3 +236,14 @@ The same session's review of the retrieval design and its measured filtered reca
 | `KB4-K9` | low | open | The matched pair gap cannot tell a leak from how words sit in the role's own text: a noninterference test, two builds with the same frozen avgdl that differ only in units a role may not read, with every role's fused ids, order and scores and its reranked order identical on the attack's questions and the dev probes; N50 names avgdl as the one statistic measured over the whole collection |
 | `KB4-K10` | low | open | Four keyword payload indexes build graph edges per value that no served search walks: enable_hnsw false on doc_id and lang, and on label_set once the bench stops comparing forms, with bench/full_build.py --fresh timed before and after |
 | `KB4-K11` | low | open | The lexical module's docstrings say Qdrant weighs a question by its IDF modifier, gone since N50: query() returns placeholders that search() replaces with BM25's IDF over the asking role's view |
+
+## `KB5`, the answer layer at P4 exit, reviewed against a knowledge base
+
+The same session's review of the answer layer, its cache and the measurements offered to the base. 4 findings, 0 closed.
+
+| id | severity | status | finding |
+|---|---|---|---|
+| `KB5-K12` | medium | open | The provider's prefix cache and the cached count ntk ask prints keep open the cross-role channel AC-F11 closes: the asking role's readable label set inside the prompt after the fixed rules and before the excerpts, checked on dev to move no answer, and the cache counts kept in the spend log only |
+| `KB5-K13` | medium | open | The baseline's three repeats would come back from the answer cache, every item looking stable and one call counted where three were meant: every scored answer asks with the cache off or the repeat in the key, and a control leaves three provider calls for one item asked three times |
+| `KB5-K14` | low | open | A model alias in the cache key lets answers from a retired model outlive it: an entry is stale when a fresh reply names another model, and every evaluation run records the model that answered |
+| `KB5-K15` | low | open | The injection bench's language check passes any answer in unaccented Latin letters as English: judge the language by stopwords or a fixed identifier, the ASCII test kept as a second gate |
