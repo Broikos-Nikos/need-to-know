@@ -62,6 +62,9 @@ OWN = set("IJN")
 REFUSED = set("EJN")
 TWO_FAMILIES = set("FM")
 SPLITS = ("test", "dev")
+# The test items are written once and never tuned on: no form is added to one after its answers are seen, so the file
+# is held to this hash (`specs/evaluation.md` section 3). Changing it means saying why, here and in the history.
+TEST_SHA256 = "a3a8ca9549d6ef12a816bc107e84faf458c928b15c4ea4366a0fd9d4b5fea5d3"
 # The dev table items' rows (DR-F20, MT-F11). Only these registers key a row in one unit of the corpus: the ticket log,
 # the stock list and the return authorisation log; the others reuse a key across documents with other values.
 ROW_SEED = 20261013

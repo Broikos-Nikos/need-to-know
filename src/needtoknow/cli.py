@@ -68,10 +68,15 @@ def build_parser() -> argparse.ArgumentParser:
     reply.add_argument("--no-cache", action="store_true", help="ask the provider even when the cache holds the answer")
     evaluation = commands.add_parser("eval", help="draw the fact families' split by the protocol, or check the golden "
                                                   "items against it")
-    evaluation.add_argument("action", choices=("split", "check", "draft", "rows", "twins"))
+    evaluation.add_argument("action", choices=("split", "check", "draft", "rows", "twins", "score"))
+    evaluation.add_argument("answers", nargs="?", help="score: a JSON lines file of answers, one per item, as parse "
+                                                       "gives them with the item's id")
     evaluation.add_argument("--check", action="store_true", help="split: draw again and compare with eval/families.json")
     evaluation.add_argument("--rewrite", action="store_true",
                             help="split: write over eval/families.json although the draw differs from it")
+    evaluation.add_argument("--purpose", choices=("development", "baseline", "experiment", "parity", "release"),
+                            help="score: what the scores are for; the protocol refuses the test split for a purpose "
+                                 "that chooses anything")
     evaluation.add_argument("--split", choices=("dev", "test"), default="dev",
                             help="draft: the split whose families to show, planted sentences masked")
     embed = commands.add_parser("embed", help="embed every unit of the manifest whose passage the vector cache lacks")
@@ -325,6 +330,8 @@ def cmd_eval(args: argparse.Namespace, out=None) -> int:
             return 1
         print("\n".join(lines), file=out, flush=True)
         return 0
+    if args.action == "score":
+        return cmd_eval_score(args, out)
     if args.action == "twins":
         from needtoknow.eval.golden import GoldenError, draw_twins, golden_path, load_items
         from needtoknow.eval.protocol import load_protocol
@@ -377,6 +384,45 @@ def cmd_eval(args: argparse.Namespace, out=None) -> int:
             return 1
     write(result)
     print(line + "; written to eval/families.json", file=out, flush=True)
+    return 0
+
+
+def cmd_eval_score(args: argparse.Namespace, out) -> int:
+    """A run's answers scored against one split's items (T5.2b): the four figures apart, then partial credit, the
+    citation measures and every figure by category, layer and language, with the scorer's hash. The protocol is asked
+    first, so the test split serves no purpose that chooses anything."""
+    from pathlib import Path
+
+    from needtoknow.eval.golden import Context, GoldenError, golden_path, load_items
+    from needtoknow.eval.protocol import ProtocolError, check_use
+    from needtoknow.eval.score import score
+    from needtoknow.eval.split import SplitError
+    if not args.answers or not args.purpose:
+        print("eval score: give the answers file and --purpose", file=out, flush=True)
+        return 1
+    try:
+        check_use(args.split, args.purpose)
+        answers = load_items(Path(args.answers))
+        results, figures = score(load_items(golden_path(args.split)), answers, Context())
+    except (GoldenError, ProtocolError, SplitError, OSError) as error:
+        print(f"eval score: {error}", file=out, flush=True)
+        return 1
+
+    def line(name: str, rate: dict) -> str:
+        share = "no items" if rate["rate"] is None else f"{rate['rate']:.3f}"
+        return f"{name}: {rate['correct']} of {rate['items']}, {share}"
+
+    print(line("answerable accuracy", figures["answerable"]), file=out)
+    print(line("refusal correctness", figures["refusals"]), file=out)
+    print(f"leaks: {figures['leaks']}", file=out)
+    print(line("overall accuracy", figures["overall"]), file=out)
+    for name in ("partial", "citation_precision", "citation_recall"):
+        value = figures[name]
+        print(f"{name.replace('_', ' ')}: {'none' if value is None else f'{value:.3f}'}", file=out)
+    for axis, groups in figures["by"].items():
+        print(f"by {axis}: " + "; ".join(f"{key} {g['correct']}/{g['items']}" for key, g in groups.items()), file=out)
+    print(f"{len(results)} items scored, {args.split} split, for {args.purpose}; scorer {figures['scorer'][:16]}",
+          file=out, flush=True)
     return 0
 
 
