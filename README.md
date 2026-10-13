@@ -61,7 +61,8 @@ produces it.
   `eval/protocol_history.toml`, which a test holds it to.
 * A split's items are asked as their roles, three repeats with the answer cache off as the
   protocol registers, each answer written with the model that gave it as it comes, so a
-  run cut short resumes without paying twice; `--closed-book` asks with no excerpts:
+  run cut short resumes without paying twice; with no excerpts, `--closed-book` asks under
+  the answer rules and `--guess` for the model's best guess from its own knowledge (N61):
   `uv run ntk eval run --split dev --purpose development --out <file>`. Then
   `uv run ntk eval score <file> --purpose development` scores each repeat, then each item
   by its mean over them, and names the items whose verdict changed.
@@ -72,12 +73,18 @@ produces it.
   3 test items and 0.857 over 14 dev ones, and two facts at once, F, 0.500 over 4 dev items.
   Of the wrong answers over the repeats, 15, all on dev, were not shown a section planting
   every fact they needed, and 6 were shown it and refused: T12 twice on test, D141 three
-  times and D136 once on dev. With no excerpts the same model answered none of the
-  answerable items on either split. Verdicts differ between two repeats for 0.0190 of the
-  test items and 0.0044 of dev's, and dev less test over families is -0.018, -0.069 to
-  +0.038, a diagnostic that changes nothing (N33). The answers and their provenance are in
-  `eval/runs/baseline/`; three of the four runs record an unclean tree, edits to code those
-  runs never load: `uv run python bench/baseline.py eval/runs/baseline`.
+  times and D136 once on dev. With no documents the same model refused every time, 105 of
+  105 answers on test and 459 of 459 on dev, as its rules require, which shows nothing of
+  what it knows; asked
+  instead for its best guess from its own knowledge, it got 0.074 of the 27 answerable
+  test items and 0.043 of the 101 dev ones right, the most its training could have
+  supplied without retrieval, none of them on G's value a law contradicts, and its guesses
+  hit a deliberate default on three refusal items, T21, D105 and D142 (N61). Verdicts
+  differ between two repeats for 0.0190 of the test items and 0.0044 of dev's, and dev less
+  test over families is -0.018, -0.069 to +0.038, a diagnostic that changes nothing (N33).
+  The answers and their provenance are in `eval/runs/baseline/`; three of the six runs
+  record an unclean tree, edits to code those runs never load, and the two best guess runs
+  were made later, at another commit: `uv run python bench/baseline.py eval/runs/baseline`.
 * Retrieval is probed apart from the answers: two questions a fact, one in each language,
   made by code from each split's own facts and worded apart from the planted sentences,
   each with its gold units and the roles that may read them: `uv run ntk eval probes --check`.

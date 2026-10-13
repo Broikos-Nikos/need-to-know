@@ -359,3 +359,25 @@ so 0.2 stays as the assumption, the side that asks a larger effect.
 
 **Reverses if.** The first experiment measures its own discordance, which then replaces the
 assumption, or the dev units change.
+
+## N61. The closed book control asks for the model's best guess
+
+**Call.** The control KB1-F7 asks for, the questions with no documents, is asked under
+`prompt.GUESS`, rules that want the model's best guess from its own knowledge in the
+answer's reply form (`ntk eval run --guess`), both splits at the protocol's three repeats.
+The run under the answer rules stays beside it as what it is, the check that the rules
+hold with no documents.
+
+**Evidence.** Under the answer rules, which say never to use other knowledge and never to
+guess, the model refused 105 of 105 answers on test and 459 of 459 on dev: a model that
+knew every planted value would have done the same (DR-F27). Asked for its best guess, it
+got 0.074 of the 27 answerable test items and 0.043 of the 101 dev ones right, none on G's
+value a law contradicts, and hit a deliberate default on T21, D105 and D142
+(`bench/baseline.py eval/runs/baseline`). A model allowed to decline what it is unsure of,
+as closed book factuality benchmarks grade, would answer fewer of these, not more, so the
+best guess is the bound: the most the model's training could have supplied without
+retrieval. It errs high, since the scorer credits a guessed range that holds the value.
+
+**Reverses if.** The bound grows past a few items, when a run that may decline is needed to
+tell what the model holds with confidence from what it guesses well; or the answer rules
+change.

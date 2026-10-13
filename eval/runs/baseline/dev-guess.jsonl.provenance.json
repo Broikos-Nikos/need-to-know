@@ -1,0 +1,26 @@
+{
+ "commit": "472f4a60414e66075a3d8d519702d2c1e563b9e5",
+ "clean": true,
+ "protocol_version": 7,
+ "protocol": "82c160583d047dc34ce6e03aa3c18470323b103181a0d2d8b74c8d15102a30b4",
+ "split": "dev",
+ "purpose": "baseline",
+ "repeats": 3,
+ "closed_book": true,
+ "guess": true,
+ "provider": "deepseek",
+ "model": "deepseek-flash",
+ "settings": {
+  "thinking": false,
+  "as_json": true,
+  "max_tokens": 1024,
+  "temperature": 0.0
+ },
+ "manifest": {
+  "run": 87,
+  "finished": "2026-10-12T22:58:31+00:00",
+  "units": 501031
+ },
+ "analyser": "cbe3b61f7ef74e79 snowballstemmer 3.1.1",
+ "started": "2026-10-13T15:05:03+00:00"
+}

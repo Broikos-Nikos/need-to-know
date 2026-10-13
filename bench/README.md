@@ -263,14 +263,18 @@ uv run python bench/reader_line.py
 ## baseline.py
 
 The baseline's report from a folder of runs, `ntk eval run`'s answers with their
-provenance: the headline, all test items' share right, each item scored by its mean over
+provenance: what made the runs, and every provenance field on which they differ, run by
+run (DR-F28); the headline, all test items' share right, each item scored by its mean over
 the repeats, with its Wilson interval, and the family items alone beside it; each split's
 four figures apart, the grounded accuracy, the leaks, the unstable items, and the figures
-by category, layer, language, table rows shown and a value a law contradicts; the closed
-book runs beside, their E items answered with a deliberate default apart; dev less test
-over fact families with its interval, a diagnostic that changes nothing (N33); and how
-many items were shown the same units in every repeat. It needs the plan, the frequency
-table and the manifest the scorer reads.
+by category, layer, language, table rows shown and a value a law contradicts; beside them
+the two runs with no documents: under the answer rules, how many answers were refusals,
+which shows the rules hold and nothing of what the model knows, and the best guess, the
+answerable items the model got right from its own knowledge alone, with the E items it
+answered with a deliberate default and G on the value a law contradicts apart (DR-F27,
+N61); dev less test over fact families with its interval, a diagnostic that changes
+nothing (N33); and how many items were shown the same units in every repeat. It needs the
+plan, the frequency table and the manifest the scorer reads.
 
 ```
 uv run python bench/baseline.py eval/runs/baseline
