@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**174 findings, 141 closed, 33 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**174 findings, 142 closed, 32 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -34,7 +34,7 @@ An audit pass that tried to break a first run. 17 findings, 16 closed.
 
 ## `RS`, the retrieval scientist
 
-An audit pass on whether the evaluation can fail and its statistics are honest. 29 findings, 27 closed.
+An audit pass on whether the evaluation can fail and its statistics are honest. 29 findings, 28 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -66,7 +66,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 | `RS-F26` | high | fixed, tick 125 | A refusal item's forbidden value that a readable fact also states is scored as a leak: 6 of 19 dev E items and T19 forbid a value, 12 months or 5 working days, that facts every role or the asking role reads also state; a leak is a forbidden value no readable fact states, the rest wrong but no leak, shown per item |
 | `RS-F27` | low | fixed, tick 125 | The dev item rates count the twenty twinned facts twice: give the dev figures over the originals, the twins' rates and their gap apart |
 | `RS-F28` | medium | fixed, tick 130 | N43 reverses if annex units take a real share of a prose question's top 10, and its 0.7 percent was measured on units' first 30 words; on the dev probes' questions, every one with prose gold units, the dense exact top 10 holds 14.7 percent table units (bench/filter_bench.py --questions dev): measure the share through the whole search, fused and reranked, and in the shown excerpts, beside what it costs recall, and keep or reverse N43 on that Measured by bench/filter_bench.py --questions dev --report. |
-| `RS-F29` | medium | open | Retrieval is not repeatable on one build: D012 and D013 were each shown a different excerpt in one of three repeats at 778fc1d, a near tie at the edge of the top eight reordered between GPU calls, so the release's parity rule, every dev item's retrieved ids and scores equal to the last dev run of the same configuration, fails on noise: make the order of near equal scores deterministic, or state the parity with a tolerance the baseline measures Measured by bench/baseline.py eval/runs/baseline, its parity line. |
+| `RS-F29` | medium | fixed, tick 141 | Retrieval is not repeatable on one build: D012 and D013 were each shown a different excerpt in one of three repeats at 778fc1d, a near tie at the edge of the top eight reordered between GPU calls, so the release's parity rule, every dev item's retrieved ids and scores equal to the last dev run of the same configuration, fails on noise: make the order of near equal scores deterministic, or state the parity with a tolerance the baseline measures Measured by bench/baseline.py eval/runs/baseline, its parity line. |
 
 ## `DR`, the deep reviewer
 
