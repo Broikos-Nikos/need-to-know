@@ -153,12 +153,16 @@ units a case may not read counted, and the share of table units in a prose probe
 10; beside each case's medians, the share of the machine busy while it ran, this bench
 and its server included, since the medians move with it. It needs the manifest, the vector cache, the `embed` extra, a CUDA GPU and the index
 on the running server, and writes its numbers to NTK_DATA_DIR/bench/filter_bench.json,
-which `--report` prints again. N51 and the commit "Search exactly under every role's
-filter" quote it.
+which `--report` prints again. With `--questions dev` its probes are the committed dev
+probes' questions instead of units' first 30 words, and its numbers go to
+filter_bench_questions.json. N51, N43 and the commit "Search exactly under every role's
+filter" quote it, and `tests/test_bench.py` holds the decisions to both saved runs.
 
 ```
 uv run python bench/filter_bench.py
 uv run python bench/filter_bench.py --report
+uv run python bench/filter_bench.py --questions dev
+uv run python bench/filter_bench.py --questions dev --report
 ```
 
 ## ingest_steps.py

@@ -108,8 +108,11 @@ shapes, one glossary written 602,893 times, and label shares by unit following a
 bytes rather than the registered shares.
 
 **Reverses if.** The dense search's annex intrusion shows annex units taking a real
-share of a prose question's top 10. Measured at P3: 0.7 percent of the top 10, where
-tables are 99.7 percent of all units (`bench/filter_bench.py --report`).
+share of a prose question's top 10. Measured at P3 on units' first 30 words: 0.7 percent
+of the top 10, where tables are 99.7 percent of all units
+(`bench/filter_bench.py --report`). On the dev probes' questions: 14.7 percent
+(`--questions dev --report`), on the dense side alone; the fused and reranked top 10,
+which an answer's excerpts come from, decides it.
 
 ## N44. The audits page is written from the finding queue, never by hand
 
@@ -189,8 +192,18 @@ every probe, at a median of 24 to 38 ms a search and 77 for admin, with the mach
 to 89 percent busy, this bench and its server included: the bench prints that share
 beside its medians, since they move with it.
 
+**Asked questions, 2026-10-13.** On the 194 dev probes' questions instead, shorter and
+worded apart from the text (`bench/filter_bench.py --questions dev`), no role reached
+0.97 at any ef: the graph's dev means at ef 512 ran from 0.533 to 0.678 over the nine
+roles, and admin's fell from 0.959 to 0.622. Of the two single label views, hr alone
+still reached it at ef 64; outside counsel, legal alone, which reached it at ef 256 on
+unit prefixes, ended at 0.943. The exact path held 1.000 on every question, with no unit
+a case may not read in 21,340 searches, at a median of 25 to 44 ms a search and 80 for
+admin, the machine 85 to 98 percent busy.
+
 **Reverses if.** Exact search passes 200 ms for a role, as a corpus several times larger
-would make it; then each label is searched through the graph and the lists merged.
+would make it; then each label is searched through the graph, at an ef its questions
+hold 0.97 with, and the lists merged.
 
 ## N53. The watcher looks every half second, and a scan pauses the collector
 

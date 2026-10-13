@@ -138,6 +138,73 @@ def test_the_probe_recall_bench_counts_ranks_and_the_shown_excerpts_as_it_says()
     assert cut == {"rank": 3, "shown": False}
 
 
+def test_n51_and_n43_quote_the_filter_benchs_saved_runs():
+    # Tick 129, RS-F16: the decisions quote the filter bench on units' first 30 words and on the dev probes'
+    # questions; each figure from its saved numbers is held to them. A machine without both runs skips.
+    import json
+
+    from needtoknow.settings import data_dir, repo_root
+    runs = []
+    for name in ("filter_bench.json", "filter_bench_questions.json"):
+        path = data_dir() / "bench" / name
+        if not path.is_file():
+            pytest.skip(f"no {name} here: bench/filter_bench.py makes it")
+        runs.append(json.loads(path.read_bytes()))
+    text = " ".join((repo_root() / "docs" / "DECISIONS.md").read_text(encoding="utf-8").split())
+
+    def section(number: str) -> str:
+        start = text.index(f"## {number}. ")
+        return text[start:text.index(" ## ", start)]
+
+    def mean(rows: list[dict], key: str = "tie_aware") -> float:
+        return sum(r[key] for r in rows) / len(rows)
+
+    def figures(results: list[dict]) -> dict:
+        rows = [r for r in results if r["form"] == "labels"]
+        cases = {r["case"]: r for r in rows}
+
+        def first(case: str) -> int | None:
+            for ef in (64, 128, 256, 512):
+                at = [r for r in rows if r["case"] == case and r["split"] == "dev" and r["ef"] == ef]
+                if all(mean([r for r in at if r["class"] == c]) >= 0.97 for c in {r["class"] for r in at}):
+                    return ef
+            return None
+
+        def median(case: str) -> str:
+            took = sorted(r["seconds"] for r in rows if r["case"] == case and r["split"] == "test" and r["ef"] is None)
+            return f"{took[len(took) // 2] * 1000:.0f}"
+
+        roles = [c for c, r in cases.items() if not r["bench_only"]]
+        graph = {c: mean([r for r in rows if r["case"] == c and r["ef"] == 512 and r["split"] == "dev"]) for c in cases}
+        medians = sorted(int(median(c)) for c in roles if c != "admin")
+        busy = sorted(int(f"{cases[c]['busy']:.0%}"[:-1]) for c in roles)
+        prose = [r for r in results if r["kind"] in ("prose", "question") and r["class"] == "in domain"
+                 and r["ef"] is None]
+        assert all(r["tie_aware"] == 1.0 for r in results if r["ef"] is None)
+        assert sum(r["foreign"] for r in results) == 0
+        return {"first": {c: first(c) for c in cases}, "graph": graph, "roles": roles, "searches": len(results),
+                "range": f"{min(graph[c] for c in roles):.3f} to {max(graph[c] for c in roles):.3f}",
+                "median": f"{medians[0]} to {medians[-1]} ms a search and {median('admin')} for admin",
+                "busy": f"{busy[0]} to {busy[-1]} percent busy",
+                "annex": f"{100 * mean(prose, 'tables') / 10:.1f} percent"}
+
+    units, questions = (figures(results) for results in runs)
+    n51, n43 = section("N51"), section("N43")
+    assert len(questions["roles"]) == 9 and not any(questions["first"][c] for c in questions["roles"])
+    for phrase in (f"ran from {units['range']}", f"median of {units['median']}", f"machine {units['busy']}",
+                   f"ran from {questions['range']} over the nine roles",
+                   f"admin's fell from {units['graph']['admin']:.3f} to {questions['graph']['admin']:.3f}",
+                   f"hr alone still reached it at ef {questions['first']['hr alone']}",
+                   f"which reached it at ef {units['first']['outside counsel']} on unit prefixes, ended at "
+                   f"{questions['graph']['outside counsel']:.3f}",
+                   f"in {questions['searches']:,} searches", f"median of {questions['median']}",
+                   f"the machine {questions['busy']}"):
+        assert phrase in n51, phrase
+    assert questions["first"]["outside counsel"] is None
+    for phrase in (f"first 30 words: {units['annex']}", f"questions: {questions['annex']}"):
+        assert phrase in n43, phrase
+
+
 def test_the_row_draw_names_a_register_the_corpus_lacks(monkeypatch, tmp_path):
     # DR-F23's class: rng.choice of no table units was an IndexError.
     import sqlite3
