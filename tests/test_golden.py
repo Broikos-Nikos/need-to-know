@@ -189,6 +189,31 @@ def test_a_table_items_row_is_looked_up_in_the_manifest(ctx):
     assert any("is no table" in p for p in G.check_item(table, "dev", ctx))
 
 
+def test_an_absent_fact_names_its_probes_and_the_corpus_prose_holds_none(ctx):
+    # MT-F11: the absence was checked once, by a script outside the repository.
+    ctx.units = [{"doc_id": "D1", "layer": "prose", "labels": ["sales"], "text": "Students get no special terms."},
+                 {"doc_id": "D2", "layer": "table", "labels": ["legal"], "text": "Key | Value\nK1 | bereavement"}]
+    absent = item(id="D05", category="J", families=[], question="How many days of bereavement leave are there?",
+                  expect={"status": "not_found", "facts": []})
+    loaded = {"test": [], "dev": [absent]}
+    assert G.absent_problems(loaded, ctx, {"D05": ["(?i)bereavement"]}) == []  # a table's cell answers no question
+    assert any("names the probes its absence rests on" in p for p in G.absent_problems(loaded, ctx, {}))
+    assert any("the corpus prose answers it: '(?i)student' matches in D1" in p
+               for p in G.absent_problems(loaded, ctx, {"D05": ["(?i)student"]}))
+    assert any("is no regular expression" in p for p in G.absent_problems(loaded, ctx, {"D05": ["(unclosed"]}))
+    assert any("names D99, no absent fact or near miss" in p
+               for p in G.absent_problems(loaded, ctx, {"D05": ["(?i)bereavement"], "D99": ["x"]}))
+
+
+def test_the_dev_table_items_are_the_rows_the_seed_draws():
+    # MT-F11: the draw ran from a script outside the repository; ntk eval rows repeats it.
+    from needtoknow.ingest.manifest import manifest_path
+    if not manifest_path().is_file():
+        pytest.skip("no manifest: ntk ingest build makes it")
+    rows = [item["row"] for item in G.load_items(G.golden_path("dev")) if item["category"] == "I"]
+    assert [{k: row[k] for k in ("doc_id", "key", "column", "value")} for row in G.draw_rows()] == rows
+
+
 def test_a_fact_planted_in_two_sections_of_one_document_is_seen_in_both(ctx):
     # DR-F21: only the first section a document plants a fact in was read.
     ctx.docs["D3"] = {"id": "D3", "language": "en", "sections": [{"label": "legal", "facts": ["F92V00"]},

@@ -68,8 +68,10 @@ def build_parser() -> argparse.ArgumentParser:
     reply.add_argument("--no-cache", action="store_true", help="ask the provider even when the cache holds the answer")
     evaluation = commands.add_parser("eval", help="draw the fact families' split by the protocol, or check the golden "
                                                   "items against it")
-    evaluation.add_argument("action", choices=("split", "check", "draft"))
+    evaluation.add_argument("action", choices=("split", "check", "draft", "rows"))
     evaluation.add_argument("--check", action="store_true", help="split: draw again and compare with eval/families.json")
+    evaluation.add_argument("--rewrite", action="store_true",
+                            help="split: write over eval/families.json although the draw differs from it")
     evaluation.add_argument("--split", choices=("dev", "test"), default="dev",
                             help="draft: the split whose families to show, planted sentences masked")
     embed = commands.add_parser("embed", help="embed every unit of the manifest whose passage the vector cache lacks")
@@ -305,7 +307,8 @@ def cmd_ask(args: argparse.Namespace, out=None, client=None) -> int:
 
 
 def cmd_eval(args: argparse.Namespace, out=None) -> int:
-    """The fact families' split by protocol version 4 (T5.1b): written to eval/families.json, or checked against it."""
+    """The fact families' split (T5.1b, N56): written to eval/families.json, or checked against it; once written, never
+    written over by a draw that differs from it unless asked (MT-F12). Also the writer's view and the table rows."""
     import json
 
     from needtoknow.eval.protocol import ProtocolError
@@ -322,6 +325,15 @@ def cmd_eval(args: argparse.Namespace, out=None) -> int:
             return 1
         print("\n".join(lines), file=out, flush=True)
         return 0
+    if args.action == "rows":
+        from needtoknow.eval.golden import GoldenError, draw_rows
+        try:
+            rows = draw_rows()
+        except GoldenError as error:
+            print(f"eval rows: {error}", file=out, flush=True)
+            return 1
+        print("\n".join(json.dumps(row, ensure_ascii=False) for row in rows), file=out, flush=True)
+        return 0
     try:
         result = split()
     except (SplitError, ProtocolError) as error:
@@ -337,6 +349,16 @@ def cmd_eval(args: argparse.Namespace, out=None) -> int:
         print(line + ("; eval/families.json matches it" if same else
                       "; eval/families.json does not match it: ntk eval split writes it"), file=out, flush=True)
         return 0 if same else 1
+    path = split_path()
+    if path.is_file() and not args.rewrite:
+        committed = json.loads(path.read_text(encoding="utf-8"))
+        if committed != result:  # the items were written against the registered split (MT-F12)
+            was = {family["id"]: family["split"] for family in committed["split"]}
+            moved = sorted(family["id"] for family in result["split"] if was.get(family["id"]) != family["split"])
+            print(line + f"; it differs from the registered eval/families.json, {len(moved)} families changing split"
+                  + (f" ({', '.join(moved)})" if moved else "") + ": not written. --rewrite writes it, and the "
+                  "change belongs in eval/protocol_history.toml", file=out, flush=True)
+            return 1
     write(result)
     print(line + "; written to eval/families.json", file=out, flush=True)
     return 0

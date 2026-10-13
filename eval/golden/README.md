@@ -46,7 +46,11 @@ documents, under the label every role reads, so no item could ask it (N58).
   ticket log, the stock list and the return authorisation log; the cost centres, sites,
   courses, contracts, shops and dated sales reuse a key across documents with other values,
   so a question on one has no single answer. The dev rows were drawn from those three by a
-  fixed seed, four in each language.
+  fixed seed, four in each language, and `uv run ntk eval rows` draws them again.
+* Every absent fact and near miss names in `probes.json` the regular expressions its
+  absence rests on, in both languages, and the check confirms that no prose unit of the
+  corpus matches one: a regenerated narrative that answered one in passing fails it. The
+  narrative already mentions a courier C3 and gift card refunds, so neither is asked.
 * Every value that changed did so on one date, 1 July 2025, its former value dating from 1
   March 2024. A superseded item therefore tests choosing the later of two dated values, not
   reasoning over many dates.

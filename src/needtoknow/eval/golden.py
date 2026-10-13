@@ -24,7 +24,8 @@ role may read a section each fact is planted in, an E item's none; C asks in the
 language than every document its facts sit in; G asks the current value and names the
 superseded one of its own registry family, H a regional variant; E, J and N expect no fact, and a near miss's
 neighbour is one its role reads, of a dev family for a dev item; a deliberate default is asked only by E (RS-F19);
-a table item's row is in the manifest, its key in one unit alone, a table of the named
+an absent fact or near miss names its probes in `eval/golden/probes.json`, and
+no prose unit of the corpus matches one (MT-F11); a table item's row is in the manifest, its key in one unit alone, a table of the named
 document under a label its role reads, the cell under its column the value, which a form holds (DR-F20);
 and the overlap cap: of the three rarest terms of each planted sentence by the corpus's
 document frequency, at most one in the question, counted by `needtoknow.lexical.terms`,
@@ -38,6 +39,7 @@ the rest, so every figure can be given by layer (KB1-F8).
 from __future__ import annotations
 
 import json
+import random
 import re
 import sqlite3
 from collections import Counter
@@ -58,6 +60,11 @@ OWN = set("IJN")
 REFUSED = set("EJN")
 TWO_FAMILIES = set("FM")
 SPLITS = ("test", "dev")
+# The dev table items' rows (DR-F20, MT-F11). Only these registers key a row in one unit of the corpus: the ticket log,
+# the stock list and the return authorisation log; the others reuse a key across documents with other values.
+ROW_SEED = 20261013
+ROW_PAIRS = (("customer-care", "en"), ("customer-care", "el"), ("logistics", "en"), ("logistics", "el"),
+             ("returns", "en"), ("returns", "el"), ("logistics", "en"), ("customer-care", "el"))
 
 
 class GoldenError(Exception):
@@ -66,6 +73,12 @@ class GoldenError(Exception):
 
 def golden_path(split: str) -> Path:
     return repo_root() / "eval" / "golden" / f"{split}.jsonl"
+
+
+def probes_path() -> Path:
+    """The probes of every absent fact and near miss, by item id: regular expressions none of whose matches the
+    corpus prose may hold (MT-F11)."""
+    return repo_root() / "eval" / "golden" / "probes.json"
 
 
 def load_items(path: Path) -> list[dict]:
@@ -116,6 +129,7 @@ class Context:
         self.df = df or corpus_df()
         self.units = units  # given in a test; read from the manifest otherwise
         self.held: dict[str, list[dict]] = {}
+        self.prose_units: list[dict] | None = None
 
     def sections(self, fact_id: str) -> list[tuple[str, dict]]:
         """Every section that plants a fact, with its document: a document that plants it twice is read once, and
@@ -132,6 +146,88 @@ class Context:
             for key in wanted:
                 self.held[key] = [unit for unit in found if key in unit["text"]]
         return {key: self.held[key] for key in keys}
+
+    def prose(self) -> list[dict]:
+        """Every prose unit of the corpus, read once: the 1,641 units an absent fact's probes are run over."""
+        if self.prose_units is None:
+            self.prose_units = ([unit for unit in self.units if unit["layer"] == "prose"] if self.units is not None
+                                else manifest_prose())
+        return self.prose_units
+
+
+def manifest_prose() -> list[dict]:
+    """The prose units with document, layer, labels and text, the manifest read only."""
+    path = manifest_path()
+    if not path.is_file():
+        raise GoldenError(f"no manifest at {path}: ntk ingest build makes it, and an absent fact is checked against it")
+    db = sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True)
+    try:
+        return [{"doc_id": doc_id, "layer": "prose", "labels": json.loads(labels), "text": text}
+                for doc_id, labels, text in db.execute("SELECT doc_id, labels, text FROM units WHERE layer = 'prose'")]
+    finally:
+        db.close()
+
+
+def absent_problems(loaded: dict[str, list[dict]], ctx: Context, probes: dict[str, list[str]]) -> list[str]:
+    """Each absent fact and near miss against the corpus prose (MT-F11): it names its probes, each a regular
+    expression, and no prose unit holds a match of any; a probe naming no such item is refused too."""
+    problems = []
+    asked = {item.get("id"): item for split in SPLITS for item in loaded[split] if item.get("category") in {"J", "N"}}
+    for name, item in asked.items():
+        if not probes.get(name):
+            problems.append(f"{name}: an absent fact names the probes its absence rests on, in eval/golden/probes.json")
+        for probe in probes.get(name) or []:
+            try:
+                pattern = re.compile(probe)
+            except re.error as error:
+                problems.append(f"{name}: the probe {probe!r} is no regular expression: {error}")
+                continue
+            hits = sorted({unit["doc_id"] for unit in ctx.prose() if pattern.search(unit["text"])})
+            if hits:
+                problems.append(f"{name}: the corpus prose answers it: {probe!r} matches in {', '.join(hits[:3])}"
+                                + (f" and {len(hits) - 3} more" if len(hits) > 3 else ""))
+    problems += [f"eval/golden/probes.json names {name}, no absent fact or near miss" for name in probes
+                 if name not in asked]
+    return problems
+
+
+def draw_rows(seed: int = ROW_SEED, pairs: tuple = ROW_PAIRS, attempts: int = 50) -> list[dict]:
+    """The dev table items' rows as the seed draws them: for each label and language, the table units of that label
+    in that language in id order, one drawn; in it a data row and a column other than the key, each drawn; kept when
+    the key is in one unit of the whole manifest and its cell is not empty, else the next draw."""
+    path = manifest_path()
+    if not path.is_file():
+        raise GoldenError(f"no manifest at {path}: ntk ingest build makes it")
+    rng = random.Random(seed)
+    db = sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True)
+    drawn = []
+    try:
+        tables: dict[tuple[str, str], list[str]] = {}  # one scan, not one a pair: each costs seconds
+        for unit_id, labels, language in db.execute("SELECT unit_id, labels, language FROM units WHERE layer = 'table' "
+                                                    "ORDER BY unit_id"):
+            tables.setdefault((labels, language), []).append(unit_id)
+        for label, language in pairs:
+            ids = tables.get((json.dumps([label]), language), [])
+            for _ in range(attempts):
+                doc_id, text = db.execute("SELECT doc_id, text FROM units WHERE unit_id = ?",
+                                          (rng.choice(ids),)).fetchone()
+                lines = text.splitlines()
+                header = [c.strip() for c in lines[0].split("|")]
+                data = [[c.strip() for c in line.split("|")] for line in lines[1:]]
+                data = [cells for cells in data if len(cells) == len(header) and cells[0]]
+                if len(header) < 2 or not data:
+                    continue
+                key, column = rng.choice(data)[0], rng.choice(header[1:])
+                value = cell(text, key, column)
+                if value and db.execute("SELECT COUNT(*) FROM units WHERE instr(text, ?) > 0", (key,)).fetchone()[0] == 1:
+                    drawn.append({"label": label, "language": language, "doc_id": doc_id, "key": key,
+                                  "column": column, "value": value})
+                    break
+            else:
+                raise GoldenError(f"no {label} table row in {language} had a key of its own in {attempts} draws")
+    finally:
+        db.close()
+    return drawn
 
 
 def manifest_units(keys: list[str]) -> list[dict]:
@@ -384,6 +480,8 @@ def check(ctx: Context | None = None) -> tuple[dict, list[str]]:
     shares = {code: test_counts[code] / len(loaded["test"]) for code in FAMILY | OWN} if loaded["test"] else None
     for split in SPLITS:
         problems += check_split(loaded[split], split, ctx, shares if split == "dev" else None)
+    probes = json.loads(probes_path().read_text(encoding="utf-8")) if probes_path().is_file() else {}
+    problems += absent_problems(loaded, ctx, probes)
     summary = {split: {"items": len(loaded[split]),
                        "categories": dict(sorted(Counter(i.get("category") for i in loaded[split]).items())),
                        "layers": dict(Counter(layer(i) for i in loaded[split]))} for split in SPLITS}

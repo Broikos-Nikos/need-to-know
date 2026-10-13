@@ -60,6 +60,23 @@ def test_a_sentence_planted_twice_in_one_document_is_measured_at_each_paragraph(
         S.salience("The fee is 5.", text, 2)
 
 
+def test_a_draw_that_differs_from_the_registered_split_is_not_written_over_it(tmp_path, monkeypatch, capsys):
+    # MT-F12: ntk eval split wrote whatever it drew, over the split the items were written against.
+    from needtoknow import cli
+    registered = {"split": [{"id": "F1", "split": "test"}, {"id": "F2", "split": "dev"}], "draws": [{"smd": {"p": 0.0}}],
+                  "families": 2, "registry_families": 2, "test_families": 1, "seed": 1, "limit": 0.1}
+    drawn = {**registered, "split": [{"id": "F1", "split": "dev"}, {"id": "F2", "split": "test"}]}
+    path = tmp_path / "families.json"
+    path.write_text(json.dumps(registered), encoding="utf-8")
+    monkeypatch.setattr(S, "split", lambda: drawn)
+    monkeypatch.setattr(S, "split_path", lambda: path)
+    assert cli.main(["eval", "split"]) == 1
+    assert "2 families changing split (F1, F2): not written" in capsys.readouterr().out
+    assert json.loads(path.read_text(encoding="utf-8")) == registered
+    assert cli.main(["eval", "split", "--rewrite"]) == 0
+    assert json.loads(path.read_text(encoding="utf-8")) == drawn
+
+
 def test_seats_go_to_each_kind_by_its_share_before_any_label():
     families = [{"id": f"S{i}", "kind": "single", "label": f"L{i % 3}"} for i in range(9)] + \
                [{"id": f"V{i}", "kind": "variant", "label": f"L{i}"} for i in range(3)]
