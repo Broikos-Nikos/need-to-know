@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**177 findings, 145 closed, 32 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**177 findings, 147 closed, 30 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -70,7 +70,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 
 ## `DR`, the deep reviewer
 
-An audit pass on correctness, read in the logic rather than the comments. 29 findings, 25 closed.
+An audit pass on correctness, read in the logic rather than the comments. 29 findings, 27 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -100,8 +100,8 @@ An audit pass on correctness, read in the logic rather than the comments. 29 fin
 | `DR-F24` | low | fixed, tick 137 | ntk eval score on a missing answers file reports every item as unanswered, and Sources.of_row opens a missing manifest into a sqlite error the command does not catch: refuse the missing file by name, check the manifest as of_fact does |
 | `DR-F25` | low | fixed, tick 129 | bench/probe_recall.py counts a probe whose gold unit the manifest lacks as asked across languages, the figure the bench exists to watch: count such probes apart and name them |
 | `DR-F26` | low | fixed, tick 142 | The scorer misses a Greek time range written with its articles: D053's third answer, 'από τις 07:00 έως τις 15:00', is right and was scored wrong, the form '07:00 έως 15:00' not standing whole in it: read the articles between a range's words and its times as nothing, test it both ways, and score the baseline's dev answers again at the new scorer hash |
-| `DR-F27` | high | open | The closed book run asks under the same rules as the open one, which forbid the model's own knowledge and any guess, so every closed book answer was a refusal, and the zero the baseline report calls the model's own knowledge is the instruction's; KB1-F7 was closed on it: ask the closed book questions under rules that let the model answer from what it knows, report that floor with the deliberate defaults and the item against the law apart, keep the run under the real rules as the check that they hold with no documents, and say in the README which is which |
-| `DR-F28` | low | open | A run resumed with another book, split or purpose is accepted into the same file under the first provenance, a last line cut mid write stops any resume with a JSONDecodeError, and the baseline report prints the test run's provenance for all four runs: compare the sidecar on a resume, set a cut last line aside, and compare the four provenances in the report |
+| `DR-F27` | high | fixed, tick 145 | The closed book run asks under the same rules as the open one, which forbid the model's own knowledge and any guess, so every closed book answer was a refusal, and the zero the baseline report calls the model's own knowledge is the instruction's; KB1-F7 was closed on it: ask the closed book questions under rules that let the model answer from what it knows, report that floor with the deliberate defaults and the item against the law apart, keep the run under the real rules as the check that they hold with no documents, and say in the README which is which |
+| `DR-F28` | low | fixed, tick 145 | A run resumed with another book, split or purpose is accepted into the same file under the first provenance, a last line cut mid write stops any resume with a JSONDecodeError, and the baseline report prints the test run's provenance for all four runs: compare the sidecar on a resume, set a cut last line aside, and compare the four provenances in the report |
 | `DR-F29` | low | open | ntk corpus draw prints new values counted over the plan's facts beside sentences counted in its own documents, takes 0 and negatives for --every, and writes a plan whose facts point at documents its catalogue lacks, on which the probe generator stops with a KeyError: count what the drawn documents hold, refuse --every below 1, and cut the draw's plan to the facts its documents plant |
 
 ## `OP`, the pipeline operator
