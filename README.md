@@ -54,6 +54,9 @@ produces it.
   build makes. A dev question is drafted from `uv run ntk eval draft`, which hides the
   words that decide retrieval. `eval/protocol.toml` changes only by a new dated entry in
   `eval/protocol_history.toml`, which a test holds it to.
+* Retrieval is probed apart from the answers: two questions a fact, one in each language,
+  made by code from each split's own facts and worded apart from the planted sentences,
+  each with its gold units and the roles that may read them: `uv run ntk eval probes --check`.
 * Every audit finding the history cites, open or fixed, is in `docs/AUDITS.md`, and
   every decision the code cites is in `docs/DECISIONS.md`.
 

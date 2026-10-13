@@ -68,10 +68,11 @@ def build_parser() -> argparse.ArgumentParser:
     reply.add_argument("--no-cache", action="store_true", help="ask the provider even when the cache holds the answer")
     evaluation = commands.add_parser("eval", help="draw the fact families' split by the protocol, or check the golden "
                                                   "items against it")
-    evaluation.add_argument("action", choices=("split", "check", "draft", "rows", "twins", "score"))
+    evaluation.add_argument("action", choices=("split", "check", "draft", "rows", "twins", "score", "probes"))
     evaluation.add_argument("answers", nargs="?", help="score: a JSON lines file of answers, one per item, as parse "
                                                        "gives them with the item's id")
-    evaluation.add_argument("--check", action="store_true", help="split: draw again and compare with eval/families.json")
+    evaluation.add_argument("--check", action="store_true", help="split, probes: make again and compare with the "
+                                                                   "committed files")
     evaluation.add_argument("--rewrite", action="store_true",
                             help="split: write over eval/families.json although the draw differs from it")
     evaluation.add_argument("--purpose", choices=("development", "baseline", "experiment", "parity", "release"),
@@ -332,6 +333,8 @@ def cmd_eval(args: argparse.Namespace, out=None) -> int:
         return 0
     if args.action == "score":
         return cmd_eval_score(args, out)
+    if args.action == "probes":
+        return cmd_eval_probes(args, out)
     if args.action == "twins":
         from needtoknow.eval.golden import GoldenError, draw_twins, golden_path, load_items
         from needtoknow.eval.protocol import load_protocol
@@ -384,6 +387,41 @@ def cmd_eval(args: argparse.Namespace, out=None) -> int:
             return 1
     write(result)
     print(line + "; written to eval/families.json", file=out, flush=True)
+    return 0
+
+
+def cmd_eval_probes(args: argparse.Namespace, out) -> int:
+    """The retrieval probes (T5.4b): two a fact from each split's own families, written to eval/probes/, or made
+    again and compared; the share sharing none, one or more of their planted sentence's rarest terms printed (RS-F4)."""
+    from collections import Counter
+
+    from needtoknow.eval import probes as P
+    from needtoknow.eval.golden import Context, GoldenError
+    from needtoknow.eval.protocol import ProtocolError
+    from needtoknow.eval.split import SplitError
+    try:
+        ctx = Context()
+        made = P.generate(ctx)
+    except (GoldenError, ProtocolError, SplitError) as error:
+        print(f"eval probes: {error}", file=out, flush=True)
+        return 1
+    for split, rows in made.items():
+        shared = ", ".join(f"{n} sharing {k}" for k, n in sorted(Counter(r["shared_rare"] for r in rows).items()))
+        print(f"{split}: {len(rows)} probes over {len({r['fact_id'] for r in rows})} facts; of their planted sentences' "
+              f"rarest terms, {shared}", file=out)
+    wrong = P.problems(made, ctx)
+    for problem in wrong:
+        print(f"  {problem}", file=out)
+    if args.check:
+        same = all(P.load(split) == rows for split, rows in made.items())
+        print("eval/probes/ matches" if same else "eval/probes/ does not match: ntk eval probes writes it", file=out,
+              flush=True)
+        return 0 if same and not wrong else 1
+    if wrong:
+        print(f"{len(wrong)} problems: not written", file=out, flush=True)
+        return 1
+    P.write(made)
+    print("written to eval/probes/", file=out, flush=True)
     return 0
 
 
