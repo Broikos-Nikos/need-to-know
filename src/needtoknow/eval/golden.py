@@ -17,7 +17,7 @@ and each split to the counts and shares version 5 registered.
 Per item: a known category, and `not_found` exactly for E, J and N; the question's script
 is its language; family items name their families, two for F and M, each in this split;
 the role exists; an F item's facts sit under two labels its role reads; every expected fact is in the registry,
-in one of the item's families, with its planted value among the forms; an answered item's
+in one of the item's families, each of its forms holding its planted value or naming it; an answered item's
 role may read a section each fact is planted in, an E item's none; C asks in the other
 language than every document its facts sit in; G asks the current value and names the
 superseded one, H a regional variant; a deliberate default is asked only by E (RS-F19);
@@ -81,8 +81,9 @@ def corpus_df(path: Path | None = None) -> Callable[[str], int]:
 
 
 def rare_terms(sentence: str, df: Callable[[str], int], count: int) -> list[str]:
-    """The sentence's rarest terms by document frequency, first occurrence breaking ties."""
-    distinct = list(dict.fromkeys(lexical.terms(sentence)))
+    """The sentence's rarest terms by document frequency, first occurrence breaking ties; an empty term, which the
+    Greek stemmer leaves for some words, is no term a question could share."""
+    distinct = [term for term in dict.fromkeys(lexical.terms(sentence)) if term]
     return sorted(distinct, key=lambda term: (df(term), distinct.index(term)))[:count]
 
 
@@ -155,8 +156,8 @@ def check_item(item: dict, split: str, ctx: Context) -> list[str]:
         fact = ctx.facts[fid]
         if not any(fid in ctx.families.get(family, {}).get("facts", []) for family in families):
             say(f"{name}: {fid} is in none of the item's families")
-        if not any(value in (entry.get("forms") or []) for value in fact["values"]):
-            say(f"{name}: the forms of {fid} hold neither of its planted values {fact['values']}")
+        if not any(value in form for value in fact["values"] for form in entry.get("forms") or []):
+            say(f"{name}: no form of {fid} holds either of its planted values {fact['values']}")
         placed = ctx.sections(fid)
         if category == "E":
             if any(section["label"] in reads for _, section in placed):

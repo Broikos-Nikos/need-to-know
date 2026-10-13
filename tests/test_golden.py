@@ -49,6 +49,10 @@ def item(**fields):
 
 def test_a_well_formed_item_keeps_every_rule(ctx):
     assert G.check_item(item(), "test", ctx) == []
+    # A form holds the planted value in its context; no bare number need stand alone among them.
+    in_context = item(expect={"status": "answered", "facts": [{"fact_id": "F06V00", "forms": ["7 percent"]}]})
+    assert G.check_item(in_context, "test", ctx) == []
+    assert "" not in G.rare_terms("Ο ρόλος εγκρίνει έως 100 ευρώ.", lambda term: 0 if term == "" else 5, 3)
 
 
 @pytest.mark.parametrize("fields, words", [
@@ -57,7 +61,7 @@ def test_a_well_formed_item_keeps_every_rule(ctx):
     ({"families": ["F09V00"], "expect": {"status": "answered", "facts": [{"fact_id": "F09V00", "forms": ["22"]}],
                                          "superseded": []}}, "is in dev, not test"),
     ({"role": "legal"}, "may read no section F06V00 is planted in"),
-    ({"expect": {"status": "answered", "facts": [{"fact_id": "F06V00", "forms": ["seven"]}]}}, "neither of its planted"),
+    ({"expect": {"status": "answered", "facts": [{"fact_id": "F06V00", "forms": ["seven"]}]}}, "holds either of its planted"),
     ({"question": "What is the maximum in percent?"}, "shares 2 of the rarest terms"),
     ({"category": "F"}, "asks facts under two labels"),
     ({"category": "C"}, "another language than every document"),
@@ -115,3 +119,18 @@ def test_the_command_reads_the_golden_files_and_names_a_bad_line(tmp_path, monke
     monkeypatch.setattr(G, "golden_path", lambda split: tmp_path / f"{split}.jsonl")
     with pytest.raises(G.GoldenError, match="test.jsonl line 2 is not JSON"):
         G.check(ctx)
+
+
+def test_the_committed_test_items_keep_their_rules():
+    # Needs the plan and the frequency table, which a build makes; a bare clone skips it.
+    from needtoknow.eval.split import SplitError, load_plan
+    from needtoknow.index.frequencies import table_path
+    try:
+        load_plan()
+    except SplitError:
+        pytest.skip("no plan: ntk corpus plan makes it")
+    if not table_path().is_file():
+        pytest.skip("no frequency table: ntk index sync makes it")
+    summary, problems = G.check()
+    assert summary["test"]["items"] == 35
+    assert [p for p in problems if not p.startswith("dev")] == []
