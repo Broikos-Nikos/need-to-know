@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**157 findings, 123 closed, 34 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**160 findings, 123 closed, 37 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -68,7 +68,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 
 ## `DR`, the deep reviewer
 
-An audit pass on correctness, read in the logic rather than the comments. 22 findings, 20 closed.
+An audit pass on correctness, read in the logic rather than the comments. 25 findings, 20 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -94,6 +94,9 @@ An audit pass on correctness, read in the logic rather than the comments. 22 fin
 | `DR-F20` | medium | fixed, tick 110 | A table item's row is taken on the writer's word: no check that one unit of the document holds the key, is a table under a label the role reads and holds the value; T30 and T31 were checked by hand and are right; T5.1h writes eight more |
 | `DR-F21` | low | fixed, tick 110 | Context.sections and split.salience see a fact planted twice in one document through its first section and first occurrence only; F22R12 sits in two logistics sections of LOG_MAN_007, so nothing decides wrongly yet: yield every section, measure each occurrence |
 | `DR-F22` | low | fixed, tick 109 | Three category rules are left to the writer: a G item may name any superseded fact, an E item's facts are never required empty, an N item's neighbour need not be readable by its role: tie each in check_item with a test |
+| `DR-F23` | low | open | probes.generate raises ValueError (min of no readers) on a fact no unit holds, so problems' no gold unit check is unreachable and ntk eval probes ends in a traceback after a corpus change: record the fact without a selective reader for problems to name |
+| `DR-F24` | low | open | ntk eval score on a missing answers file reports every item as unanswered, and Sources.of_row opens a missing manifest into a sqlite error the command does not catch: refuse the missing file by name, check the manifest as of_fact does |
+| `DR-F25` | low | open | bench/probe_recall.py counts a probe whose gold unit the manifest lacks as asked across languages, the figure the bench exists to watch: count such probes apart and name them |
 
 ## `OP`, the pipeline operator
 
