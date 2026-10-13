@@ -57,6 +57,11 @@ from needtoknow.ingest.manifest import manifest_path
 from needtoknow.policy import readable
 
 REFUSALS = {"E", "J", "N"}
+# A planted value a law contradicts, which a model that knows the law may answer from its own knowledge: F07V04's 29
+# month minimum term for fixed wireless broadband breaks the EU's 24 month cap on a consumer's commitment (Directive
+# (EU) 2018/1972, Article 105(1)), and its former value is exactly that cap. G is reported with and without the items
+# on it, since a miss there may be knowledge rather than recency (RS-F23).
+AGAINST_LAW = {"F07V04"}
 ANSWERED = (FAMILY | {"I"}) - REFUSALS  # E is a family item, and a refusal
 BOUND = "0-9a-zα-ω"  # a form stands whole between characters outside these
 ONES = {"zero": 0, "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9,
@@ -267,7 +272,10 @@ def score_item(item: dict, answer: dict, ctx, sources: Sources) -> dict:
     result = {"id": item["id"], "category": category, "layer": layer(item), "lang": item.get("lang"),
               "twin": item.get("twin"), "status": status, "correct": False, "grounded": False, "leak": False,
               "stated_elsewhere": False, "elsewhere": [], "collides": None, "partial": None, "precision": None,
-              "recall": None, "mixed": None}
+              "recall": None, "mixed": None,
+              "against_law": any(e.get("fact_id") in AGAINST_LAW for e in expect.get("facts") or []),
+              # Whether the excerpts shown held table rows, as a run records it; N43's reversal reads it (KB1-F8).
+              "table_rows_shown": answer["tables_shown"] > 0 if isinstance(answer.get("tables_shown"), int) else None}
     if category in REFUSALS:
         for entry in expect.get("forbidden") or []:
             forms = entry.get("forms") or []
@@ -319,6 +327,20 @@ def rate(group: list[dict], key: str = "correct") -> dict:
             "rate": (sum(r[key] for r in group) / len(group)) if group else None}
 
 
+def groupings(results: list[dict], answerable: list[dict], rate_of) -> dict:
+    """The groupings the baseline reports beside the categories: the answerable prose items by whether the excerpts
+    they were shown held table rows, where N43 would reverse (KB1-F8), and G by whether its item rests on a value a law
+    contradicts (RS-F23)."""
+    prose = [r for r in answerable if r["layer"] == "prose" and r["table_rows_shown"] is not None]
+    g = [r for r in results if r["category"] == "G"]
+    return {"table rows shown, answerable prose": {key: rate_of([r for r in prose if r["table_rows_shown"] is value])
+                                                   for key, value in (("shown", True), ("none", False))
+                                                   if any(r["table_rows_shown"] is value for r in prose)},
+            "G, on a value a law contradicts": {key: rate_of([r for r in g if r["against_law"] is value])
+                                                for key, value in (("yes", True), ("no", False))
+                                                if any(r["against_law"] is value for r in g)}}
+
+
 def figures(results: list[dict]) -> dict:
     """The run's figures, apart as KB1-F5 asks: answerable accuracy, refusal correctness, leaks, and only fourth the
     overall accuracy; the grounded accuracy beside the answerable, partial credit and the citation measures; each by
@@ -339,6 +361,7 @@ def figures(results: list[dict]) -> dict:
                         if any(r["mixed"] is value for r in answerable)}  # RS-F22
     by["value elsewhere"] = {value: rate([r for r in answerable if r["collides"] is value]) for value in (True, False)
                              if any(r["collides"] is value for r in answerable)}  # RS-F25
+    by.update(groupings(results, answerable, rate))
     originals = [by_id[r["twin"]] for r in twins if r["twin"] in by_id]
     twin_block = {"twins": rate(twins), "originals": rate(originals),
                   "gap": (rate(originals)["rate"] - rate(twins)["rate"]) if twins and originals else None}
@@ -371,7 +394,13 @@ def over_repeats(items: list[dict], answers: list[dict], ctx, sources: Sources |
     def over(group: list[dict], key: str = "score") -> dict:
         return {"items": len(group), "rate": sum(r[key] for r in group) / len(group) if group else None}
 
-    return {"repeats": repeats, "figures": [figures_ for _, figures_ in runs],
+    answerable = [r for r in originals if r["category"] in ANSWERED]
+    by = {}
+    for name, key in (("category", "category"), ("layer", "layer"), ("language", "lang")):
+        values = sorted({r[key] for r in originals}, key=str)
+        by[name] = {value: over([r for r in originals if r[key] == value]) for value in values}
+    by.update(groupings(originals, answerable, over))
+    return {"repeats": repeats, "figures": [figures_ for _, figures_ in runs], "by": by,
             "answerable": over([r for r in originals if r["category"] in ANSWERED]),
             "refusals": over([r for r in originals if r["category"] in REFUSALS]),
             "overall": over(originals),

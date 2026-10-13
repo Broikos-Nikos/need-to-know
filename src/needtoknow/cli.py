@@ -541,6 +541,9 @@ def print_repeats(run: dict, args: argparse.Namespace, out) -> int:
         share = "no items" if run[name]["rate"] is None else f"{run[name]['rate']:.3f}"
         print(f"{name}, each item's mean over {len(run['repeats'])} repeats: {share} over {run[name]['items']} items",
               file=out)
+    for axis, groups in run["by"].items():
+        print(f"by {axis}, means: " + "; ".join(f"{key} {g['rate']:.3f} of {g['items']}" for key, g in groups.items()
+                                               if g["rate"] is not None), file=out)
     print(f"unstable, a verdict that changed between repeats: {len(run['unstable'])}"
           + (f" ({', '.join(run['unstable'])})" if run["unstable"] else "") + f"; leaks in all repeats: {run['leaks']}",
           file=out)

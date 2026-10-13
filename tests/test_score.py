@@ -149,6 +149,30 @@ def test_the_grounded_accuracy_needs_the_planted_section_cited_and_twins_stand_a
     assert figures["twins"]["gap"] == 1.0 and figures["twins"]["twins"]["correct"] == 0
 
 
+def test_the_prose_items_are_grouped_by_table_rows_shown_and_g_by_a_value_a_law_contradicts():
+    # KB1-F8 and N43: a table item wants the tables, so the split is over the answerable prose items alone.
+    # RS-F23: G with and without the items on F07V04, whose value breaks the EU's 24 month cap.
+    prose = [{**item(), "id": "D01"}, {**item(), "id": "D02"}, {**item(), "id": "D03", "category": "I",
+                                                              "row": {"doc_id": "D9", "key": "O1001"}}]
+    shown = [{**answer(), "id": "D01", "tables_shown": 2}, {**answer("No.", "not_found", ()), "id": "D02",
+                                                             "tables_shown": 0},
+             {**answer(), "id": "D03", "tables_shown": 5}]
+    results, figures = S.score(prose, shown, CTX, SOURCES)
+    assert [r["table_rows_shown"] for r in results] == [True, False, True]
+    assert figures["by"]["table rows shown, answerable prose"] == {"shown": {"correct": 1, "items": 1, "rate": 1.0},
+                                                                  "none": {"correct": 0, "items": 1, "rate": 0.0}}
+    facts = {**FACTS, "F07V04": {"id": "F07V04", "family": "F07V04", "values": ["29", "29"]},
+             "F07V04OLD": {"id": "F07V04OLD", "family": "F07V04", "values": ["24", "24"]}}
+    ctx = types.SimpleNamespace(facts=facts)
+    cap = item("G", facts=(("F07V04", ["29 months"]),), expect={"superseded": ["F07V04OLD"]})
+    other = {**item("G"), "id": "D02"}
+    results, figures = S.score([cap, other], [answer("24 months."), {**answer(), "id": "D02"}], ctx, SOURCES)
+    assert [r["against_law"] for r in results] == [True, False]
+    assert figures["by"]["G, on a value a law contradicts"] == {"yes": {"correct": 0, "items": 1, "rate": 0.0},
+                                                               "no": {"correct": 1, "items": 1, "rate": 1.0}}
+    assert S.score_item(item(), answer(), CTX, SOURCES)["table_rows_shown"] is None  # a run that recorded none
+
+
 def test_a_runs_repeats_score_each_item_by_its_mean_and_mark_a_changed_verdict_unstable():
     # The protocol's [baseline]: an item's score is its mean over the repeats; a verdict that changes is unstable.
     first, second = item(), {**item(), "id": "D02"}
@@ -159,6 +183,7 @@ def test_a_runs_repeats_score_each_item_by_its_mean_and_mark_a_changed_verdict_u
     assert run["repeats"] == [0, 1] and [f["overall"]["correct"] for f in run["figures"]] == [2, 1]
     assert run["overall"] == {"items": 2, "rate": 0.75} and run["answerable"]["rate"] == 0.75
     assert run["unstable"] == ["D02"] and run["leaks"] == 0
+    assert run["by"]["category"]["A"] == {"items": 2, "rate": 0.75}
 
 
 def test_a_missing_answers_file_and_a_missing_manifest_are_named(tmp_path, monkeypatch, capsys):
