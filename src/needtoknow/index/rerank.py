@@ -38,7 +38,7 @@ def rerank(question: str, hits: list[dict], passages: list[str], mode: str | Non
     if mode == "none" or not hits:
         return hits
     scores = multivector_scores(question, passages) if mode == "multivector" else cross_scores(question, passages)
-    order = sorted(range(len(hits)), key=lambda i: -scores[i])
+    order = sorted(range(len(hits)), key=lambda i: (-scores[i], hits[i]["unit_id"]))  # a tie by unit id (RS-F29)
     return [{"unit_id": hits[i]["unit_id"], "rank": rank, "score": float(scores[i])} for rank, i in enumerate(order, 1)]
 
 

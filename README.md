@@ -41,7 +41,9 @@ produces it.
   side alike, and fused in the engine: no unit a role may not read came back in 5,760
   searches, nor reached the excerpts a prompt would hold, every role and three
   combinations of them asking up to 20 dev probes a label:
-  `uv run python bench/permission_suite.py`. No answer the cache holds, read for each role
+  `uv run python bench/permission_suite.py`. Asked three times on one build, every dev item
+  is shown the same excerpts, ties in the fused list and the reranker ordered by unit id:
+  `uv run python bench/repeatability.py`. No answer the cache holds, read for each role
   the spend log names, carries a canary of a label that role may not read:
   `uv run ntk eval canaries`.
 * A role's question is answered by DeepSeek from the excerpts the role may read, its

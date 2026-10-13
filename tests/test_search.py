@@ -258,3 +258,36 @@ def test_ntk_search_skips_a_hit_a_scan_dropped_between_the_search_and_its_printi
     monkeypatch.setattr(retrieval, "search", lambda *a, **k: [{"unit_id": "ghost", "rank": 1, "score": 0.1}])
     question = argparse.Namespace(question="settlement ceiling", role="sales", form="labels", limit=1, rerank="none")
     assert cmd_search(question, client=client) == 0 and "ghost" not in capsys.readouterr().out
+
+
+def test_points_of_equal_score_come_back_in_one_order_whatever_order_the_engine_gives(client, monkeypatch):
+    # RS-F29: Qdrant returned tied fused scores in an order that changed from call to call, and the cut at the limit
+    # with them; ten runs of one question gave ten fused lists.
+    from needtoknow.index import search as retrieval
+    real = client.query_points
+
+    returned, asked = [], []
+
+    def shuffled(*args, **kwargs):
+        asked.append(kwargs["limit"])
+        response = real(*args, **kwargs)
+        returned.extend(p.payload["unit_id"] for p in response.points)
+        tied = [models.ScoredPoint(id=p.id, version=0, score=0.5, payload=p.payload) for p in response.points]
+        response.points = list(reversed(tied))
+        return response
+
+    monkeypatch.setattr(client, "query_points", shuffled)
+    first = [hit["unit_id"] for hit in ask(client, role="admin", limit=3)]
+    assert asked == [3 + retrieval.TIES] and len(returned) > 3  # asked past the limit, so a tie at the cut is whole
+    assert first == sorted(returned)[:3]  # by unit id among equal scores, then cut
+
+
+def test_the_reranker_breaks_a_tie_by_unit_id_not_by_the_order_it_was_given(monkeypatch):
+    # RS-F29: its half precision scores tie often, and a stable sort kept the fused list's changing order for them.
+    from needtoknow.index import rerank as second
+    monkeypatch.setattr(second, "cross_scores", lambda question, passages: [2.0 if p == "u9" else 1.0 for p in passages])
+    hits = [{"unit_id": u, "rank": n, "score": 0.0} for n, u in enumerate(("u3", "u9", "u1", "u2"), 1)]
+    order = [hit["unit_id"] for hit in second.rerank("q", hits, [h["unit_id"] for h in hits], "cross")]
+    backwards = list(reversed(hits))
+    again = [hit["unit_id"] for hit in second.rerank("q", backwards, [h["unit_id"] for h in backwards], "cross")]
+    assert order == again == ["u9", "u1", "u2", "u3"]

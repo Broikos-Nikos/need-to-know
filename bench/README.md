@@ -276,6 +276,19 @@ table and the manifest the scorer reads.
 uv run python bench/baseline.py eval/runs/baseline
 ```
 
+## repeatability.py
+
+Whether retrieval is repeatable on one build, which the release's parity rule needs: every
+dev item searched as its role, as `ask` searches, several times in one process, and the
+excerpts the prompt would hold compared run by run; it names the items shown different
+excerpts and whether their candidates differed too, and exits 1 on any. It needs the
+manifest, the index on the running server, the `embed` extra and the GPU, and asks the
+protocol first.
+
+```
+uv run python bench/repeatability.py --runs 3
+```
+
 ## null_runs.py
 
 The scorer's floor, ceiling and citation null, three answer sets no model wrote: every item

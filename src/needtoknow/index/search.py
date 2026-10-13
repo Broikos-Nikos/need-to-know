@@ -39,6 +39,10 @@ class QuestionError(ValueError):
 # The base's k, with ranks counted from 1. Qdrant counts them from 0, so it is sent as RRF_K + 1.
 RRF_K = 60
 FORMS = ("labels", "label_set")
+# Qdrant hands back points of equal fused score in an order that changes from call to call, and the reranker's half
+# precision scores tie often, so on one build a tie at the eighth place moved an item's excerpts between runs
+# (RS-F29): the fusion is asked for TIES more than the limit, ordered by score and then by unit id, and cut there.
+TIES = 20
 
 
 def label_sets(client) -> list[str]:
@@ -97,7 +101,8 @@ def search(client, question: str, role: str, policy: dict | None = None, form: s
         prefetch.append(models.Prefetch(query=models.SparseVector(indices=indices, values=values), using=SPARSE,
                                         filter=flt, limit=limit))
     found = client.query_points(COLLECTION, prefetch=prefetch, query=models.RrfQuery(rrf=models.Rrf(k=RRF_K + 1)),
-                                query_filter=flt, limit=limit, with_payload=["unit_id"]).points
+                                query_filter=flt, limit=limit + TIES, with_payload=["unit_id"]).points
+    found = sorted(found, key=lambda point: (-point.score, point.payload["unit_id"]))[:limit]
     # A point whose unit the manifest no longer holds awaits its sync, and its labels may be the ones a relabel has
     # just narrowed: the manifest decides what exists, so such a point is dropped here, before the reranker reads
     # passages, and a narrowing takes effect at the scan (DR-F15).
