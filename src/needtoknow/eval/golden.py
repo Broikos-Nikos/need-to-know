@@ -24,7 +24,9 @@ role may read a section each fact is planted in, an E item's none; C asks in the
 language than every document its facts sit in; G asks the current value and names the
 superseded one of its own registry family, H a regional variant; E, J and N expect no fact, and a near miss's
 neighbour is one its role reads, of a dev family for a dev item; a deliberate default is asked only by E (RS-F19);
-an absent fact or near miss names its probes in `eval/golden/probes.json`, and
+a twin is a dev item the same as its original in every field
+but its wording, sharing no more of the rarest terms than its original and at most half of its terms, one an item, as many
+as registered (N59); an absent fact or near miss names its probes in `eval/golden/probes.json`, and
 no prose unit of the corpus matches one (MT-F11); a table item's row is in the manifest, its key in one unit alone, a table of the named
 document under a label its role reads, the cell under its column the value, which a form holds (DR-F20);
 and the overlap cap: of the three rarest terms of each planted sentence by the corpus's
@@ -42,14 +44,14 @@ import json
 import random
 import re
 import sqlite3
-from collections import Counter
+from collections import Counter, defaultdict
 from collections.abc import Callable
 from pathlib import Path
 
 from needtoknow import lexical
 from needtoknow.answer.prompt import language
 from needtoknow.eval.protocol import load_protocol
-from needtoknow.eval.split import DELIBERATE_DEFAULTS, load_plan, split_path
+from needtoknow.eval.split import DELIBERATE_DEFAULTS, load_plan, quotas, split_path
 from needtoknow.index import frequencies
 from needtoknow.ingest.manifest import manifest_path
 from needtoknow.policy import load_policy, readable
@@ -63,6 +65,10 @@ SPLITS = ("test", "dev")
 # The dev table items' rows (DR-F20, MT-F11). Only these registers key a row in one unit of the corpus: the ticket log,
 # the stock list and the return authorisation log; the others reuse a key across documents with other values.
 ROW_SEED = 20261013
+# The dev items given a paraphrase twin (KB3-K4, N59), drawn by this seed.
+TWIN_SEED = 20261014
+# What a twin keeps of its original: all but its id, its wording and the twin field itself.
+TWIN_KEEPS = ("category", "families", "role", "lang", "expect", "row", "near")
 ROW_PAIRS = (("customer-care", "en"), ("customer-care", "el"), ("logistics", "en"), ("logistics", "el"),
              ("returns", "en"), ("returns", "el"), ("logistics", "en"), ("customer-care", "el"))
 
@@ -228,6 +234,79 @@ def draw_rows(seed: int = ROW_SEED, pairs: tuple = ROW_PAIRS, attempts: int = 50
     finally:
         db.close()
     return drawn
+
+
+def draw_twins(dev: list[dict], test: list[dict], count: int, seed: int = TWIN_SEED) -> list[str]:
+    """The dev items given a paraphrase twin (KB3-K4, N59). A twin adds an item to its family, so an item may take one
+    only when each of its families holds two, and no family takes two twins; a table item, an absent fact and a near
+    miss take none, their counts being registered exactly. Seats go by the test's category shares,
+    largest remainder with the seed's ties, among the categories with such an item; the categories with the fewest
+    such items draw first, so an F or M item, whose two families any other draw could take, keeps its seat; within
+    each its items are taken in the seed's order, skipping one whose family already has a twin. Twins written are
+    left out."""
+    originals = [item for item in dev if not item.get("twin")]
+    uses = Counter(family for item in originals for family in item.get("families") or [])
+    eligible = defaultdict(list)
+    for item in originals:
+        if item["category"] in FAMILY and all(uses[family] == 2 for family in item["families"]):
+            eligible[item["category"]].append(item["id"])
+    shares = Counter(item["category"] for item in test)
+    rng = random.Random(seed)
+    seats = quotas({category: shares[category] for category in sorted(eligible) if shares[category]}, count, rng)
+    families = {item["id"]: item.get("families") or [] for item in originals}
+    taken: set[str] = set()
+    drawn: list[str] = []
+    for category in sorted(seats, key=lambda category: (len(eligible[category]), category)):
+        order = sorted(eligible[category])
+        rng.shuffle(order)
+        for name in order:
+            if seats[category] == 0:
+                break
+            if not taken & set(families[name]):
+                drawn.append(name)
+                taken |= set(families[name])
+                seats[category] -= 1
+    return drawn
+
+
+def twin_problems(loaded: dict[str, list[dict]], ctx: Context) -> list[str]:
+    """Each twin against its original (N59): a dev item, the same in every field but its wording, which shares no more
+    of the rarest terms of the facts' planted sentences than the original does, a name the question needs at most,
+    and at most half of its terms with the original's question; an item has one twin at most, a twin none, and the
+    dev split holds the registered number."""
+    problems = []
+    problems += [f"{item.get('id')}: a twin is a dev item" for item in loaded["test"] if item.get("twin")]
+    dev = {item.get("id"): item for item in loaded["dev"]}
+    twins = [item for item in loaded["dev"] if item.get("twin")]
+    for twin, n in Counter(item["twin"] for item in twins).items():
+        if n > 1:
+            problems.append(f"{twin} has {n} twins, not one")
+    count = ctx.protocol["items"]["paraphrase_twins"]
+    if twins and len(twins) != count:
+        problems.append(f"dev: {len(twins)} twins, registered {count}")
+    rare_count = ctx.protocol["items"]["rare_terms"]
+    for item in twins:
+        name, original = item.get("id"), dev.get(item["twin"])
+        if original is None or original.get("twin"):
+            problems.append(f"{name}: its twin {item['twin']} is a dev item that is no twin itself")
+            continue
+        differ = [field for field in TWIN_KEEPS if item.get(field) != original.get(field)]
+        if differ:
+            problems.append(f"{name}: a twin keeps its original's {', '.join(differ)}")
+        mine, theirs = set(lexical.terms(item.get("question") or "")), set(lexical.terms(original.get("question") or ""))
+        if mine == theirs or len(mine & theirs) > len(mine | theirs) / 2:
+            problems.append(f"{name}: shares {len(mine & theirs)} of {len(mine | theirs)} terms with {item['twin']}, "
+                            "more than half")
+        for entry in (item.get("expect") or {}).get("facts") or (item.get("expect") or {}).get("forbidden") or []:
+            fact = ctx.facts.get(entry.get("fact_id"))
+            for doc_id, _ in ctx.sections(fact["id"]) if fact else []:
+                rare = rare_terms(fact[ctx.docs[doc_id]["language"]], ctx.df, rare_count)
+                shared, before = [t for t in rare if t in mine], [t for t in rare if t in theirs]
+                if len(shared) > len(before):
+                    problems.append(f"{name}: shares {shared} of the rarest terms of {fact['id']}, more than its "
+                                    f"original's {before}")
+                    break
+    return problems
 
 
 def manifest_units(keys: list[str]) -> list[dict]:
@@ -482,6 +561,7 @@ def check(ctx: Context | None = None) -> tuple[dict, list[str]]:
         problems += check_split(loaded[split], split, ctx, shares if split == "dev" else None)
     probes = json.loads(probes_path().read_text(encoding="utf-8")) if probes_path().is_file() else {}
     problems += absent_problems(loaded, ctx, probes)
+    problems += twin_problems(loaded, ctx)
     summary = {split: {"items": len(loaded[split]),
                        "categories": dict(sorted(Counter(i.get("category") for i in loaded[split]).items())),
                        "layers": dict(Counter(layer(i) for i in loaded[split]))} for split in SPLITS}

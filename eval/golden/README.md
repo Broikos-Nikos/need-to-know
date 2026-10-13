@@ -22,12 +22,15 @@ baseline and at each release.
 
 ## The dev set
 
-Two or three items for each dev family, in the test's category shares, with 8 table
-cells, 8 absent facts and 8 near misses; every development choice and experiment is made
-on it. It is written in parts, each held by `uv run ntk eval check` as it lands; until the
-last, the check also names the dev families not yet asked and the shares not yet met.
-Two dev families carry no item: each holds only a value a model may know without the
-documents, under the label every role reads, so no item could ask it (N58).
+153 items: two or three for each dev family an item can ask, in the test's category
+shares, with 8 table cells, 8 absent facts and 8 near misses; every development choice and
+experiment is made on it. Two dev families carry no item: each holds only a value a model
+may know without the documents, under the label every role reads, so no item could ask it
+(N58). Twenty items have a paraphrase twin: the same question for the same role and
+language, worded away from the original, with no more of the planted sentence's rarest
+terms and at most half of the original's words. The twenty were drawn by a seed in the
+test's category shares, `uv run ntk eval twins` draws them again, and the gap between twin
+and original is reported (N59).
 
 ## How they were written, and what that leaves
 

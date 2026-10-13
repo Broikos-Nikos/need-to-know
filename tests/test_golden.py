@@ -205,6 +205,33 @@ def test_an_absent_fact_names_its_probes_and_the_corpus_prose_holds_none(ctx):
                for p in G.absent_problems(loaded, ctx, {"D05": ["(?i)bereavement"], "D99": ["x"]}))
 
 
+def test_a_twin_is_its_original_reworded_away_from_the_planted_sentence(ctx):
+    # N59 and KB3-K4: twenty dev items get a twin, the gap between the two to be reported.
+    ctx.protocol = copy.deepcopy(ctx.protocol)
+    ctx.protocol["items"]["paraphrase_twins"] = 1
+    original = item(id="D01", category="A", families=["F06V00"])
+    twin = {**original, "id": "D02", "question": "What reduction can someone selling in a store agree to alone?",
+            "twin": "D01"}
+    problems = lambda *dev, test=(): G.twin_problems({"dev": list(dev), "test": list(test)}, ctx)  # noqa: E731
+    assert problems(original, twin) == []
+    assert any("keeps its original's role" in p for p in problems(original, {**twin, "role": "admin"}))
+    assert any("more than half" in p for p in problems(original, {**twin, "question": original["question"]}))
+    assert any("of the rarest terms of F06V00, more than its original's []" in p
+               for p in problems(original, {**twin, "question": "What is the maximum shop discount?"}))
+    assert any("D01 has 2 twins" in p for p in problems(original, twin, {**twin, "id": "D03"}))
+    assert any("is a dev item that is no twin itself" in p for p in problems(original, twin, {**twin, "id": "D03",
+                                                                                               "twin": "D02"}))
+    assert any("a twin is a dev item" in p for p in problems(original, twin, test=[{**twin, "id": "T05"}]))
+    ctx.protocol["items"]["paraphrase_twins"] = 20
+    assert any("dev: 1 twins, registered 20" in p for p in problems(original, twin))
+
+
+def test_the_dev_twins_pair_the_items_the_seed_draws():
+    # N59: the items given a twin are drawn by a committed seed, in the test's category shares; this needs no build.
+    dev, test = G.load_items(G.golden_path("dev")), G.load_items(G.golden_path("test"))
+    assert [twin["twin"] for twin in dev if twin.get("twin")] == G.draw_twins(dev, test, 20)
+
+
 def test_the_dev_table_items_are_the_rows_the_seed_draws():
     # MT-F11: the draw ran from a script outside the repository; ntk eval rows repeats it.
     from needtoknow.ingest.manifest import manifest_path

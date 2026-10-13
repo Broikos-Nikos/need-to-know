@@ -68,7 +68,7 @@ def build_parser() -> argparse.ArgumentParser:
     reply.add_argument("--no-cache", action="store_true", help="ask the provider even when the cache holds the answer")
     evaluation = commands.add_parser("eval", help="draw the fact families' split by the protocol, or check the golden "
                                                   "items against it")
-    evaluation.add_argument("action", choices=("split", "check", "draft", "rows"))
+    evaluation.add_argument("action", choices=("split", "check", "draft", "rows", "twins"))
     evaluation.add_argument("--check", action="store_true", help="split: draw again and compare with eval/families.json")
     evaluation.add_argument("--rewrite", action="store_true",
                             help="split: write over eval/families.json although the draw differs from it")
@@ -324,6 +324,22 @@ def cmd_eval(args: argparse.Namespace, out=None) -> int:
             print(f"eval draft: {error}", file=out, flush=True)
             return 1
         print("\n".join(lines), file=out, flush=True)
+        return 0
+    if args.action == "twins":
+        from needtoknow.eval.golden import GoldenError, draw_twins, golden_path, load_items
+        from needtoknow.eval.protocol import load_protocol
+        try:
+            dev, test = load_items(golden_path("dev")), load_items(golden_path("test"))
+            drawn = draw_twins(dev, test, load_protocol()["items"]["paraphrase_twins"])
+        except (GoldenError, ProtocolError) as error:
+            print(f"eval twins: {error}", file=out, flush=True)
+            return 1
+        by_id = {item["id"]: item for item in dev}
+        for name in drawn:
+            item = by_id[name]
+            print(f"{name} {item['category']} {','.join(item.get('families') or []) or '-'} {item['role']} {item['lang']}: "
+                  f"{item['question']}", file=out)
+        print(f"{len(drawn)} items drawn for a twin", file=out, flush=True)
         return 0
     if args.action == "rows":
         from needtoknow.eval.golden import GoldenError, draw_rows
