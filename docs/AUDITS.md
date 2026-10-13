@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**132 findings, 95 closed, 37 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**132 findings, 96 closed, 36 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -31,13 +31,13 @@ An audit pass that tried to break a first run. 14 findings, 14 closed.
 
 ## `RS`, the retrieval scientist
 
-An audit pass on whether the evaluation can fail and its statistics are honest. 20 findings, 10 closed.
+An audit pass on whether the evaluation can fail and its statistics are honest. 20 findings, 11 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `RS-F1` | high | fixed, tick 9 | The baseline's redraw lets a test score choose the split, and a redraw moves read dev families into test: balance at construction on outcome free properties, report the dev and test difference only |
 | `RS-F2` | medium | fixed, tick 98 | Repeats have no registered aggregation: register three repeats, the per item mean and an interval over items, for every release and for the incumbent on dev |
-| `RS-F3` | medium | open | The overlap guard counts surface words; measure it with the lexical analyser BM25 uses (Greek: 0 of 6 surface, 3 of 6 stems on one example) |
+| `RS-F3` | medium | fixed, tick 102 | The overlap guard counts surface words; measure it with the lexical analyser BM25 uses (Greek: 0 of 6 surface, 3 of 6 stems on one example) |
 | `RS-F4` | medium | open | Probes have no overlap guard and dev probes decide E2 and E5: question templates disjoint from statement templates, the stemmed guard, the overlap distribution reported |
 | `RS-F5` | medium | open | Pooled recall counts a general fact nine times and a department's fact twice: each probe once under its most selective permitted role, per role beside it |
 | `RS-F6` | medium | open | Every number comes from one corpus draw: the small profile at two more seeds, the spread of the retrieval numbers reported, accuracy stated as one corpus |
