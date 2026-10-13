@@ -42,3 +42,23 @@ def test_the_operator_probes_run_on_a_plan_alone(monkeypatch, tmp_path):
                  "P1c 9 files deleted by hand, 1 carrying a fact: the check names 9",
                  "P2 the journal line made to fail: files changed 0; journal lines 0"]:
         assert line in result.stdout, result.stdout
+
+
+def test_the_null_refuses_everything_and_the_oracle_answers_every_item_with_its_own_form():
+    # RS-F7: the floor and the ceiling every figure is read against, run through the scorer itself.
+    import types
+
+    from needtoknow.eval import score as S
+    spec = importlib.util.spec_from_file_location("null_runs", BENCH / "null_runs.py")
+    runs = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(runs)
+    ctx = types.SimpleNamespace(facts={"F06V00": {"id": "F06V00", "family": "F06V00", "values": ["7", "7"]}})
+    sources = S.Sources(ctx, given={"F06V00": {("D1", "Policy > SECTION 2")}})
+    items = [{"id": "D01", "category": "A", "lang": "en", "expect": {"facts": [{"fact_id": "F06V00", "forms": ["7%"]}]}},
+             {"id": "D02", "category": "J", "lang": "el", "expect": {"facts": []}}]
+    floor = S.score(items, runs.null(items), ctx, sources)[1]
+    assert (floor["answerable"]["correct"], floor["refusals"]["correct"], floor["overall"]["rate"]) == (0, 1, 0.5)
+    best = runs.oracle(items, sources)
+    assert best[0]["citations"] == [{"doc_id": "D1", "section": "Policy > SECTION 2"}]
+    ceiling = S.score(items, best, ctx, sources)[1]
+    assert (ceiling["overall"]["rate"], ceiling["citation_precision"], ceiling["citation_recall"]) == (1.0, 1.0, 1.0)
