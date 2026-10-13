@@ -414,8 +414,15 @@ def cmd_eval_score(args: argparse.Namespace, out) -> int:
 
     print(line("answerable accuracy", figures["answerable"]), file=out)
     print(line("refusal correctness", figures["refusals"]), file=out)
-    print(f"leaks: {figures['leaks']}", file=out)
+    print(f"leaks: {figures['leaks']}; a forbidden value a readable fact also states, not a leak: "
+          f"{figures['stated_elsewhere']}", file=out)
     print(line("overall accuracy", figures["overall"]), file=out)
+    print(line("grounded accuracy", figures["grounded"]), file=out)
+    if figures["twins"]:
+        twins = figures["twins"]
+        gap = "none" if twins["gap"] is None else f"{twins['gap']:+.3f}"
+        print(f"twins: {line('reworded', twins['twins'])}; {line('their originals', twins['originals'])}; gap {gap}",
+              file=out)
     for name in ("partial", "citation_precision", "citation_recall"):
         value = figures[name]
         print(f"{name.replace('_', ' ')}: {'none' if value is None else f'{value:.3f}'}", file=out)

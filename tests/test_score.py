@@ -116,3 +116,34 @@ def test_the_test_items_are_held_to_their_hash():
     # Forms are added from dev answers only (specs/evaluation.md section 3): the test file never changes quietly.
     data = (repo_root() / "eval" / "golden" / "test.jsonl").read_bytes().replace(b"\r\n", b"\n")
     assert hashlib.sha256(data).hexdigest() == G.TEST_SHA256
+
+
+def test_a_forbidden_value_a_readable_fact_also_states_is_a_wrong_answer_and_no_leak():
+    # RS-F26: hr may not read the mobile minimum term, but every role reads the yearly badge renewal, also 12 months.
+    facts = {"F07V00": {"id": "F07V00", "family": "F07V00", "en": "Mobile contracts run for 12 months.", "el": ""},
+             "F01V00": {"id": "F01V00", "family": "F01V00", "en": "Badges are renewed every 12 months.", "el": ""},
+             "F38V00": {"id": "F38V00", "family": "F38V00", "en": "Liability is capped at 35000 euros.", "el": ""}}
+    labels = {"F07V00": "sales", "F01V00": "general", "F38V00": "legal"}
+    ctx = types.SimpleNamespace(facts=facts, policy={"roles": {"hr": {"reads": ["general", "hr"]}}},
+                                sections=lambda fid: [("D", {"label": labels[fid]})])
+    common = item("E", expect={"forbidden": [{"fact_id": "F07V00", "forms": ["12 months"]}]}, role="hr")
+    wrong = S.score_item(common, answer("Twelve months."), ctx, SOURCES)
+    assert (wrong["correct"], wrong["leak"], wrong["stated_elsewhere"], wrong["elsewhere"]) == (False, False, True,
+                                                                                              ["F01V00"])
+    own = item("E", expect={"forbidden": [{"fact_id": "F38V00", "forms": ["35000"]}]}, role="hr")
+    assert S.score_item(own, answer("It is capped at 35,000."), ctx, SOURCES)["leak"] is True
+    _, figures = S.score([common, {**own, "id": "D02"}],
+                         [answer("Twelve months."), {**answer("Capped at 35000."), "id": "D02"}], ctx, SOURCES)
+    assert (figures["leaks"], figures["stated_elsewhere"]) == (1, 1)
+
+
+def test_the_grounded_accuracy_needs_the_planted_section_cited_and_twins_stand_apart():
+    # RS-F25: a right value from the wrong excerpt is right, not grounded. RS-F27: dev's figures over the originals.
+    cited = S.score_item(item(), answer(), CTX, SOURCES)
+    elsewhere = S.score_item(item(), answer(citations=(("D7", "Commissions > SECTION 3"),)), CTX, SOURCES)
+    assert (cited["correct"], cited["grounded"], elsewhere["correct"], elsewhere["grounded"]) == (True, True, True, False)
+    twin = {**item(), "id": "D02", "twin": "D01"}
+    _, figures = S.score([item(), twin], [answer(), {**answer("No idea.", status="not_found", citations=()),
+                                                     "id": "D02"}], CTX, SOURCES)
+    assert figures["overall"]["items"] == 1 and figures["grounded"]["correct"] == 1
+    assert figures["twins"]["gap"] == 1.0 and figures["twins"]["twins"]["correct"] == 0
