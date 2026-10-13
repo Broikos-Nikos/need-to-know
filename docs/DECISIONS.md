@@ -213,3 +213,22 @@ each run, from 0.40 to 0.73 s.
 **Reverses if.** A look at the corpus folder costs more than a few percent of a core,
 or the largest document's change passes 5 s again; then a scan cuts only the sections
 that changed.
+
+## N56. The split's family is every fact that shares a planted section
+
+**Call.** The evaluation's unit is the fact family as `eval/protocol.toml` version 4
+defines it: a family of the plan's registry, its versions and regional variants, joined
+to every fact planted in a section beside one of them, transitively. The plan's 103
+registry families make 81 such families; 31 are drawn for the test set, one item each,
+and the other 50 carry the dev items. `ntk eval split` draws them by the registered seed
+and writes `eval/families.json`.
+
+**Evidence.** The registry gives each product sibling a family of its own and plants
+siblings, and some facts of other topics, in one section, so an excerpt about one shows
+the others' sentences. Split by the registry's families, a group of two such families
+would straddle test and dev with chance 2 x 0.388 x 0.612, about 0.47, and a dev item's
+excerpt would then show a test fact. Joined, no excerpt can. The price is a smaller test
+set: about 15.4 points of Wilson half width at 0.7 accuracy with 31 items, against 13.7
+with 40.
+
+**Reverses if.** The corpus is planned again with one fact to a section.

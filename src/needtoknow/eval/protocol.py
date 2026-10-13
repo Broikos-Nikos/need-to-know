@@ -67,6 +67,9 @@ def validate(protocol: dict) -> list[str]:
     # Version 3 (N43): items about one family cluster, so the family is the unit of the split and of every test.
     if splits.get("unit") != "fact family" or decision.get("unit") != "fact family":
         problems.append("splits.unit and decision.unit must be 'fact family': items about one fact are not independent")
+    if "section" not in str(splits.get("family", "")):
+        problems.append("splits.family must join facts planted in one section: an excerpt about one shows the "
+                        "others' sentences (N56)")
     if splits.get("test", {}).get("items_per_family") != 1:
         problems.append("splits.test.items_per_family must be 1: a test family carries one item, by construction")
     if not splits.get("balance", {}).get("rewrites"):

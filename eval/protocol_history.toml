@@ -35,3 +35,16 @@ cap on the planted sentence's three rarest terms in the lexical analyser's terms
 twenty paraphrase twins, rewrites logged with their side, repeats asked with the \
 answer cache off and averaged per item, and an experiment with several values \
 adopting the cheapest that clears an arm."""
+
+[[version]]
+date = 2026-10-13
+sha256 = "b85036265b19479695201cdbea538de4c47e95c3b73efee5ba29bd6602c3dd8c"
+reason = """\
+Still before any question, probe, answer or score existed. Version 3 split the \
+registry's 103 families, but the registry gives each product sibling a family of \
+its own and plants siblings, and some facts of other topics, in one section: 81 \
+groups join every fact that shares a section, and a dev item's excerpt would show \
+a test fact's sentence wherever a group straddled the splits, about seven groups \
+at the registered share. The family is now the group (N56), and the same share, \
+0.388, draws 31 test families of 81, one item each; the other 50 carry the dev \
+items."""

@@ -1,0 +1,1897 @@
+{
+ "protocol_version": 4,
+ "seed": 20261049,
+ "registry_families": 103,
+ "families": 81,
+ "test_families": 31,
+ "limit": 0.1,
+ "draws": [
+  {
+   "seed": 20261012,
+   "smd": {
+    "placements": 0.1706,
+    "document_size": -0.2848,
+    "language": 0.1357,
+    "salience": 0.3861
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261013,
+   "smd": {
+    "placements": 0.204,
+    "document_size": -0.0834,
+    "language": 0.1284,
+    "salience": 0.1987
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261014,
+   "smd": {
+    "placements": 0.2403,
+    "document_size": -0.3435,
+    "language": 0.1101,
+    "salience": 0.247
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261015,
+   "smd": {
+    "placements": -0.2165,
+    "document_size": -0.3075,
+    "language": 0.0359,
+    "salience": 0.0032
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261016,
+   "smd": {
+    "placements": -0.1928,
+    "document_size": 0.488,
+    "language": -0.3625,
+    "salience": 0.4536
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261017,
+   "smd": {
+    "placements": -0.0168,
+    "document_size": 0.5779,
+    "language": 0.0034,
+    "salience": -0.0521
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261018,
+   "smd": {
+    "placements": 0.2882,
+    "document_size": -0.415,
+    "language": 0.1585,
+    "salience": -0.0079
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261019,
+   "smd": {
+    "placements": -0.3455,
+    "document_size": -0.0943,
+    "language": -0.2421,
+    "salience": 0.2659
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261020,
+   "smd": {
+    "placements": -0.1278,
+    "document_size": -0.0312,
+    "language": -0.0747,
+    "salience": 0.0879
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261021,
+   "smd": {
+    "placements": 0.0809,
+    "document_size": -0.1009,
+    "language": 0.1906,
+    "salience": 0.092
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261022,
+   "smd": {
+    "placements": -0.1947,
+    "document_size": -0.4987,
+    "language": 0.3924,
+    "salience": 0.3845
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261023,
+   "smd": {
+    "placements": -0.2626,
+    "document_size": 0.012,
+    "language": 0.0283,
+    "salience": 0.3066
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261024,
+   "smd": {
+    "placements": 0.1843,
+    "document_size": -0.1008,
+    "language": -0.1455,
+    "salience": -0.3012
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261025,
+   "smd": {
+    "placements": 0.4217,
+    "document_size": -0.2504,
+    "language": 0.3385,
+    "salience": -0.1336
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261026,
+   "smd": {
+    "placements": 0.0248,
+    "document_size": 0.1789,
+    "language": -0.017,
+    "salience": 0.0302
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261027,
+   "smd": {
+    "placements": -0.0224,
+    "document_size": -0.2621,
+    "language": -0.0242,
+    "salience": 0.0778
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261028,
+   "smd": {
+    "placements": -0.0707,
+    "document_size": 0.2588,
+    "language": -0.0521,
+    "salience": 0.2864
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261029,
+   "smd": {
+    "placements": 0.1243,
+    "document_size": 0.0728,
+    "language": 0.2745,
+    "salience": -0.1505
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261030,
+   "smd": {
+    "placements": -0.0026,
+    "document_size": 0.3616,
+    "language": -0.3249,
+    "salience": 0.5519
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261031,
+   "smd": {
+    "placements": -0.0396,
+    "document_size": 0.1132,
+    "language": 0.2587,
+    "salience": -0.0425
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261032,
+   "smd": {
+    "placements": 0.2926,
+    "document_size": -0.1233,
+    "language": -0.0143,
+    "salience": 0.5005
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261033,
+   "smd": {
+    "placements": 0.0457,
+    "document_size": -0.2782,
+    "language": 0.1355,
+    "salience": -0.1604
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261034,
+   "smd": {
+    "placements": -0.2873,
+    "document_size": 0.3131,
+    "language": 0.1188,
+    "salience": -0.0622
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261035,
+   "smd": {
+    "placements": 0.1846,
+    "document_size": -0.053,
+    "language": -0.0759,
+    "salience": 0.197
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261036,
+   "smd": {
+    "placements": -0.2818,
+    "document_size": 0.2761,
+    "language": -0.3638,
+    "salience": 0.1534
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261037,
+   "smd": {
+    "placements": -0.2352,
+    "document_size": 0.0974,
+    "language": 0.0227,
+    "salience": 0.2521
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261038,
+   "smd": {
+    "placements": 0.2829,
+    "document_size": -0.457,
+    "language": 0.059,
+    "salience": 0.2565
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261039,
+   "smd": {
+    "placements": 0.4185,
+    "document_size": -0.4567,
+    "language": -0.1678,
+    "salience": 0.1438
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261040,
+   "smd": {
+    "placements": -0.0013,
+    "document_size": 0.1732,
+    "language": -0.1861,
+    "salience": 0.1012
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261041,
+   "smd": {
+    "placements": 0.1018,
+    "document_size": -0.2123,
+    "language": 0.1712,
+    "salience": 0.0046
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261042,
+   "smd": {
+    "placements": 0.1011,
+    "document_size": -0.3993,
+    "language": 0.2737,
+    "salience": 0.223
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261043,
+   "smd": {
+    "placements": -0.0222,
+    "document_size": 0.2471,
+    "language": -0.0141,
+    "salience": 0.2023
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261044,
+   "smd": {
+    "placements": 0.3314,
+    "document_size": -0.0255,
+    "language": -0.0151,
+    "salience": 0.3284
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261045,
+   "smd": {
+    "placements": 0.2458,
+    "document_size": 0.4825,
+    "language": -0.4297,
+    "salience": 0.0618
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261046,
+   "smd": {
+    "placements": -0.4861,
+    "document_size": 0.0426,
+    "language": 0.2161,
+    "salience": -0.0783
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261047,
+   "smd": {
+    "placements": -0.2151,
+    "document_size": -0.1708,
+    "language": -0.105,
+    "salience": 0.2251
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261048,
+   "smd": {
+    "placements": 0.0389,
+    "document_size": -0.1935,
+    "language": -0.0661,
+    "salience": 0.2288
+   },
+   "balanced": false
+  },
+  {
+   "seed": 20261049,
+   "smd": {
+    "placements": -0.0447,
+    "document_size": -0.0918,
+    "language": 0.0458,
+    "salience": -0.0344
+   },
+   "balanced": true
+  }
+ ],
+ "split": [
+  {
+   "id": "F00V00",
+   "label": "general",
+   "kind": "single",
+   "registry_families": [
+    "F00V00"
+   ],
+   "facts": [
+    "F00V00"
+   ],
+   "defaults": {},
+   "placements": 2,
+   "document_size": 1.775,
+   "language": 0.5,
+   "salience": 0.0861,
+   "split": "test"
+  },
+  {
+   "id": "F01V00",
+   "label": "general",
+   "kind": "single",
+   "registry_families": [
+    "F01V00"
+   ],
+   "facts": [
+    "F01V00"
+   ],
+   "defaults": {
+    "F01V00": "a yearly renewal"
+   },
+   "placements": 1,
+   "document_size": 1.62,
+   "language": 1,
+   "salience": 0.0753,
+   "split": "dev"
+  },
+  {
+   "id": "F02V00",
+   "label": "general",
+   "kind": "variant",
+   "registry_families": [
+    "F02V00",
+    "F04V00",
+    "F05"
+   ],
+   "facts": [
+    "F02V00",
+    "F04V00",
+    "F04V00OLD",
+    "F05R00",
+    "F05R01",
+    "F05R02",
+    "F05R03",
+    "F05R04",
+    "F05R05",
+    "F05R06",
+    "F05R07",
+    "F05R08",
+    "F05R09",
+    "F05R10",
+    "F05R11",
+    "F05R12"
+   ],
+   "defaults": {
+    "F05R00": "shops opening at 09:00"
+   },
+   "placements": 1.1875,
+   "document_size": 1.7926,
+   "language": 0.2105,
+   "salience": 0.0843,
+   "split": "test"
+  },
+  {
+   "id": "F03V00",
+   "label": "general",
+   "kind": "single",
+   "registry_families": [
+    "F03V00"
+   ],
+   "facts": [
+    "F03V00"
+   ],
+   "defaults": {
+    "F03V00": "a yearly confirmation"
+   },
+   "placements": 1,
+   "document_size": 0.88,
+   "language": 1,
+   "salience": 0.0635,
+   "split": "dev"
+  },
+  {
+   "id": "F06V00",
+   "label": "sales",
+   "kind": "single",
+   "registry_families": [
+    "F06V00"
+   ],
+   "facts": [
+    "F06V00"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 0.5,
+   "language": 1,
+   "salience": 0.1416,
+   "split": "dev"
+  },
+  {
+   "id": "F06V01",
+   "label": "sales",
+   "kind": "single",
+   "registry_families": [
+    "F06V01"
+   ],
+   "facts": [
+    "F06V01"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 1.83,
+   "language": 1,
+   "salience": 0.137,
+   "split": "dev"
+  },
+  {
+   "id": "F06V02",
+   "label": "sales",
+   "kind": "versioned",
+   "registry_families": [
+    "F06V02"
+   ],
+   "facts": [
+    "F06V02",
+    "F06V02OLD"
+   ],
+   "defaults": {},
+   "placements": 1.5,
+   "document_size": 2.3567,
+   "language": 0.6667,
+   "salience": 0.1961,
+   "split": "dev"
+  },
+  {
+   "id": "F07V00",
+   "label": "sales",
+   "kind": "single",
+   "registry_families": [
+    "F07V00"
+   ],
+   "facts": [
+    "F07V00"
+   ],
+   "defaults": {
+    "F07V00": "a 12 month minimum term"
+   },
+   "placements": 1,
+   "document_size": 0.63,
+   "language": 1,
+   "salience": 0.0752,
+   "split": "dev"
+  },
+  {
+   "id": "F07V01",
+   "label": "sales",
+   "kind": "single",
+   "registry_families": [
+    "F07V01"
+   ],
+   "facts": [
+    "F07V01"
+   ],
+   "defaults": {
+    "F07V01": "a 12 month minimum term"
+   },
+   "placements": 1,
+   "document_size": 4.95,
+   "language": 0,
+   "salience": 0.0668,
+   "split": "dev"
+  },
+  {
+   "id": "F07V02",
+   "label": "sales",
+   "kind": "single",
+   "registry_families": [
+    "F07V02",
+    "F07V03"
+   ],
+   "facts": [
+    "F07V02",
+    "F07V03"
+   ],
+   "defaults": {
+    "F07V02": "a 12 month minimum term",
+    "F07V03": "a 24 month minimum term"
+   },
+   "placements": 1,
+   "document_size": 6.55,
+   "language": 0,
+   "salience": 0.0637,
+   "split": "test"
+  },
+  {
+   "id": "F07V04",
+   "label": "sales",
+   "kind": "versioned",
+   "registry_families": [
+    "F07V04"
+   ],
+   "facts": [
+    "F07V04",
+    "F07V04OLD"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 2.97,
+   "language": 0.5,
+   "salience": 0.2039,
+   "split": "dev"
+  },
+  {
+   "id": "F07V05",
+   "label": "sales",
+   "kind": "single",
+   "registry_families": [
+    "F07V05"
+   ],
+   "facts": [
+    "F07V05"
+   ],
+   "defaults": {
+    "F07V05": "a 24 month minimum term"
+   },
+   "placements": 1,
+   "document_size": 1.98,
+   "language": 0,
+   "salience": 0.0745,
+   "split": "dev"
+  },
+  {
+   "id": "F08V00",
+   "label": "sales",
+   "kind": "single",
+   "registry_families": [
+    "F08V00",
+    "F08V01"
+   ],
+   "facts": [
+    "F08V00",
+    "F08V01"
+   ],
+   "defaults": {},
+   "placements": 1.5,
+   "document_size": 3.0033,
+   "language": 0.6667,
+   "salience": 0.2036,
+   "split": "test"
+  },
+  {
+   "id": "F09V00",
+   "label": "sales",
+   "kind": "versioned",
+   "registry_families": [
+    "F09V00"
+   ],
+   "facts": [
+    "F09V00",
+    "F09V00OLD"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 0.84,
+   "language": 1,
+   "salience": 0.1521,
+   "split": "test"
+  },
+  {
+   "id": "F10V00",
+   "label": "sales",
+   "kind": "versioned",
+   "registry_families": [
+    "F10V00",
+    "F11V02",
+    "F11V03",
+    "F11V04",
+    "F12V01"
+   ],
+   "facts": [
+    "F10V00",
+    "F10V00OLD",
+    "F11V02",
+    "F11V02OLD",
+    "F11V03",
+    "F11V04",
+    "F12V01",
+    "F12V01OLD"
+   ],
+   "defaults": {},
+   "placements": 1.375,
+   "document_size": 0.96,
+   "language": 0.7273,
+   "salience": 0.1347,
+   "split": "test"
+  },
+  {
+   "id": "F11V00",
+   "label": "sales",
+   "kind": "single",
+   "registry_families": [
+    "F11V00"
+   ],
+   "facts": [
+    "F11V00"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 1.44,
+   "language": 1,
+   "salience": 0.0983,
+   "split": "test"
+  },
+  {
+   "id": "F11V01",
+   "label": "sales",
+   "kind": "single",
+   "registry_families": [
+    "F11V01"
+   ],
+   "facts": [
+    "F11V01"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 0.73,
+   "language": 0,
+   "salience": 0.1907,
+   "split": "dev"
+  },
+  {
+   "id": "F11V05",
+   "label": "sales",
+   "kind": "single",
+   "registry_families": [
+    "F11V05"
+   ],
+   "facts": [
+    "F11V05"
+   ],
+   "defaults": {},
+   "placements": 2,
+   "document_size": 1.515,
+   "language": 1,
+   "salience": 0.1415,
+   "split": "dev"
+  },
+  {
+   "id": "F11V06",
+   "label": "sales",
+   "kind": "single",
+   "registry_families": [
+    "F11V06"
+   ],
+   "facts": [
+    "F11V06"
+   ],
+   "defaults": {},
+   "placements": 2,
+   "document_size": 3.095,
+   "language": 0,
+   "salience": 0.1018,
+   "split": "dev"
+  },
+  {
+   "id": "F11V07",
+   "label": "sales",
+   "kind": "single",
+   "registry_families": [
+    "F11V07"
+   ],
+   "facts": [
+    "F11V07"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 0.5,
+   "language": 1,
+   "salience": 0.1114,
+   "split": "dev"
+  },
+  {
+   "id": "F12V00",
+   "label": "sales",
+   "kind": "single",
+   "registry_families": [
+    "F12V00",
+    "F12V03"
+   ],
+   "facts": [
+    "F12V00",
+    "F12V03"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 1.44,
+   "language": 1,
+   "salience": 0.1165,
+   "split": "test"
+  },
+  {
+   "id": "F12V02",
+   "label": "sales",
+   "kind": "single",
+   "registry_families": [
+    "F12V02"
+   ],
+   "facts": [
+    "F12V02"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 3.51,
+   "language": 0,
+   "salience": 0.2358,
+   "split": "test"
+  },
+  {
+   "id": "F13V00",
+   "label": "returns",
+   "kind": "single",
+   "registry_families": [
+    "F13V00",
+    "F13V02",
+    "F15V00"
+   ],
+   "facts": [
+    "F13V00",
+    "F13V02",
+    "F15V00"
+   ],
+   "defaults": {
+    "F13V00": "a 30 day return window"
+   },
+   "placements": 1.3333,
+   "document_size": 0.675,
+   "language": 1,
+   "salience": 0.0912,
+   "split": "test"
+  },
+  {
+   "id": "F13V01",
+   "label": "returns",
+   "kind": "single",
+   "registry_families": [
+    "F13V01"
+   ],
+   "facts": [
+    "F13V01"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 4.64,
+   "language": 1,
+   "salience": 0.0996,
+   "split": "dev"
+  },
+  {
+   "id": "F14V00",
+   "label": "returns",
+   "kind": "single",
+   "registry_families": [
+    "F14V00"
+   ],
+   "facts": [
+    "F14V00"
+   ],
+   "defaults": {},
+   "placements": 2,
+   "document_size": 0.63,
+   "language": 1,
+   "salience": 0.1065,
+   "split": "test"
+  },
+  {
+   "id": "F14V01",
+   "label": "returns",
+   "kind": "versioned",
+   "registry_families": [
+    "F14V01"
+   ],
+   "facts": [
+    "F14V01",
+    "F14V01OLD"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 1.41,
+   "language": 0.5,
+   "salience": 0.101,
+   "split": "test"
+  },
+  {
+   "id": "F14V02",
+   "label": "returns",
+   "kind": "single",
+   "registry_families": [
+    "F14V02"
+   ],
+   "facts": [
+    "F14V02"
+   ],
+   "defaults": {},
+   "placements": 2,
+   "document_size": 0.595,
+   "language": 1,
+   "salience": 0.115,
+   "split": "test"
+  },
+  {
+   "id": "F16V00",
+   "label": "returns",
+   "kind": "single",
+   "registry_families": [
+    "F16V00"
+   ],
+   "facts": [
+    "F16V00"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 1.39,
+   "language": 1,
+   "salience": 0.0856,
+   "split": "dev"
+  },
+  {
+   "id": "F17V00",
+   "label": "returns",
+   "kind": "single",
+   "registry_families": [
+    "F17V00"
+   ],
+   "facts": [
+    "F17V00"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 1.6,
+   "language": 0,
+   "salience": 0.1382,
+   "split": "test"
+  },
+  {
+   "id": "F18V00",
+   "label": "returns",
+   "kind": "single",
+   "registry_families": [
+    "F18V00"
+   ],
+   "facts": [
+    "F18V00"
+   ],
+   "defaults": {},
+   "placements": 2,
+   "document_size": 1.125,
+   "language": 0.5,
+   "salience": 0.1058,
+   "split": "dev"
+  },
+  {
+   "id": "F19V00",
+   "label": "returns",
+   "kind": "single",
+   "registry_families": [
+    "F19V00"
+   ],
+   "facts": [
+    "F19V00"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 5.27,
+   "language": 0,
+   "salience": 0.1041,
+   "split": "dev"
+  },
+  {
+   "id": "F20V00",
+   "label": "returns",
+   "kind": "single",
+   "registry_families": [
+    "F20V00",
+    "F20V01"
+   ],
+   "facts": [
+    "F20V00",
+    "F20V01"
+   ],
+   "defaults": {},
+   "placements": 2,
+   "document_size": 1.2925,
+   "language": 0.75,
+   "salience": 0.1594,
+   "split": "dev"
+  },
+  {
+   "id": "F21V00",
+   "label": "logistics",
+   "kind": "single",
+   "registry_families": [
+    "F21V00"
+   ],
+   "facts": [
+    "F21V00"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 9.51,
+   "language": 0,
+   "salience": 0.0727,
+   "split": "dev"
+  },
+  {
+   "id": "F21V01",
+   "label": "logistics",
+   "kind": "single",
+   "registry_families": [
+    "F21V01"
+   ],
+   "facts": [
+    "F21V01"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 2.9,
+   "language": 0,
+   "salience": 0.0968,
+   "split": "test"
+  },
+  {
+   "id": "F21V02",
+   "label": "logistics",
+   "kind": "single",
+   "registry_families": [
+    "F21V02"
+   ],
+   "facts": [
+    "F21V02"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 1.59,
+   "language": 1,
+   "salience": 0.0939,
+   "split": "test"
+  },
+  {
+   "id": "F21V03",
+   "label": "logistics",
+   "kind": "single",
+   "registry_families": [
+    "F21V03"
+   ],
+   "facts": [
+    "F21V03"
+   ],
+   "defaults": {},
+   "placements": 2,
+   "document_size": 1.07,
+   "language": 0.5,
+   "salience": 0.0856,
+   "split": "dev"
+  },
+  {
+   "id": "F21V04",
+   "label": "logistics",
+   "kind": "single",
+   "registry_families": [
+    "F21V04"
+   ],
+   "facts": [
+    "F21V04"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 0.63,
+   "language": 1,
+   "salience": 0.1625,
+   "split": "dev"
+  },
+  {
+   "id": "F21V05",
+   "label": "logistics",
+   "kind": "single",
+   "registry_families": [
+    "F21V05"
+   ],
+   "facts": [
+    "F21V05"
+   ],
+   "defaults": {},
+   "placements": 2,
+   "document_size": 2.11,
+   "language": 0,
+   "salience": 0.1088,
+   "split": "test"
+  },
+  {
+   "id": "F22",
+   "label": "logistics",
+   "kind": "variant",
+   "registry_families": [
+    "F22",
+    "F23",
+    "F26V02",
+    "F27V02"
+   ],
+   "facts": [
+    "F22R00",
+    "F22R01",
+    "F22R02",
+    "F22R03",
+    "F22R04",
+    "F22R05",
+    "F22R06",
+    "F22R07",
+    "F22R08",
+    "F22R09",
+    "F22R10",
+    "F22R11",
+    "F22R12",
+    "F23R00",
+    "F23R01",
+    "F23R02",
+    "F23R03",
+    "F23R04",
+    "F23R05",
+    "F23R06",
+    "F23R07",
+    "F23R08",
+    "F23R09",
+    "F23R10",
+    "F23R11",
+    "F23R12",
+    "F26V02",
+    "F27V02",
+    "F27V02OLD"
+   ],
+   "defaults": {},
+   "placements": 1.2414,
+   "document_size": 2.1253,
+   "language": 0.7778,
+   "salience": 0.1068,
+   "split": "dev"
+  },
+  {
+   "id": "F24V00",
+   "label": "logistics",
+   "kind": "single",
+   "registry_families": [
+    "F24V00",
+    "F25V00"
+   ],
+   "facts": [
+    "F24V00",
+    "F25V00"
+   ],
+   "defaults": {},
+   "placements": 1.5,
+   "document_size": 0.7833,
+   "language": 1,
+   "salience": 0.0573,
+   "split": "dev"
+  },
+  {
+   "id": "F26V00",
+   "label": "logistics",
+   "kind": "single",
+   "registry_families": [
+    "F26V00"
+   ],
+   "facts": [
+    "F26V00"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 0.69,
+   "language": 0,
+   "salience": 0.1031,
+   "split": "test"
+  },
+  {
+   "id": "F26V01",
+   "label": "logistics",
+   "kind": "single",
+   "registry_families": [
+    "F26V01"
+   ],
+   "facts": [
+    "F26V01"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 1.62,
+   "language": 0,
+   "salience": 0.0984,
+   "split": "dev"
+  },
+  {
+   "id": "F27V00",
+   "label": "logistics",
+   "kind": "single",
+   "registry_families": [
+    "F27V00"
+   ],
+   "facts": [
+    "F27V00"
+   ],
+   "defaults": {},
+   "placements": 2,
+   "document_size": 2.555,
+   "language": 0,
+   "salience": 0.0801,
+   "split": "dev"
+  },
+  {
+   "id": "F27V01",
+   "label": "logistics",
+   "kind": "single",
+   "registry_families": [
+    "F27V01"
+   ],
+   "facts": [
+    "F27V01"
+   ],
+   "defaults": {},
+   "placements": 2,
+   "document_size": 3.29,
+   "language": 0.5,
+   "salience": 0.0595,
+   "split": "dev"
+  },
+  {
+   "id": "F28V00",
+   "label": "customer-care",
+   "kind": "single",
+   "registry_families": [
+    "F28V00"
+   ],
+   "facts": [
+    "F28V00"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 0.64,
+   "language": 1,
+   "salience": 0.081,
+   "split": "dev"
+  },
+  {
+   "id": "F28V01",
+   "label": "customer-care",
+   "kind": "single",
+   "registry_families": [
+    "F28V01"
+   ],
+   "facts": [
+    "F28V01"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 1.16,
+   "language": 1,
+   "salience": 0.0651,
+   "split": "test"
+  },
+  {
+   "id": "F28V02",
+   "label": "customer-care",
+   "kind": "versioned",
+   "registry_families": [
+    "F28V02"
+   ],
+   "facts": [
+    "F28V02",
+    "F28V02OLD"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 1.065,
+   "language": 0.5,
+   "salience": 0.0915,
+   "split": "dev"
+  },
+  {
+   "id": "F28V03",
+   "label": "customer-care",
+   "kind": "single",
+   "registry_families": [
+    "F28V03"
+   ],
+   "facts": [
+    "F28V03"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 0.68,
+   "language": 1,
+   "salience": 0.152,
+   "split": "dev"
+  },
+  {
+   "id": "F29V00",
+   "label": "customer-care",
+   "kind": "single",
+   "registry_families": [
+    "F29V00"
+   ],
+   "facts": [
+    "F29V00"
+   ],
+   "defaults": {},
+   "placements": 2,
+   "document_size": 1.035,
+   "language": 0.5,
+   "salience": 0.0938,
+   "split": "test"
+  },
+  {
+   "id": "F30V00",
+   "label": "customer-care",
+   "kind": "single",
+   "registry_families": [
+    "F30V00"
+   ],
+   "facts": [
+    "F30V00"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 0.96,
+   "language": 0,
+   "salience": 0.0774,
+   "split": "dev"
+  },
+  {
+   "id": "F31V00",
+   "label": "customer-care",
+   "kind": "single",
+   "registry_families": [
+    "F31V00"
+   ],
+   "facts": [
+    "F31V00"
+   ],
+   "defaults": {},
+   "placements": 2,
+   "document_size": 1.03,
+   "language": 0.5,
+   "salience": 0.0977,
+   "split": "dev"
+  },
+  {
+   "id": "F32V00",
+   "label": "customer-care",
+   "kind": "single",
+   "registry_families": [
+    "F32V00",
+    "F33V01"
+   ],
+   "facts": [
+    "F32V00",
+    "F33V01"
+   ],
+   "defaults": {},
+   "placements": 1.5,
+   "document_size": 2.3233,
+   "language": 0.3333,
+   "salience": 0.0929,
+   "split": "dev"
+  },
+  {
+   "id": "F33V00",
+   "label": "customer-care",
+   "kind": "single",
+   "registry_families": [
+    "F33V00"
+   ],
+   "facts": [
+    "F33V00"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 1.35,
+   "language": 1,
+   "salience": 0.1404,
+   "split": "test"
+  },
+  {
+   "id": "F33V02",
+   "label": "customer-care",
+   "kind": "single",
+   "registry_families": [
+    "F33V02",
+    "F33V03"
+   ],
+   "facts": [
+    "F33V02",
+    "F33V03"
+   ],
+   "defaults": {},
+   "placements": 1.5,
+   "document_size": 2.13,
+   "language": 0.3333,
+   "salience": 0.1208,
+   "split": "dev"
+  },
+  {
+   "id": "F34V00",
+   "label": "legal",
+   "kind": "single",
+   "registry_families": [
+    "F34V00"
+   ],
+   "facts": [
+    "F34V00"
+   ],
+   "defaults": {
+    "F34V00": "the 14 days of withdrawal from a distance contract, EU law"
+   },
+   "placements": 1,
+   "document_size": 0.92,
+   "language": 1,
+   "salience": 0.0982,
+   "split": "test"
+  },
+  {
+   "id": "F35V00",
+   "label": "legal",
+   "kind": "single",
+   "registry_families": [
+    "F35V00"
+   ],
+   "facts": [
+    "F35V00"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 1.3,
+   "language": 0,
+   "salience": 0.144,
+   "split": "dev"
+  },
+  {
+   "id": "F35V01",
+   "label": "legal",
+   "kind": "single",
+   "registry_families": [
+    "F35V01",
+    "F35V02"
+   ],
+   "facts": [
+    "F35V01",
+    "F35V02"
+   ],
+   "defaults": {},
+   "placements": 1.5,
+   "document_size": 0.9367,
+   "language": 0.6667,
+   "salience": 0.0874,
+   "split": "dev"
+  },
+  {
+   "id": "F36V00",
+   "label": "legal",
+   "kind": "single",
+   "registry_families": [
+    "F36V00"
+   ],
+   "facts": [
+    "F36V00"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 1.42,
+   "language": 1,
+   "salience": 0.0799,
+   "split": "dev"
+  },
+  {
+   "id": "F37V00",
+   "label": "legal",
+   "kind": "single",
+   "registry_families": [
+    "F37V00"
+   ],
+   "facts": [
+    "F37V00"
+   ],
+   "defaults": {},
+   "placements": 2,
+   "document_size": 1.24,
+   "language": 0.5,
+   "salience": 0.0831,
+   "split": "test"
+  },
+  {
+   "id": "F38V00",
+   "label": "legal",
+   "kind": "single",
+   "registry_families": [
+    "F38V00"
+   ],
+   "facts": [
+    "F38V00"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 7.22,
+   "language": 0,
+   "salience": 0.1007,
+   "split": "test"
+  },
+  {
+   "id": "F39V00",
+   "label": "legal",
+   "kind": "single",
+   "registry_families": [
+    "F39V00"
+   ],
+   "facts": [
+    "F39V00"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 0.91,
+   "language": 0,
+   "salience": 0.2298,
+   "split": "dev"
+  },
+  {
+   "id": "F40V00",
+   "label": "finance",
+   "kind": "single",
+   "registry_families": [
+    "F40V00"
+   ],
+   "facts": [
+    "F40V00"
+   ],
+   "defaults": {},
+   "placements": 2,
+   "document_size": 1.58,
+   "language": 0,
+   "salience": 0.0647,
+   "split": "dev"
+  },
+  {
+   "id": "F41V00",
+   "label": "finance",
+   "kind": "single",
+   "registry_families": [
+    "F41V00"
+   ],
+   "facts": [
+    "F41V00"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 1.53,
+   "language": 0,
+   "salience": 0.2051,
+   "split": "dev"
+  },
+  {
+   "id": "F42V00",
+   "label": "finance",
+   "kind": "single",
+   "registry_families": [
+    "F42V00"
+   ],
+   "facts": [
+    "F42V00"
+   ],
+   "defaults": {},
+   "placements": 2,
+   "document_size": 2.27,
+   "language": 0.5,
+   "salience": 0.1243,
+   "split": "test"
+  },
+  {
+   "id": "F43V00",
+   "label": "finance",
+   "kind": "versioned",
+   "registry_families": [
+    "F43V00"
+   ],
+   "facts": [
+    "F43V00",
+    "F43V00OLD"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 1.925,
+   "language": 1,
+   "salience": 0.1392,
+   "split": "test"
+  },
+  {
+   "id": "F44V00",
+   "label": "finance",
+   "kind": "versioned",
+   "registry_families": [
+    "F44V00",
+    "F44V02"
+   ],
+   "facts": [
+    "F44V00",
+    "F44V02",
+    "F44V02OLD"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 1.0733,
+   "language": 1,
+   "salience": 0.1464,
+   "split": "dev"
+  },
+  {
+   "id": "F44V01",
+   "label": "finance",
+   "kind": "single",
+   "registry_families": [
+    "F44V01"
+   ],
+   "facts": [
+    "F44V01"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 4.73,
+   "language": 0,
+   "salience": 0.0789,
+   "split": "dev"
+  },
+  {
+   "id": "F44V03",
+   "label": "finance",
+   "kind": "single",
+   "registry_families": [
+    "F44V03"
+   ],
+   "facts": [
+    "F44V03"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 1.54,
+   "language": 0,
+   "salience": 0.0758,
+   "split": "test"
+  },
+  {
+   "id": "F45V00",
+   "label": "network-ops",
+   "kind": "single",
+   "registry_families": [
+    "F45V00",
+    "F45V01"
+   ],
+   "facts": [
+    "F45V00",
+    "F45V01"
+   ],
+   "defaults": {},
+   "placements": 1.5,
+   "document_size": 0.5733,
+   "language": 1,
+   "salience": 0.0811,
+   "split": "dev"
+  },
+  {
+   "id": "F45V02",
+   "label": "network-ops",
+   "kind": "single",
+   "registry_families": [
+    "F45V02"
+   ],
+   "facts": [
+    "F45V02"
+   ],
+   "defaults": {},
+   "placements": 2,
+   "document_size": 4.545,
+   "language": 0.5,
+   "salience": 0.0915,
+   "split": "dev"
+  },
+  {
+   "id": "F46V00",
+   "label": "network-ops",
+   "kind": "single",
+   "registry_families": [
+    "F46V00"
+   ],
+   "facts": [
+    "F46V00"
+   ],
+   "defaults": {
+    "F46V00": "a night maintenance window"
+   },
+   "placements": 1,
+   "document_size": 0.63,
+   "language": 1,
+   "salience": 0.0885,
+   "split": "test"
+  },
+  {
+   "id": "F47V00",
+   "label": "network-ops",
+   "kind": "single",
+   "registry_families": [
+    "F47V00"
+   ],
+   "facts": [
+    "F47V00"
+   ],
+   "defaults": {
+    "F47V00": "99.9 percent availability"
+   },
+   "placements": 1,
+   "document_size": 0.84,
+   "language": 1,
+   "salience": 0.0848,
+   "split": "dev"
+  },
+  {
+   "id": "F48",
+   "label": "network-ops",
+   "kind": "variant",
+   "registry_families": [
+    "F48"
+   ],
+   "facts": [
+    "F48R00",
+    "F48R01",
+    "F48R02",
+    "F48R03",
+    "F48R04",
+    "F48R05",
+    "F48R06",
+    "F48R07",
+    "F48R08",
+    "F48R09",
+    "F48R10",
+    "F48R11",
+    "F48R12"
+   ],
+   "defaults": {},
+   "placements": 1.2308,
+   "document_size": 1.8531,
+   "language": 0.6875,
+   "salience": 0.1438,
+   "split": "dev"
+  },
+  {
+   "id": "F49V00",
+   "label": "network-ops",
+   "kind": "single",
+   "registry_families": [
+    "F49V00",
+    "F49V02"
+   ],
+   "facts": [
+    "F49V00",
+    "F49V02"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 1.49,
+   "language": 1,
+   "salience": 0.1034,
+   "split": "dev"
+  },
+  {
+   "id": "F49V01",
+   "label": "network-ops",
+   "kind": "versioned",
+   "registry_families": [
+    "F49V01"
+   ],
+   "facts": [
+    "F49V01",
+    "F49V01OLD"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 1.55,
+   "language": 0.5,
+   "salience": 0.1086,
+   "split": "dev"
+  },
+  {
+   "id": "F49V03",
+   "label": "network-ops",
+   "kind": "single",
+   "registry_families": [
+    "F49V03"
+   ],
+   "facts": [
+    "F49V03"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 0.84,
+   "language": 1,
+   "salience": 0.1005,
+   "split": "test"
+  },
+  {
+   "id": "F50V00",
+   "label": "hr",
+   "kind": "single",
+   "registry_families": [
+    "F50V00"
+   ],
+   "facts": [
+    "F50V00"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 1.15,
+   "language": 1,
+   "salience": 0.1084,
+   "split": "dev"
+  },
+  {
+   "id": "F51V00",
+   "label": "hr",
+   "kind": "single",
+   "registry_families": [
+    "F51V00"
+   ],
+   "facts": [
+    "F51V00"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 0.76,
+   "language": 1,
+   "salience": 0.0768,
+   "split": "test"
+  },
+  {
+   "id": "F52V00",
+   "label": "hr",
+   "kind": "single",
+   "registry_families": [
+    "F52V00"
+   ],
+   "facts": [
+    "F52V00"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 2.74,
+   "language": 0,
+   "salience": 0.0698,
+   "split": "dev"
+  },
+  {
+   "id": "F53V00",
+   "label": "hr",
+   "kind": "single",
+   "registry_families": [
+    "F53V00"
+   ],
+   "facts": [
+    "F53V00"
+   ],
+   "defaults": {},
+   "placements": 2,
+   "document_size": 0.795,
+   "language": 1,
+   "salience": 0.1058,
+   "split": "dev"
+  },
+  {
+   "id": "F54V00",
+   "label": "hr",
+   "kind": "single",
+   "registry_families": [
+    "F54V00"
+   ],
+   "facts": [
+    "F54V00"
+   ],
+   "defaults": {},
+   "placements": 1,
+   "document_size": 1.0,
+   "language": 0,
+   "salience": 0.0533,
+   "split": "test"
+  }
+ ]
+}

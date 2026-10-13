@@ -66,6 +66,9 @@ def build_parser() -> argparse.ArgumentParser:
     reply.add_argument("--provider", choices=("deepseek", "openai", "anthropic", "gemini"), default="deepseek",
                        help="the provider of config/providers.toml to ask; only DeepSeek has been run")
     reply.add_argument("--no-cache", action="store_true", help="ask the provider even when the cache holds the answer")
+    evaluation = commands.add_parser("eval", help="draw the fact families' split into test and dev by the protocol")
+    evaluation.add_argument("action", choices=("split",))
+    evaluation.add_argument("--check", action="store_true", help="draw again and compare with eval/families.json")
     embed = commands.add_parser("embed", help="embed every unit of the manifest whose passage the vector cache lacks")
     embed.add_argument("--budget", type=int, help="padded tokens per batch; config/models.toml sets the default")
     return parser
@@ -298,6 +301,33 @@ def cmd_ask(args: argparse.Namespace, out=None, client=None) -> int:
     return 1 if result["status"] == "invalid" else 0
 
 
+def cmd_eval(args: argparse.Namespace, out=None) -> int:
+    """The fact families' split by protocol version 4 (T5.1b): written to eval/families.json, or checked against it."""
+    import json
+
+    from needtoknow.eval.protocol import ProtocolError
+    from needtoknow.eval.split import SplitError, split, split_path, write
+    out = out or sys.stdout
+    try:
+        result = split()
+    except (SplitError, ProtocolError) as error:
+        print(f"eval split: {error}", file=out, flush=True)
+        return 1
+    gaps = ", ".join(f"{name} {gap:+.3f}" for name, gap in result["draws"][-1]["smd"].items())
+    line = (f"{result['families']} families from {result['registry_families']} registry families: "
+            f"{result['test_families']} test, {result['families'] - result['test_families']} dev; balanced at draw "
+            f"{len(result['draws'])}, seed {result['seed']}: {gaps}, each under {result['limit']}")
+    if args.check:
+        path = split_path()
+        same = path.is_file() and json.loads(path.read_text(encoding="utf-8")) == result
+        print(line + ("; eval/families.json matches it" if same else
+                      "; eval/families.json does not match it: ntk eval split writes it"), file=out, flush=True)
+        return 0 if same else 1
+    write(result)
+    print(line + "; written to eval/families.json", file=out, flush=True)
+    return 0
+
+
 def cmd_coverage(out) -> int:
     """Units by label as ingestion reads them, against config/labels.toml (T2.4, KB3-K5, RS-F10)."""
     from needtoknow.ingest.segments import corpus_coverage
@@ -455,6 +485,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_search(args)
     if args.command == "ask":
         return cmd_ask(args)
+    if args.command == "eval":
+        return cmd_eval(args)
     parser.print_help()
     return 0
 

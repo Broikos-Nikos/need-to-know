@@ -8,20 +8,25 @@
 # newest hash in eval/protocol_history.toml, so a change is a new dated entry there
 # with its reason, never a quiet edit.
 
-version = 3
+version = 4
 registered = 2026-10-12
 
 [splits]
 # The unit of the split, and of every test, is the fact family: a planted fact with
-# its versions and its regional or product variants. Items about one family cluster,
-# so counting them as independent would overstate every interval. Every golden item
-# and probe takes the split of the families it asks about, so no fact is asked in
-# both. The 40 test families are drawn directly, at random within each stratum,
-# never by any score. Items that ask about no registry fact, a table row or a fact
-# the corpus does not hold, are their own units and are written for one split only.
+# its versions and its regional or product variants, and every fact planted in a
+# section beside one of them, transitively, since an excerpt about one shows the
+# others' sentences (N56). The plan's 103 registry families make 81 such families.
+# Items about one family cluster, so counting them as independent would overstate
+# every interval. Every golden item and probe takes the split of the family it asks
+# about, so no fact is asked in both and no excerpt of a dev item holds a test fact.
+# The 31 test families, a share of 0.388 as N43 chose, are drawn directly, at random
+# within each stratum, never by any score. Items that ask about no registry fact, a
+# table row or a fact the corpus does not hold, are their own units and are written
+# for one split only.
 unit = "fact family"
+family = "a registry family and every fact planted in a section beside it, transitively"
 seed = 20261012
-test_families = 40
+test_families = 31
 stratify_by = ["label", "kind"]
 
 [splits.balance]
@@ -47,9 +52,9 @@ probes = "two per fact of the split's families"
 purposes = ["baseline", "release"]
 
 [splits.dev]
-# Where the power is: two or three items for each dev family, differing in their
-# condition, English, Greek, cross lingual, mixed file or no access, rather than in
-# their wording.
+# Where the power is: two or three items for each of the 50 dev families, differing
+# in their condition, English, Greek, cross lingual, mixed file or no access, rather
+# than in their wording.
 items_per_family = [2, 3]
 probes = "two per fact of the split's families"
 purposes = ["development", "baseline", "experiment", "parity"]

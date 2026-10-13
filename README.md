@@ -45,6 +45,9 @@ produces it.
   citations able to name only what it was shown, and an instruction planted in a
   document is quoted rather than followed: `uv run ntk ask "<question>" --as <role>` and
   `uv run python bench/injection.py`.
+* The evaluation's fact families are split into test and dev by a seed registered before
+  any question was written, with every draw that failed the balance check recorded:
+  `uv run ntk eval split --check`.
 * Every audit finding the history cites, open or fixed, is in `docs/AUDITS.md`, and
   every decision the code cites is in `docs/DECISIONS.md`.
 
