@@ -226,6 +226,8 @@ class Sources:
         if self.given is not None:
             return set(self.given.get(row.get("key"), ()))
         path = manifest_path()
+        if not path.is_file():  # as of_fact does, rather than a sqlite error no command catches (DR-F24)
+            raise GoldenError(f"no manifest at {path}: ntk ingest build makes it, and citations are read against it")
         db = sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True)
         try:
             return {(row["doc_id"], " > ".join(json.loads(raw))) for (raw,) in db.execute(
@@ -349,6 +351,33 @@ def figures(results: list[dict]) -> dict:
             "citation_precision": mean([r["precision"] for r in answerable]),
             "citation_recall": mean([r["recall"] for r in answerable]),
             "by": by, "scorer": scorer_hash()}
+
+
+def over_repeats(items: list[dict], answers: list[dict], ctx, sources: Sources | None = None) -> dict:
+    """A run of several repeats scored as the protocol registers (`[baseline]`): each repeat's figures; every item's
+    score its mean over the repeats, and the answerable, refusal, overall and grounded figures as means of those; the
+    items whose verdict changes between repeats, unstable; and the leaks of every repeat."""
+    sources = sources or Sources(ctx)
+    repeats = sorted({answer.get("repeat", 0) for answer in answers})
+    runs = [score(items, [a for a in answers if a.get("repeat", 0) == repeat], ctx, sources) for repeat in repeats]
+    by_item: dict[str, list[dict]] = defaultdict(list)
+    for results, _ in runs:
+        for result in results:
+            by_item[result["id"]].append(result)
+    originals = [results[0] | {"score": sum(r["correct"] for r in results) / len(results),
+                               "held": sum(r["grounded"] for r in results) / len(results)}
+                 for results in by_item.values() if not results[0]["twin"]]
+
+    def over(group: list[dict], key: str = "score") -> dict:
+        return {"items": len(group), "rate": sum(r[key] for r in group) / len(group) if group else None}
+
+    return {"repeats": repeats, "figures": [figures_ for _, figures_ in runs],
+            "answerable": over([r for r in originals if r["category"] in ANSWERED]),
+            "refusals": over([r for r in originals if r["category"] in REFUSALS]),
+            "overall": over(originals),
+            "grounded": over([r for r in originals if r["category"] in ANSWERED], "held"),
+            "unstable": sorted(item for item, results in by_item.items() if len({r["correct"] for r in results}) > 1),
+            "leaks": sum(figures_["leaks"] for _, figures_ in runs)}
 
 
 def score(items: list[dict], answers: list[dict], ctx, sources: Sources | None = None) -> tuple[list[dict], dict]:

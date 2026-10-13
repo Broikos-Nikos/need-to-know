@@ -147,3 +147,26 @@ def test_the_grounded_accuracy_needs_the_planted_section_cited_and_twins_stand_a
                                                      "id": "D02"}], CTX, SOURCES)
     assert figures["overall"]["items"] == 1 and figures["grounded"]["correct"] == 1
     assert figures["twins"]["gap"] == 1.0 and figures["twins"]["twins"]["correct"] == 0
+
+
+def test_a_runs_repeats_score_each_item_by_its_mean_and_mark_a_changed_verdict_unstable():
+    # The protocol's [baseline]: an item's score is its mean over the repeats; a verdict that changes is unstable.
+    first, second = item(), {**item(), "id": "D02"}
+    right, wrong = answer(), answer("No idea.", status="not_found", citations=())
+    answers = [{**right, "repeat": 0}, {**right, "id": "D02", "repeat": 0},
+               {**right, "repeat": 1}, {**wrong, "id": "D02", "repeat": 1}]
+    run = S.over_repeats([first, second], answers, CTX, SOURCES)
+    assert run["repeats"] == [0, 1] and [f["overall"]["correct"] for f in run["figures"]] == [2, 1]
+    assert run["overall"] == {"items": 2, "rate": 0.75} and run["answerable"]["rate"] == 0.75
+    assert run["unstable"] == ["D02"] and run["leaks"] == 0
+
+
+def test_a_missing_answers_file_and_a_missing_manifest_are_named(tmp_path, monkeypatch, capsys):
+    # DR-F24: read as empty, a missing file scored every item unanswered; with no manifest, a table row's sections
+    # ended in a sqlite error.
+    missing = tmp_path / "nowhere.jsonl"
+    assert cli.main(["eval", "score", str(missing), "--split", "dev", "--purpose", "development"]) == 1
+    assert f"no answers file at {missing}" in capsys.readouterr().out
+    monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path))
+    with pytest.raises(G.GoldenError, match="no manifest at"):
+        S.Sources(CTX).of_row({"doc_id": "D9", "key": "O1001"})

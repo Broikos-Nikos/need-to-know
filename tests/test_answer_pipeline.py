@@ -21,7 +21,8 @@ def world(tmp_path, monkeypatch):
     """What each role is shown, the provider's calls, and the stop reason it gives."""
     monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path))
     state = {"shown": {"sales": [SECRET, PUBLIC], "legal": [SECRET, PUBLIC]}, "calls": [], "stop": "stop"}
-    monkeypatch.setattr(pipeline, "search", lambda client, question, role, policy=None, **kw: [{"role": role}])
+    monkeypatch.setattr(pipeline, "search", lambda client, question, role, policy=None, **kw:
+                        state.setdefault("searched", []).append(role) or [{"role": role}])
     monkeypatch.setattr(pipeline, "expand", lambda hits: [dict(e) for e in state["shown"][hits[0]["role"]]])
 
     def provider(system, messages, config=None, **settings):
@@ -124,3 +125,12 @@ def test_the_spend_log_holds_numbers_and_no_text_and_sums(world):
     total = pipeline.spend()
     assert (total["questions"], total["cached"], total["usd"]) == (3, 1, pytest.approx(0.00012))
     assert total["tokens"]["input_miss"] == 600 and total["p95_seconds"] >= total["median_seconds"]
+
+
+def test_a_closed_book_question_searches_nothing_and_shows_no_excerpt(world):
+    # KB1-F7: what the model answers from its own knowledge, beside what it answers from the documents.
+    closed = pipeline.ask(None, QUESTION, "sales", closed_book=True)
+    assert "searched" not in world and closed["excerpts"] == [] and closed["status"] == "not_found"
+    assert "Documents:\n\n(none)" in world["calls"][0]["messages"][0]["content"]
+    opened = pipeline.ask(None, QUESTION, "sales")
+    assert world["searched"] == ["sales"] and opened["status"] == "answered" and not opened["cached"]

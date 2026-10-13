@@ -63,13 +63,14 @@ def warm(encode=None, rerank: str | None = None) -> float:
 
 def ask(client, question: str, role: str, policy: dict | None = None, provider: str = "deepseek",
         use_cache: bool = True, config: dict | None = None, encode=None, rerank: str | None = None,
-        repeat: int = 0) -> dict:
+        repeat: int = 0, closed_book: bool = False) -> dict:
     """The role's answer to the question: status, answer and citations as `parse` reads them, the excerpts shown,
     whether the cache answered, the model, the tokens and USD of the call, its stop reason and each stage's seconds.
-    An evaluation's repeats pass their number, which the cache key carries (KB5-K13)."""
+    An evaluation's repeats pass their number, which the cache key carries (KB5-K13); a closed book question is asked
+    with no excerpts, nothing searched, the model's own knowledge alone (KB1-F7)."""
     catalog = config or load_catalog()
     entry = catalog[provider]
-    loaded = warm(encode, rerank)  # before the clock: the stages time a question, not a process's start
+    loaded = 0.0 if closed_book else warm(encode, rerank)  # before the clock: a question is timed, not a start
     seconds: dict[str, float] = {}
     began = clock = time.perf_counter()
 
@@ -78,9 +79,9 @@ def ask(client, question: str, role: str, policy: dict | None = None, provider: 
         now = time.perf_counter()
         seconds[stage], clock = now - clock, now
 
-    hits = search(client, question, role, policy, encode=encode, rerank=rerank)
+    hits = [] if closed_book else search(client, question, role, policy, encode=encode, rerank=rerank)
     lap("search")
-    shown = expand(hits)
+    shown = expand(hits) if hits else []
     lap("expand")
     system, user = build(question, shown, reader=reader_mark(readable(policy or load_policy(), role)))
     messages = [{"role": "user", "content": user}]

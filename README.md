@@ -57,6 +57,12 @@ produces it.
   build makes. A dev question is drafted from `uv run ntk eval draft`, which hides the
   words that decide retrieval. `eval/protocol.toml` changes only by a new dated entry in
   `eval/protocol_history.toml`, which a test holds it to.
+* A split's items are asked as their roles, three repeats with the answer cache off as the
+  protocol registers, each answer written with the model that gave it as it comes, so a
+  run cut short resumes without paying twice; `--closed-book` asks with no excerpts:
+  `uv run ntk eval run --split dev --purpose development --out <file>`. Then
+  `uv run ntk eval score <file> --purpose development` scores each repeat, then each item
+  by its mean over them, and names the items whose verdict changed.
 * Retrieval is probed apart from the answers: two questions a fact, one in each language,
   made by code from each split's own facts and worded apart from the planted sentences,
   each with its gold units and the roles that may read them: `uv run ntk eval probes --check`.

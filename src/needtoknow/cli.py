@@ -69,7 +69,7 @@ def build_parser() -> argparse.ArgumentParser:
     evaluation = commands.add_parser("eval", help="draw the fact families' split by the protocol, or check the golden "
                                                   "items against it")
     evaluation.add_argument("action", choices=("split", "check", "draft", "rows", "twins", "score", "probes",
-                                               "canaries"))
+                                               "canaries", "run"))
     evaluation.add_argument("answers", nargs="?", help="score: a JSON lines file of answers, one per item, as parse "
                                                        "gives them with the item's id")
     evaluation.add_argument("--check", action="store_true", help="split, probes: make again and compare with the "
@@ -80,7 +80,14 @@ def build_parser() -> argparse.ArgumentParser:
                             help="score: what the scores are for; the protocol refuses the test split for a purpose "
                                  "that chooses anything")
     evaluation.add_argument("--split", choices=("dev", "test"), default="dev",
-                            help="draft: the split whose families to show, planted sentences masked")
+                            help="draft: the split whose families to show, planted sentences masked; run, score: "
+                                 "the split asked or scored")
+    evaluation.add_argument("--out", help="run: the JSON lines file the answers go to; one that exists is resumed")
+    evaluation.add_argument("--repeats", type=int, help="run: how many times each item is asked; the protocol's "
+                                                         "baseline count if not given")
+    evaluation.add_argument("--items", type=int, help="run: ask only the first this many items, a smoke run")
+    evaluation.add_argument("--closed-book", action="store_true",
+                            help="run: ask with no excerpts, the model's own knowledge alone (KB1-F7)")
     embed = commands.add_parser("embed", help="embed every unit of the manifest whose passage the vector cache lacks")
     embed.add_argument("--budget", type=int, help="padded tokens per batch; config/models.toml sets the default")
     return parser
@@ -340,6 +347,8 @@ def cmd_eval(args: argparse.Namespace, out=None) -> int:
         return cmd_eval_probes(args, out)
     if args.action == "canaries":
         return cmd_eval_canaries(out)
+    if args.action == "run":
+        return cmd_eval_run(args, out)
     if args.action == "twins":
         from needtoknow.eval.golden import GoldenError, draw_twins, golden_path, load_items
         from needtoknow.eval.protocol import load_protocol
@@ -392,6 +401,30 @@ def cmd_eval(args: argparse.Namespace, out=None) -> int:
             return 1
     write(result)
     print(line + "; written to eval/families.json", file=out, flush=True)
+    return 0
+
+
+def cmd_eval_run(args: argparse.Namespace, out) -> int:
+    """Every item of a split asked as its role, each repeat a fresh call (T5.5c); the protocol asked first."""
+    from pathlib import Path
+
+    from needtoknow.eval.golden import GoldenError
+    from needtoknow.eval.protocol import ProtocolError, load_protocol
+    from needtoknow.eval.run import run
+    from needtoknow.index import server
+    if not args.out or not args.purpose:
+        print("eval run: give --out and --purpose", file=out, flush=True)
+        return 1
+    repeats = args.repeats or load_protocol()["baseline"]["repeats"]
+    try:
+        summary = run(args.split, args.purpose, repeats, Path(args.out), server.client(), args.closed_book,
+                      report=lambda line: print(line, file=out, flush=True), first=args.items)
+    except (GoldenError, ProtocolError) as error:
+        print(f"eval run: {error}", file=out, flush=True)
+        return 1
+    print(f"{summary['items']} items, {summary['repeats']} repeats{', closed book' if args.closed_book else ''}: "
+          f"{summary['asked']} asked now, {summary['kept']} already in {args.out}; {summary['usd']:.6f} USD; answered "
+          f"by {', '.join(summary['models']) or 'no call'}", file=out, flush=True)
     return 0
 
 
@@ -453,15 +486,22 @@ def cmd_eval_score(args: argparse.Namespace, out) -> int:
 
     from needtoknow.eval.golden import Context, GoldenError, golden_path, load_items
     from needtoknow.eval.protocol import ProtocolError, check_use
-    from needtoknow.eval.score import score
+    from needtoknow.eval.score import over_repeats, score
     from needtoknow.eval.split import SplitError
     if not args.answers or not args.purpose:
         print("eval score: give the answers file and --purpose", file=out, flush=True)
         return 1
+    if not Path(args.answers).is_file():  # read as empty, it scored every item unanswered (DR-F24)
+        print(f"eval score: no answers file at {args.answers}", file=out, flush=True)
+        return 1
     try:
         check_use(args.split, args.purpose)
         answers = load_items(Path(args.answers))
-        results, figures = score(load_items(golden_path(args.split)), answers, Context())
+        items = load_items(golden_path(args.split))
+        repeats = sorted({answer.get("repeat", 0) for answer in answers})
+        if len(repeats) > 1:
+            return print_repeats(over_repeats(items, answers, Context()), args, out)
+        results, figures = score(items, answers, Context())
     except (GoldenError, ProtocolError, SplitError, OSError) as error:
         print(f"eval score: {error}", file=out, flush=True)
         return 1
@@ -488,6 +528,23 @@ def cmd_eval_score(args: argparse.Namespace, out) -> int:
         print(f"by {axis}: " + "; ".join(f"{key} {g['correct']}/{g['items']}" for key, g in groups.items()), file=out)
     print(f"{len(results)} items scored, {args.split} split, for {args.purpose}; scorer {figures['scorer'][:16]}",
           file=out, flush=True)
+    return 0
+
+
+def print_repeats(run: dict, args: argparse.Namespace, out) -> int:
+    """A run's repeats: each one's four figures, then the means over items of each item's mean, and the unstable."""
+    for repeat, figures in zip(run["repeats"], run["figures"]):
+        parts = [f"{name} {figures[name]['correct']} of {figures[name]['items']}"
+                 for name in ("answerable", "refusals", "overall")]
+        print(f"repeat {repeat}: " + ", ".join(parts) + f", leaks {figures['leaks']}", file=out)
+    for name in ("answerable", "refusals", "overall", "grounded"):
+        share = "no items" if run[name]["rate"] is None else f"{run[name]['rate']:.3f}"
+        print(f"{name}, each item's mean over {len(run['repeats'])} repeats: {share} over {run[name]['items']} items",
+              file=out)
+    print(f"unstable, a verdict that changed between repeats: {len(run['unstable'])}"
+          + (f" ({', '.join(run['unstable'])})" if run["unstable"] else "") + f"; leaks in all repeats: {run['leaks']}",
+          file=out)
+    print(f"{args.split} split, for {args.purpose}; scorer {run['figures'][0]['scorer'][:16]}", file=out, flush=True)
     return 0
 
 
