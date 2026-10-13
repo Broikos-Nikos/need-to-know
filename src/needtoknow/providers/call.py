@@ -11,6 +11,7 @@ into a ProviderError that says what went wrong and never holds the key.
 from __future__ import annotations
 
 import datetime as dt
+import http.client
 import json
 import urllib.error
 import urllib.request
@@ -114,7 +115,8 @@ def post(name: str, url: str, headers: dict, body: dict, key: str, opener: Calla
                 raise ProviderError(f"{name} refused the call: {refusal(error, key, hints)}") from None
             sleep(BACKOFF[attempt - 1])
             continue
-        except (urllib.error.URLError, TimeoutError, OSError) as error:
+        # A body cut off mid read raises http.client's IncompleteRead, an HTTPException and no OSError (DR-F18).
+        except (urllib.error.URLError, TimeoutError, OSError, http.client.HTTPException) as error:
             if attempt == last:
                 raise ProviderError(f"{name} could not be reached: {type(error).__name__}") from None
             sleep(BACKOFF[attempt - 1])

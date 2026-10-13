@@ -44,6 +44,23 @@ def settings_of(entry: dict) -> dict:
             "max_tokens": entry.get("max_tokens"), "temperature": entry.get("temperature")}
 
 
+def warm(encode=None, rerank: str | None = None) -> float:
+    """Load the encoder and the reranker a search will use, once a process, before any question is timed; the seconds
+    it took, near nothing once they are loaded. Booked as search, a first question's load made the spend log's p95 a
+    load time (PF-F8)."""
+    began = time.perf_counter()
+    from needtoknow.index import rerank as second
+    if encode is None:
+        from needtoknow.embed import model
+        model.load()
+    mode = rerank or second.load_config()["mode"]
+    if mode == "cross":
+        second.cross_encoder()
+    elif mode == "multivector":
+        second.colbert_head()
+    return time.perf_counter() - began
+
+
 def ask(client, question: str, role: str, policy: dict | None = None, provider: str = "deepseek",
         use_cache: bool = True, config: dict | None = None, encode=None, rerank: str | None = None,
         repeat: int = 0) -> dict:
@@ -52,6 +69,7 @@ def ask(client, question: str, role: str, policy: dict | None = None, provider: 
     An evaluation's repeats pass their number, which the cache key carries (KB5-K13)."""
     catalog = config or load_catalog()
     entry = catalog[provider]
+    loaded = warm(encode, rerank)  # before the clock: the stages time a question, not a process's start
     seconds: dict[str, float] = {}
     began = clock = time.perf_counter()
 
@@ -87,6 +105,7 @@ def ask(client, question: str, role: str, policy: dict | None = None, provider: 
     answer = parse(text, shown, question)
     lap("parse")
     seconds["total"] = time.perf_counter() - began
+    seconds["load"] = loaded
     record = {"at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"), "role": role, "provider": provider,
               "model": model, "prompt": entry_key[:16], "repeat": repeat, "cached": kept is not None,
               "attempts": attempts,
@@ -104,7 +123,8 @@ def ask(client, question: str, role: str, policy: dict | None = None, provider: 
 
 def spend(path: Path | None = None) -> dict:
     """The spend log summed: questions, how many the cache answered, USD, tokens as billed, and the median and 95th
-    percentile seconds of a question, by nearest rank."""
+    percentile seconds of a question, by nearest rank. A question's seconds leave out the models' loading, which its
+    line keeps apart since PF-F8; a line from before then counts its load in its search."""
     path = path or spend_path()
     lines = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()] \
         if path.is_file() else []

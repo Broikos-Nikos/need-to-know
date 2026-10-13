@@ -96,3 +96,8 @@ def test_a_reply_that_is_not_the_asked_json_is_invalid_with_its_reason_and_a_fen
 def test_the_language_is_greek_when_the_question_holds_a_greek_letter():
     assert language("Πόσες ημέρες έχει ο πελάτης;") == "el" and language("ἀρχή") == "el"
     assert language("How many days, RMA 12?") == "en"
+    # HS-F15: a Greek place quoted in an English question leaves it English, and Latin codes in a Greek one leave it
+    # Greek; a tie is English.
+    assert language("When do shops in «Θεσσαλία» open?") == "en"
+    assert language("Τι ισχύει για το RMA133420 στη Θεσσαλία;") == "el"
+    assert language("ab αβ") == "en" and language("abc αβγδ") == "el"

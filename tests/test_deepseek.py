@@ -102,6 +102,17 @@ def test_a_busy_server_is_tried_again_and_a_refusal_is_not():
         call(Fake(503, 503, 503, 503))
 
 
+def test_a_body_cut_off_mid_read_is_tried_again_and_then_named_without_the_key():
+    # DR-F18: http.client's IncompleteRead is no OSError, and escaped the retries after one attempt as itself.
+    import http.client
+    done, slept = call(Fake(http.client.IncompleteRead(b'{"choices'), reply()))
+    assert (done.attempts, slept) == (2, [1.0])
+    fake = Fake(*[http.client.IncompleteRead(b"{") for _ in range(4)])
+    with pytest.raises(deepseek.ProviderError, match="could not be reached: IncompleteRead") as raised:
+        call(fake)
+    assert len(fake.sent) == 4 and FAKE_KEY not in str(raised.value)
+
+
 def test_a_reply_cut_short_by_the_server_is_billed_and_tried_again_and_one_cut_by_length_is_returned():
     done, slept = call(Fake(reply(content="", finish="insufficient_system_resource", out=5), reply()))
     assert (done.attempts, done.stop_reason, slept) == (2, "stop", [1.0])

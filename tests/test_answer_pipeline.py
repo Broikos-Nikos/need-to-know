@@ -34,6 +34,7 @@ def world(tmp_path, monkeypatch):
                           stop_reason=state["stop"], seconds=0.01, cost_usd=0.00006, model="deepseek-flash", attempts=1)
 
     monkeypatch.setitem(pipeline.ADAPTERS, "deepseek", provider)
+    monkeypatch.setattr(pipeline, "warm", lambda encode=None, rerank=None: state.get("load", 0.0))
     return state
 
 
@@ -48,6 +49,16 @@ def test_a_narrowed_section_is_never_answered_from_the_cache(world):
     assert "2,000,000" not in json.dumps(after)
     other = pipeline.ask(None, QUESTION, "legal")  # shown the very text sales was shown first, reading other labels
     assert not other["cached"] and other["status"] == "answered" and len(world["calls"]) == 3
+
+
+def test_a_first_questions_model_load_is_its_own_stage_and_no_part_of_its_time(world):
+    # PF-F8: booked as search, each process's first load put 28 to 35 s into the search and made the p95 a load time.
+    world["load"] = 31.0
+    first = pipeline.ask(None, QUESTION, "sales")
+    line = json.loads(pipeline.spend_path().read_text(encoding="utf-8").splitlines()[-1])
+    assert first["seconds"]["load"] == line["seconds"]["load"] == 31.0
+    assert line["seconds"]["total"] < 1.0 and line["seconds"]["search"] < 1.0
+    assert pipeline.spend()["p95_seconds"] < 1.0
 
 
 def test_a_cached_answer_is_shared_only_by_roles_that_read_the_same_labels(world):
@@ -108,7 +119,7 @@ def test_the_spend_log_holds_numbers_and_no_text_and_sums(world):
         assert text not in raw, text
     lines = [json.loads(line) for line in raw.splitlines()]
     assert [line["cached"] for line in lines] == [False, True, False]
-    assert set(lines[0]["seconds"]) == {"search", "expand", "provider", "parse", "total"}
+    assert set(lines[0]["seconds"]) == {"search", "expand", "provider", "parse", "total", "load"}
     assert (lines[1]["usd"], lines[1]["attempts"]) == (0.0, 0)  # nothing billed for a cached answer
     total = pipeline.spend()
     assert (total["questions"], total["cached"], total["usd"]) == (3, 1, pytest.approx(0.00012))

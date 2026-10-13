@@ -309,8 +309,9 @@ def cmd_ask(args: argparse.Namespace, out=None, client=None) -> int:
     source = ("from the cache" if result["cached"] else
               f"{used['input_hit'] + used['input_miss']} tokens in, {used['output']} out")
     cost = "no price configured" if result["cost_usd"] is None else f"{result['cost_usd']:.6f} USD"
-    print(f"{result['model']}, {result['stop_reason']}; {source}; {cost}; search {took['search']:.2f} s, provider "
-          f"{took['provider']:.2f} s, in all {took['total']:.2f} s", file=out, flush=True)
+    load = f"the models loaded in {took['load']:.1f} s, then " if took.get("load", 0.0) >= 0.05 else ""
+    print(f"{result['model']}, {result['stop_reason']}; {source}; {cost}; {load}search {took['search']:.2f} s, "
+          f"provider {took['provider']:.2f} s, in all {took['total']:.2f} s", file=out, flush=True)
     return 1 if result["status"] == "invalid" else 0
 
 

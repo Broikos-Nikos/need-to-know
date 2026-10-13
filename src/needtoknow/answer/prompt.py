@@ -56,8 +56,11 @@ STATUSES = ("answered", "not_found")
 
 
 def language(question: str) -> str:
-    """Greek when the question holds a Greek letter, monotonic or polytonic; English otherwise."""
-    return "el" if any(0x0370 <= ord(c) <= 0x03FF or 0x1F00 <= ord(c) <= 0x1FFF for c in question) else "en"
+    """Greek when Greek letters, monotonic or polytonic, are more of the question's letters than any others; English
+    otherwise, a tie included. One Greek place or title quoted in an English question leaves it English (HS-F15)."""
+    greek = sum(1 for c in question if 0x0370 <= ord(c) <= 0x03FF or 0x1F00 <= ord(c) <= 0x1FFF)
+    other = sum(1 for c in question if c.isalpha()) - greek
+    return "el" if greek > other else "en"
 
 
 def section_of(excerpt: dict) -> str:
