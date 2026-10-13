@@ -6,7 +6,7 @@ import json
 
 import pytest
 
-from needtoknow.answer import pipeline
+from needtoknow.answer import pipeline, prompt
 from needtoknow.providers.call import Completion
 
 QUESTION = "What is the settlement ceiling?"
@@ -26,7 +26,7 @@ def world(tmp_path, monkeypatch):
     monkeypatch.setattr(pipeline, "expand", lambda hits: [dict(e) for e in state["shown"][hits[0]["role"]]])
 
     def provider(system, messages, config=None, **settings):
-        state["calls"].append({"messages": messages, **settings})
+        state["calls"].append({"system": system, "messages": messages, **settings})
         found = "2,000,000" in messages[0]["content"]
         reply = {"status": "answered", "answer": "2,000,000 EUR.", "citations": [1]} if found else \
             {"status": "not_found", "answer": "", "citations": []}
@@ -128,9 +128,19 @@ def test_the_spend_log_holds_numbers_and_no_text_and_sums(world):
 
 
 def test_a_closed_book_question_searches_nothing_and_shows_no_excerpt(world):
-    # KB1-F7: what the model answers from its own knowledge, beside what it answers from the documents.
+    # Under the answer rules a question with no documents is refused: the check that the rules hold (DR-F27).
     closed = pipeline.ask(None, QUESTION, "sales", closed_book=True)
     assert "searched" not in world and closed["excerpts"] == [] and closed["status"] == "not_found"
     assert "Documents:\n\n(none)" in world["calls"][0]["messages"][0]["content"]
+    assert world["calls"][0]["system"] == prompt.SYSTEM
     opened = pipeline.ask(None, QUESTION, "sales")
     assert world["searched"] == ["sales"] and opened["status"] == "answered" and not opened["cached"]
+
+
+def test_a_best_guess_is_asked_under_its_own_rules_with_nothing_searched(world):
+    # DR-F27: the control KB1-F7 asks for is asked under rules that want the model's own knowledge, not under the
+    # answer rules, which leave a question with no documents nothing but a refusal.
+    guessed = pipeline.ask(None, QUESTION, "sales", guess=True)
+    assert "searched" not in world and guessed["excerpts"] == []
+    sent = world["calls"][0]
+    assert sent["system"] == prompt.GUESS and "Documents:" not in sent["messages"][0]["content"]

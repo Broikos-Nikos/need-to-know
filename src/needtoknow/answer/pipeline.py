@@ -20,7 +20,7 @@ import time
 from pathlib import Path
 
 from needtoknow.answer import cache
-from needtoknow.answer.prompt import build, parse, reader_mark, section_of
+from needtoknow.answer.prompt import build, build_guess, parse, reader_mark, section_of
 from needtoknow.index.expand import excerpts as expand
 from needtoknow.index.search import search
 from needtoknow.policy import load_policy, readable
@@ -63,13 +63,16 @@ def warm(encode=None, rerank: str | None = None) -> float:
 
 def ask(client, question: str, role: str, policy: dict | None = None, provider: str = "deepseek",
         use_cache: bool = True, config: dict | None = None, encode=None, rerank: str | None = None,
-        repeat: int = 0, closed_book: bool = False) -> dict:
+        repeat: int = 0, closed_book: bool = False, guess: bool = False) -> dict:
     """The role's answer to the question: status, answer and citations as `parse` reads them, the excerpts shown,
     whether the cache answered, the model, the tokens and USD of the call, its stop reason and each stage's seconds.
-    An evaluation's repeats pass their number, which the cache key carries (KB5-K13); a closed book question is asked
-    with no excerpts, nothing searched, the model's own knowledge alone (KB1-F7)."""
+    An evaluation's repeats pass their number, which the cache key carries (KB5-K13). A closed book question is asked
+    with no excerpts and nothing searched, under the answer rules, which leave the model nothing but to refuse: the
+    check that they hold with no documents. With `guess` it is asked instead under rules that want the model's best
+    guess from its own knowledge, the control KB1-F7 asks for (DR-F27)."""
     catalog = config or load_catalog()
     entry = catalog[provider]
+    closed_book = closed_book or guess
     loaded = 0.0 if closed_book else warm(encode, rerank)  # before the clock: a question is timed, not a start
     seconds: dict[str, float] = {}
     began = clock = time.perf_counter()
@@ -83,7 +86,8 @@ def ask(client, question: str, role: str, policy: dict | None = None, provider: 
     lap("search")
     shown = expand(hits) if hits else []
     lap("expand")
-    system, user = build(question, shown, reader=reader_mark(readable(policy or load_policy(), role)))
+    reader = reader_mark(readable(policy or load_policy(), role))
+    system, user = build_guess(question, reader=reader) if guess else build(question, shown, reader=reader)
     messages = [{"role": "user", "content": user}]
     settings = settings_of(entry)
     entry_key = cache.key(provider, entry["model"], system, messages, settings, repeat)

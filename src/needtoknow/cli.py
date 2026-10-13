@@ -89,7 +89,11 @@ def build_parser() -> argparse.ArgumentParser:
                                                          "baseline count if not given")
     evaluation.add_argument("--items", type=int, help="run: ask only the first this many items, a smoke run")
     evaluation.add_argument("--closed-book", action="store_true",
-                            help="run: ask with no excerpts, the model's own knowledge alone (KB1-F7)")
+                            help="run: ask with no excerpts under the answer rules, which leave only a refusal: the "
+                                 "check that they hold with no documents")
+    evaluation.add_argument("--guess", action="store_true",
+                            help="run: ask with no excerpts for the model's best guess from its own knowledge, the "
+                                 "control KB1-F7 asks for (DR-F27)")
     embed = commands.add_parser("embed", help="embed every unit of the manifest whose passage the vector cache lacks")
     embed.add_argument("--budget", type=int, help="padded tokens per batch; config/models.toml sets the default")
     return parser
@@ -420,13 +424,15 @@ def cmd_eval_run(args: argparse.Namespace, out) -> int:
     repeats = args.repeats or load_protocol()["baseline"]["repeats"]
     try:
         summary = run(args.split, args.purpose, repeats, Path(args.out), server.client(), args.closed_book,
-                      report=lambda line: print(line, file=out, flush=True), first=args.items)
+                      report=lambda line: print(line, file=out, flush=True), first=args.items, guess=args.guess)
     except (GoldenError, ProtocolError, RunError) as error:
         print(f"eval run: {error}", file=out, flush=True)
         return 1
-    print(f"{summary['items']} items, {summary['repeats']} repeats{', closed book' if args.closed_book else ''}: "
-          f"{summary['asked']} asked now, {summary['kept']} already in {args.out}; {summary['usd']:.6f} USD; answered "
-          f"by {', '.join(summary['models']) or 'no call'}", file=out, flush=True)
+    book = ", the best guess with no excerpts" if args.guess else ", closed book" if args.closed_book else ""
+    mended = "; a last line a stopped write left was cut off and asked again" if summary["mended"] else ""
+    print(f"{summary['items']} items, {summary['repeats']} repeats{book}: {summary['asked']} asked now, "
+          f"{summary['kept']} already in {args.out}{mended}; {summary['usd']:.6f} USD; answered by "
+          f"{', '.join(summary['models']) or 'no call'}", file=out, flush=True)
     return 0
 
 

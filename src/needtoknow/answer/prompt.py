@@ -27,6 +27,12 @@ that does not exist and a fact the role may not read get the same words, so the 
 does not reveal that something is there (section 9, item 7). A reply that is not that
 JSON comes back with status `invalid` and the reason, which the evaluation scores as
 wrong.
+
+`GUESS` is the closed book control's prompt (KB1-F7, DR-F27): no documents, and rules that
+ask for the model's best guess from its own knowledge, in the same reply form. Asked under
+`SYSTEM` with no documents, the model may only refuse, which shows the rules hold and
+nothing of what it knows; asked under `GUESS`, the answers it gets right are what its
+training could have supplied without retrieval.
 """
 
 from __future__ import annotations
@@ -45,7 +51,14 @@ Rules:
 5. If documents give different values for the same thing, answer with the one in force and name the other only as the former value.
 6. Reply with one JSON object and nothing else: {"status": "...", "answer": "...", "citations": [...]}."""
 
-NOT_FOUND = {"en": "The documents you can read do not answer this question.",
+GUESS = """You answer questions about the Company's internal documents for one employee, but no document is shown this time.
+
+Rules:
+1. Answer from your own knowledge of how such a company would most likely have it. When you are not sure, give the value you think most likely: an answer is always wanted.
+2. Set "status" to "answered", answer briefly in the language the message names, and leave "citations" an empty list.
+3. Reply with one JSON object and nothing else: {"status": "answered", "answer": "...", "citations": []}."""
+
+NOT_FOUND ={"en": "The documents you can read do not answer this question.",
              "el": "Τα έγγραφα στα οποία έχετε πρόσβαση δεν απαντούν σε αυτή την ερώτηση."}
 LANGUAGES = {"en": "English", "el": "Greek"}
 SPACE = " " + chr(9) + chr(10) + chr(13)
@@ -94,6 +107,12 @@ def build(question: str, excerpts: list[dict], *, reader: str) -> tuple[str, str
     answer in."""
     return SYSTEM, (f"Reader: {reader}\n\nDocuments:\n\n{excerpt_block(excerpts) or '(none)'}\n\n"
                     f"Question: {question}\nAnswer in {LANGUAGES[language(question)]}.")
+
+
+def build_guess(question: str, *, reader: str) -> tuple[str, str]:
+    """The closed book control's rules, and its user message: the reader's mark, the question and the language, no
+    documents at all (DR-F27)."""
+    return GUESS, f"Reader: {reader}\n\nQuestion: {question}\nAnswer in {LANGUAGES[language(question)]}."
 
 
 def invalid(reason: str) -> dict:

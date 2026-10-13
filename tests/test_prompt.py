@@ -4,7 +4,7 @@ with the rest set apart, one refusal for missing and withheld."""
 
 import json
 
-from needtoknow.answer.prompt import NOT_FOUND, SYSTEM, build, language, parse, reader_mark
+from needtoknow.answer.prompt import GUESS, NOT_FOUND, SYSTEM, build, build_guess, language, parse, reader_mark
 
 EXCERPTS = [{"doc_id": "RET_POL_011", "path": ["Returns policy", "SECTION 2  Window"],
              "text": "A customer may return a device within 30 days of purchase."},
@@ -37,6 +37,16 @@ def test_the_readers_label_set_is_marked_before_any_excerpt():
     assert user.startswith(f"Reader: {READER}\n\nDocuments:\n\n<document number=\"1\"")
     assert reader_mark(["returns", "general"]) == READER != reader_mark({"general", "sales", "returns"})
     assert "returns" not in READER and len(READER) == 12
+
+
+def test_the_best_guess_asks_for_the_models_own_knowledge_and_shows_no_document():
+    # DR-F27: under the answer rules a question with no documents can only be refused, which shows nothing of what the
+    # model knows; the closed book control asks under rules that want its best guess, in the same reply form.
+    system, user = build_guess("How many days does a customer have?", reader=READER)
+    assert system == GUESS and "Never use other knowledge" in SYSTEM and "Do not guess" in SYSTEM
+    assert not any(rule in GUESS for rule in ("Never use other knowledge", "Do not guess", "not_found"))
+    assert "own knowledge" in GUESS and '"citations": []' in GUESS
+    assert user == f"Reader: {READER}\n\nQuestion: How many days does a customer have?\nAnswer in English."
 
 
 def test_a_document_is_quoted_and_cannot_close_its_own_quotation():

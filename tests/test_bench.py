@@ -18,6 +18,19 @@ def run(script: str, *args: str) -> subprocess.CompletedProcess:
                           encoding="utf-8", errors="replace")
 
 
+def test_the_baseline_report_names_every_provenance_field_its_runs_differ_on():
+    # DR-F28: the report printed the test run's provenance as the baseline's and never compared the others.
+    spec = importlib.util.spec_from_file_location("baseline", BENCH / "baseline.py")
+    baseline = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(baseline)
+    same = {"commit": "a" * 40, "clean": True, "protocol": "p", "model": "m", "settings": {"temperature": 0},
+            "manifest": {"run": 1}, "analyser": "x"}
+    assert baseline.differences({"test": same, "dev": dict(same)}) == []
+    assert baseline.differences({"test": same, "dev": dict(same), "test-guess": {**same, "commit": "b" * 40,
+                                                                                "clean": False}}) == [
+        "commit differs: test, dev at aaaaaaaaaaaa; test-guess at bbbbbbbbbbbb", "tree not clean when made: test-guess"]
+
+
 def test_a_change_bench_reports_the_spread_of_its_runs_and_the_largest_decides():
     # RS-F13: N53 quoted one run's 4.6 s; three runs later took 4.0 to 4.5 s.
     spec = importlib.util.spec_from_file_location("watched", BENCH / "watched.py")

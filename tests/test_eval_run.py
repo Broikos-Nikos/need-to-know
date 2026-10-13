@@ -17,17 +17,18 @@ class Asker:
     def __init__(self, fail_after: int | None = None):
         self.calls, self.fail_after = [], fail_after
 
-    def __call__(self, client, question, role, use_cache=True, repeat=0, closed_book=False):
+    def __call__(self, client, question, role, use_cache=True, repeat=0, closed_book=False, guess=False):
         if self.fail_after is not None and len(self.calls) == self.fail_after:
             raise RuntimeError("killed")
-        self.calls.append({"role": role, "use_cache": use_cache, "repeat": repeat, "closed_book": closed_book})
+        self.calls.append({"role": role, "use_cache": use_cache, "repeat": repeat, "closed_book": closed_book,
+                           "guess": guess})
         shown = [] if closed_book else [{"doc_id": "D1", "section": "S", "units": ["u1", "u2"]}]
         return {"status": "answered", "answer": "7 percent", "citations": [{"doc_id": "D1", "section": "S"}],
                 "dropped": [], "model": "deepseek-v4-flash", "cost_usd": 0.0005, "excerpts": shown}
 
 
 def made_by(head="a" * 40):
-    return lambda split, purpose, repeats, closed_book: {"commit": head, "split": split, "repeats": repeats}
+    return lambda split, purpose, repeats, closed_book, guess=False: {"commit": head, "split": split, "repeats": repeats}
 
 
 @pytest.fixture(autouse=True)
@@ -79,7 +80,7 @@ def test_a_run_writes_its_provenance_first_and_is_resumed_only_at_its_commit(tmp
 def test_a_baseline_run_starts_only_on_a_clean_tree(tmp_path):
     # Tick 139: the test and closed book runs began while the report was being written beside them, and their
     # provenance says so; a published run's commit must be all that made it.
-    dirty = lambda split, purpose, repeats, closed_book: {"commit": "c" * 40, "clean": False}
+    dirty = lambda split, purpose, repeats, closed_book, guess=False: {"commit": "c" * 40, "clean": False}
     with pytest.raises(R.RunError, match="commit them first"):
         run("dev", "baseline", 1, tmp_path / "dev.jsonl", None, ask=Asker(), tables=lambda u: 0, made_by=dirty)
     assert not (tmp_path / "dev.jsonl").exists()
@@ -93,3 +94,38 @@ def test_a_closed_book_run_asks_with_no_excerpts_and_the_protocol_is_asked_first
     assert {(r["closed_book"], r["units"]) for r in lines(tmp_path / "closed.jsonl")} == {(True, 0)}
     with pytest.raises(ProtocolError):
         run("test", "development", 1, tmp_path / "test.jsonl", None, ask=Asker())
+
+
+def test_a_best_guess_run_asks_with_no_excerpts_and_says_so_in_every_line(tmp_path):
+    asker = Asker()
+    run("dev", "development", 1, tmp_path / "guess.jsonl", None, guess=True, ask=asker, tables=lambda u: 0)
+    assert {(call["closed_book"], call["guess"]) for call in asker.calls} == {(True, True)}
+    assert {(r["closed_book"], r["guess"], r["units"]) for r in lines(tmp_path / "guess.jsonl")} == {(True, True, 0)}
+
+
+def test_a_run_resumes_only_with_the_split_purpose_and_book_it_started_with(tmp_path):
+    # DR-F28: resumed closed book, a file begun open book held both kinds of answer under a provenance naming one.
+    out = tmp_path / "dev.jsonl"
+    started = lambda split, purpose, repeats, closed_book, guess=False: {
+        "commit": "a" * 40, "split": split, "purpose": purpose, "closed_book": closed_book, "guess": guess}
+    with pytest.raises(RuntimeError):
+        run("dev", "development", 1, out, None, ask=Asker(fail_after=5), tables=lambda u: 0, made_by=started)
+    for purpose, book in (("development", {"closed_book": True}), ("development", {"guess": True}), ("baseline", {})):
+        with pytest.raises(R.RunError, match="one file holds one kind of answer"):
+            run("dev", purpose, 1, out, None, ask=Asker(), tables=lambda u: 0, made_by=started, **book)
+    assert len(lines(out)) == 5
+    summary = run("dev", "development", 1, out, None, ask=Asker(), tables=lambda u: 0, made_by=started)
+    assert summary["kept"] == 5 and {r["closed_book"] for r in lines(out)} == {False}
+
+
+def test_a_last_line_a_stopped_write_left_is_cut_off_and_asked_again(tmp_path):
+    # DR-F28: a line cut mid write made asked() raise, so the run its docstring says resumes could not.
+    out = tmp_path / "dev.jsonl"
+    with pytest.raises(RuntimeError):
+        run("dev", "development", 1, out, None, ask=Asker(fail_after=4), tables=lambda u: 0)
+    cut = '{"id": "D001", "repeat": 0, "answer": "Τα έγ'.encode("utf-8")[:-1]  # stopped inside a Greek letter
+    out.write_bytes(out.read_bytes() + cut)
+    assert len(R.asked(out)) == 4
+    summary = run("dev", "development", 1, out, None, ask=Asker(), tables=lambda u: 0)
+    assert summary["mended"] and summary["kept"] == 4
+    assert sorted(r["id"] for r in lines(out)) == sorted(item["id"] for item in load_items(golden_path("dev")))
