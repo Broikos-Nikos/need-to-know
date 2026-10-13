@@ -21,7 +21,7 @@ import time
 import urllib.request
 from typing import Callable
 
-from needtoknow.providers.call import Completion, ProviderError, post, priced, started
+from needtoknow.providers.call import Completion, ProviderError, post, priced, record, started, tokens, words
 from needtoknow.providers.call import HINTS as COMMON_HINTS
 from needtoknow.providers.catalog import load_catalog
 from needtoknow.providers.deepseek_account import HTTP_HINTS
@@ -47,17 +47,19 @@ def request_body(model: str, system: str, messages: list[dict], thinking: bool, 
 
 def usage_of(reply: dict) -> dict:
     """A reply's tokens as DeepSeek prices them: input that hit the cache apart from input that missed it."""
-    usage = reply.get("usage") or {}
-    hit = int(usage.get("prompt_cache_hit_tokens", 0))
-    miss = int(usage.get("prompt_cache_miss_tokens", int(usage.get("prompt_tokens", 0)) - hit))
-    details = usage.get("completion_tokens_details") or {}
-    return {"input_hit": hit, "input_miss": miss, "output": int(usage.get("completion_tokens", 0)),
-            "reasoning": int(details.get("reasoning_tokens", 0))}
+    usage = record(reply.get("usage"))
+    hit = tokens(usage.get("prompt_cache_hit_tokens"))
+    miss = (tokens(usage["prompt_cache_miss_tokens"]) if "prompt_cache_miss_tokens" in usage
+            else max(tokens(usage.get("prompt_tokens")) - hit, 0))
+    details = record(usage.get("completion_tokens_details"))
+    return {"input_hit": hit, "input_miss": miss, "output": tokens(usage.get("completion_tokens")),
+            "reasoning": tokens(details.get("reasoning_tokens"))}
 
 
 def finish_of(reply: dict) -> str:
-    choices = reply.get("choices") or [{}]
-    return str((choices[0] or {}).get("finish_reason") or "") if isinstance(choices[0], dict) else ""
+    choices = reply.get("choices")
+    first = choices[0] if isinstance(choices, list) and choices else None
+    return words(first.get("finish_reason")) if isinstance(first, dict) else ""
 
 
 def complete(system: str, messages: list[dict], thinking: bool | None = None, as_json: bool = False,
@@ -79,11 +81,11 @@ def complete(system: str, messages: list[dict], thinking: bool | None = None, as
         hints=HINTS, unusable=lambda reply: finish_of(reply) == "insufficient_system_resource")
     reply = replies[-1]
     choices = reply.get("choices")
-    if not choices or not isinstance(choices[0], dict):
+    if not isinstance(choices, list) or not choices or not isinstance(choices[0], dict):
         raise ProviderError(f"DeepSeek answered, but not with a completion: {str(reply)[:60]}")
     billed = {kind: sum(usage_of(r)[kind] for r in replies) for kind in ("input_hit", "input_miss", "output", "reasoning")}
-    message = choices[0].get("message") or {}
-    return Completion(text=message.get("content") or "", reasoning=message.get("reasoning_content") or "",
+    message = record(choices[0].get("message"))
+    return Completion(text=words(message.get("content")), reasoning=words(message.get("reasoning_content")),
                       usage=billed, stop_reason=finish_of(reply), seconds=time.perf_counter() - began,
                       cost_usd=priced(deepseek, model, billed, began_at),
                       model=str(reply.get("model") or model), attempts=attempts)

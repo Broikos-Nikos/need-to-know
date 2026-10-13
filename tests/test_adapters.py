@@ -160,6 +160,21 @@ def test_gemini_refuses_to_turn_thinking_off_before_any_call_and_reads_a_blocked
                                                                 "finishReason": "MAX_TOKENS"}]})[0].stop_reason == "length"
 
 
+@pytest.mark.parametrize("module, shape", [
+    (openai, {"output": "x", "usage": [1], "status": "completed"}),
+    (openai, {"output": [None, 5, {"type": "message", "content": "x"}, {"type": "reasoning", "summary": [None]}],
+              "usage": {"input_tokens": "many", "input_tokens_details": [], "output_tokens": None},
+              "status": "completed"}),
+    (anthropic, {"content": [None, 5, {"type": "text", "text": 7}], "usage": "x", "stop_reason": 3}),
+    (gemini, {"candidates": {"a": 1}, "usageMetadata": [1]}),
+    (gemini, {"candidates": [{"content": "x", "finishReason": None}], "usageMetadata": {"promptTokenCount": "a"}}),
+])
+def test_a_reply_of_any_shape_reads_as_empty_rather_than_raising(module, shape, config):
+    # DR-F17's class: each adapter called .get on what it assumed was an object, and int on what it assumed a count.
+    done, _ = ask(module, config, shape)
+    assert done.text == "" and all(count in (0, None) for count in done.usage.values())
+
+
 @pytest.mark.parametrize("module", [openai, anthropic, gemini])
 def test_no_key_reaches_an_error_and_a_missing_model_is_named(module, config, monkeypatch):
     for status in (400, 401, 404):

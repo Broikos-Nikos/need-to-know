@@ -21,7 +21,7 @@ import time
 import urllib.request
 from typing import Callable
 
-from needtoknow.providers.call import Completion, ProviderError, post, priced, started
+from needtoknow.providers.call import Completion, ProviderError, post, priced, record, records, started, tokens, words
 from needtoknow.providers.catalog import load_catalog
 from needtoknow.settings import setting
 
@@ -45,24 +45,24 @@ def request_body(model: str, system: str, messages: list[dict], thinking: bool |
 def read(reply: dict) -> tuple[str, str, dict, str]:
     """The reply's text, its reasoning summary, its usage and its stop reason."""
     text, reasoning, refused = [], [], False
-    for item in reply.get("output") or []:
+    for item in records(reply.get("output")):
         if item.get("type") == "message":
-            for part in item.get("content") or []:
+            for part in records(item.get("content")):
                 if part.get("type") == "output_text":
-                    text.append(part.get("text", ""))
+                    text.append(words(part.get("text")))
                 elif part.get("type") == "refusal":
                     refused = True
         elif item.get("type") == "reasoning":
-            reasoning += [s.get("text", "") for s in item.get("summary") or []]
-    usage = reply.get("usage") or {}
-    cached = int((usage.get("input_tokens_details") or {}).get("cached_tokens", 0))
-    billed = {"input_hit": cached, "input_miss": int(usage.get("input_tokens", 0)) - cached,
-              "output": int(usage.get("output_tokens", 0)),
-              "reasoning": int((usage.get("output_tokens_details") or {}).get("reasoning_tokens", 0))}
+            reasoning += [words(s.get("text")) for s in records(item.get("summary"))]
+    usage = record(reply.get("usage"))
+    cached = tokens(record(usage.get("input_tokens_details")).get("cached_tokens"))
+    billed = {"input_hit": cached, "input_miss": max(tokens(usage.get("input_tokens")) - cached, 0),
+              "output": tokens(usage.get("output_tokens")),
+              "reasoning": tokens(record(usage.get("output_tokens_details")).get("reasoning_tokens"))}
     if refused:
         stop = "refusal"
     elif reply.get("status") == "incomplete":
-        reason = str((reply.get("incomplete_details") or {}).get("reason") or "incomplete")
+        reason = words(record(reply.get("incomplete_details")).get("reason")) or "incomplete"
         stop = STOPS.get(reason, reason)
     else:
         stop = "stop" if reply.get("status") == "completed" else str(reply.get("status") or "")

@@ -45,6 +45,17 @@ def test_citations_name_only_the_excerpts_shown_in_the_order_cited_once_each_and
                       "dropped": [9, 0, True, "x"]}  # RS-F14: what the model cited that no excerpt shown could take
 
 
+def test_citations_of_any_shape_are_read_without_a_traceback():
+    # DR-F17: a bare number raised a TypeError and a superscript digit a ValueError, out of ask as a traceback.
+    window = {"doc_id": "RET_POL_011", "section": "Returns policy > SECTION 2  Window"}
+    assert parse(reply(citations=1), EXCERPTS, "q")["citations"] == [window]  # one excerpt cited bare
+    assert parse(reply(citations="2"), EXCERPTS, "q")["citations"][0]["doc_id"] == "SAL_PRO_033"
+    assert parse(reply(citations=None), EXCERPTS, "q")["citations"] == []
+    assert parse(reply(citations=["²", "٣"]), EXCERPTS, "q")["dropped"] == ["²", "٣"]
+    assert parse(reply(citations={"a": 1}), EXCERPTS, "q")["error"] == "citations are no list but dict"
+    assert parse(reply(citations=1.0), EXCERPTS, "q")["status"] == "invalid"
+
+
 def test_not_found_is_one_fixed_sentence_in_the_questions_language_whatever_the_model_wrote():
     # Section 9 item 7: a fact that does not exist and one the role may not read get the same words.
     talkative = json.dumps({"status": "not_found", "answer": "There is a legal note on this I cannot show.",

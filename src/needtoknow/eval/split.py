@@ -1,4 +1,4 @@
-"""The split of the fact families into test and dev (T5.1b, protocol version 4, N56).
+"""The split of the fact families into test and dev (T5.1b, N56): drawn under protocol version 4, unchanged since.
 
 A family here is the protocol's, not the registry's: a registry family, its versions and
 regional variants, joined to every fact planted in the same section of a document,

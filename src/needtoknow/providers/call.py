@@ -26,6 +26,31 @@ HINTS = {400: "the request body is malformed", 401: "the key was refused", 403: 
 EXPLAINED = (400, 404, 422)  # the codes whose own message names what is wrong; no other reply's words are kept
 
 
+def records(value) -> list[dict]:
+    """The objects of a reply's list field; a reply of another shape gives none, so it reads as empty, never raises."""
+    return [entry for entry in value if isinstance(entry, dict)] if isinstance(value, list) else []
+
+
+def record(value) -> dict:
+    """A reply's object field, or an empty one when the field is anything else."""
+    return value if isinstance(value, dict) else {}
+
+
+def words(value) -> str:
+    """A reply's text field, or nothing when it is not text."""
+    return value if isinstance(value, str) else ""
+
+
+def tokens(value) -> int:
+    """A token count as the reply gives it, or 0 when it gives none or no whole number."""
+    if isinstance(value, bool):
+        return 0
+    try:
+        return max(int(value), 0)
+    except (TypeError, ValueError):
+        return 0
+
+
 class ProviderError(Exception):
     """A provider did not complete the call; the message says why and never holds the key."""
 

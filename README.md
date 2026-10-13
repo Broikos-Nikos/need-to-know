@@ -48,6 +48,12 @@ produces it.
 * The evaluation's fact families are split into test and dev by a seed registered before
   any question was written, with every draw that failed the balance check recorded:
   `uv run ntk eval split --check`.
+* The golden questions, 35 test and 153 dev in `eval/golden/`, are each held to the rules
+  of their category, the counts the protocol registered and the corpus they ask about:
+  `uv run ntk eval check`, which reads the plan, the frequency table and the manifest a
+  build makes. A dev question is drafted from `uv run ntk eval draft`, which hides the
+  words that decide retrieval. `eval/protocol.toml` changes only by a new dated entry in
+  `eval/protocol_history.toml`, which a test holds it to.
 * Every audit finding the history cites, open or fixed, is in `docs/AUDITS.md`, and
   every decision the code cites is in `docs/DECISIONS.md`.
 

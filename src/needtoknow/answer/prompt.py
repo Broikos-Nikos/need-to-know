@@ -11,7 +11,8 @@ inside a document belong to it: a planted instruction was never obeyed, yet it t
 English question's answer Finnish, and in Greek it was obeyed once (AC-F9). A closing or
 an opening tag inside a document's text is escaped, so no text can end its own quotation
 or open another. The language
-is named from the question rather than left to the model's reading of it.
+is named from the question rather than left to the model's reading of it. Any change to these
+rules is measured again with `bench/injection.py`, the measurement AC-F9 rests on.
 
 The model answers in JSON, `{"status": "answered" | "not_found", "answer": "...",
 "citations": [1, 2]}`, citing excerpts by number. `parse` turns each number into its
@@ -96,10 +97,18 @@ def parse(text: str, excerpts: list[dict], question: str) -> dict:
     answer = reply.get("answer")
     if not isinstance(answer, str) or not answer.strip():
         return invalid("answered with no answer")
+    citations = reply.get("citations")
+    if citations is None:
+        citations = []
+    elif isinstance(citations, (int, str)) and not isinstance(citations, bool):
+        citations = [citations]  # one excerpt cited bare, not in a list (DR-F17)
+    if not isinstance(citations, list):
+        return invalid(f"citations are no list but {type(citations).__name__}")
     cited: list[dict] = []
     dropped: list = []
-    for given in reply.get("citations") or []:
-        number = int(given) if isinstance(given, str) and given.strip().isdigit() else given
+    for given in citations:
+        digits = given.strip() if isinstance(given, str) else ""
+        number = int(digits) if digits.isascii() and digits.isdecimal() else given  # "²" is a digit int cannot read
         if isinstance(number, int) and not isinstance(number, bool) and 1 <= number <= len(excerpts):
             citation = {"doc_id": excerpts[number - 1]["doc_id"], "section": section_of(excerpts[number - 1])}
             if citation not in cited:

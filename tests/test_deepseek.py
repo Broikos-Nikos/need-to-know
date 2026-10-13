@@ -118,3 +118,13 @@ def test_the_key_never_reaches_an_error_and_a_missing_one_is_named(keyed):
     keyed.delenv("DEEPSEEK_API_KEY")
     with pytest.raises(deepseek.ProviderError, match="DEEPSEEK_API_KEY"):
         call(Fake(reply()))
+
+
+def test_a_completion_of_the_wrong_shape_is_refused_or_read_as_empty():
+    # DR-F17's class: choices as an object raised a KeyError, a message given as text an AttributeError.
+    with pytest.raises(deepseek.ProviderError, match="not with a completion"):
+        call(Fake({"choices": {"0": {}}}))
+    done, _ = call(Fake({"model": "deepseek-flash", "choices": [{"message": "x", "finish_reason": 5}],
+                         "usage": {"prompt_tokens": "many", "completion_tokens_details": []}}))
+    assert (done.text, done.stop_reason) == ("", "")
+    assert done.usage == {"input_hit": 0, "input_miss": 0, "output": 0, "reasoning": 0}

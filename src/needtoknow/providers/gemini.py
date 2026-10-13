@@ -25,7 +25,7 @@ import urllib.parse
 import urllib.request
 from typing import Callable
 
-from needtoknow.providers.call import Completion, ProviderError, post, priced, started
+from needtoknow.providers.call import Completion, ProviderError, post, priced, record, records, started, tokens, words
 from needtoknow.providers.catalog import load_catalog
 from needtoknow.settings import setting
 
@@ -55,15 +55,15 @@ def request_body(system: str, messages: list[dict], thinking: bool | None, as_js
 
 def read(reply: dict) -> tuple[str, str, dict, str]:
     """The first candidate's text and thoughts, the usage, and the stop reason."""
-    candidates = reply.get("candidates") or []
-    parts = ((candidates[0].get("content") or {}).get("parts") or []) if candidates else []
-    text = "".join(p.get("text", "") for p in parts if not p.get("thought"))
-    reasoning = "\n".join(p.get("text", "") for p in parts if p.get("thought"))
-    usage = reply.get("usageMetadata") or {}
-    cached, thoughts = int(usage.get("cachedContentTokenCount") or 0), int(usage.get("thoughtsTokenCount") or 0)
-    billed = {"input_hit": cached, "input_miss": int(usage.get("promptTokenCount") or 0) - cached,
-              "output": int(usage.get("candidatesTokenCount") or 0) + thoughts, "reasoning": thoughts}
-    finish = str(candidates[0].get("finishReason") or "") if candidates else "BLOCKED"
+    candidates = records(reply.get("candidates"))
+    parts = records(record(candidates[0].get("content")).get("parts")) if candidates else []
+    text = "".join(words(p.get("text")) for p in parts if not p.get("thought"))
+    reasoning = "\n".join(words(p.get("text")) for p in parts if p.get("thought"))
+    usage = record(reply.get("usageMetadata"))
+    cached, thoughts = tokens(usage.get("cachedContentTokenCount")), tokens(usage.get("thoughtsTokenCount"))
+    billed = {"input_hit": cached, "input_miss": max(tokens(usage.get("promptTokenCount")) - cached, 0),
+              "output": tokens(usage.get("candidatesTokenCount")) + thoughts, "reasoning": thoughts}
+    finish = words(candidates[0].get("finishReason")) if candidates else "BLOCKED"
     if finish == "STOP":
         stop = "stop"
     elif finish == "MAX_TOKENS":

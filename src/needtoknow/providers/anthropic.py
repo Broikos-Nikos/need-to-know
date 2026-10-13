@@ -25,7 +25,7 @@ import time
 import urllib.request
 from typing import Callable
 
-from needtoknow.providers.call import Completion, ProviderError, post, priced, started
+from needtoknow.providers.call import Completion, ProviderError, post, priced, record, records, started, tokens, words
 from needtoknow.providers.catalog import load_catalog
 from needtoknow.settings import setting
 
@@ -47,14 +47,14 @@ def request_body(model: str, system: str, messages: list[dict], thinking: bool |
 
 def read(reply: dict) -> tuple[str, str, dict, str]:
     """The reply's text, its thinking, its usage and its stop reason."""
-    blocks = reply.get("content") or []
-    text = "".join(b.get("text", "") for b in blocks if b.get("type") == "text")
-    reasoning = "\n".join(b.get("thinking", "") for b in blocks if b.get("type") == "thinking")
-    usage = reply.get("usage") or {}
-    billed = {"input_hit": int(usage.get("cache_read_input_tokens") or 0),
-              "input_miss": int(usage.get("input_tokens") or 0) + int(usage.get("cache_creation_input_tokens") or 0),
-              "output": int(usage.get("output_tokens") or 0), "reasoning": None}
-    stop = str(reply.get("stop_reason") or "")
+    blocks = records(reply.get("content"))
+    text = "".join(words(b.get("text")) for b in blocks if b.get("type") == "text")
+    reasoning = "\n".join(words(b.get("thinking")) for b in blocks if b.get("type") == "thinking")
+    usage = record(reply.get("usage"))
+    billed = {"input_hit": tokens(usage.get("cache_read_input_tokens")),
+              "input_miss": tokens(usage.get("input_tokens")) + tokens(usage.get("cache_creation_input_tokens")),
+              "output": tokens(usage.get("output_tokens")), "reasoning": None}
+    stop = words(reply.get("stop_reason"))
     return text, reasoning, billed, STOPS.get(stop, stop)
 
 

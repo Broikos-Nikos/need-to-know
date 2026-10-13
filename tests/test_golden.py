@@ -291,6 +291,8 @@ def test_the_committed_items_keep_their_rules():
     summary, problems = G.check()
     assert summary["test"]["items"] == 35
     assert problems == []  # every item, every count and every share, in both splits
+    # MA-F14: the numbers eval/golden/README.md gives, as ntk eval check prints them.
+    assert (summary["test"]["greek"], summary["test"]["family_items"], summary["dev"]["exempt"]) ==         (16, 29, ["F01V00", "F03V00"])
 
 
 def test_a_line_that_is_json_but_no_item_and_a_missing_split_are_refused_by_name(tmp_path, monkeypatch, ctx):

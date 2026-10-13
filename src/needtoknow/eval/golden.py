@@ -562,7 +562,10 @@ def check(ctx: Context | None = None) -> tuple[dict, list[str]]:
     probes = json.loads(probes_path().read_text(encoding="utf-8")) if probes_path().is_file() else {}
     problems += absent_problems(loaded, ctx, probes)
     problems += twin_problems(loaded, ctx)
-    summary = {split: {"items": len(loaded[split]),
+    summary = {split: {"items": len(loaded[split]), "greek": sum(i.get("lang") == "el" for i in loaded[split]),
+                       "family_items": sum(i.get("category") in FAMILY for i in loaded[split]),
                        "categories": dict(sorted(Counter(i.get("category") for i in loaded[split]).items())),
                        "layers": dict(Counter(layer(i) for i in loaded[split]))} for split in SPLITS}
+    summary["dev"]["exempt"] = sorted(fid for fid, family in ctx.families.items()
+                                      if family["split"] == "dev" and exempt(family, ctx))  # MA-F14
     return summary, problems
