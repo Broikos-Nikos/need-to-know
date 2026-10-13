@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**148 findings, 105 closed, 43 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**148 findings, 106 closed, 42 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -205,7 +205,7 @@ An audit pass on time, memory and disk, its page half waiting for the page. 7 fi
 
 ## `KB1`, the plan, reviewed against a knowledge base
 
-A separate session's review of the plan against the author's research notes. 15 findings, 10 closed.
+A separate session's review of the plan against the author's research notes. 15 findings, 11 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -219,7 +219,7 @@ A separate session's review of the plan against the author's research notes. 15 
 | `KB1-F8` | medium | open | Corpus is mostly code generated structure while the eval is mostly prose: stats by layer, metrics by layer, cap layer C at about a third of units and raise table items |
 | `KB1-F9` | medium | open | Planted facts are too salient: a salience plan per fact recorded in the registry, and a noise pass (page headers and footers, cross references, numbering drift, typos) over layers A and B |
 | `KB1-F10` | medium | fixed, tick 43 | Unit rules: list runs as one block, units under about 30 tokens merged into the next in the same segment and heading, audience and classification lines moved to the payload, table header repeated per row group |
-| `KB1-F11` | low | open | The KB session is not a domain expert: 10 seed questions from real public documents with no company in them (EU consumer law, the Greek regulator's consumer rules); five generated Greek samples offered to the owner for a naturalness read |
+| `KB1-F11` | low | fixed, tick 115 | The KB session is not a domain expert: 10 seed questions from real public documents with no company in them (EU consumer law, the Greek regulator's consumer rules); five generated Greek samples offered to the owner for a naturalness read |
 | `KB1-F12` | low | fixed, tick 71 | N7's arithmetic is wrong: about 6 million sentence units fit as int8 in 16 GB; plan E6 on the full profile after a peak RAM measurement on the small one |
 | `KB1-F13` | low | fixed, tick 50 | The 2.6 and 4.1 points are a title prefix, not the heading path; cite each number for what it measured |
 | `KB1-F14` | low | fixed, tick 42 | After NFC the Greek question mark is a semicolon that Punkt does not split on: a Greek sentence end rule and a unit test on the sentence Τι ώρα είναι; Είναι πέντε. |
