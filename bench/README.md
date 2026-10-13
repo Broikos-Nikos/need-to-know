@@ -340,3 +340,21 @@ uv run python bench/permission_suite.py
 uv run python bench/permission_suite.py --prefixes
 uv run ntk eval canaries
 ```
+
+## draws.py
+
+Whether retrieval holds on another draw of the corpus (RS-F6). For each seed `ntk corpus
+draw` makes the draw a data folder of its own, one document in four of the catalogue by
+default, the base seed's being the corpus's own documents, so the draws differ only in
+their values and annexes. The bench builds each there, its manifest, its vector cache on
+the GPU and a collection in Qdrant's local mode in the bench's own memory, so nothing
+reaches the served index (N62); makes its dev probes from the draw's own plan, naming any
+with no gold unit; and asks each as its selective reader, as `ask` searches. It prints
+each draw's recall@1, recall@10 and the share whose excerpts hold a gold unit, with their
+Wilson intervals and each stage's seconds, then the spread across the draws, and saves the
+rows to NTK_DATA_DIR/bench/draws.json. It needs the corpus's plan and narrative, the
+`embed` extra and the GPU, and makes no LLM call.
+
+```
+uv run python bench/draws.py --seeds 20261012,2,3 --every 4
+```

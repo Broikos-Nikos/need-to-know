@@ -10,9 +10,10 @@ section it goes in; language model agents wrote the prose around those facts, ke
 `narrative/`; and code adds the tables a real manual carries. The company is never
 named, real or invented: the documents call it "the Company".
 
-Under construction: the evaluation of the answers is still to come.
-Each number the README gives comes with the command in this repository that
-produces it.
+Under construction: the page and the hardening are still to come. Every accuracy
+figure below is this one corpus's; retrieval, which needs no language model, was
+measured again on two more draws of it. Each number the README gives comes with the
+command in this repository that produces it.
 
 ## What works today
 
@@ -95,6 +96,12 @@ produces it.
   15.6 percent of the excerpts' units shown, and setting them aside changes recall@1 for no
   role (N43). An upper bound, since templated questions sit near the planted text:
   `uv run python bench/probe_recall.py`.
+* Retrieval holds on other draws of the corpus. One document in four of the catalogue,
+  drawn three times, the corpus's own and twice with every single and regional value and
+  every table drawn again under another seed, the writers' prose shared: in each, the 56
+  dev probes find a gold unit first for 49 and in the top 10 and the excerpts for all 56.
+  The figures belong to the method and the prose, not to one draw of values and tables
+  (RS-F6, N62): `uv run python bench/draws.py`.
 * Every audit finding the history cites, open or fixed, is in `docs/AUDITS.md`, and
   every decision the code cites is in `docs/DECISIONS.md`.
 
