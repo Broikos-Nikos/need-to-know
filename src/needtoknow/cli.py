@@ -66,8 +66,9 @@ def build_parser() -> argparse.ArgumentParser:
     reply.add_argument("--provider", choices=("deepseek", "openai", "anthropic", "gemini"), default="deepseek",
                        help="the provider of config/providers.toml to ask; only DeepSeek has been run")
     reply.add_argument("--no-cache", action="store_true", help="ask the provider even when the cache holds the answer")
-    evaluation = commands.add_parser("eval", help="draw the fact families' split into test and dev by the protocol")
-    evaluation.add_argument("action", choices=("split",))
+    evaluation = commands.add_parser("eval", help="draw the fact families' split by the protocol, or check the golden "
+                                                  "items against it")
+    evaluation.add_argument("action", choices=("split", "check"))
     evaluation.add_argument("--check", action="store_true", help="draw again and compare with eval/families.json")
     embed = commands.add_parser("embed", help="embed every unit of the manifest whose passage the vector cache lacks")
     embed.add_argument("--budget", type=int, help="padded tokens per batch; config/models.toml sets the default")
@@ -308,6 +309,8 @@ def cmd_eval(args: argparse.Namespace, out=None) -> int:
     from needtoknow.eval.protocol import ProtocolError
     from needtoknow.eval.split import SplitError, split, split_path, write
     out = out or sys.stdout
+    if args.action == "check":
+        return cmd_eval_check(out)
     try:
         result = split()
     except (SplitError, ProtocolError) as error:
@@ -326,6 +329,29 @@ def cmd_eval(args: argparse.Namespace, out=None) -> int:
     write(result)
     print(line + "; written to eval/families.json", file=out, flush=True)
     return 0
+
+
+def cmd_eval_check(out) -> int:
+    """The golden items against their categories' rules and version 5's counts (T5.1c2), one line a problem."""
+    import sqlite3
+
+    from needtoknow.eval.golden import GoldenError, check
+    from needtoknow.eval.protocol import ProtocolError
+    from needtoknow.eval.split import SplitError
+    try:
+        summary, problems = check()
+    except (GoldenError, ProtocolError, SplitError, sqlite3.OperationalError) as error:
+        print(f"eval check: {error}", file=out, flush=True)
+        return 1
+    for split, seen in summary.items():
+        categories = " ".join(f"{code} {count}" for code, count in seen["categories"].items()) or "none"
+        layers = ", ".join(f"{name} {count}" for name, count in sorted(seen["layers"].items())) or "none"
+        print(f"{split}: {seen['items']} items; by category {categories}; by layer {layers}", file=out)
+    for problem in problems:
+        print(f"  {problem}", file=out)
+    print(f"{len(problems)} problems" if problems else "every item keeps its rules, and the counts are version 5's",
+          file=out, flush=True)
+    return 1 if problems else 0
 
 
 def cmd_coverage(out) -> int:

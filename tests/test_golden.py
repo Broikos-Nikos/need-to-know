@@ -1,0 +1,117 @@
+"""The golden items' construction checks (T5.1c2): each category's rules, the overlap cap in the analyser's terms, the
+defaults rule, and the split's counts and shares, on a synthetic registry, split and policy."""
+
+import copy
+import json
+
+import pytest
+
+from needtoknow.eval import golden as G
+from needtoknow.eval.protocol import load_protocol
+
+POLICY = {"roles": {"sales": {"reads": ["general", "sales"]}, "legal": {"reads": ["general", "legal"]},
+                    "admin": {"reads": ["general", "sales", "legal"]}}}
+FACTS = [
+    {"id": "F06V00", "family": "F06V00", "label": "sales", "kind": "single", "placements": ["D1"], "values": ["7", "7"],
+     "en": "In shops the maximum discount is 7 percent.", "el": "Στα καταστήματα η μέγιστη έκπτωση είναι 7 τοις εκατό."},
+    {"id": "F38V00", "family": "F38V00", "label": "legal", "kind": "single", "placements": ["D2"],
+     "values": ["35000", "35000"], "en": "Liability is capped at 35000 euros.",
+     "el": "Η ευθύνη περιορίζεται στα 35000 ευρώ."},
+    {"id": "F09V00", "family": "F09V00", "label": "sales", "kind": "versioned", "placements": ["D1"],
+     "values": ["22", "22"], "en": "From 1 July 2025, an upgrade comes after 22 months.",
+     "el": "Από 1 Ιουλίου 2025, η αναβάθμιση έρχεται μετά από 22 μήνες."},
+    {"id": "F09V00OLD", "family": "F09V00", "label": "sales", "kind": "superseded", "placements": ["D1"],
+     "values": ["18", "18"], "en": "From 1 March 2024, an upgrade comes after 18 months.",
+     "el": "Από 1 Μαρτίου 2024, η αναβάθμιση έρχεται μετά από 18 μήνες."},
+    {"id": "F34V00", "family": "F34V00", "label": "legal", "kind": "single", "placements": ["D2"], "values": ["14", "14"],
+     "en": "Distance contracts may be cancelled within 14 days.", "el": "Οι συμβάσεις από απόσταση ακυρώνονται σε 14 ημέρες."},
+]
+CATALOGUE = [{"id": "D1", "language": "en", "sections": [{"label": "sales", "facts": ["F06V00", "F09V00", "F09V00OLD"]}]},
+             {"id": "D2", "language": "el", "sections": [{"label": "legal", "facts": ["F38V00", "F34V00"]}]}]
+SPLIT = {"split": [{"id": "F06V00", "split": "test", "facts": ["F06V00"]},
+                   {"id": "F38V00", "split": "test", "facts": ["F38V00", "F34V00"]},
+                   {"id": "F09V00", "split": "dev", "facts": ["F09V00", "F09V00OLD"]}]}
+RARE = {"maximum": 1, "percent": 2, "discount": 3, "shop": 9}  # every other term common
+
+
+@pytest.fixture
+def ctx():
+    df = lambda term: RARE.get(term, 1000)  # noqa: E731
+    return G.Context(protocol=load_protocol(), split=SPLIT, facts=FACTS, catalogue=CATALOGUE, policy=POLICY, df=df)
+
+
+def item(**fields):
+    base = {"id": "T01", "category": "A", "families": ["F06V00"], "role": "sales", "lang": "en",
+            "question": "How far may a sales advisor cut a price without approval?",
+            "expect": {"status": "answered", "facts": [{"fact_id": "F06V00", "forms": ["7", "7 percent"]}]}}
+    return {**base, **fields}
+
+
+def test_a_well_formed_item_keeps_every_rule(ctx):
+    assert G.check_item(item(), "test", ctx) == []
+
+
+@pytest.mark.parametrize("fields, words", [
+    ({"expect": {"status": "not_found", "facts": [{"fact_id": "F06V00", "forms": ["7"]}]}}, "expects answered"),
+    ({"lang": "el"}, "not the question's script"),
+    ({"families": ["F09V00"], "expect": {"status": "answered", "facts": [{"fact_id": "F09V00", "forms": ["22"]}],
+                                         "superseded": []}}, "is in dev, not test"),
+    ({"role": "legal"}, "may read no section F06V00 is planted in"),
+    ({"expect": {"status": "answered", "facts": [{"fact_id": "F06V00", "forms": ["seven"]}]}}, "neither of its planted"),
+    ({"question": "What is the maximum in percent?"}, "shares 2 of the rarest terms"),
+    ({"category": "F"}, "asks facts under two labels"),
+    ({"category": "C"}, "another language than every document"),
+])
+def test_each_category_rule_names_what_it_breaks(ctx, fields, words):
+    problems = G.check_item(item(**fields), "test", ctx)
+    assert any(words in problem for problem in problems), problems
+
+
+def test_a_no_access_item_asks_through_forbidden_where_its_role_cannot_read(ctx):
+    e = item(id="T02", category="E", families=["F38V00"], role="sales",
+             expect={"status": "not_found", "facts": [], "forbidden": [{"fact_id": "F38V00", "forms": ["35000"]}]})
+    assert G.check_item(e, "test", ctx) == []
+    readable = {**e, "role": "legal"}
+    assert any("so it is no E item" in p for p in G.check_item(readable, "test", ctx))
+
+
+def test_a_deliberate_default_is_asked_only_by_a_no_access_item(ctx):
+    # RS-F19: F34V00 is the 14 days of withdrawal a model may know without the documents.
+    answered = item(id="T03", families=["F38V00"], role="legal", lang="el", question="Σε πόσες ημέρες ακυρώνεται;",
+                    expect={"status": "answered", "facts": [{"fact_id": "F34V00", "forms": ["14"]}]})
+    assert any("deliberate default" in p for p in G.check_item(answered, "test", ctx))
+    refused = {**answered, "category": "E", "role": "sales",
+               "expect": {"status": "not_found", "forbidden": [{"fact_id": "F34V00", "forms": ["14"]}]}}
+    assert not any("deliberate default" in p for p in G.check_item(refused, "test", ctx))
+
+
+def test_a_superseded_item_names_both_values_and_own_unit_items_keep_theirs(ctx):
+    g = item(id="D01", category="G", families=["F09V00"],
+             expect={"status": "answered", "facts": [{"fact_id": "F09V00", "forms": ["22"]}], "superseded": []})
+    assert any("names the superseded fact" in p for p in G.check_item(g, "dev", ctx))
+    g["expect"]["superseded"] = ["F09V00OLD"]
+    assert G.check_item(g, "dev", ctx) == []
+    table = item(id="D02", category="I", families=[], expect={"status": "answered", "facts": [{"forms": ["E08"]}]})
+    assert any("names its row" in p for p in G.check_item(table, "dev", ctx))
+    absent = item(id="D03", category="J", families=[], expect={"status": "not_found", "facts": [{"fact_id": "F06V00"}]})
+    assert any("expects no fact" in p for p in G.check_item(absent, "dev", ctx))
+
+
+def test_the_split_must_hold_the_registered_counts_and_ask_each_test_family_once(ctx):
+    protocol = copy.deepcopy(ctx.protocol)
+    protocol["items"]["test"] = {code: 0 for code in "ABCDEFGHMIJN"} | {"A": 2}
+    ctx.protocol = protocol
+    twice = [item(id="T01"), item(id="T02")]
+    problems = G.check_split(twice, "test", ctx)
+    assert any("family F06V00 asked 2 times" in p for p in problems)
+    assert any("family F38V00 asked 0 times" in p for p in problems)
+    assert any("Greek is 0.000 of the items" in p for p in problems)
+    dev = [item(id="D01", families=["F09V00"])]
+    assert any("family F09V00 asked 1 times, not two or three" in p for p in G.check_split(dev, "dev", ctx))
+
+
+def test_the_command_reads_the_golden_files_and_names_a_bad_line(tmp_path, monkeypatch, ctx):
+    (tmp_path / "test.jsonl").write_text(json.dumps(item()) + "\n{not json\n", encoding="utf-8")
+    monkeypatch.setattr(G, "golden_path", lambda split: tmp_path / f"{split}.jsonl")
+    with pytest.raises(G.GoldenError, match="test.jsonl line 2 is not JSON"):
+        G.check(ctx)

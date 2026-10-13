@@ -1,8 +1,9 @@
 """The registered evaluation protocol in eval/protocol.toml: which split may serve what.
 
-The test split reports and never decides. Every command that reads golden items or
-probes asks check_use first, so no tuning step can read the test split, and the
-protocol itself is held to the hashes recorded in eval/protocol_history.toml.
+The test split reports and never decides. Every command that scores golden items or
+probes, or uses them to choose anything, asks check_use first, so no tuning step can read
+the test split; the construction checks of `needtoknow.eval.golden` read items and no
+outcome. The protocol itself is held to the hashes recorded in eval/protocol_history.toml.
 """
 
 from __future__ import annotations
