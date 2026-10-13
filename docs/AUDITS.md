@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**157 findings, 121 closed, 36 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**157 findings, 123 closed, 34 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -34,7 +34,7 @@ An audit pass that tried to break a first run. 17 findings, 15 closed.
 
 ## `RS`, the retrieval scientist
 
-An audit pass on whether the evaluation can fail and its statistics are honest. 27 findings, 21 closed.
+An audit pass on whether the evaluation can fail and its statistics are honest. 27 findings, 23 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -42,7 +42,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 | `RS-F2` | medium | fixed, tick 98 | Repeats have no registered aggregation: register three repeats, the per item mean and an interval over items, for every release and for the incumbent on dev |
 | `RS-F3` | medium | fixed, tick 102 | The overlap guard counts surface words; measure it with the lexical analyser BM25 uses (Greek: 0 of 6 surface, 3 of 6 stems on one example) |
 | `RS-F4` | medium | fixed, tick 126 | Probes have no overlap guard and dev probes decide E2 and E5: question templates disjoint from statement templates, the stemmed guard, the overlap distribution reported |
-| `RS-F5` | medium | open | Pooled recall counts a general fact nine times and a department's fact twice: each probe once under its most selective permitted role, per role beside it |
+| `RS-F5` | medium | fixed, tick 127 | Pooled recall counts a general fact nine times and a department's fact twice: each probe once under its most selective permitted role, per role beside it |
 | `RS-F6` | medium | open | Every number comes from one corpus draw: the small profile at two more seeds, the spread of the retrieval numbers reported, accuracy stated as one corpus |
 | `RS-F7` | medium | fixed, tick 119 | The accuracy has an 18 percent floor (9 of 50 by always answering not_found) and no null or oracle run is planned: run both through the scorer, publish them |
 | `RS-F8` | low | fixed, tick 98 | A multi valued experiment has no rule for choosing among its values: compare each with the incumbent, adopt the cheapest that clears an arm, or Holm within it |
@@ -61,7 +61,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 | `RS-F21` | low | fixed, tick 114 | The test items were drafted with the planted sentences in view, against the registered rewrite without them; the cap on shared rare terms holds them and eval/golden/README.md says so: the dev items are drafted from the registry's topic and value alone |
 | `RS-F22` | medium | fixed, tick 121 | The categories overlap: A, B and C items also sit in mixed files (T02 and T05, A; T12 and T14, C; D026, D031 and D032 in dev), so a D against A comparison understates what a mixed file costs: report beside each item whether a file it is planted in, that its role reads, holds a section the role may not, and give the mixed file effect over every answered item by that property |
 | `RS-F23` | medium | open | F07V04's current value, a 29 month minimum term for fixed wireless broadband, breaks the EU's 24 month cap on a consumer's commitment (Directive (EU) 2018/1972, Article 105(1)), and its former value is exactly that cap: a model that knows the law answers the superseded value, so a miss on the three dev G items D013 to D015 may be knowledge, not recency; the closed book run must mark them and G be reported with and without them |
-| `RS-F24` | medium | open | On dev, the role's search never shows a planted section for 5 of 118 answerable items: three miss a fact planted only in the other language (D019, D021, D099) and two ask two facts and were shown one fact's section only (D092, D134); answerable accuracy is capped below 1 before any model reads: report retrieval recall at the shown excerpts by category beside every answer figure, and probe the cross lingual path and the two fact questions |
+| `RS-F24` | medium | fixed, tick 127 | On dev, the role's search never shows a planted section for 5 of 118 answerable items: three miss a fact planted only in the other language (D019, D021, D099) and two ask two facts and were shown one fact's section only (D092, D134); answerable accuracy is capped below 1 before any model reads: report retrieval recall at the shown excerpts by category beside every answer figure, and probe the cross lingual path and the two fact questions |
 | `RS-F25` | medium | fixed, tick 125 | 33 of 110 answerable dev family items and 6 of 25 test ones expect a value another fact their role reads also states, so an answer from the wrong excerpt scores correct: a grounded accuracy, correct and citing a section that plants each fact, beside the answerable accuracy, and the collision as an item property |
 | `RS-F26` | high | fixed, tick 125 | A refusal item's forbidden value that a readable fact also states is scored as a leak: 6 of 19 dev E items and T19 forbid a value, 12 months or 5 working days, that facts every role or the asking role reads also state; a leak is a forbidden value no readable fact states, the rest wrong but no leak, shown per item |
 | `RS-F27` | low | fixed, tick 125 | The dev item rates count the twenty twinned facts twice: give the dev figures over the originals, the twins' rates and their gap apart |
