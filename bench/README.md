@@ -222,6 +222,22 @@ uv run python bench/injection.py
 uv run python bench/injection.py --repeats 5
 ```
 
+## smoke_answers.py
+
+P4's exit, live: ten questions about table rows, each asking for one cell by its row's
+key, a key no other unit holds, answered as a role that may read the row; a pass cites
+the excerpt holding the row, holds the value and drops nothing. Three of them are asked
+again by a role that may not read their rows, and a pass is `not_found` with the row
+neither shown nor cited. Every question goes through the answer cache and the spend log;
+`--no-cache` asks the provider again. The rows are table rows, never planted facts, so no
+family of either evaluation split is read. It needs the manifest, the index on the
+running server, the `embed` extra and a DeepSeek key.
+
+```
+uv run python bench/smoke_answers.py
+uv run python bench/smoke_answers.py --no-cache
+```
+
 ## permission_suite.py
 
 The permission suite at retrieval level (`specs/evaluation.md` section 6, items 1 to 3):
