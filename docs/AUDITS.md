@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**170 findings, 138 closed, 32 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**170 findings, 140 closed, 30 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -34,7 +34,7 @@ An audit pass that tried to break a first run. 17 findings, 16 closed.
 
 ## `RS`, the retrieval scientist
 
-An audit pass on whether the evaluation can fail and its statistics are honest. 28 findings, 26 closed.
+An audit pass on whether the evaluation can fail and its statistics are honest. 28 findings, 27 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -60,7 +60,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 | `RS-F20` | low | fixed, tick 101 | The items' language and category shares are checked in the spec, not in the hashed protocol: add them to item_properties with how close they must match |
 | `RS-F21` | low | fixed, tick 114 | The test items were drafted with the planted sentences in view, against the registered rewrite without them; the cap on shared rare terms holds them and eval/golden/README.md says so: the dev items are drafted from the registry's topic and value alone |
 | `RS-F22` | medium | fixed, tick 121 | The categories overlap: A, B and C items also sit in mixed files (T02 and T05, A; T12 and T14, C; D026, D031 and D032 in dev), so a D against A comparison understates what a mixed file costs: report beside each item whether a file it is planted in, that its role reads, holds a section the role may not, and give the mixed file effect over every answered item by that property |
-| `RS-F23` | medium | open | F07V04's current value, a 29 month minimum term for fixed wireless broadband, breaks the EU's 24 month cap on a consumer's commitment (Directive (EU) 2018/1972, Article 105(1)), and its former value is exactly that cap: a model that knows the law answers the superseded value, so a miss on the three dev G items D013 to D015 may be knowledge, not recency; the closed book run must mark them and G be reported with and without them |
+| `RS-F23` | medium | fixed, tick 138 | F07V04's current value, a 29 month minimum term for fixed wireless broadband, breaks the EU's 24 month cap on a consumer's commitment (Directive (EU) 2018/1972, Article 105(1)), and its former value is exactly that cap: a model that knows the law answers the superseded value, so a miss on the three dev G items D013 to D015 may be knowledge, not recency; the closed book run must mark them and G be reported with and without them |
 | `RS-F24` | medium | fixed, tick 127 | On dev, the role's search never shows a planted section for 5 of 118 answerable items: three miss a fact planted only in the other language (D019, D021, D099) and two ask two facts and were shown one fact's section only (D092, D134); answerable accuracy is capped below 1 before any model reads: report retrieval recall at the shown excerpts by category beside every answer figure, and probe the cross lingual path and the two fact questions |
 | `RS-F25` | medium | fixed, tick 125 | 33 of 110 answerable dev family items and 6 of 25 test ones expect a value another fact their role reads also states, so an answer from the wrong excerpt scores correct: a grounded accuracy, correct and citing a section that plants each fact, beside the answerable accuracy, and the collision as an item property |
 | `RS-F26` | high | fixed, tick 125 | A refusal item's forbidden value that a readable fact also states is scored as a leak: 6 of 19 dev E items and T19 forbid a value, 12 months or 5 working days, that facts every role or the asking role reads also state; a leak is a forbidden value no readable fact states, the rest wrong but no leak, shown per item |
@@ -227,7 +227,7 @@ An audit pass on time, memory and disk, its page half waiting for the page. 9 fi
 
 ## `KB1`, the plan, reviewed against a knowledge base
 
-A separate session's review of the plan against the author's research notes. 15 findings, 12 closed.
+A separate session's review of the plan against the author's research notes. 15 findings, 13 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -238,7 +238,7 @@ A separate session's review of the plan against the author's research notes. 15 
 | `KB1-F5` | medium | fixed, tick 118 | Publish answerable accuracy, refusal correctness and leaks as separate figures; the overall rate only as a fourth |
 | `KB1-F6` | medium | fixed, tick 101 | Golden set needs near misses, multi hop across two documents and answers spanning a unit boundary; score near misses like J |
 | `KB1-F7` | medium | open | Headline says synthetic; a closed book run with empty excerpts published beside it; planted values mostly non default, deliberate defaults flagged in the registry |
-| `KB1-F8` | medium | open | Corpus is mostly code generated structure while the eval is mostly prose: stats by layer, metrics by layer, cap layer C at about a third of units and raise table items |
+| `KB1-F8` | medium | fixed, tick 138 | Corpus is mostly code generated structure while the eval is mostly prose: stats by layer, metrics by layer, cap layer C at about a third of units and raise table items |
 | `KB1-F9` | medium | open | Planted facts are too salient: a salience plan per fact recorded in the registry, and a noise pass (page headers and footers, cross references, numbering drift, typos) over layers A and B |
 | `KB1-F10` | medium | fixed, tick 43 | Unit rules: list runs as one block, units under about 30 tokens merged into the next in the same segment and heading, audience and classification lines moved to the payload, table header repeated per row group |
 | `KB1-F11` | low | fixed, tick 115 | The KB session is not a domain expert: 10 seed questions from real public documents with no company in them (EU consumer law, the Greek regulator's consumer rules); five generated Greek samples offered to the owner for a naturalness read |
