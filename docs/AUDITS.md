@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**154 findings, 115 closed, 39 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**154 findings, 117 closed, 37 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -65,7 +65,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 
 ## `DR`, the deep reviewer
 
-An audit pass on correctness, read in the logic rather than the comments. 22 findings, 19 closed.
+An audit pass on correctness, read in the logic rather than the comments. 22 findings, 20 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -87,7 +87,7 @@ An audit pass on correctness, read in the logic rather than the comments. 22 fin
 | `DR-F16` | low | open | The Greek stemmer turns έως into an empty term, so every unit holding it shares one meaningless term in the lexical index: make it a stopword when lexical.py next changes, with MT-F9's fix, since any edit to it stales the frozen statistics |
 | `DR-F17` | medium | fixed, tick 117 | parse raises on a reply whose citations are not a list (TypeError) or hold a digit int cannot read such as a superscript (ValueError), where its docstring promises status invalid: read a non list as invalid or a bare integer as one citation, take a string only when isdecimal and ASCII, and test each; the class, found the same tick: the adapters read choices, output, content and candidates with .get on what they assume are objects, so a reply of the wrong shape there ends in a traceback too |
 | `DR-F18` | medium | open | A reply cut off mid body raises http.client.IncompleteRead, no OSError, so it escapes call.post's retries after one attempt as a raw exception: catch HTTPException with the network errors and test four attempts then a ProviderError |
-| `DR-F19` | medium | open | quoted escapes only lower case document tags, so </DOCUMENT> or <Document inside a document reaches the model as written, against the docstring's promise that no text opens or closes a quotation: escape case insensitively, with any space after < or / |
+| `DR-F19` | medium | fixed, tick 123 | quoted escapes only lower case document tags, so </DOCUMENT> or <Document inside a document reaches the model as written, against the docstring's promise that no text opens or closes a quotation: escape case insensitively, with any space after < or / |
 | `DR-F20` | medium | fixed, tick 110 | A table item's row is taken on the writer's word: no check that one unit of the document holds the key, is a table under a label the role reads and holds the value; T30 and T31 were checked by hand and are right; T5.1h writes eight more |
 | `DR-F21` | low | fixed, tick 110 | Context.sections and split.salience see a fact planted twice in one document through its first section and first occurrence only; F22R12 sits in two logistics sections of LOG_MAN_007, so nothing decides wrongly yet: yield every section, measure each occurrence |
 | `DR-F22` | low | fixed, tick 109 | Three category rules are left to the writer: a G item may name any superseded fact, an E item's facts are never required empty, an N item's neighbour need not be readable by its role: tie each in check_item with a test |
@@ -265,11 +265,11 @@ The same session's review of the retrieval design and its measured filtered reca
 
 ## `KB5`, the answer layer at P4 exit, reviewed against a knowledge base
 
-The same session's review of the answer layer, its cache and the measurements offered to the base. 4 findings, 0 closed.
+The same session's review of the answer layer, its cache and the measurements offered to the base. 4 findings, 1 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `KB5-K12` | medium | open | The provider's prefix cache and the cached count ntk ask prints keep open the cross-role channel AC-F11 closes: the asking role's readable label set inside the prompt after the fixed rules and before the excerpts, checked on dev to move no answer, and the cache counts kept in the spend log only |
 | `KB5-K13` | medium | open | The baseline's three repeats would come back from the answer cache, every item looking stable and one call counted where three were meant: every scored answer asks with the cache off or the repeat in the key, and a control leaves three provider calls for one item asked three times |
 | `KB5-K14` | low | open | A model alias in the cache key lets answers from a retired model outlive it: an entry is stale when a fresh reply names another model, and every evaluation run records the model that answered |
-| `KB5-K15` | low | open | The injection bench's language check passes any answer in unaccented Latin letters as English: judge the language by stopwords or a fixed identifier, the ASCII test kept as a second gate |
+| `KB5-K15` | low | fixed, tick 123 | The injection bench's language check passes any answer in unaccented Latin letters as English: judge the language by stopwords or a fixed identifier, the ASCII test kept as a second gate |
