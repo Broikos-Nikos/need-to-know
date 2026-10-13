@@ -96,11 +96,15 @@ def groups(facts: list[dict], catalogue: list[dict]) -> list[list[dict]]:
     return sorted(joined.values(), key=lambda members: min(f["family"] for f in members))
 
 
-def salience(sentence: str, text: str) -> float:
-    """The planted sentence's share of its paragraph's characters."""
-    at = text.find(sentence)
-    if at < 0:
-        raise SplitError(f"the planted sentence {sentence[:60]!r} is not in its document's narrative")
+def salience(sentence: str, text: str, nth: int = 0) -> float:
+    """The planted sentence's share of its paragraph's characters, at its nth occurrence: a document that plants a fact
+    twice is measured at each (DR-F21)."""
+    at = -1
+    for _ in range(nth + 1):
+        at = text.find(sentence, at + 1)
+        if at < 0:
+            raise SplitError(f"the planted sentence {sentence[:60]!r} is not " + (f"{nth + 1} times " if nth else "")
+                             + "in its document's narrative")
     start = text.rfind("\n\n", 0, at)
     end = text.find("\n\n", at)
     paragraph = text[start + 2 if start >= 0 else 0:end if end >= 0 else len(text)].strip()
@@ -111,11 +115,14 @@ def describe(members: list[dict], docs: dict[str, dict], narrative: Path) -> dic
     """A family: its id, stratum, registry families, facts and the four balance properties."""
     sizes, greek, shares = [], [], []
     for f in members:
+        seen: Counter = Counter()
         for doc_id in f["placements"]:
             doc = docs[doc_id]
             sizes.append(doc["target_mb"])
             greek.append(doc["language"] == "el")
-            shares.append(salience(f[doc["language"]], (narrative / f"{doc_id}.txt").read_text(encoding="utf-8")))
+            shares.append(salience(f[doc["language"]], (narrative / f"{doc_id}.txt").read_text(encoding="utf-8"),
+                                   seen[doc_id]))
+            seen[doc_id] += 1
     labels = Counter(f["label"] for f in members)
     kinds = {f["kind"] for f in members}
     kind = "variant" if "variant" in kinds else "versioned" if kinds & {"versioned", "superseded"} else "single"

@@ -51,6 +51,15 @@ def test_salience_is_the_planted_sentences_share_of_its_paragraph_and_a_missing_
         S.salience("Absent.", "Something else.")
 
 
+def test_a_sentence_planted_twice_in_one_document_is_measured_at_each_paragraph():
+    # DR-F21: the second placement was measured at the first one's paragraph.
+    text = "Short. The fee is 5.\n\nA much longer paragraph that says it again: The fee is 5. And more words after it."
+    first, second = S.salience("The fee is 5.", text), S.salience("The fee is 5.", text, 1)
+    assert first == pytest.approx(len("The fee is 5.") / len("Short. The fee is 5.")) and second < first
+    with pytest.raises(S.SplitError, match="not 3 times in its document's narrative"):
+        S.salience("The fee is 5.", text, 2)
+
+
 def test_seats_go_to_each_kind_by_its_share_before_any_label():
     families = [{"id": f"S{i}", "kind": "single", "label": f"L{i % 3}"} for i in range(9)] + \
                [{"id": f"V{i}", "kind": "variant", "label": f"L{i}"} for i in range(3)]

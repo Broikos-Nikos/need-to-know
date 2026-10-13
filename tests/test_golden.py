@@ -113,6 +113,7 @@ def test_a_superseded_item_names_both_values_and_own_unit_items_keep_theirs(ctx)
 def test_a_superseded_fact_an_e_items_facts_and_a_near_misss_neighbour_are_held_to_their_category(ctx):
     # DR-F22: each was left to the writer.
     ctx.facts["F06V00OLD"] = {**ctx.facts["F06V00"], "id": "F06V00OLD", "kind": "superseded", "values": ["5", "5"]}
+    ctx.docs["D1"] = copy.deepcopy(ctx.docs["D1"])  # the module's catalogue stays as every other test reads it
     ctx.docs["D1"]["sections"][0]["facts"].append("F06V00OLD")
     g = item(id="D01", category="G", families=["F09V00"],
              expect={"status": "answered", "facts": [{"fact_id": "F09V00", "forms": ["22"]}], "superseded": ["F09V00OLD"]})
@@ -161,6 +162,44 @@ def test_a_dev_family_of_general_defaults_carries_no_item_and_may_not_be_asked(c
     assert any("family F91V00 asked 0 times" in p for p in G.check_split(dev, "dev", ctx))
 
 
+def test_a_table_items_row_is_looked_up_in_the_manifest(ctx):
+    # DR-F20: the row was taken on the writer's word.
+    head = "Order | Shop | Status\n"
+    ctx.units = [{"doc_id": "D1", "layer": "table", "labels": ["sales"], "text": head + "O1001 | S1 | shipped\nO1002 | S2 | held"},
+                 {"doc_id": "D2", "layer": "table", "labels": ["legal"], "text": head + "O2001 | S1 | held"},
+                 {"doc_id": "D2", "layer": "table", "labels": ["legal"], "text": head + "O2001 | S9 | held"}]
+    table = item(id="D01", category="I", families=[], question="What is the status of order O1001?",
+                 expect={"status": "answered", "facts": [{"forms": ["shipped"]}]},
+                 row={"doc_id": "D1", "key": "O1001", "column": "Status", "value": "shipped"})
+    assert G.check_item(table, "dev", ctx) == []
+    for row, words in [({"value": "held"}, "holds 'shipped' under 'Status', not 'held'"),
+                       ({"key": "O2001", "doc_id": "D2", "value": "held"}, "is in 2 units"),
+                       ({"key": "O9999"}, "is in 0 units"),
+                       ({"doc_id": "D2"}, "not in one unit of D2 alone")]:
+        problems = G.check_item({**table, "row": {**table["row"], **row}}, "dev", ctx)
+        assert any(words in p for p in problems), (row, problems)
+    assert any("legal may read no label of the table" in p for p in G.check_item({**table, "role": "legal"}, "dev", ctx))
+    other = {**table, "expect": {"status": "answered", "facts": [{"forms": ["dispatched"]}]}}
+    assert any("no form holds the row's value" in p for p in G.check_item(other, "dev", ctx))
+    ctx.units[0]["layer"] = "prose"
+    assert any("is no table" in p for p in G.check_item(table, "dev", ctx))
+
+
+def test_a_fact_planted_in_two_sections_of_one_document_is_seen_in_both(ctx):
+    # DR-F21: only the first section a document plants a fact in was read.
+    ctx.docs["D3"] = {"id": "D3", "language": "en", "sections": [{"label": "legal", "facts": ["F92V00"]},
+                                                                  {"label": "sales", "facts": ["F92V00"]}]}
+    ctx.facts["F92V00"] = {"id": "F92V00", "family": "F92V00", "label": "legal", "kind": "single",
+                           "placements": ["D3", "D3"], "values": ["9", "9"], "en": "Notice is given in 9 days.",
+                           "el": "Η ειδοποίηση δίνεται σε 9 ημέρες."}
+    ctx.families["F92V00"] = {"id": "F92V00", "split": "test", "kind": "single", "label": "legal", "defaults": {},
+                              "facts": ["F92V00"]}
+    assert [section["label"] for _, section in ctx.sections("F92V00")] == ["legal", "sales"]
+    refused = item(id="T02", category="E", families=["F92V00"], role="sales", question="How much notice is given?",
+                   expect={"status": "not_found", "facts": [], "forbidden": [{"fact_id": "F92V00", "forms": ["9 days"]}]})
+    assert any("sales may read a section F92V00 is planted in" in p for p in G.check_item(refused, "test", ctx))
+
+
 def test_the_command_reads_the_golden_files_and_names_a_bad_line(tmp_path, monkeypatch, ctx):
     (tmp_path / "test.jsonl").write_text(json.dumps(item()) + "\n{not json\n", encoding="utf-8")
     monkeypatch.setattr(G, "golden_path", lambda split: tmp_path / f"{split}.jsonl")
@@ -169,19 +208,22 @@ def test_the_command_reads_the_golden_files_and_names_a_bad_line(tmp_path, monke
 
 
 def test_the_committed_items_keep_their_rules():
-    # Needs the plan and the frequency table, which a build makes; a bare clone skips it.
+    # Needs the plan, the frequency table and the manifest, which a build makes; a bare clone skips it.
     from needtoknow.eval.split import SplitError, load_plan
     from needtoknow.index.frequencies import table_path
+    from needtoknow.ingest.manifest import manifest_path
     try:
         load_plan()
     except SplitError:
         pytest.skip("no plan: ntk corpus plan makes it")
     if not table_path().is_file():
         pytest.skip("no frequency table: ntk index sync makes it")
+    if not manifest_path().is_file():
+        pytest.skip("no manifest: ntk ingest build makes it")
     summary, problems = G.check()
     assert summary["test"]["items"] == 35
     assert [p for p in problems if not p.startswith("dev: ")] == []
-    # Until the dev items are complete (T5.1h), dev's own lines may name a family not yet asked and the shares; a
+    # Until the dev items are complete (T5.1j), dev's own lines may name a family not yet asked and the shares; a
     # family once asked is asked two or three times.
     assert [p for p in problems if "asked" in p and "asked 0 times" not in p] == []
 

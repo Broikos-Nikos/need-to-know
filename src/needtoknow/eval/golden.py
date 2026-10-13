@@ -24,6 +24,8 @@ role may read a section each fact is planted in, an E item's none; C asks in the
 language than every document its facts sit in; G asks the current value and names the
 superseded one of its own registry family, H a regional variant; E, J and N expect no fact, and a near miss's
 neighbour is one its role reads; a deliberate default is asked only by E (RS-F19);
+a table item's row is in the manifest, its key in one unit alone, a table of the named
+document under a label its role reads, the cell under its column the value, which a form holds (DR-F20);
 and the overlap cap: of the three rarest terms of each planted sentence by the corpus's
 document frequency, at most one in the question, counted by `needtoknow.lexical.terms`,
 the terms BM25 matches (RS-F3, KB3-K4). Per split: the test's category counts, every test
@@ -47,6 +49,7 @@ from needtoknow.answer.prompt import language
 from needtoknow.eval.protocol import load_protocol
 from needtoknow.eval.split import DELIBERATE_DEFAULTS, load_plan, split_path
 from needtoknow.index import frequencies
+from needtoknow.ingest.manifest import manifest_path
 from needtoknow.policy import load_policy, readable
 from needtoknow.settings import repo_root
 
@@ -96,9 +99,10 @@ def rare_terms(sentence: str, df: Callable[[str], int], count: int) -> list[str]
 
 
 class Context:
-    """What the checks read: the protocol, the split, the registry, the catalogue, the policy and the frequencies."""
+    """What the checks read: the protocol, the split, the registry, the catalogue, the policy, the frequencies and,
+    for a table item, the manifest's units."""
 
-    def __init__(self, protocol=None, split=None, facts=None, catalogue=None, policy=None, df=None):
+    def __init__(self, protocol=None, split=None, facts=None, catalogue=None, policy=None, df=None, units=None):
         self.protocol = protocol or load_protocol()
         if split is None and not split_path().is_file():
             raise GoldenError(f"no {split_path().name}: ntk eval split writes it")
@@ -110,12 +114,66 @@ class Context:
         self.docs = {d["id"]: d for d in catalogue}
         self.policy = policy or load_policy()
         self.df = df or corpus_df()
+        self.units = units  # given in a test; read from the manifest otherwise
+        self.held: dict[str, list[dict]] = {}
 
     def sections(self, fact_id: str) -> list[tuple[str, dict]]:
-        """Each document a fact is planted in, with the section that plants it."""
+        """Every section that plants a fact, with its document: a document that plants it twice is read once, and
+        each of its sections that holds the fact is given (DR-F21)."""
         fact = self.facts[fact_id]
-        return [(doc_id, next(s for s in self.docs[doc_id]["sections"] if fact_id in s["facts"]))
-                for doc_id in fact["placements"]]
+        return [(doc_id, section) for doc_id in dict.fromkeys(fact["placements"])
+                for section in self.docs[doc_id]["sections"] if fact_id in section["facts"]]
+
+    def holding(self, keys: list[str]) -> dict[str, list[dict]]:
+        """Every unit whose text holds each key: one read of the manifest for all the keys not yet looked up."""
+        wanted = [key for key in dict.fromkeys(keys) if key not in self.held]
+        if wanted:
+            found = self.units if self.units is not None else manifest_units(wanted)
+            for key in wanted:
+                self.held[key] = [unit for unit in found if key in unit["text"]]
+        return {key: self.held[key] for key in keys}
+
+
+def manifest_units(keys: list[str]) -> list[dict]:
+    """The units whose text holds any of the keys, with document, layer, labels and text, the manifest read only."""
+    path = manifest_path()
+    if not path.is_file():
+        raise GoldenError(f"no manifest at {path}: ntk ingest build makes it, and a table item is checked against it")
+    db = sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True)
+    try:
+        query = "SELECT doc_id, layer, labels, text FROM units WHERE " + " OR ".join(["instr(text, ?) > 0"] * len(keys))
+        return [{"doc_id": doc_id, "layer": layer, "labels": json.loads(labels), "text": text}
+                for doc_id, layer, labels, text in db.execute(query, keys)]
+    finally:
+        db.close()
+
+
+def cell(text: str, key: str, column: str) -> str | None:
+    """The cell under the column of the table row whose first cell is the key; the header is the unit's first line."""
+    lines = text.splitlines()
+    header = [c.strip() for c in lines[0].split("|")] if lines else []
+    for line in lines[1:]:
+        cells = [c.strip() for c in line.split("|")]
+        if cells[0] == key and column in header and len(cells) == len(header):
+            return cells[header.index(column)]
+    return None
+
+
+def table_row(name: str, row: dict, role: str, reads: frozenset[str], ctx: Context) -> list[str]:
+    """A table item's row as the manifest holds it (DR-F20): one unit holds the key, in the named document, a table
+    under a label the role reads, its row's cell under the column the value."""
+    holders = ctx.holding([row["key"]])[row["key"]]
+    if len(holders) != 1 or holders[0]["doc_id"] != row["doc_id"]:
+        return [f"{name}: the key {row['key']} is in {len(holders)} units, not in one unit of {row['doc_id']} alone"]
+    unit, problems = holders[0], []
+    if unit["layer"] != "table":
+        problems.append(f"{name}: the unit holding {row['key']} is no table")
+    if not set(unit["labels"]) & reads:
+        problems.append(f"{name}: {role} may read no label of the table holding {row['key']}, {unit['labels']}")
+    found = cell(unit["text"], row["key"], row["column"])
+    if found != row["value"]:
+        problems.append(f"{name}: the row of {row['key']} holds {found!r} under {row['column']!r}, not {row['value']!r}")
+    return problems
 
 
 def masked(sentence: str, values: list[str], rare: list[str]) -> str:
@@ -185,13 +243,18 @@ def check_item(item: dict, split: str, ctx: Context) -> list[str]:
                 say(f"{name}: family {family} is in {ctx.families[family]['split']}, not {split}")
     reads = readable(ctx.policy, role)
     expected = (expect.get("forbidden") if category == "E" else expect.get("facts")) or []
-    if category == "I" and not all((item.get("row") or {}).get(k) for k in ("doc_id", "key", "column", "value")):
+    row = item.get("row") or {}
+    if category == "I" and not all(row.get(k) for k in ("doc_id", "key", "column", "value")):
         say(f"{name}: a table item names its row: doc_id, key, column and value")
+    elif category == "I":
+        problems += table_row(name, row, role, reads, ctx)
     for entry in expected:
         fid = entry.get("fact_id")
         if category == "I":
             if not entry.get("forms"):
                 say(f"{name}: a table item names the forms of its value")
+            elif row.get("value") and not any(row["value"] in form for form in entry["forms"]):
+                say(f"{name}: no form holds the row's value {row['value']!r}")
             continue
         if fid not in ctx.facts:
             say(f"{name}: no fact {fid!r} in the registry")
@@ -305,6 +368,8 @@ def check(ctx: Context | None = None) -> tuple[dict, list[str]]:
     ctx = ctx or Context()
     loaded = {split: load_items(golden_path(split)) for split in SPLITS}
     problems: list[str] = []
+    ctx.holding([key for split in SPLITS for item in loaded[split] if item.get("category") == "I"
+                 for key in [(item.get("row") or {}).get("key")] if key])  # every table row in one read
     ids = Counter(item.get("id") for split in SPLITS for item in loaded[split])
     problems += [f"id {i} used {n} times" for i, n in ids.items() if n > 1]
     for split in SPLITS:

@@ -24,8 +24,8 @@ baseline and at each release.
 
 Two or three items for each dev family, in the test's category shares, with 8 table
 cells, 8 absent facts and 8 near misses; every development choice and experiment is made
-on it. It is written in three parts, each held by `uv run ntk eval check` as it lands; until
-the last, the check also names the dev families not yet asked and the shares not yet met.
+on it. It is written in parts, each held by `uv run ntk eval check` as it lands; until the
+last, the check also names the dev families not yet asked and the shares not yet met.
 Two dev families carry no item: each holds only a value a model may know without the
 documents, under the label every role reads, so no item could ask it (N58).
 
@@ -40,6 +40,13 @@ documents, under the label every role reads, so no item could ask it (N58).
   from `uv run ntk eval draft --split dev`, which shows each planted sentence with its value
   and its three rarest terms blanked, lists those terms' stems so a question can name the
   subject, and says where each fact sits.
+* A table item's row is looked up in the manifest by the check: its key in one unit of the
+  whole corpus, a table of the named document under a label the asker reads, the cell under
+  the named column the expected value. Only three registers key their rows that way, the
+  ticket log, the stock list and the return authorisation log; the cost centres, sites,
+  courses, contracts, shops and dated sales reuse a key across documents with other values,
+  so a question on one has no single answer. The dev rows were drawn from those three by a
+  fixed seed, four in each language.
 * Every value that changed did so on one date, 1 July 2025, its former value dating from 1
   March 2024. A superseded item therefore tests choosing the later of two dated values, not
   reasoning over many dates.
