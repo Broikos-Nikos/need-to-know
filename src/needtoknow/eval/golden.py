@@ -23,7 +23,7 @@ in one of the item's families, each of its forms holding its planted value or na
 role may read a section each fact is planted in, an E item's none; C asks in the other
 language than every document its facts sit in; G asks the current value and names the
 superseded one of its own registry family, H a regional variant; E, J and N expect no fact, and a near miss's
-neighbour is one its role reads; a deliberate default is asked only by E (RS-F19);
+neighbour is one its role reads, of a dev family for a dev item; a deliberate default is asked only by E (RS-F19);
 a table item's row is in the manifest, its key in one unit alone, a table of the named
 document under a label its role reads, the cell under its column the value, which a form holds (DR-F20);
 and the overlap cap: of the three rarest terms of each planted sentence by the corpus's
@@ -314,6 +314,11 @@ def check_item(item: dict, split: str, ctx: Context) -> list[str]:
         say(f"{name}: a near miss names the present fact it neighbours")
     elif category == "N" and not any(section["label"] in reads for _, section in ctx.sections(item["near"])):
         say(f"{name}: a near miss's neighbour is a fact {role} may read")
+    # A near miss is written to draw its neighbour's section: beside a test fact, a dev one would bring that sentence
+    # into development, which the split by family keeps out (N56). A test one beside a dev fact shows test nothing new.
+    if category == "N" and split == "dev" and item.get("near") in ctx.facts and not any(
+            item["near"] in family["facts"] for family in ctx.families.values() if family["split"] == "dev"):
+        say(f"{name}: a dev near miss's neighbour is a fact of a dev family")
     return problems
 
 

@@ -124,10 +124,14 @@ def test_a_superseded_fact_an_e_items_facts_and_a_near_misss_neighbour_are_held_
              expect={"status": "not_found", "facts": [{"fact_id": "F38V00", "forms": ["35000"]}],
                      "forbidden": [{"fact_id": "F38V00", "forms": ["35000"]}]})
     assert any("an E item expects no fact" in p for p in G.check_item(e, "test", ctx))
-    near = item(id="D02", category="N", families=[], role="sales", near="F06V00",
+    near = item(id="D02", category="N", families=[], role="sales", near="F09V00",
                 expect={"status": "not_found", "facts": []})
     assert G.check_item(near, "dev", ctx) == []
     assert any("neighbour is a fact legal may read" in p for p in G.check_item({**near, "role": "legal"}, "dev", ctx))
+    # Beside a test fact a dev near miss would draw that fact's section into development; a test one may sit anywhere.
+    assert any("a dev near miss's neighbour is a fact of a dev family" in p
+               for p in G.check_item({**near, "near": "F06V00"}, "dev", ctx))
+    assert G.check_item({**near, "id": "T03", "near": "F06V00"}, "test", ctx) == []
 
 
 def test_the_split_must_hold_the_registered_counts_and_ask_each_test_family_once(ctx):
@@ -222,10 +226,7 @@ def test_the_committed_items_keep_their_rules():
         pytest.skip("no manifest: ntk ingest build makes it")
     summary, problems = G.check()
     assert summary["test"]["items"] == 35
-    assert [p for p in problems if not p.startswith("dev: ")] == []
-    # Until the dev items are complete (T5.1j), dev's own lines may name a family not yet asked and the shares; a
-    # family once asked is asked two or three times.
-    assert [p for p in problems if "asked" in p and "asked 0 times" not in p] == []
+    assert problems == []  # every item, every count and every share, in both splits
 
 
 def test_a_line_that_is_json_but_no_item_and_a_missing_split_are_refused_by_name(tmp_path, monkeypatch, ctx):
