@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**132 findings, 96 closed, 36 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**134 findings, 97 closed, 37 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -31,7 +31,7 @@ An audit pass that tried to break a first run. 14 findings, 14 closed.
 
 ## `RS`, the retrieval scientist
 
-An audit pass on whether the evaluation can fail and its statistics are honest. 20 findings, 11 closed.
+An audit pass on whether the evaluation can fail and its statistics are honest. 21 findings, 11 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -55,10 +55,11 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 | `RS-F18` | medium | open | The registered smallest visible effect, 0.10, is N43's figure for 63 families and no command produces it; a simulation of the registered test puts it at 0.11 for 63 and 0.12 for 50: a committed bench over a range of discordance rates, and the protocol's figure from it |
 | `RS-F19` | low | fixed, tick 101 | Deliberate defaults sit in 5 of 31 test families and 6 of 50 dev, and nothing says whether an item may ask one: register that no item asks a default unless its category needs one, and report the closed book run's hits on defaults apart |
 | `RS-F20` | low | fixed, tick 101 | The items' language and category shares are checked in the spec, not in the hashed protocol: add them to item_properties with how close they must match |
+| `RS-F21` | low | open | The test items were drafted with the planted sentences in view, against the registered rewrite without them; the cap on shared rare terms holds them and eval/golden/README.md says so: the dev items are drafted from the registry's topic and value alone |
 
 ## `DR`, the deep reviewer
 
-An audit pass on correctness, read in the logic rather than the comments. 15 findings, 15 closed.
+An audit pass on correctness, read in the logic rather than the comments. 16 findings, 15 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -77,6 +78,7 @@ An audit pass on correctness, read in the logic rather than the comments. 15 fin
 | `DR-F13` | low | fixed, tick 54 | An unknown html data-audience is reported folded, not as written |
 | `DR-F14` | low | fixed, tick 54 | HTML text outside h1 to h6, p, li and tr is dropped without a word (0 characters on this corpus) |
 | `DR-F15` | medium | fixed, tick 85 | A hit the manifest has dropped, between a scan and its sync, crashes the reranked search (KeyError) and ntk search (TypeError) |
+| `DR-F16` | low | open | The Greek stemmer turns έως into an empty term, so every unit holding it shares one meaningless term in the lexical index: make it a stopword when lexical.py next changes, with MT-F9's fix, since any edit to it stales the frozen statistics |
 
 ## `OP`, the pipeline operator
 
@@ -220,7 +222,7 @@ The same session's review of the evaluation protocol. 2 findings, 2 closed.
 
 ## `KB3`, the corpus at P1 exit, reviewed against a knowledge base
 
-The same session's review of the generated corpus. 5 findings, 2 closed.
+The same session's review of the generated corpus. 5 findings, 3 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -228,7 +230,7 @@ The same session's review of the generated corpus. 5 findings, 2 closed.
 | `KB3-K4` | medium | open | An overlap cap stated as a share of the question still lets it carry every word that decides retrieval: items rewritten without the planted sentence in view, overlap capped on the three rarest stems, about 20 dev items with a paraphrase twin |
 | `KB3-K5` | low | fixed, tick 39 | Label shares by unit follow annex bytes, not the registered shares (general 0.0 against 0.20, hr 4.7 against 0.02): shop directories under general, annex rows budgeted per label; the coverage report prints registered and measured shares Measured by `ntk corpus coverage`. |
 | `KB3-K6` | low | open | The prose cannot compare paragraph and section units (685 of 900 sections are one paragraph): the README and any units claim say so |
-| `KB3-K7` | low | open | Templated tells: a capital letter after the date frame in 14 sentences, one effective date for all versioned facts, and N39's stale canary count (corrected at tick 23) |
+| `KB3-K7` | low | fixed, tick 103 | Templated tells: a capital letter after the date frame in 14 sentences, one effective date for all versioned facts, and N39's stale canary count (corrected at tick 23) |
 
 ## `KB4`, the retrieval design at P3 exit, reviewed against a knowledge base
 
