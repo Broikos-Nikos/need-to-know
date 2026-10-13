@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**151 findings, 106 closed, 45 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**151 findings, 109 closed, 42 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -64,7 +64,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 
 ## `DR`, the deep reviewer
 
-An audit pass on correctness, read in the logic rather than the comments. 22 findings, 18 closed.
+An audit pass on correctness, read in the logic rather than the comments. 22 findings, 19 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -84,7 +84,7 @@ An audit pass on correctness, read in the logic rather than the comments. 22 fin
 | `DR-F14` | low | fixed, tick 54 | HTML text outside h1 to h6, p, li and tr is dropped without a word (0 characters on this corpus) |
 | `DR-F15` | medium | fixed, tick 85 | A hit the manifest has dropped, between a scan and its sync, crashes the reranked search (KeyError) and ntk search (TypeError) |
 | `DR-F16` | low | open | The Greek stemmer turns έως into an empty term, so every unit holding it shares one meaningless term in the lexical index: make it a stopword when lexical.py next changes, with MT-F9's fix, since any edit to it stales the frozen statistics |
-| `DR-F17` | medium | open | parse raises on a reply whose citations are not a list (TypeError) or hold a digit int cannot read such as a superscript (ValueError), where its docstring promises status invalid: read a non list as invalid or a bare integer as one citation, take a string only when isdecimal and ASCII, and test each; the class, found the same tick: the adapters read choices, output, content and candidates with .get on what they assume are objects, so a reply of the wrong shape there ends in a traceback too |
+| `DR-F17` | medium | fixed, tick 117 | parse raises on a reply whose citations are not a list (TypeError) or hold a digit int cannot read such as a superscript (ValueError), where its docstring promises status invalid: read a non list as invalid or a bare integer as one citation, take a string only when isdecimal and ASCII, and test each; the class, found the same tick: the adapters read choices, output, content and candidates with .get on what they assume are objects, so a reply of the wrong shape there ends in a traceback too |
 | `DR-F18` | medium | open | A reply cut off mid body raises http.client.IncompleteRead, no OSError, so it escapes call.post's retries after one attempt as a raw exception: catch HTTPException with the network errors and test four attempts then a ProviderError |
 | `DR-F19` | medium | open | quoted escapes only lower case document tags, so </DOCUMENT> or <Document inside a document reaches the model as written, against the docstring's promise that no text opens or closes a quotation: escape case insensitively, with any space after < or / |
 | `DR-F20` | medium | fixed, tick 110 | A table item's row is taken on the writer's word: no check that one unit of the document holds the key, is a table under a label the role reads and holds the value; T30 and T31 were checked by hand and are right; T5.1h writes eight more |
@@ -105,7 +105,7 @@ An audit pass that killed the pipeline mid build and mid change. 5 findings, 5 c
 
 ## `MA`, the measurement auditor
 
-An audit pass on whether every number can be produced again. 16 findings, 8 closed.
+An audit pass on whether every number can be produced again. 16 findings, 9 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -122,13 +122,13 @@ An audit pass on whether every number can be produced again. 16 findings, 8 clos
 | `MA-F11` | low | open | N53 quotes a look's 9 ms and a cut's 368,000 objects, and no command prints either: print them from the watcher's opening line and the ingestion bench, or drop them and keep the mechanism |
 | `MA-F12` | low | open | The README calls a user with only general and a removed membership combinations of roles: name the cases the permission suite runs Measured by bench/permission_suite.py. |
 | `MA-F13` | low | open | Two before figures, the injection bench on the old prompt and the watcher beside a build, cannot be rerun from what the repository says: a worktree recipe beside the bench, and a scripted run or a named hand run for the other |
-| `MA-F14` | low | open | ntk eval check checks the Greek share and skips the exempt families without printing either, and gives no count of family items, while eval/golden/README.md and commit 3b4e77d state 16 of 35 in Greek, two exempt dev families and 29 family items: the summary prints each split's Greek count and family items, and dev's exempt families by id |
+| `MA-F14` | low | fixed, tick 117 | ntk eval check checks the Greek share and skips the exempt families without printing either, and gives no count of family items, while eval/golden/README.md and commit 3b4e77d state 16 of 35 in Greek, two exempt dev families and 29 family items: the summary prints each split's Greek count and family items, and dev's exempt families by id |
 | `MA-F15` | low | open | N59 in docs/DECISIONS.md quotes 0.556 against 0.963, another project's measurement reported by the knowledge base, with neither its source nor its sample size: say whose measurement it is and on how many questions, or keep the claim and drop the figures |
 | `MA-F16` | medium | open | 18 of 128 commit messages count the negative controls a gate failed, but the controls ran from the session's scratchpad: commit them as data (file, line broken, replacement, test that must fail) with a runner that applies, runs, restores and prints the count, and cite its output, or stop counting them |
 
 ## `MT`, the maintainer in six months
 
-An audit pass on whether a fresh clone can be rebuilt and changed safely. 12 findings, 10 closed.
+An audit pass on whether a fresh clone can be rebuilt and changed safely. 12 findings, 11 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -141,7 +141,7 @@ An audit pass on whether a fresh clone can be rebuilt and changed safely. 12 fin
 | `MT-F7` | low | fixed, tick 82 | A changed collection or analyser is refused with no command to rebuild it, short of a bench that also deletes the vector cache |
 | `MT-F8` | low | fixed, tick 82 | bench/README.md opens by saying every bench runs with no GPU, key or network; eight of fifteen files need the GPU or the server |
 | `MT-F9` | low | open | An edit anywhere in lexical.py stales the index's frozen statistics: the analyser's version is the whole file's hash |
-| `MT-F10` | medium | open | The README never mentions the golden items, ntk eval check and what it needs, ntk eval draft, or that the protocol changes only by a dated entry; two docstrings still say protocol version 4; nothing tells whoever edits prompt.py's rules to rerun bench/injection.py |
+| `MT-F10` | medium | fixed, tick 117 | The README never mentions the golden items, ntk eval check and what it needs, ntk eval draft, or that the protocol changes only by a dated entry; two docstrings still say protocol version 4; nothing tells whoever edits prompt.py's rules to rerun bench/injection.py |
 | `MT-F11` | medium | fixed, tick 113 | The dev set rests on two checks no command repeats: the table rows' seeded draw and each absent fact's and near miss's search of the corpus prose ran from the session's scratchpad; a regenerated narrative could answer one in passing, as it already mentions a courier C3: each J and N item names its probe words and ntk eval check confirms none is held, the row draw a committed command |
 | `MT-F12` | low | fixed, tick 113 | ntk eval split writes over eval/families.json whatever it draws, though the split's salience reads narrative/ and the items were written against the registered split: refuse a differing result once items exist, behind a flag the protocol history records |
 
