@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**161 findings, 127 closed, 34 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**162 findings, 129 closed, 33 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -34,7 +34,7 @@ An audit pass that tried to break a first run. 17 findings, 15 closed.
 
 ## `RS`, the retrieval scientist
 
-An audit pass on whether the evaluation can fail and its statistics are honest. 28 findings, 25 closed.
+An audit pass on whether the evaluation can fail and its statistics are honest. 28 findings, 26 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -49,7 +49,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 | `RS-F9` | low | fixed, tick 122 | Part of the simulation's false claims is an assumed probe coin (0.12 to 0.18 without it): print the assumption or simulate the probe arm |
 | `RS-F10` | low | fixed, tick 39 | Target shares must sum to 1 while a section may name several labels: define the share by first label, or check at least 1 |
 | `RS-F11` | low | fixed, tick 69 | Overlap@10 on off topic probes counts swaps among near equal scores: report a tie aware overlap and gate on misses beyond the tolerance |
-| `RS-F12` | medium | open | N50 and the bench README quote the attack's share over the whole collection and its null, and leave out its own share over the view, 58 to 65 percent against 45 to 50: all three with their counts and intervals, the view's claim carried by KB4-K9's noninterference test Measured by bench/idf_attack.py. |
+| `RS-F12` | medium | fixed, tick 131 | N50 and the bench README quote the attack's share over the whole collection and its null, and leave out its own share over the view, 58 to 65 percent against 45 to 50: all three with their counts and intervals, the view's claim carried by KB4-K9's noninterference test Measured by bench/idf_attack.py. |
 | `RS-F13` | medium | fixed, tick 89 | Timings and graph recall are quoted from one run each, and a rerun prints other numbers: N51's 26 to 83 ms and 0.680 to 0.949 against 13 to 25 and 0.688 to 0.959 at the P3 exit, N53's 4.6 s against 4.0 to 4.5 s in three runs; the timing benches repeat and print median, largest and count, and the decisions quote what today's commands print Measured by bench/filter_bench.py --report and bench/revocation.py. |
 | `RS-F14` | medium | fixed, tick 94 | P4's exit counts citations that parse() has already made valid: it drops a citation it cannot place without a trace, so the exit cannot fail; parse returns what it dropped, runs record it, and each smoke answer cites an excerpt holding its value |
 | `RS-F15` | medium | fixed, tick 119 | Citation accuracy, a cited section among the expected sources, is passed by citing every excerpt: citation precision and recall per item, with a cite everything null through the scorer on dev |
@@ -175,7 +175,7 @@ An audit pass of three minutes, on whether the author ships, measures and says s
 
 ## `AC`, the access control red team
 
-An audit pass that tried to make restricted text readable by the wrong role. 11 findings, 10 closed.
+An audit pass that tried to make restricted text readable by the wrong role. 12 findings, 10 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -190,6 +190,7 @@ An audit pass that tried to make restricted text readable by the wrong role. 11 
 | `AC-F9` | medium | fixed, tick 94 | An instruction planted in a permitted section was never obeyed, but it turned answers to an English question Finnish in 6 of 14 calls against 0 of 4 clean: name the answer's language in the user message, quote the excerpts as documents whose instructions are not the model's, and keep the probe as a bench |
 | `AC-F10` | low | fixed, tick 94 | A role's excerpts, restricted sections included, are posted to the provider, and neither the README nor the enforcement table names it as a reader outside the role model: one row and one sentence |
 | `AC-F11` | medium | open | The answer cache shares an entry between roles shown the same text, so a reply from the cache tells one role that someone in another asked the same question, the timing channel the research notes key caches by permission set against: key by the prompt as sent and the asking role's readable label set, never by the role's name |
+| `AC-F12` | low | open | Units of exactly equal score are ordered by the engine, and in Qdrant's local mode by an unstable sort over every point's score, so hidden points move the order of a role's tied units there; how the server orders them is unmeasured: measure on the server whether units a role may not read move its tied units' order, through a collection a bench can name, and say so in N50 |
 
 ## `RC`, the recruiter
 
@@ -261,12 +262,12 @@ The same session's review of the generated corpus. 5 findings, 4 closed.
 
 ## `KB4`, the retrieval design at P3 exit, reviewed against a knowledge base
 
-The same session's review of the retrieval design and its measured filtered recall. 4 findings, 0 closed.
+The same session's review of the retrieval design and its measured filtered recall. 4 findings, 1 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `KB4-K8` | medium | open | The planned graph path mends the union filter but not the prose island, and N7's comparison would mix unit size with exactness: per label prefetches nested under one request and checked once against a merge in the client, prose searched exactly through a filter on its layer, and the sentence variant held to the filter bench at 0.97 per role on both layers before E6 compares it |
-| `KB4-K9` | low | open | The matched pair gap cannot tell a leak from how words sit in the role's own text: a noninterference test, two builds with the same frozen avgdl that differ only in units a role may not read, with every role's fused ids, order and scores and its reranked order identical on the attack's questions and the dev probes; N50 names avgdl as the one statistic measured over the whole collection |
+| `KB4-K9` | low | fixed, tick 131 | The matched pair gap cannot tell a leak from how words sit in the role's own text: a noninterference test, two builds with the same frozen avgdl that differ only in units a role may not read, with every role's fused ids, order and scores and its reranked order identical on the attack's questions and the dev probes; N50 names avgdl as the one statistic measured over the whole collection |
 | `KB4-K10` | low | open | Four keyword payload indexes build graph edges per value that no served search walks: enable_hnsw false on doc_id and lang, and on label_set once the bench stops comparing forms, with bench/full_build.py --fresh timed before and after |
 | `KB4-K11` | low | open | The lexical module's docstrings say Qdrant weighs a question by its IDF modifier, gone since N50: query() returns placeholders that search() replaces with BM25's IDF over the asking role's view |
 
