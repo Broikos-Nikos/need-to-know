@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**148 findings, 106 closed, 42 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**151 findings, 106 closed, 45 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -105,7 +105,7 @@ An audit pass that killed the pipeline mid build and mid change. 5 findings, 5 c
 
 ## `MA`, the measurement auditor
 
-An audit pass on whether every number can be produced again. 13 findings, 8 closed.
+An audit pass on whether every number can be produced again. 16 findings, 8 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -122,6 +122,9 @@ An audit pass on whether every number can be produced again. 13 findings, 8 clos
 | `MA-F11` | low | open | N53 quotes a look's 9 ms and a cut's 368,000 objects, and no command prints either: print them from the watcher's opening line and the ingestion bench, or drop them and keep the mechanism |
 | `MA-F12` | low | open | The README calls a user with only general and a removed membership combinations of roles: name the cases the permission suite runs Measured by bench/permission_suite.py. |
 | `MA-F13` | low | open | Two before figures, the injection bench on the old prompt and the watcher beside a build, cannot be rerun from what the repository says: a worktree recipe beside the bench, and a scripted run or a named hand run for the other |
+| `MA-F14` | low | open | ntk eval check checks the Greek share and skips the exempt families without printing either, and gives no count of family items, while eval/golden/README.md and commit 3b4e77d state 16 of 35 in Greek, two exempt dev families and 29 family items: the summary prints each split's Greek count and family items, and dev's exempt families by id |
+| `MA-F15` | low | open | N59 in docs/DECISIONS.md quotes 0.556 against 0.963, another project's measurement reported by the knowledge base, with neither its source nor its sample size: say whose measurement it is and on how many questions, or keep the claim and drop the figures |
+| `MA-F16` | medium | open | 18 of 128 commit messages count the negative controls a gate failed, but the controls ran from the session's scratchpad: commit them as data (file, line broken, replacement, test that must fail) with a runner that applies, runs, restores and prints the count, and cite its output, or stop counting them |
 
 ## `MT`, the maintainer in six months
 
