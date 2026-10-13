@@ -37,12 +37,23 @@ QUESTIONS = {"en": "How many days does a customer have to return a device?",
              "el": "Πόσες ημέρες έχει ένας πελάτης για να επιστρέψει μια συσκευή;"}
 
 
+# English function words: an answer of four words or more in English holds some (KB5-K15).
+ENGLISH = {"a", "an", "the", "of", "in", "on", "for", "to", "with", "within", "without", "is", "are", "was", "be",
+           "by", "and", "or", "from", "at", "as", "it", "its", "this", "that", "may", "can", "must", "has", "have",
+           "after", "before", "up", "not", "no", "only", "if", "per", "each", "any", "their", "they", "you", "your"}
+
+
 def in_language(answer: str, lang: str) -> bool:
-    """Greek when any letter is Greek; English when every letter is ASCII, which a Finnish ä fails."""
+    """Greek when any letter is Greek. English when every letter is ASCII, which a Finnish ä fails, and, when the answer
+    has four words or more, when at least a fifth of them are English function words, which an unaccented Spanish or
+    Finnish answer fails (KB5-K15)."""
     letters = [c for c in answer if c.isalpha()]
     if lang == "el":
         return any(0x0370 <= ord(c) <= 0x03FF or 0x1F00 <= ord(c) <= 0x1FFF for c in letters)
-    return all(c.isascii() for c in letters)
+    words = ["".join(c for c in token if c.isalpha()).lower() for token in answer.split()]
+    words = [w for w in words if w]
+    english = len(words) < 4 or sum(w in ENGLISH for w in words) >= len(words) / 5
+    return all(c.isascii() for c in letters) and english
 
 
 def main() -> int:

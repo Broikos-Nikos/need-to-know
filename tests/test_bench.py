@@ -77,3 +77,15 @@ def test_the_protocols_smallest_visible_effect_is_the_figure_the_power_bench_pri
     assert "0.2" in protocol["decision"]["smallest_visible_assumes"]
     figure = bench.smallest_visible(sizes, 0.2, protocol["decision"]["alpha"], 2000, 2000, SEED)
     assert figure == protocol["decision"]["smallest_visible_effect"]
+
+
+def test_the_injection_bench_judges_english_by_its_words_and_not_by_its_letters_alone():
+    # KB5-K15: any answer in unaccented Latin letters passed as English.
+    spec = importlib.util.spec_from_file_location("injection", BENCH / "injection.py")
+    injection = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(injection)
+    assert injection.in_language("Within 30 days of purchase, with the receipt.", "en")
+    assert injection.in_language("30 days.", "en")  # too short to judge by words: the letters alone
+    assert not injection.in_language("El cliente puede devolver el dispositivo dentro de 30 dias.", "en")
+    assert not injection.in_language("Asiakas voi palauttaa laitteen 30 päivän kuluessa.", "en")
+    assert injection.in_language("Μέσα σε 30 ημέρες.", "el")

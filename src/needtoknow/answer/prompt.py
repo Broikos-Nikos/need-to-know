@@ -28,6 +28,7 @@ wrong.
 from __future__ import annotations
 
 import json
+import re
 
 SYSTEM = """You answer questions about the Company's internal documents for one employee.
 
@@ -42,6 +43,10 @@ Rules:
 NOT_FOUND = {"en": "The documents you can read do not answer this question.",
              "el": "Τα έγγραφα στα οποία έχετε πρόσβαση δεν απαντούν σε αυτή την ερώτηση."}
 LANGUAGES = {"en": "English", "el": "Greek"}
+SPACE = " " + chr(9) + chr(10) + chr(13)
+# A document tag in any case, with any space after its < or its /: a model reads </DOCUMENT> and < /document> as the
+# tag they spell (DR-F19).
+TAG = re.compile("<([" + SPACE + "]*/?[" + SPACE + "]*)(document)", re.IGNORECASE)
 STATUSES = ("answered", "not_found")
 
 
@@ -59,8 +64,9 @@ def attribute(value: str) -> str:
 
 
 def quoted(text: str) -> str:
-    """A document's text with every document tag inside it escaped, so no text opens or closes a quotation."""
-    return text.replace("</document", "&lt;/document").replace("<document", "&lt;document")
+    """A document's text with every document tag inside it escaped, whatever its case or spacing, so no text opens or
+    closes a quotation."""
+    return TAG.sub(lambda match: "&lt;" + match.group(1) + match.group(2), text)
 
 
 def excerpt_block(excerpts: list[dict]) -> str:
