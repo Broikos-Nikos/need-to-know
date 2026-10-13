@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**152 findings, 110 closed, 42 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**152 findings, 112 closed, 40 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -34,7 +34,7 @@ An audit pass that tried to break a first run. 17 findings, 15 closed.
 
 ## `RS`, the retrieval scientist
 
-An audit pass on whether the evaluation can fail and its statistics are honest. 24 findings, 12 closed.
+An audit pass on whether the evaluation can fail and its statistics are honest. 24 findings, 14 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -44,7 +44,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 | `RS-F4` | medium | open | Probes have no overlap guard and dev probes decide E2 and E5: question templates disjoint from statement templates, the stemmed guard, the overlap distribution reported |
 | `RS-F5` | medium | open | Pooled recall counts a general fact nine times and a department's fact twice: each probe once under its most selective permitted role, per role beside it |
 | `RS-F6` | medium | open | Every number comes from one corpus draw: the small profile at two more seeds, the spread of the retrieval numbers reported, accuracy stated as one corpus |
-| `RS-F7` | medium | open | The accuracy has an 18 percent floor (9 of 50 by always answering not_found) and no null or oracle run is planned: run both through the scorer, publish them |
+| `RS-F7` | medium | fixed, tick 119 | The accuracy has an 18 percent floor (9 of 50 by always answering not_found) and no null or oracle run is planned: run both through the scorer, publish them |
 | `RS-F8` | low | fixed, tick 98 | A multi valued experiment has no rule for choosing among its values: compare each with the incumbent, adopt the cheapest that clears an arm, or Holm within it |
 | `RS-F9` | low | open | Part of the simulation's false claims is an assumed probe coin (0.12 to 0.18 without it): print the assumption or simulate the probe arm |
 | `RS-F10` | low | fixed, tick 39 | Target shares must sum to 1 while a section may name several labels: define the share by first label, or check at least 1 |
@@ -52,7 +52,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 | `RS-F12` | medium | open | N50 and the bench README quote the attack's share over the whole collection and its null, and leave out its own share over the view, 58 to 65 percent against 45 to 50: all three with their counts and intervals, the view's claim carried by KB4-K9's noninterference test Measured by bench/idf_attack.py. |
 | `RS-F13` | medium | fixed, tick 89 | Timings and graph recall are quoted from one run each, and a rerun prints other numbers: N51's 26 to 83 ms and 0.680 to 0.949 against 13 to 25 and 0.688 to 0.959 at the P3 exit, N53's 4.6 s against 4.0 to 4.5 s in three runs; the timing benches repeat and print median, largest and count, and the decisions quote what today's commands print Measured by bench/filter_bench.py --report and bench/revocation.py. |
 | `RS-F14` | medium | fixed, tick 94 | P4's exit counts citations that parse() has already made valid: it drops a citation it cannot place without a trace, so the exit cannot fail; parse returns what it dropped, runs record it, and each smoke answer cites an excerpt holding its value |
-| `RS-F15` | medium | open | Citation accuracy, a cited section among the expected sources, is passed by citing every excerpt: citation precision and recall per item, with a cite everything null through the scorer on dev |
+| `RS-F15` | medium | fixed, tick 119 | Citation accuracy, a cited section among the expected sources, is passed by citing every excerpt: citation precision and recall per item, with a cite everything null through the scorer on dev |
 | `RS-F16` | low | open | The filter bench and the permission suite ask the first 30 words of a unit, not a question: the filter bench run on the dev probes when T5.4 makes them, and N51 says what its probes were |
 | `RS-F17` | medium | fixed, tick 101 | The protocol does not say how many table and absent fact items each split holds, so the test's easiest items can still be counted in late: register so many I and J items per split before any is written, and report the headline with and without them |
 | `RS-F18` | medium | open | The registered smallest visible effect, 0.10, is N43's figure for 63 families and no command produces it; a simulation of the registered test puts it at 0.11 for 63 and 0.12 for 50: a committed bench over a range of discordance rates, and the protocol's figure from it |
