@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**160 findings, 123 closed, 37 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**161 findings, 126 closed, 35 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -34,7 +34,7 @@ An audit pass that tried to break a first run. 17 findings, 15 closed.
 
 ## `RS`, the retrieval scientist
 
-An audit pass on whether the evaluation can fail and its statistics are honest. 27 findings, 23 closed.
+An audit pass on whether the evaluation can fail and its statistics are honest. 28 findings, 24 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -53,7 +53,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 | `RS-F13` | medium | fixed, tick 89 | Timings and graph recall are quoted from one run each, and a rerun prints other numbers: N51's 26 to 83 ms and 0.680 to 0.949 against 13 to 25 and 0.688 to 0.959 at the P3 exit, N53's 4.6 s against 4.0 to 4.5 s in three runs; the timing benches repeat and print median, largest and count, and the decisions quote what today's commands print Measured by bench/filter_bench.py --report and bench/revocation.py. |
 | `RS-F14` | medium | fixed, tick 94 | P4's exit counts citations that parse() has already made valid: it drops a citation it cannot place without a trace, so the exit cannot fail; parse returns what it dropped, runs record it, and each smoke answer cites an excerpt holding its value |
 | `RS-F15` | medium | fixed, tick 119 | Citation accuracy, a cited section among the expected sources, is passed by citing every excerpt: citation precision and recall per item, with a cite everything null through the scorer on dev |
-| `RS-F16` | low | open | The filter bench and the permission suite ask the first 30 words of a unit, not a question: the filter bench run on the dev probes when T5.4 makes them, and N51 says what its probes were |
+| `RS-F16` | low | fixed, tick 129 | The filter bench and the permission suite ask the first 30 words of a unit, not a question: the filter bench run on the dev probes when T5.4 makes them, and N51 says what its probes were |
 | `RS-F17` | medium | fixed, tick 101 | The protocol does not say how many table and absent fact items each split holds, so the test's easiest items can still be counted in late: register so many I and J items per split before any is written, and report the headline with and without them |
 | `RS-F18` | medium | fixed, tick 122 | The registered smallest visible effect, 0.10, is N43's figure for 63 families and no command produces it; a simulation of the registered test puts it at 0.11 for 63 and 0.12 for 50: a committed bench over a range of discordance rates, and the protocol's figure from it |
 | `RS-F19` | low | fixed, tick 101 | Deliberate defaults sit in 5 of 31 test families and 6 of 50 dev, and nothing says whether an item may ask one: register that no item asks a default unless its category needs one, and report the closed book run's hits on defaults apart |
@@ -65,10 +65,11 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 | `RS-F25` | medium | fixed, tick 125 | 33 of 110 answerable dev family items and 6 of 25 test ones expect a value another fact their role reads also states, so an answer from the wrong excerpt scores correct: a grounded accuracy, correct and citing a section that plants each fact, beside the answerable accuracy, and the collision as an item property |
 | `RS-F26` | high | fixed, tick 125 | A refusal item's forbidden value that a readable fact also states is scored as a leak: 6 of 19 dev E items and T19 forbid a value, 12 months or 5 working days, that facts every role or the asking role reads also state; a leak is a forbidden value no readable fact states, the rest wrong but no leak, shown per item |
 | `RS-F27` | low | fixed, tick 125 | The dev item rates count the twenty twinned facts twice: give the dev figures over the originals, the twins' rates and their gap apart |
+| `RS-F28` | medium | open | N43 reverses if annex units take a real share of a prose question's top 10, and its 0.7 percent was measured on units' first 30 words; on the dev probes' questions, every one with prose gold units, the dense exact top 10 holds 14.7 percent table units (bench/filter_bench.py --questions dev): measure the share through the whole search, fused and reranked, and in the shown excerpts, beside what it costs recall, and keep or reverse N43 on that Measured by bench/filter_bench.py --questions dev --report. |
 
 ## `DR`, the deep reviewer
 
-An audit pass on correctness, read in the logic rather than the comments. 25 findings, 20 closed.
+An audit pass on correctness, read in the logic rather than the comments. 25 findings, 22 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -94,9 +95,9 @@ An audit pass on correctness, read in the logic rather than the comments. 25 fin
 | `DR-F20` | medium | fixed, tick 110 | A table item's row is taken on the writer's word: no check that one unit of the document holds the key, is a table under a label the role reads and holds the value; T30 and T31 were checked by hand and are right; T5.1h writes eight more |
 | `DR-F21` | low | fixed, tick 110 | Context.sections and split.salience see a fact planted twice in one document through its first section and first occurrence only; F22R12 sits in two logistics sections of LOG_MAN_007, so nothing decides wrongly yet: yield every section, measure each occurrence |
 | `DR-F22` | low | fixed, tick 109 | Three category rules are left to the writer: a G item may name any superseded fact, an E item's facts are never required empty, an N item's neighbour need not be readable by its role: tie each in check_item with a test |
-| `DR-F23` | low | open | probes.generate raises ValueError (min of no readers) on a fact no unit holds, so problems' no gold unit check is unreachable and ntk eval probes ends in a traceback after a corpus change: record the fact without a selective reader for problems to name |
+| `DR-F23` | low | fixed, tick 129 | probes.generate raises ValueError (min of no readers) on a fact no unit holds, so problems' no gold unit check is unreachable and ntk eval probes ends in a traceback after a corpus change: record the fact without a selective reader for problems to name; the class: golden.draw_rows calls rng.choice on a label and language's table units, an IndexError where a corpus has none |
 | `DR-F24` | low | open | ntk eval score on a missing answers file reports every item as unanswered, and Sources.of_row opens a missing manifest into a sqlite error the command does not catch: refuse the missing file by name, check the manifest as of_fact does |
-| `DR-F25` | low | open | bench/probe_recall.py counts a probe whose gold unit the manifest lacks as asked across languages, the figure the bench exists to watch: count such probes apart and name them |
+| `DR-F25` | low | fixed, tick 129 | bench/probe_recall.py counts a probe whose gold unit the manifest lacks as asked across languages, the figure the bench exists to watch: count such probes apart and name them |
 
 ## `OP`, the pipeline operator
 
