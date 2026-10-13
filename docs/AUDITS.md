@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**119 findings, 87 closed, 32 open**, from 15 reviews. Each audit pass took one perspective and nothing else.
+**120 findings, 87 closed, 33 open**, from 15 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -140,7 +140,7 @@ An audit pass of three minutes, on whether the author ships, measures and says s
 
 ## `AC`, the access control red team
 
-An audit pass that tried to make restricted text readable by the wrong role. 10 findings, 10 closed.
+An audit pass that tried to make restricted text readable by the wrong role. 11 findings, 10 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -154,6 +154,7 @@ An audit pass that tried to make restricted text readable by the wrong role. 10 
 | `AC-F8` | high | fixed, tick 93 | The cache the architecture plans, keyed by the role's readable labels, serves a narrowed or edited section's answer after the change, since the role's labels do not move: key an answer by the hash of the prompt as sent with the model and its parameters, key nothing by role or label set, and gate on the change bench asked through the answer path |
 | `AC-F9` | medium | fixed, tick 94 | An instruction planted in a permitted section was never obeyed, but it turned answers to an English question Finnish in 6 of 14 calls against 0 of 4 clean: name the answer's language in the user message, quote the excerpts as documents whose instructions are not the model's, and keep the probe as a bench |
 | `AC-F10` | low | fixed, tick 94 | A role's excerpts, restricted sections included, are posted to the provider, and neither the README nor the enforcement table names it as a reader outside the role model: one row and one sentence |
+| `AC-F11` | medium | open | The answer cache shares an entry between roles shown the same text, so a reply from the cache tells one role that someone in another asked the same question, the timing channel the research notes key caches by permission set against: key by the prompt as sent and the asking role's readable label set, never by the role's name |
 
 ## `RC`, the recruiter
 
