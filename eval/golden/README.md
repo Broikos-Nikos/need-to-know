@@ -20,6 +20,15 @@ baseline and at each release.
   and 2 near misses, absent but with a present fact beside them, scored like the absent ones.
 * 16 of the 35 are in Greek.
 
+## The dev set
+
+Two or three items for each dev family, in the test's category shares, with 8 table
+cells, 8 absent facts and 8 near misses; every development choice and experiment is made
+on it. It is written in three parts, each held by `uv run ntk eval check` as it lands; until
+the last, the check also names the dev families not yet asked and the shares not yet met.
+Two dev families carry no item: each holds only a value a model may know without the
+documents, under the label every role reads, so no item could ask it (N58).
+
 ## How they were written, and what that leaves
 
 * From the plan's registry of facts, by the project's loop, not by a model under test.
@@ -28,7 +37,9 @@ baseline and at each release.
   view; what holds them instead is the cap the protocol also registers and `ntk eval check`
   enforces on every item: no question holds more than one of its planted sentence's three
   rarest terms, counted the way the lexical search counts them. The dev items are drafted
-  from the registry's topic and value alone.
+  from `uv run ntk eval draft --split dev`, which shows each planted sentence with its value
+  and its three rarest terms blanked, lists those terms' stems so a question can name the
+  subject, and says where each fact sits.
 * Every value that changed did so on one date, 1 July 2025, its former value dating from 1
   March 2024. A superseded item therefore tests choosing the later of two dated values, not
   reasoning over many dates.

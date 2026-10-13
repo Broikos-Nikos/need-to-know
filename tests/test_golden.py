@@ -68,6 +68,12 @@ def test_a_well_formed_item_keeps_every_rule(ctx):
     ({"question": "What is the maximum in percent?"}, "shares 2 of the rarest terms"),
     ({"category": "F"}, "asks facts under two labels"),
     ({"category": "C"}, "another language than every document"),
+    ({"lang": "el", "question": "Πόση είναι η έκπτωση;"}, "an A item asks in English"),
+    ({"category": "B", "lang": "el", "question": "Πόση είναι η έκπτωση;"}, "a B item asks in the language of a document"),
+    ({"category": "D"}, "a D item asks F06V00 from a file that also holds a section sales may not read"),
+    ({"category": "M", "families": ["F06V00", "F38V00"], "role": "admin",
+      "expect": {"status": "answered", "facts": [{"fact_id": "F06V00", "forms": ["7"]}, {"fact_id": "F09V00", "forms": ["22"]}]}},
+     "two facts that no one document holds together"),
 ])
 def test_each_category_rule_names_what_it_breaks(ctx, fields, words):
     problems = G.check_item(item(**fields), "test", ctx)
@@ -143,7 +149,7 @@ def test_the_command_reads_the_golden_files_and_names_a_bad_line(tmp_path, monke
         G.check(ctx)
 
 
-def test_the_committed_test_items_keep_their_rules():
+def test_the_committed_items_keep_their_rules():
     # Needs the plan and the frequency table, which a build makes; a bare clone skips it.
     from needtoknow.eval.split import SplitError, load_plan
     from needtoknow.index.frequencies import table_path
@@ -155,7 +161,10 @@ def test_the_committed_test_items_keep_their_rules():
         pytest.skip("no frequency table: ntk index sync makes it")
     summary, problems = G.check()
     assert summary["test"]["items"] == 35
-    assert [p for p in problems if not p.startswith("dev")] == []
+    assert [p for p in problems if not p.startswith("dev: ")] == []
+    # Until the dev items are complete (T5.1h), dev's own lines may name a family not yet asked and the shares; a
+    # family once asked is asked two or three times.
+    assert [p for p in problems if "asked" in p and "asked 0 times" not in p] == []
 
 
 def test_a_line_that_is_json_but_no_item_and_a_missing_split_are_refused_by_name(tmp_path, monkeypatch, ctx):

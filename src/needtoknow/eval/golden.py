@@ -16,7 +16,9 @@ and each split to the counts and shares version 6 registered.
 
 Per item: a known category, and `not_found` exactly for E, J and N; the question's script
 is its language; family items name their families, two for F and M, each in this split;
-the role exists; an F item's facts sit under two labels its role reads; every expected fact is in the registry,
+the role exists; A asks in English and B in Greek, each in the language of a document its fact sits in; D asks a
+fact from a file that also holds a section its role may not read; an F item's facts sit under two labels its role
+reads; an M item's two facts share no document; every expected fact is in the registry,
 in one of the item's families, each of its forms holding its planted value or naming it; an answered item's
 role may read a section each fact is planted in, an E item's none; C asks in the other
 language than every document its facts sit in; G asks the current value and names the
@@ -199,6 +201,12 @@ def check_item(item: dict, split: str, ctx: Context) -> list[str]:
         if not any(value in form for value in fact["values"] for form in entry.get("forms") or []):
             say(f"{name}: no form of {fid} holds either of its planted values {fact['values']}")
         placed = ctx.sections(fid)
+        if category in {"A", "B"} and not any(ctx.docs[doc_id]["language"] == item.get("lang") for doc_id, _ in placed):
+            say(f"{name}: {'an A' if category == 'A' else 'a B'} item asks in the language of a document {fid} sits in")
+        if category == "D" and not any(section["label"] in reads and
+                                       any(other["label"] not in reads for other in ctx.docs[doc_id]["sections"])
+                                       for doc_id, section in placed):
+            say(f"{name}: a D item asks {fid} from a file that also holds a section {role} may not read")
         if category == "E":
             if any(section["label"] in reads for _, section in placed):
                 say(f"{name}: {role} may read a section {fid} is planted in, so it is no E item")
@@ -215,6 +223,12 @@ def check_item(item: dict, split: str, ctx: Context) -> list[str]:
             shared = [t for t in rare_terms(planted, ctx.df, ctx.protocol["items"]["rare_terms"]) if t in asked]
             if len(shared) > cap:
                 say(f"{name}: shares {len(shared)} of the rarest terms of {fid}'s planted sentence: {shared}")
+    if category in {"A", "B"} and item.get("lang") != {"A": "en", "B": "el"}[category]:
+        say(f"{name}: {'an A item asks in English' if category == 'A' else 'a B item asks in Greek'}")
+    if category == "M":
+        held = [{doc_id for doc_id, _ in ctx.sections(e["fact_id"])} for e in expected if e.get("fact_id") in ctx.facts]
+        if len(held) != 2 or held[0] & held[1]:
+            say(f"{name}: an M item asks two facts that no one document holds together")
     if category == "F" and len({ctx.facts[e["fact_id"]]["label"] for e in expected
                                 if e.get("fact_id") in ctx.facts}) < 2:
         say(f"{name}: an F item asks facts under two labels, each of which its role reads")
