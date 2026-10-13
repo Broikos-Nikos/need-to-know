@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**120 findings, 87 closed, 33 open**, from 15 reviews. Each audit pass took one perspective and nothing else.
+**124 findings, 87 closed, 37 open**, from 15 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -88,7 +88,7 @@ An audit pass that killed the pipeline mid build and mid change. 5 findings, 5 c
 
 ## `MA`, the measurement auditor
 
-An audit pass on whether every number can be produced again. 9 findings, 8 closed.
+An audit pass on whether every number can be produced again. 13 findings, 8 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -101,6 +101,10 @@ An audit pass on whether every number can be produced again. 9 findings, 8 close
 | `MA-F7` | low | fixed, tick 74 | 7772c46 quotes 16 of 17 (94 percent) from documents_v1, which no committed command can rebuild now Measured by `bench/idf_attack.py --global-idf`. |
 | `MA-F8` | low | fixed, tick 71 | The sync's printed seconds leave out the reading that is most of a quiet sync, and its docstring's quarter of a minute has no command |
 | `MA-F9` | low | fixed, tick 74 | docs/AUDITS.md quotes auditors' probes that the repository does not hold |
+| `MA-F10` | medium | open | The README says a planted instruction is quoted rather than followed, on the evidence of two instructions in one excerpt: say what was tried, two instructions not followed in 20 asks, and keep quoting as the mechanism Measured by bench/injection.py. |
+| `MA-F11` | low | open | N53 quotes a look's 9 ms and a cut's 368,000 objects, and no command prints either: print them from the watcher's opening line and the ingestion bench, or drop them and keep the mechanism |
+| `MA-F12` | low | open | The README calls a user with only general and a removed membership combinations of roles: name the cases the permission suite runs Measured by bench/permission_suite.py. |
+| `MA-F13` | low | open | Two before figures, the injection bench on the old prompt and the watcher beside a build, cannot be rerun from what the repository says: a worktree recipe beside the bench, and a scripted run or a named hand run for the other |
 
 ## `MT`, the maintainer in six months
 
