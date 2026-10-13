@@ -123,9 +123,12 @@ uv run ntk ingest watch
 * An answer comes from the excerpts the role may read, through DeepSeek with the key in
   `.env`, and the command prints its citations, what the call cost and how long each
   stage took.
-  An answer is cached under the prompt as sent, so a narrowed section is never answered
-  from the cache, and every question adds a line of numbers to the spend log in the data
-  directory. `ntk doctor` checks each of these.
+  An answer is cached under the prompt as sent, which opens with a mark of the asking
+  role's label set: a narrowed section is never answered from the cache, and a role shares
+  a cached answer only with roles that read the same labels, a mark that moved no dev
+  answer (`uv run python bench/reader_line.py`). Every question adds a line of numbers to
+  the spend log in the data directory, the provider's cached token counts with them.
+  `ntk doctor` checks each of these.
 * `ntk` is the operator's tool: `--as` takes the role on the caller's word, to stand in
   for a user. A served path takes the role from the session, never from the request.
 * The provider reads every excerpt the asking role may read, restricted sections

@@ -19,7 +19,7 @@ import argparse
 import sys
 
 from needtoknow.answer.pipeline import settings_of
-from needtoknow.answer.prompt import build, language, parse
+from needtoknow.answer.prompt import build, language, parse, reader_mark
 from needtoknow.providers.catalog import load_catalog
 from needtoknow.providers.deepseek import complete
 
@@ -67,7 +67,7 @@ def main() -> int:
         excerpts = [{"doc_id": "RET_POL_011", "path": ["Returns policy", "Window"], "text": text}, OTHER]
         for lang, times in (("en", args.repeats), ("el", 1)):
             question = QUESTIONS[lang]
-            system, user = build(question, excerpts)
+            system, user = build(question, excerpts, reader=reader_mark({"general", "returns"}))
             for _ in range(times):
                 done = complete(system, [{"role": "user", "content": user}], **settings)
                 answer = parse(done.text, excerpts, question)

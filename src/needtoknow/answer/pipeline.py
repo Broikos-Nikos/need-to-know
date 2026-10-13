@@ -20,9 +20,10 @@ import time
 from pathlib import Path
 
 from needtoknow.answer import cache
-from needtoknow.answer.prompt import build, parse, section_of
+from needtoknow.answer.prompt import build, parse, reader_mark, section_of
 from needtoknow.index.expand import excerpts as expand
 from needtoknow.index.search import search
+from needtoknow.policy import load_policy, readable
 from needtoknow.providers import anthropic, deepseek, gemini, openai
 from needtoknow.providers.catalog import load_catalog
 from needtoknow.settings import data_dir
@@ -44,9 +45,11 @@ def settings_of(entry: dict) -> dict:
 
 
 def ask(client, question: str, role: str, policy: dict | None = None, provider: str = "deepseek",
-        use_cache: bool = True, config: dict | None = None, encode=None, rerank: str | None = None) -> dict:
+        use_cache: bool = True, config: dict | None = None, encode=None, rerank: str | None = None,
+        repeat: int = 0) -> dict:
     """The role's answer to the question: status, answer and citations as `parse` reads them, the excerpts shown,
-    whether the cache answered, the model, the tokens and USD of the call, its stop reason and each stage's seconds."""
+    whether the cache answered, the model, the tokens and USD of the call, its stop reason and each stage's seconds.
+    An evaluation's repeats pass their number, which the cache key carries (KB5-K13)."""
     catalog = config or load_catalog()
     entry = catalog[provider]
     seconds: dict[str, float] = {}
@@ -61,18 +64,19 @@ def ask(client, question: str, role: str, policy: dict | None = None, provider: 
     lap("search")
     shown = expand(hits)
     lap("expand")
-    system, user = build(question, shown)
+    system, user = build(question, shown, reader=reader_mark(readable(policy or load_policy(), role)))
     messages = [{"role": "user", "content": user}]
     settings = settings_of(entry)
-    entry_key = cache.key(provider, entry["model"], system, messages, settings)
+    entry_key = cache.key(provider, entry["model"], system, messages, settings, repeat)
     kept = None
     if use_cache:
         with cache.opened() as db:
-            kept = cache.get(db, entry_key)
+            kept = cache.get(db, entry_key, entry["model"])
     if kept is None:
         done = ADAPTERS[provider](system, messages, config=catalog, **settings)
-        if use_cache:
-            with cache.opened() as db:
+        with cache.opened() as db:
+            cache.served(db, entry["model"], done.model)
+            if use_cache:
                 cache.put(db, entry_key, provider, done)
         text, model, stop, usage, usd, attempts = (done.text, done.model, done.stop_reason, done.usage, done.cost_usd,
                                                    done.attempts)
@@ -84,7 +88,8 @@ def ask(client, question: str, role: str, policy: dict | None = None, provider: 
     lap("parse")
     seconds["total"] = time.perf_counter() - began
     record = {"at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"), "role": role, "provider": provider,
-              "model": model, "prompt": entry_key[:16], "cached": kept is not None, "attempts": attempts,
+              "model": model, "prompt": entry_key[:16], "repeat": repeat, "cached": kept is not None,
+              "attempts": attempts,
               "usage": usage, "usd": usd, "stop_reason": stop, "status": answer["status"],
               "dropped": len(answer["dropped"]),
               "seconds": {stage: round(value, 3) for stage, value in seconds.items()}}

@@ -304,9 +304,10 @@ def cmd_ask(args: argparse.Namespace, out=None, client=None) -> int:
         print(f"  cited, but no excerpt shown could take it: {', '.join(json.dumps(d) for d in result['dropped'])}",
               file=out)
     used, took = result["usage"], result["seconds"]
+    # How many tokens the provider had cached is kept in the spend log, which only the operator reads: printed, it
+    # would tell a role that someone asked over the same text (KB5-K12).
     source = ("from the cache" if result["cached"] else
-              f"{used['input_hit'] + used['input_miss']} tokens in, {used['input_hit']} of them cached, "
-              f"{used['output']} out")
+              f"{used['input_hit'] + used['input_miss']} tokens in, {used['output']} out")
     cost = "no price configured" if result["cost_usd"] is None else f"{result['cost_usd']:.6f} USD"
     print(f"{result['model']}, {result['stop_reason']}; {source}; {cost}; search {took['search']:.2f} s, provider "
           f"{took['provider']:.2f} s, in all {took['total']:.2f} s", file=out, flush=True)

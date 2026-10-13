@@ -46,8 +46,46 @@ def test_a_narrowed_section_is_never_answered_from_the_cache(world):
     after = pipeline.ask(None, QUESTION, "sales")
     assert (after["status"], after["cached"], len(world["calls"])) == ("not_found", False, 2)
     assert "2,000,000" not in json.dumps(after)
-    shared = pipeline.ask(None, QUESTION, "legal")  # shown the very text sales was shown first: both may read it
-    assert shared["cached"] and shared["status"] == "answered" and len(world["calls"]) == 2
+    other = pipeline.ask(None, QUESTION, "legal")  # shown the very text sales was shown first, reading other labels
+    assert not other["cached"] and other["status"] == "answered" and len(world["calls"]) == 3
+
+
+def test_a_cached_answer_is_shared_only_by_roles_that_read_the_same_labels(world):
+    # AC-F11: from the cache, a reply would tell a role that someone with other access asked over the same text.
+    policy = {"roles": {"sales": {"reads": ["general", "sales", "returns"]},
+                        "seller": {"reads": ["returns", "sales", "general"]}, "legal": {"reads": ["general", "legal"]}}}
+    world["shown"]["seller"] = world["shown"]["sales"]
+    first = pipeline.ask(None, QUESTION, "sales", policy)
+    same = pipeline.ask(None, QUESTION, "seller", policy)
+    other = pipeline.ask(None, QUESTION, "legal", policy)
+    assert (first["cached"], same["cached"], other["cached"], len(world["calls"])) == (False, True, False, 2)
+    sent = [call["messages"][0]["content"].split("\n")[0] for call in world["calls"]]
+    assert sent[0] != sent[1] and all(line.startswith("Reader: ") for line in sent)
+
+
+def test_each_repeat_of_an_evaluation_is_asked_once_and_read_back_after(world):
+    # KB5-K13: with the repeat outside the key, repeats two and three came back from the cache and looked stable.
+    for repeat in (0, 1, 2):
+        pipeline.ask(None, QUESTION, "sales", repeat=repeat)
+    assert len(world["calls"]) == 3
+    again = [pipeline.ask(None, QUESTION, "sales", repeat=repeat)["cached"] for repeat in (0, 1, 2)]
+    assert again == [True, True, True] and len(world["calls"]) == 3
+    lines = [json.loads(line) for line in pipeline.spend_path().read_text(encoding="utf-8").splitlines()]
+    assert [(line["repeat"], line["cached"]) for line in lines] == [(0, False), (1, False), (2, False), (0, True),
+                                                                     (1, True), (2, True)]
+
+
+def test_an_entry_goes_stale_when_its_alias_answers_with_another_model(world, monkeypatch):
+    # KB5-K14: the provider moves an alias under its callers, and an old model's answers must not outlive the move.
+    pipeline.ask(None, QUESTION, "sales")
+    assert pipeline.ask(None, QUESTION, "sales")["cached"]
+    from dataclasses import replace
+    real = pipeline.ADAPTERS["deepseek"]
+    monkeypatch.setitem(pipeline.ADAPTERS, "deepseek", lambda *args, **kwargs: replace(real(*args, **kwargs),
+                                                                                        model="deepseek-next"))
+    pipeline.ask(None, "Who issues the authorisation?", "sales")  # a fresh reply names the new model
+    moved = pipeline.ask(None, QUESTION, "sales")
+    assert (moved["cached"], moved["model"]) == (False, "deepseek-next")
 
 
 def test_only_a_reply_that_ended_normally_is_kept_and_the_settings_come_from_the_catalogue(world):

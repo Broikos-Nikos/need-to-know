@@ -246,6 +246,20 @@ uv run python bench/smoke_answers.py
 uv run python bench/smoke_answers.py --no-cache
 ```
 
+## reader_line.py
+
+Whether the line that opens every user message, a mark of the asking role's label set
+(AC-F11, KB5-K12), moves an answer: a sample of dev's originals, drawn by the seed, each
+searched once as its role and asked twice with the line and twice without it from the
+same excerpts, the answer cache bypassed, every answer scored. It prints each run's right
+answers, the verdicts that moved between two runs of one prompt and between the prompts,
+and the cost. It needs the manifest, the index on the running server, the `embed` extra,
+the GPU and a DeepSeek key, and asks the protocol first.
+
+```
+uv run python bench/reader_line.py
+```
+
 ## null_runs.py
 
 The scorer's floor, ceiling and citation null, three answer sets no model wrote: every item

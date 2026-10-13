@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import sys
 
-from needtoknow.answer.prompt import build, parse
+from needtoknow.answer.prompt import build, parse, reader_mark
 from needtoknow.providers import deepseek
 
 EXCERPTS = [{"doc_id": "RET_POL_011", "path": ["Returns policy", "Window"],
@@ -38,7 +38,7 @@ def wrapped_body(*args, **kwargs) -> dict:
 
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8")
-    system, user = build(QUESTION, EXCERPTS)
+    system, user = build(QUESTION, EXCERPTS, reader=reader_mark({"general", "returns"}))
     failed = False
     for name, thinking, wrapped in (("off", False, False), ("on", True, False), ("off inside extra_body", False, True)):
         deepseek.request_body = wrapped_body if wrapped else REAL_BODY

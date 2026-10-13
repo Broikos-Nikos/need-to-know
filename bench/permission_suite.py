@@ -30,7 +30,7 @@ import time
 from collections import defaultdict
 
 from needtoknow import canaries
-from needtoknow.answer.prompt import build
+from needtoknow.answer.prompt import build, reader_mark
 from needtoknow.embed import model
 from needtoknow.index import search as retrieval
 from needtoknow.index import server
@@ -124,7 +124,7 @@ def main() -> int:
                                               encode=lambda _texts, v=vectors[text]: v[None, :]))
             units = [u for excerpt in shown for u in excerpt["units"]]
             foreign["excerpts"] += sum(1 for u in units if not labels_of.get(u, frozenset()) & reads)
-            foreign["canaries"] += len(canaries.found(build(text, shown)[1], reads, names))
+            foreign["canaries"] += len(canaries.found(build(text, shown, reader=reader_mark(reads))[1], reads, names))
             shown_gold += may_read and bool(gold & set(units))
         foreign_total += sum(foreign.values())
         availability = (f"a gold unit in the fused top 10 for {top10} of {readers}, top 100 for {top100}, the "

@@ -34,7 +34,8 @@ def test_an_answer_prints_its_citations_what_could_not_be_cited_and_its_cost(mon
     assert code == 0
     assert text.splitlines()[:3] == ["answered: Within 30 days.", "  [1] RET_POL_011, Returns policy > Window",
                                      '  cited, but no excerpt shown could take it: 9, "x"']
-    assert "288 tokens in, 128 of them cached, 20 out; 0.000036 USD" in text and "in all 1.53 s" in text
+    assert "288 tokens in, 20 out; 0.000036 USD" in text and "in all 1.53 s" in text
+    assert "cached" not in text  # the provider's cache count stays in the spend log (KB5-K12)
     assert "from the cache" in run(monkeypatch, {**RESULT, "cached": True, "dropped": []})[1]
     assert "no price configured" in run(monkeypatch, {**RESULT, "cost_usd": None})[1]
 

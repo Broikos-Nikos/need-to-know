@@ -4,7 +4,11 @@ The system rules come first and never change, so DeepSeek's cache keeps them as 
 prefix at a fiftieth of the miss price (`specs/architecture.md` section 9); then the
 excerpts, numbered, each with its document and section; the question, and last the
 language to answer in. The rules hold no text of any document, so nothing a role may not
-read can reach a prompt through them.
+read can reach a prompt through them. The user message opens with a mark of the label set
+the asking role reads, before any excerpt: two roles then share a cached answer, in the
+answer cache or in the provider's prefix cache, only when they read the same labels, so
+neither cache tells a role that someone with other access asked over the same text
+(AC-F11, KB5-K12).
 
 Each excerpt is quoted between `<document>` tags, and the rules say that instructions
 inside a document belong to it: a planted instruction was never obeyed, yet it turned an
@@ -27,6 +31,7 @@ wrong.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 
@@ -76,10 +81,16 @@ def excerpt_block(excerpts: list[dict]) -> str:
         f'{quoted(e["text"])}\n</document>' for n, e in enumerate(excerpts, 1))
 
 
-def build(question: str, excerpts: list[dict]) -> tuple[str, str]:
-    """The system rules, and the user message: the documents, the question, then the language to answer in."""
-    return SYSTEM, (f"Documents:\n\n{excerpt_block(excerpts) or '(none)'}\n\nQuestion: {question}\n"
-                    f"Answer in {LANGUAGES[language(question)]}.")
+def reader_mark(labels) -> str:
+    """A stable mark of a label set, the same for any order of its labels and different for any other set."""
+    return hashlib.sha256(",".join(sorted(labels)).encode("utf-8")).hexdigest()[:12]
+
+
+def build(question: str, excerpts: list[dict], *, reader: str) -> tuple[str, str]:
+    """The system rules, and the user message: the reader's mark, the documents, the question, then the language to
+    answer in."""
+    return SYSTEM, (f"Reader: {reader}\n\nDocuments:\n\n{excerpt_block(excerpts) or '(none)'}\n\n"
+                    f"Question: {question}\nAnswer in {LANGUAGES[language(question)]}.")
 
 
 def invalid(reason: str) -> dict:
