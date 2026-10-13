@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**128 findings, 87 closed, 41 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**128 findings, 91 closed, 37 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -31,18 +31,18 @@ An audit pass that tried to break a first run. 14 findings, 14 closed.
 
 ## `RS`, the retrieval scientist
 
-An audit pass on whether the evaluation can fail and its statistics are honest. 16 findings, 5 closed.
+An audit pass on whether the evaluation can fail and its statistics are honest. 16 findings, 7 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `RS-F1` | high | fixed, tick 9 | The baseline's redraw lets a test score choose the split, and a redraw moves read dev families into test: balance at construction on outcome free properties, report the dev and test difference only |
-| `RS-F2` | medium | open | Repeats have no registered aggregation: register three repeats, the per item mean and an interval over items, for every release and for the incumbent on dev |
+| `RS-F2` | medium | fixed, tick 98 | Repeats have no registered aggregation: register three repeats, the per item mean and an interval over items, for every release and for the incumbent on dev |
 | `RS-F3` | medium | open | The overlap guard counts surface words; measure it with the lexical analyser BM25 uses (Greek: 0 of 6 surface, 3 of 6 stems on one example) |
 | `RS-F4` | medium | open | Probes have no overlap guard and dev probes decide E2 and E5: question templates disjoint from statement templates, the stemmed guard, the overlap distribution reported |
 | `RS-F5` | medium | open | Pooled recall counts a general fact nine times and a department's fact twice: each probe once under its most selective permitted role, per role beside it |
 | `RS-F6` | medium | open | Every number comes from one corpus draw: the small profile at two more seeds, the spread of the retrieval numbers reported, accuracy stated as one corpus |
 | `RS-F7` | medium | open | The accuracy has an 18 percent floor (9 of 50 by always answering not_found) and no null or oracle run is planned: run both through the scorer, publish them |
-| `RS-F8` | low | open | A multi valued experiment has no rule for choosing among its values: compare each with the incumbent, adopt the cheapest that clears an arm, or Holm within it |
+| `RS-F8` | low | fixed, tick 98 | A multi valued experiment has no rule for choosing among its values: compare each with the incumbent, adopt the cheapest that clears an arm, or Holm within it |
 | `RS-F9` | low | open | Part of the simulation's false claims is an assumed probe coin (0.12 to 0.18 without it): print the assumption or simulate the probe arm |
 | `RS-F10` | low | fixed, tick 39 | Target shares must sum to 1 while a section may name several labels: define the share by first label, or check at least 1 |
 | `RS-F11` | low | fixed, tick 69 | Overlap@10 on off topic probes counts swaps among near equal scores: report a tie aware overlap and gate on misses beyond the tolerance |
@@ -207,12 +207,12 @@ A separate session's review of the plan against the author's research notes. 15 
 
 ## `KB2`, the protocol, reviewed against a knowledge base
 
-The same session's review of the evaluation protocol. 2 findings, 0 closed.
+The same session's review of the evaluation protocol. 2 findings, 2 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
-| `KB2-K1` | medium | open | Paired tests on dev treat items as independent while items can cluster by fact family, and the 600 dev probes are two phrasings of each of 300 facts: one golden item per family by construction, the family as the unit of every probe test, registered in eval/protocol.toml before T5.1 writes any item |
-| `KB2-K2` | low | open | The item balance bar (standardized mean difference under 0.1) fails about half of fair writing rounds on 50 against 200 golden items by chance; register before any item exists: keep 0.1 and log each rewrite with its side, or check golden and probes together (650 against 800, about 6 percent) |
+| `KB2-K1` | medium | fixed, tick 98 | Paired tests on dev treat items as independent while items can cluster by fact family, and the 600 dev probes are two phrasings of each of 300 facts: one golden item per family by construction, the family as the unit of every probe test, registered in eval/protocol.toml before T5.1 writes any item |
+| `KB2-K2` | low | fixed, tick 98 | The item balance bar (standardized mean difference under 0.1) fails about half of fair writing rounds on 50 against 200 golden items by chance; register before any item exists: keep 0.1 and log each rewrite with its side, or check golden and probes together (650 against 800, about 6 percent) |
 
 ## `KB3`, the corpus at P1 exit, reviewed against a knowledge base
 
