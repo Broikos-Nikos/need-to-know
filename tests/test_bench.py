@@ -136,3 +136,25 @@ def test_the_probe_recall_bench_counts_ranks_and_the_shown_excerpts_as_it_says()
     cut = recall.measure({"question": "q", "gold": ["u1"]}, "sales", None, lambda c, q, r: hits,
                          lambda h: [{"units": ["u9", "u2"]}])
     assert cut == {"rank": 3, "shown": False}
+
+
+def test_the_row_draw_names_a_register_the_corpus_lacks(monkeypatch, tmp_path):
+    # DR-F23's class: rng.choice of no table units was an IndexError.
+    import sqlite3
+
+    from needtoknow.eval import golden as G
+    db = tmp_path / "manifest.db"
+    with sqlite3.connect(db) as conn:
+        conn.execute("CREATE TABLE units (unit_id TEXT, doc_id TEXT, labels TEXT, language TEXT, layer TEXT, text TEXT)")
+    monkeypatch.setattr(G, "manifest_path", lambda: db)
+    with pytest.raises(G.GoldenError, match="no customer-care table units in en"):
+        G.draw_rows()
+
+
+def test_the_recall_bench_sets_apart_a_probe_whose_gold_unit_is_gone():
+    # DR-F25: its unknown language counted it as asked across languages.
+    spec = importlib.util.spec_from_file_location("probe_recall", BENCH / "probe_recall.py")
+    recall = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(recall)
+    probes = [{"id": "DP001", "gold": ["u1"]}, {"id": "DP002", "gold": ["u1", "u9"]}]
+    assert recall.lost(probes, {"u1": "en", "u9": None}) == ["DP002"]

@@ -188,7 +188,8 @@ def generate(ctx: Context | None = None) -> dict[str, list[dict]]:
                     continue
                 gold = gold_units(fact, ctx, db)
                 readers = sorted(r for r, reads in roles.items() if any(set(labels) & reads for _, labels in gold))
-                selective = min(readers, key=lambda r: (len(roles[r]), r))  # the narrowest view that holds it
+                # The narrowest view that holds it; none where no unit holds the fact, for problems to name (DR-F23).
+                selective = min(readers, key=lambda r: (len(roles[r]), r)) if readers else None
                 x_en, x_el, y_en, y_el = slots(fact_id, w)
                 template = int(fact_id[1:3])
                 for lang, question in zip(("en", "el"), (fill(QUESTIONS[template][0], x_en, y_en),

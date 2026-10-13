@@ -47,3 +47,23 @@ def test_the_committed_probes_are_the_ones_the_command_makes():
     made = P.generate(ctx)
     assert P.problems(made, ctx) == []
     assert {split: P.load(split) for split in P.SPLITS} == made
+
+
+def test_a_fact_no_unit_holds_is_named_by_the_check_not_a_traceback(monkeypatch):
+    # DR-F23: min() of no readers stopped the generator before problems could name the fact.
+    from needtoknow.eval.split import SplitError, load_plan
+    from needtoknow.index.frequencies import table_path
+    from needtoknow.ingest.manifest import manifest_path
+    try:
+        load_plan()
+    except SplitError:
+        pytest.skip("no plan: ntk corpus plan makes it")
+    if not table_path().is_file() or not manifest_path().is_file():
+        pytest.skip("no frequency table or manifest: ntk ingest build and ntk index sync make them")
+    real = P.gold_units
+    monkeypatch.setattr(P, "gold_units", lambda fact, ctx, db: [] if fact["id"] == "F06V00" else real(fact, ctx, db))
+    ctx = Context()
+    made = P.generate(ctx)
+    lost = [p for p in made["dev"] if p["fact_id"] == "F06V00"]
+    assert lost and all(p["selective"] is None for p in lost)
+    assert any("no gold unit or no reader for F06V00" in p for p in P.problems(made, ctx))

@@ -2,13 +2,17 @@
 sends, and two no role sends?
 
     uv run python bench/filter_bench.py [--per-label 20] [--seed 38] [--efs 64,128,256,512] [--report]
+    uv run python bench/filter_bench.py --questions dev [--report]
 
 Needs the manifest, the vector cache, the index on the running server, the embed extra
 and the GPU; writes its numbers to NTK_DATA_DIR/bench/filter_bench.json and prints them.
 
 Probes: for each label, up to `per-label` prose units and as many table units, drawn by
-the seed; a probe asks the first 30 words of its unit, encoded as a question is. They
-split in two by the seed, dev and test. For each case of `policy.bench_cases()`, every
+the seed; a probe asks the first 30 words of its unit, encoded as a question is. With
+`--questions dev` the probes are instead the committed dev probes' questions, in domain for a
+case that may read one of their gold units (RS-F16), written to filter_bench_questions.json.
+Either way they split in two by the seed, a half that chooses the ef and a half that
+reports it, named dev and test inside this bench only. For each case of `policy.bench_cases()`, every
 role's filter exactly as sent plus the bench only views (N31), a probe is in domain when
 the case may read its unit and off topic when not, the case the base saw collapse (M7).
 
@@ -59,11 +63,13 @@ def main() -> int:
     parser.add_argument("--per-label", type=int, default=20)
     parser.add_argument("--seed", type=int, default=38)
     parser.add_argument("--efs", default="64,128,256,512")
+    parser.add_argument("--questions", choices=("dev",),
+                        help="ask the dev probes' questions instead of units' first words (RS-F16)")
     parser.add_argument("--report", action="store_true",
                         help="print the last run's report again, from filter_bench.json, without searching")
     args = parser.parse_args()
     sys.stdout.reconfigure(encoding="utf-8")
-    out = data_dir() / "bench" / "filter_bench.json"
+    out = data_dir() / "bench" / ("filter_bench_questions.json" if args.questions else "filter_bench.json")
     if args.report:
         results = json.loads(out.read_bytes())
         report(results, sorted({r["ef"] for r in results if r["ef"] is not None}) + [None])
@@ -85,18 +91,31 @@ def main() -> int:
     print(f"{len(ids)} units and their float32 vectors on the GPU in {time.perf_counter() - began:.0f} s", flush=True)
 
     rng = random.Random(args.seed)
-    by_label = defaultdict(lambda: {"prose": [], "table": []})
-    for index, (unit_labels, kind) in enumerate(zip(labels, layer)):
-        for label in unit_labels:
-            by_label[label][kind].append(index)
-    probes = []
-    for label in sorted(by_label):
-        for kind in ("prose", "table"):
-            pool = by_label[label][kind]
-            probes += [(i, kind) for i in rng.sample(pool, min(args.per_label, len(pool)))]
-    rng.shuffle(probes)
-    split = {i: ("dev" if n % 2 == 0 else "test") for n, (i, _) in enumerate(probes)}
-    texts = [" ".join(rows[i][3].split()[:30]) for i, _ in probes]
+    if args.questions:
+        from needtoknow.eval.probes import load as load_probes
+        from needtoknow.eval.protocol import check_use
+        check_use(args.questions, "development")
+        asked = load_probes(args.questions)
+        position = {unit: n for n, unit in enumerate(ids)}
+        probes = [(("probe", n), "question") for n in range(len(asked))]
+        rng.shuffle(probes)
+        probe_labels = {key: frozenset().union(*[labels[position[u]] for u in asked[key[1]]["gold"] if u in position])
+                        for key, _ in probes}
+        texts = [asked[key[1]]["question"] for key, _ in probes]
+    else:
+        by_label = defaultdict(lambda: {"prose": [], "table": []})
+        for index, (unit_labels, kind) in enumerate(zip(labels, layer)):
+            for label in unit_labels:
+                by_label[label][kind].append(index)
+        probes = []
+        for label in sorted(by_label):
+            for kind in ("prose", "table"):
+                pool = by_label[label][kind]
+                probes += [(i, kind) for i in rng.sample(pool, min(args.per_label, len(pool)))]
+        rng.shuffle(probes)
+        probe_labels = {i: labels[i] for i, _ in probes}
+        texts = [" ".join(rows[i][3].split()[:30]) for i, _ in probes]
+    split = {key: ("dev" if n % 2 == 0 else "test") for n, (key, _) in enumerate(probes)}
     queries = model.encode(texts)
     print(f"{len(probes)} probes, {sum(1 for v in split.values() if v == 'dev')} dev", flush=True)
 
@@ -118,7 +137,7 @@ def main() -> int:
             top = torch.topk(exact_scores, 10)
             exact = [ids[i] for i in top.indices.tolist()]
             tenth_exact = top.values[-1].item()
-            domain = "in domain" if labels[unit] & reads else "off topic"
+            domain = "in domain" if probe_labels[unit] & reads else "off topic"
             for form in retrieval.FORMS:
                 for ef in efs:
                     asked = time.perf_counter()
@@ -161,11 +180,11 @@ def reaches(dev: list[dict]) -> bool:
 def report(results: list[dict], efs: list[int | None]) -> None:
     foreign = sum(r["foreign"] for r in results)
     print(f"searches {len(results)}; units returned that the case may not read: {foreign}")
-    prose = [r for r in results if r["kind"] == "prose" and r["class"] == "in domain" and r["ef"] is None]
+    prose = [r for r in results if r["kind"] in ("prose", "question") and r["class"] == "in domain" and r["ef"] is None]
     with opened() as db:
         share = db.execute("SELECT AVG(layer = 'table') FROM units").fetchone()[0]
-    print(f"annex intrusion, prose probes in domain through the exact path: table units {mean(prose, 'tables') / 10:.1%} "
-          f"of the top 10, against {share:.1%} of all units")
+    print(f"annex intrusion, prose probes or questions in domain through the exact path: table units "
+          f"{mean(prose, 'tables') / 10:.1%} of the top 10, against {share:.1%} of all units")
     for form in ("labels", "label_set"):
         print(f"form {form}: case, the first of the efs then the exact path to reach {TARGET} on dev; on test, tie "
               f"aware overlap@10 in domain and off topic (raw in brackets), lowest probe, median search; the graph's "

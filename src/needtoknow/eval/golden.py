@@ -217,6 +217,8 @@ def draw_rows(seed: int = ROW_SEED, pairs: tuple = ROW_PAIRS, attempts: int = 50
             tables.setdefault((labels, language), []).append(unit_id)
         for label, language in pairs:
             ids = tables.get((json.dumps([label]), language), [])
+            if not ids:  # a corpus with no such register: named, not an IndexError (DR-F23)
+                raise GoldenError(f"no {label} table units in {language} to draw a row from")
             for _ in range(attempts):
                 doc_id, text = db.execute("SELECT doc_id, text FROM units WHERE unit_id = ?",
                                           (rng.choice(ids),)).fetchone()

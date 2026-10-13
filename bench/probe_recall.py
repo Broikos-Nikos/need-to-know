@@ -39,6 +39,11 @@ def measure(probe: dict, role: str, client, search, excerpts) -> dict:
     return {"rank": rank, "shown": bool(shown & gold)}
 
 
+def lost(probes: list[dict], language: dict) -> list[str]:
+    """The probes with a gold unit the manifest no longer holds, whose language is then unknown (DR-F25)."""
+    return [probe["id"] for probe in probes if any(language.get(u) is None for u in probe["gold"])]
+
+
 def summarise(rows: list[dict]) -> str:
     n = len(rows)
     recall = {k: sum(r["rank"] is not None and r["rank"] <= k for r in rows) / n for k in KS}
@@ -68,8 +73,10 @@ def main(argv: list[str] | None = None) -> int:
     db.close()
     client = server.client()
     began = time.perf_counter()
-    selective, per_role = [], defaultdict(list)
+    selective, per_role, missing = [], defaultdict(list), lost(probes, language)
     for probe in probes:
+        if probe["id"] in missing:  # counted apart, never as asked across languages (DR-F25)
+            continue
         across = probe["lang"] not in {language[u] for u in probe["gold"]}
         roles = [probe["selective"]] if args.selective_only else probe["readers"]
         for role in roles:
@@ -85,6 +92,9 @@ def main(argv: list[str] | None = None) -> int:
     if not args.selective_only:
         for role in sorted(per_role):
             print(f"as {role}: {summarise(per_role[role])}", flush=True)
+    if missing:
+        print(f"{len(missing)} probes with a gold unit the manifest lacks, left out: {', '.join(missing)}; "
+              "ntk eval probes --check says why", flush=True)
     searches = sum(len(rows) for rows in per_role.values())
     print(f"{searches} searches in {time.perf_counter() - began:.0f} s", flush=True)
     return 0
