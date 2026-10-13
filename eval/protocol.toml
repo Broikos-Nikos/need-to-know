@@ -8,7 +8,7 @@
 # newest hash in eval/protocol_history.toml, so a change is a new dated entry there
 # with its reason, never a quiet edit.
 
-version = 5
+version = 6
 registered = 2026-10-12
 
 [splits]
@@ -52,9 +52,9 @@ probes = "two per fact of the split's families"
 purposes = ["baseline", "release"]
 
 [splits.dev]
-# Where the power is: two or three items for each of the 50 dev families, differing
-# in their condition, English, Greek, cross lingual, mixed file or no access, rather
-# than in their wording.
+# Where the power is: two or three items for each dev family an item can ask (N58),
+# differing in their condition, English, Greek, cross lingual, mixed file or no
+# access, rather than in their wording.
 items_per_family = [2, 3]
 probes = "two per fact of the split's families"
 purposes = ["development", "baseline", "experiment", "parity"]
@@ -100,7 +100,11 @@ N = 2
 
 [items.dev]
 # Two or three items for each dev family, in the test's category shares, each within
-# the tolerance; the own units counted here; Greek between the bounds in each split.
+# the tolerance; the own units counted here; Greek between the bounds in each split. A
+# family whose every fact is a deliberate default under the general label can be asked
+# by no item, since only a refusal may ask a default and no role is refused general:
+# such a family carries none (N58).
+exempt = "every fact a deliberate default under the general label"
 I = 8
 J = 8
 N = 8

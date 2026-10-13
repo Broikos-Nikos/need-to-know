@@ -1,4 +1,4 @@
-"""The golden items and their construction checks (T5.1c2, `specs/evaluation.md` 2.3, protocol version 5).
+"""The golden items and their construction checks (T5.1c2, `specs/evaluation.md` 2.3, protocol version 6).
 
 One item per line of `eval/golden/test.jsonl` and `eval/golden/dev.jsonl`:
 
@@ -12,7 +12,7 @@ A table item carries `"row": {"doc_id", "key", "column", "value"}` and its expec
 answer must hold none of them; a near miss names the present fact it neighbours in
 `"near"`; a dev item may name its paraphrase twin in `"twin"`. `check` reads both files and no outcome, so it decides
 nothing and needs no purpose of the protocol: it holds each item to its category's rules,
-and each split to the counts and shares version 5 registered.
+and each split to the counts and shares version 6 registered.
 
 Per item: a known category, and `not_found` exactly for E, J and N; the question's script
 is its language; family items name their families, two for F and M, each in this split;
@@ -24,7 +24,8 @@ superseded one, H a regional variant; a deliberate default is asked only by E (R
 and the overlap cap: of the three rarest terms of each planted sentence by the corpus's
 document frequency, at most one in the question, counted by `needtoknow.lexical.terms`,
 the terms BM25 matches (RS-F3, KB3-K4). Per split: the test's category counts, every test
-family asked once; two or three items for each dev family; the own items' counts; the
+family asked once; two or three items for each dev family, and none for one whose every
+fact is a deliberate default under the general label, which no item can ask (N58); the own items' counts; the
 categories' shares and the Greek share. Each item has a layer, table for I and prose for
 the rest, so every figure can be given by layer (KB1-F8).
 """
@@ -232,8 +233,15 @@ def check_item(item: dict, split: str, ctx: Context) -> list[str]:
     return problems
 
 
+def exempt(family: dict, ctx: Context) -> bool:
+    """Every fact a deliberate default under the general label: only a refusal may ask a default, and no role is
+    refused general, so no item can ask the family (N58)."""
+    return all(fid in family["defaults"] and all(s["label"] == "general" for _, s in ctx.sections(fid))
+               for fid in family["facts"])
+
+
 def check_split(items: list[dict], split: str, ctx: Context, test_shares: dict | None = None) -> list[str]:
-    """The split's counts and shares against version 5."""
+    """The split's counts and shares against version 6."""
     problems: list[str] = []
     counts = Counter(item.get("category") for item in items)
     uses = Counter(family for item in items for family in item.get("families") or [])
@@ -251,6 +259,10 @@ def check_split(items: list[dict], split: str, ctx: Context, test_shares: dict |
             if counts[code] != own[code]:
                 problems.append(f"dev: {counts[code]} {code} items, registered {own[code]}")
         for family in mine:
+            if exempt(ctx.families[family], ctx):
+                if uses[family]:
+                    problems.append(f"dev: family {family} is exempt, every fact a general default, and was asked")
+                continue
             if not 2 <= uses[family] <= 3:
                 problems.append(f"dev: family {family} asked {uses[family]} times, not two or three")
         if test_shares and items:

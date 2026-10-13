@@ -137,3 +137,10 @@ def test_version_5_refuses_a_count_or_a_rule_left_to_the_writing(protocol, path,
     # N57: the categories and their counts are fixed before any item exists.
     problems = validate(set_at(protocol, path, value))
     assert any(words in problem for problem in problems), (path, problems)
+
+
+@pytest.mark.parametrize("value", [None, "every fact a deliberate default"])
+def test_version_6_spares_no_dev_family_but_one_no_item_can_ask(protocol, value):
+    # N58: the exemption the checker applies, left unset or widened to defaults some role is refused, is refused.
+    problems = validate(set_at(protocol, ("items", "dev", "exempt"), value))
+    assert any("N58" in problem for problem in problems), problems

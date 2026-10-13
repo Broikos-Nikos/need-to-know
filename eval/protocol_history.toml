@@ -61,3 +61,12 @@ absent and near miss items counted for each split; dev in the test's shares; a \
 deliberate default asked only by a refusal item (RS-F19); the category and the \
 language among the item properties balanced at writing (RS-F20); and the headline \
 given beside the share of the family items alone."""
+
+[[version]]
+date = 2026-10-13
+sha256 = "247bcb8aceec4960bf0f56a88f915dc56ed84a946bc099bf99788cdba6efb017"
+reason = """\
+Still before any dev item existed. Two dev families hold nothing but a deliberate \
+default under the general label: only a refusal may ask a default, and no role is \
+refused general, so no item could ask them while version 5 asked two or three of \
+every dev family. Such a family now carries none (N58); the defaults rule stands."""

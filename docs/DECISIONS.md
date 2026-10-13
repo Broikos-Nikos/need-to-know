@@ -253,3 +253,18 @@ and none is asked for.
 
 **Reverses if.** The writing finds a category its split's families cannot fill; then a new
 version, dated, before any item is scored.
+
+## N58. A dev family that no rule lets an item ask carries no item
+
+**Call.** `eval/protocol.toml` version 6 exempts from the dev items a family whose every
+fact is a deliberate default under the general label; every other dev family carries two
+or three items. Two families are exempt: a yearly badge renewal and a yearly code of
+conduct confirmation.
+
+**Evidence.** Version 5 lets only a refusal ask a value a model may know without the
+documents, and no role can be refused what is under the general label, which every role
+reads. Such a family could be asked by no item at all, while version 5 asked two or three
+of each.
+
+**Reverses if.** The defaults rule changes, or a general fact stops being readable by every
+role.

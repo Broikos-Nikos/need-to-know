@@ -343,14 +343,15 @@ def cmd_eval(args: argparse.Namespace, out=None) -> int:
 
 
 def cmd_eval_check(out) -> int:
-    """The golden items against their categories' rules and version 5's counts (T5.1c2), one line a problem."""
+    """The golden items against their categories' rules and the protocol's counts (T5.1c2), one line a problem."""
     import sqlite3
 
-    from needtoknow.eval.golden import GoldenError, check
+    from needtoknow.eval.golden import Context, GoldenError, check
     from needtoknow.eval.protocol import ProtocolError
     from needtoknow.eval.split import SplitError
     try:
-        summary, problems = check()
+        ctx = Context()
+        summary, problems = check(ctx)
     except (GoldenError, ProtocolError, SplitError, sqlite3.OperationalError) as error:
         print(f"eval check: {error}", file=out, flush=True)
         return 1
@@ -360,8 +361,8 @@ def cmd_eval_check(out) -> int:
         print(f"{split}: {seen['items']} items; by category {categories}; by layer {layers}", file=out)
     for problem in problems:
         print(f"  {problem}", file=out)
-    print(f"{len(problems)} problems" if problems else "every item keeps its rules, and the counts are version 5's",
-          file=out, flush=True)
+    print(f"{len(problems)} problems" if problems else
+          f"every item keeps its rules, and the counts are version {ctx.protocol['version']}'s", file=out, flush=True)
     return 1 if problems else 0
 
 

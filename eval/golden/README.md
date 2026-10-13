@@ -1,7 +1,7 @@
 # The golden items
 
 `test.jsonl` and `dev.jsonl` hold the questions the answers are scored on, one JSON object
-a line, in the format `needtoknow.eval.golden` describes. `eval/protocol.toml` version 5
+a line, in the format `needtoknow.eval.golden` describes. `eval/protocol.toml` version 6
 fixes how many of each kind every split holds, and `uv run ntk eval check` holds each item
 to its category's rules and each split to those counts before anything is scored.
 

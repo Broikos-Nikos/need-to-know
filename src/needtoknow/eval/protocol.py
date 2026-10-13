@@ -93,6 +93,10 @@ def validate(protocol: dict) -> list[str]:
         problems.append("items.defaults must say which items may ask a deliberate default (RS-F19)")
     if not {"category", "language"} <= set(splits.get("balance", {}).get("item_properties", [])):
         problems.append("splits.balance.item_properties must hold the category and the language (RS-F20)")
+    # Version 6 (N58): the checker spares a dev family by this rule alone, so a wider one cannot spare more.
+    if dev_items.get("exempt") != "every fact a deliberate default under the general label":
+        problems.append("items.dev.exempt must be 'every fact a deliberate default under the general label', the "
+                        "only dev family no item can ask (N58)")
     baseline = protocol.get("baseline", {})
     if baseline.get("cache") != "off":
         problems.append("baseline.cache must be 'off': a repeat sends the same prompt and would come back from the "

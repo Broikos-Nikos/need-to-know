@@ -117,6 +117,25 @@ def test_the_split_must_hold_the_registered_counts_and_ask_each_test_family_once
     assert any("family F09V00 asked 1 times, not two or three" in p for p in G.check_split(dev, "dev", ctx))
 
 
+def test_a_dev_family_of_general_defaults_carries_no_item_and_may_not_be_asked(ctx):
+    # N58: only a refusal may ask a default and no role is refused general, so no item can ask such a family.
+    ctx.facts["F91V00"] = {"id": "F91V00", "family": "F91V00", "label": "general", "kind": "single",
+                           "placements": ["D3"], "values": ["1", "1"], "en": "Badges are renewed once a year.",
+                           "el": "Οι κάρτες ανανεώνονται μία φορά τον χρόνο."}
+    ctx.docs["D3"] = {"id": "D3", "language": "en", "sections": [{"label": "general", "facts": ["F91V00"]}]}
+    ctx.families["F91V00"] = {"id": "F91V00", "split": "dev", "kind": "single", "label": "general",
+                              "defaults": {"F91V00": "a yearly renewal"}, "facts": ["F91V00"]}
+    dev = [item(id="D01", families=["F09V00"]), item(id="D02", families=["F09V00"])]
+    assert not any("F91V00" in p for p in G.check_split(dev, "dev", ctx))
+    asked = dev + [item(id="D03", families=["F91V00"])]
+    assert any("family F91V00 is exempt" in p for p in G.check_split(asked, "dev", ctx))
+    ctx.docs["D3"]["sections"][0]["label"] = "sales"  # a default some role is refused is asked by a refusal
+    assert any("family F91V00 asked 0 times" in p for p in G.check_split(dev, "dev", ctx))
+    ctx.docs["D3"]["sections"][0]["label"] = "general"
+    ctx.families["F91V00"]["defaults"] = {}  # a general fact no model knows is asked like any other
+    assert any("family F91V00 asked 0 times" in p for p in G.check_split(dev, "dev", ctx))
+
+
 def test_the_command_reads_the_golden_files_and_names_a_bad_line(tmp_path, monkeypatch, ctx):
     (tmp_path / "test.jsonl").write_text(json.dumps(item()) + "\n{not json\n", encoding="utf-8")
     monkeypatch.setattr(G, "golden_path", lambda split: tmp_path / f"{split}.jsonl")
