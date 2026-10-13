@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**174 findings, 142 closed, 32 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**174 findings, 145 closed, 29 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -70,7 +70,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 
 ## `DR`, the deep reviewer
 
-An audit pass on correctness, read in the logic rather than the comments. 26 findings, 24 closed.
+An audit pass on correctness, read in the logic rather than the comments. 26 findings, 25 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -99,7 +99,7 @@ An audit pass on correctness, read in the logic rather than the comments. 26 fin
 | `DR-F23` | low | fixed, tick 129 | probes.generate raises ValueError (min of no readers) on a fact no unit holds, so problems' no gold unit check is unreachable and ntk eval probes ends in a traceback after a corpus change: record the fact without a selective reader for problems to name; the class: golden.draw_rows calls rng.choice on a label and language's table units, an IndexError where a corpus has none |
 | `DR-F24` | low | fixed, tick 137 | ntk eval score on a missing answers file reports every item as unanswered, and Sources.of_row opens a missing manifest into a sqlite error the command does not catch: refuse the missing file by name, check the manifest as of_fact does |
 | `DR-F25` | low | fixed, tick 129 | bench/probe_recall.py counts a probe whose gold unit the manifest lacks as asked across languages, the figure the bench exists to watch: count such probes apart and name them |
-| `DR-F26` | low | open | The scorer misses a Greek time range written with its articles: D053's third answer, 'από τις 07:00 έως τις 15:00', is right and was scored wrong, the form '07:00 έως 15:00' not standing whole in it: read the articles between a range's words and its times as nothing, test it both ways, and score the baseline's dev answers again at the new scorer hash |
+| `DR-F26` | low | fixed, tick 142 | The scorer misses a Greek time range written with its articles: D053's third answer, 'από τις 07:00 έως τις 15:00', is right and was scored wrong, the form '07:00 έως 15:00' not standing whole in it: read the articles between a range's words and its times as nothing, test it both ways, and score the baseline's dev answers again at the new scorer hash |
 
 ## `OP`, the pipeline operator
 
@@ -115,7 +115,7 @@ An audit pass that killed the pipeline mid build and mid change. 5 findings, 5 c
 
 ## `MA`, the measurement auditor
 
-An audit pass on whether every number can be produced again. 18 findings, 9 closed.
+An audit pass on whether every number can be produced again. 18 findings, 11 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -135,8 +135,8 @@ An audit pass on whether every number can be produced again. 18 findings, 9 clos
 | `MA-F14` | low | fixed, tick 117 | ntk eval check checks the Greek share and skips the exempt families without printing either, and gives no count of family items, while eval/golden/README.md and commit 3b4e77d state 16 of 35 in Greek, two exempt dev families and 29 family items: the summary prints each split's Greek count and family items, and dev's exempt families by id |
 | `MA-F15` | low | open | N59 in docs/DECISIONS.md quotes 0.556 against 0.963, another project's measurement reported by the knowledge base, with neither its source nor its sample size: say whose measurement it is and on how many questions, or keep the claim and drop the figures |
 | `MA-F16` | medium | open | 18 of 128 commit messages count the negative controls a gate failed, but the controls ran from the session's scratchpad: commit them as data (file, line broken, replacement, test that must fail) with a runner that applies, runs, restores and prints the count, and cite its output, or stop counting them |
-| `MA-F17` | medium | open | The README credits the baseline's weak categories to retrieval, but 7 of its 22 wrong answers were shown a section planting every fact they needed: T12, the test's only C miss, refused twice with its fact shown, D141 three times and D136 once, and D053's was right and scored wrong: the report counts the wrong answers shown and not shown their facts, and the README quotes both |
-| `MA-F18` | low | open | The README quotes category figures of three and four items without their count, C 0.778 on test over 3, F 0.500 on dev over 4, and the probes' 0.964 without its 194: give each quoted figure its count |
+| `MA-F17` | medium | fixed, tick 142 | The README credits the baseline's weak categories to retrieval, but 7 of its 22 wrong answers were shown a section planting every fact they needed: T12, the test's only C miss, refused twice with its fact shown, D141 three times and D136 once, and D053's was right and scored wrong: the report counts the wrong answers shown and not shown their facts, and the README quotes both |
+| `MA-F18` | low | fixed, tick 142 | The README quotes category figures of three and four items without their count, C 0.778 on test over 3, F 0.500 on dev over 4, and the probes' 0.964 without its 194: give each quoted figure its count |
 
 ## `MT`, the maintainer in six months
 
