@@ -30,7 +30,7 @@ import sys
 import time
 from collections import defaultdict
 
-from needtoknow.eval.probes import load
+from needtoknow.eval.probes import load, lost
 from needtoknow.eval.protocol import check_use
 from needtoknow.ingest.manifest import manifest_path
 from needtoknow.settings import data_dir
@@ -49,11 +49,6 @@ def measure(probe: dict, role: str, client, search, excerpts, layer) -> dict:
     return {"rank": rank, "shown": bool(set(shown) & gold), "top": min(10, len(hits)),
             "tables": sum(kinds[hit["unit_id"]] == "table" for hit in hits[:10]), "shown_units": len(shown),
             "shown_tables": sum(kinds[unit] == "table" for unit in shown), "aside": aside}
-
-
-def lost(probes: list[dict], language: dict) -> list[str]:
-    """The probes with a gold unit the manifest no longer holds, whose language is then unknown (DR-F25)."""
-    return [probe["id"] for probe in probes if any(language.get(u) is None for u in probe["gold"])]
 
 
 def summarise(rows: list[dict]) -> str:
@@ -109,7 +104,8 @@ def main(argv: list[str] | None = None) -> int:
     layer = layers(db)
     client = server.client()
     began = time.perf_counter()
-    selective, per_role, missing = [], defaultdict(list), lost(probes, language)
+    selective, per_role = [], defaultdict(list)
+    missing = lost(probes, {unit for unit, found in language.items() if found is not None})
     for probe in probes:
         if probe["id"] in missing:  # counted apart, never as asked across languages (DR-F25)
             continue

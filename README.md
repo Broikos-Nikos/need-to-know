@@ -38,9 +38,12 @@ produces it.
   embeds nothing again; a passage longer than the model takes is refused, never
   cut: `ntk embed`.
 * A role's question is searched inside that role's filter, on the dense and the lexical
-  side alike, and fused in the engine: no unit a role may not read came back in 6,480
-  searches, every role and three combinations of them asked every label's probes:
-  `uv run python bench/permission_suite.py`.
+  side alike, and fused in the engine: no unit a role may not read came back in 5,760
+  searches, nor reached the excerpts a prompt would hold, every role and three
+  combinations of them asking up to 20 dev probes a label:
+  `uv run python bench/permission_suite.py`. No answer the cache holds, read for each role
+  the spend log names, carries a canary of a label that role may not read:
+  `uv run ntk eval canaries`.
 * A role's question is answered by DeepSeek from the excerpts the role may read, its
   citations able to name only what it was shown, and an instruction planted in a
   document is quoted rather than followed: `uv run ntk ask "<question>" --as <role>` and

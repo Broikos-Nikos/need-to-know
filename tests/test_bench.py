@@ -307,10 +307,18 @@ def test_the_row_draw_names_a_register_the_corpus_lacks(monkeypatch, tmp_path):
         G.draw_rows()
 
 
-def test_the_recall_bench_sets_apart_a_probe_whose_gold_unit_is_gone():
-    # DR-F25: its unknown language counted it as asked across languages.
-    spec = importlib.util.spec_from_file_location("probe_recall", BENCH / "probe_recall.py")
-    recall = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(recall)
+def test_a_probe_whose_gold_unit_is_gone_is_set_apart():
+    # DR-F25: its unknown language counted it as asked across languages in the recall bench; MT-F16: in the filter
+    # bench it counted as off topic for every case.
+    from needtoknow.eval.probes import lost
     probes = [{"id": "DP001", "gold": ["u1"]}, {"id": "DP002", "gold": ["u1", "u9"]}]
-    assert recall.lost(probes, {"u1": "en", "u9": None}) == ["DP002"]
+    assert lost(probes, {"u1": 0}) == ["DP002"] and lost(probes, {"u1", "u9"}) == []
+
+
+def test_every_bench_that_asks_the_probes_sets_lost_ones_apart():
+    # MT-F16: the filter bench's question mode, written beside DR-F25's fix, kept the old shape.
+    asking = [path.name for path in sorted(BENCH.glob("*.py"))
+              if "needtoknow.eval.probes import" in path.read_text(encoding="utf-8")]
+    assert {"filter_bench.py", "permission_suite.py", "probe_recall.py"} <= set(asking), asking
+    for name in asking:
+        assert "lost(" in (BENCH / name).read_text(encoding="utf-8"), name

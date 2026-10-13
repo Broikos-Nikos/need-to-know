@@ -93,13 +93,19 @@ def main() -> int:
     rng = random.Random(args.seed)
     if args.questions:
         from needtoknow.eval.probes import load as load_probes
+        from needtoknow.eval.probes import lost
         from needtoknow.eval.protocol import check_use
         check_use(args.questions, "development")
         asked = load_probes(args.questions)
         position = {unit: n for n, unit in enumerate(ids)}
+        missing = lost(asked, position)  # in domain for no case, so set apart rather than counted off topic (MT-F16)
+        if missing:
+            print(f"{len(missing)} probes with a gold unit the manifest lacks, left out: {', '.join(missing)}; "
+                  "ntk eval probes --check says why", flush=True)
+        asked = [probe for probe in asked if probe["id"] not in missing]
         probes = [(("probe", n), "question") for n in range(len(asked))]
         rng.shuffle(probes)
-        probe_labels = {key: frozenset().union(*[labels[position[u]] for u in asked[key[1]]["gold"] if u in position])
+        probe_labels = {key: frozenset().union(*[labels[position[u]] for u in asked[key[1]]["gold"]])
                         for key, _ in probes}
         texts = [asked[key[1]]["question"] for key, _ in probes]
     else:

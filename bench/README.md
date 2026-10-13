@@ -273,15 +273,23 @@ uv run python bench/power.py
 ## permission_suite.py
 
 The permission suite at retrieval level (`specs/evaluation.md` section 6, items 1 to 3):
-each label's probes, half prose and half tables, asked as every role the policy defines,
-a user holding two roles, a user with only `general`, and sales with a membership removed
-from the policy in memory, each three ways 100 deep, the dense search alone, the sparse
-alone and their fusion, which is the reranker's input. Any unit a case may not read is
-counted, and the suite exits 1 on one; for the cases that may read a probe's unit, how
-often it comes back in the fused top 10 and top 100. It needs the manifest, the vector
-cache, the `embed` extra and the index on the running server, and takes about three
-minutes. The prompt, citations, caches and canaries join it with the answers, at P5.
+up to 20 of the committed dev probes a label, their questions, asked as every role the
+policy defines, a user holding two roles, a user with only `general`, and sales with a
+membership removed from the policy in memory; each three ways 100 deep, the dense search
+alone, the sparse alone and their fusion, which is the reranker's input, and once as
+`ask` asks, reranked, the excerpts it would put in the prompt checked unit by unit and the
+prompt searched for canaries. Any unit a case may not read, and any canary of a label it
+may not read, is counted, and the suite exits 1 on one; for the cases that may read a
+probe's gold units, how often one comes back in the fused top 10 and top 100 and in the
+excerpts. A probe whose gold unit the manifest lacks is set apart and named.
+`--prefixes` asks units' first 30 words instead, half prose and half tables, as at tick
+75. It needs the manifest, the vector cache, the `embed` extra, the GPU and the index on
+the running server, and takes about 25 minutes. What the answers left behind, the spend
+log and the cached answers it names, is searched for canaries by `ntk eval canaries`,
+which needs neither the GPU nor the server.
 
 ```
 uv run python bench/permission_suite.py
+uv run python bench/permission_suite.py --prefixes
+uv run ntk eval canaries
 ```

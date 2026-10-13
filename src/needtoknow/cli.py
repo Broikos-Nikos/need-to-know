@@ -68,7 +68,8 @@ def build_parser() -> argparse.ArgumentParser:
     reply.add_argument("--no-cache", action="store_true", help="ask the provider even when the cache holds the answer")
     evaluation = commands.add_parser("eval", help="draw the fact families' split by the protocol, or check the golden "
                                                   "items against it")
-    evaluation.add_argument("action", choices=("split", "check", "draft", "rows", "twins", "score", "probes"))
+    evaluation.add_argument("action", choices=("split", "check", "draft", "rows", "twins", "score", "probes",
+                                               "canaries"))
     evaluation.add_argument("answers", nargs="?", help="score: a JSON lines file of answers, one per item, as parse "
                                                        "gives them with the item's id")
     evaluation.add_argument("--check", action="store_true", help="split, probes: make again and compare with the "
@@ -335,6 +336,8 @@ def cmd_eval(args: argparse.Namespace, out=None) -> int:
         return cmd_eval_score(args, out)
     if args.action == "probes":
         return cmd_eval_probes(args, out)
+    if args.action == "canaries":
+        return cmd_eval_canaries(out)
     if args.action == "twins":
         from needtoknow.eval.golden import GoldenError, draw_twins, golden_path, load_items
         from needtoknow.eval.protocol import load_protocol
@@ -388,6 +391,21 @@ def cmd_eval(args: argparse.Namespace, out=None) -> int:
     write(result)
     print(line + "; written to eval/families.json", file=out, flush=True)
     return 0
+
+
+def cmd_eval_canaries(out) -> int:
+    """Every spend log line and every answer the cache holds, searched for canaries of labels the asking role may
+    not read (T5.4e); exits 1 on any."""
+    from needtoknow.answer.cache import cache_path
+    from needtoknow.answer.pipeline import spend_path
+    from needtoknow.canaries import scan
+    report = scan(spend_path(), cache_path())
+    for leak in report["leaks"]:
+        print(f"leak: {leak}", file=out)
+    print(f"{report['lines']} spend log lines, {report['answers']} cached answers read through them, "
+          f"{report['unnamed']} cached answers no line names; canaries of a label the role may not read: "
+          f"{len(report['leaks'])}", file=out, flush=True)
+    return 1 if report["leaks"] else 0
 
 
 def cmd_eval_probes(args: argparse.Namespace, out) -> int:

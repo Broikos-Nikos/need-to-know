@@ -227,6 +227,12 @@ def write(probes: dict[str, list[dict]]) -> None:
         path.write_bytes(("".join(json.dumps(row, ensure_ascii=False) + "\n" for row in rows)).encode("utf-8"))
 
 
+def lost(probes: list[dict], held) -> list[str]:
+    """The probes with a gold unit `held`, the manifest's units, no longer holds: every bench that asks the probes sets
+    them apart and names them, since a corpus change would otherwise move them silently (DR-F25, MT-F16)."""
+    return [probe["id"] for probe in probes if any(unit not in held for unit in probe["gold"])]
+
+
 def load(split: str) -> list[dict]:
     path = probes_path(split)
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()] \
