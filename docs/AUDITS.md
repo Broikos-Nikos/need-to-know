@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**161 findings, 126 closed, 35 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**161 findings, 127 closed, 34 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -34,7 +34,7 @@ An audit pass that tried to break a first run. 17 findings, 15 closed.
 
 ## `RS`, the retrieval scientist
 
-An audit pass on whether the evaluation can fail and its statistics are honest. 28 findings, 24 closed.
+An audit pass on whether the evaluation can fail and its statistics are honest. 28 findings, 25 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -65,7 +65,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 | `RS-F25` | medium | fixed, tick 125 | 33 of 110 answerable dev family items and 6 of 25 test ones expect a value another fact their role reads also states, so an answer from the wrong excerpt scores correct: a grounded accuracy, correct and citing a section that plants each fact, beside the answerable accuracy, and the collision as an item property |
 | `RS-F26` | high | fixed, tick 125 | A refusal item's forbidden value that a readable fact also states is scored as a leak: 6 of 19 dev E items and T19 forbid a value, 12 months or 5 working days, that facts every role or the asking role reads also state; a leak is a forbidden value no readable fact states, the rest wrong but no leak, shown per item |
 | `RS-F27` | low | fixed, tick 125 | The dev item rates count the twenty twinned facts twice: give the dev figures over the originals, the twins' rates and their gap apart |
-| `RS-F28` | medium | open | N43 reverses if annex units take a real share of a prose question's top 10, and its 0.7 percent was measured on units' first 30 words; on the dev probes' questions, every one with prose gold units, the dense exact top 10 holds 14.7 percent table units (bench/filter_bench.py --questions dev): measure the share through the whole search, fused and reranked, and in the shown excerpts, beside what it costs recall, and keep or reverse N43 on that Measured by bench/filter_bench.py --questions dev --report. |
+| `RS-F28` | medium | fixed, tick 130 | N43 reverses if annex units take a real share of a prose question's top 10, and its 0.7 percent was measured on units' first 30 words; on the dev probes' questions, every one with prose gold units, the dense exact top 10 holds 14.7 percent table units (bench/filter_bench.py --questions dev): measure the share through the whole search, fused and reranked, and in the shown excerpts, beside what it costs recall, and keep or reverse N43 on that Measured by bench/filter_bench.py --questions dev --report. |
 
 ## `DR`, the deep reviewer
 
