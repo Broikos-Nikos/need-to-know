@@ -70,3 +70,13 @@ Still before any dev item existed. Two dev families hold nothing but a deliberat
 default under the general label: only a refusal may ask a default, and no role is \
 refused general, so no item could ask them while version 5 asked two or three of \
 every dev family. Such a family now carries none (N58); the defaults rule stands."""
+
+[[version]]
+date = 2026-10-13
+sha256 = "82c160583d047dc34ce6e03aa3c18470323b103181a0d2d8b74c8d15102a30b4"
+reason = """\
+Before any answer was scored. Version 6's smallest visible effect, 0.10, was N43's \
+figure for 63 families, and no command produced it (RS-F18). bench/power.py simulates the \
+registered test on the dev split's 80 units: at an assumed discordance of 0.2 per item the \
+smallest effect adopted in 80 percent of trials is 0.12, from 0.08 at 0.10 to 0.14 at 0.30. \
+The figure and its assumption are recorded together (N60)."""

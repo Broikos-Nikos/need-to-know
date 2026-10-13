@@ -238,6 +238,30 @@ uv run python bench/smoke_answers.py
 uv run python bench/smoke_answers.py --no-cache
 ```
 
+## null_runs.py
+
+The scorer's floor, ceiling and citation null, three answer sets no model wrote: every item
+refused; every item answered with its own first form, citing exactly the sections that
+plant its facts; and those answers citing every excerpt the role's search shows. It asks
+the protocol first. The first two need the plan, the frequency table and the manifest; the
+third also the index on the running server and the `embed` extra, and runs on dev only.
+
+```
+uv run python bench/null_runs.py
+uv run python bench/null_runs.py --split test --no-search
+```
+
+## power.py
+
+The smallest effect the registered test sees on the dev units, by simulation: for each
+assumed discordance, the smallest true effect the sign flip test over units adopts in 80
+percent of seeded trials. The protocol records the figure at a discordance of 0.2. It needs
+only the repository.
+
+```
+uv run python bench/power.py
+```
+
 ## permission_suite.py
 
 The permission suite at retrieval level (`specs/evaluation.md` section 6, items 1 to 3):

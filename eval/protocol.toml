@@ -8,7 +8,7 @@
 # newest hash in eval/protocol_history.toml, so a change is a new dated entry there
 # with its reason, never a quiet edit.
 
-version = 6
+version = 7
 registered = 2026-10-12
 
 [splits]
@@ -140,7 +140,11 @@ test = "sign flip permutation test over family mean differences, two sided"
 interval = "percentile bootstrap over families, 10000 resamples, 95 percent"
 alpha = 0.05
 non_inferiority_margin = 0.05
-smallest_visible_effect = 0.10
+# The smallest effect is the one the registered test adopts in 80 percent of simulated
+# experiments on the dev units at the assumed discordance; bench/power.py prints it for
+# a range, and the baseline's measured discordance replaces the assumption (N60).
+smallest_visible_effect = 0.12
+smallest_visible_assumes = "a discordance of 0.2 per item, until the baseline measures it; bench/power.py"
 cost_cut = 0.20
 arms = ["up", "cost", "probe"]
 several_values = "each against the incumbent; the cheapest that clears an arm"

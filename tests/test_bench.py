@@ -62,3 +62,18 @@ def test_the_null_refuses_everything_and_the_oracle_answers_every_item_with_its_
     assert best[0]["citations"] == [{"doc_id": "D1", "section": "Policy > SECTION 2"}]
     ceiling = S.score(items, best, ctx, sources)[1]
     assert (ceiling["overall"]["rate"], ceiling["citation_precision"], ceiling["citation_recall"]) == (1.0, 1.0, 1.0)
+
+
+def test_the_protocols_smallest_visible_effect_is_the_figure_the_power_bench_prints():
+    # RS-F18, N60: 0.12 at the assumed discordance of 0.2, on the dev units as they are.
+    from needtoknow.eval.golden import golden_path, load_items
+    from needtoknow.eval.protocol import load_protocol
+    from needtoknow.eval.stats import SEED
+    spec = importlib.util.spec_from_file_location("power", BENCH / "power.py")
+    bench = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(bench)
+    protocol = load_protocol()
+    sizes = bench.unit_sizes(load_items(golden_path("dev")))
+    assert "0.2" in protocol["decision"]["smallest_visible_assumes"]
+    figure = bench.smallest_visible(sizes, 0.2, protocol["decision"]["alpha"], 2000, 2000, SEED)
+    assert figure == protocol["decision"]["smallest_visible_effect"]

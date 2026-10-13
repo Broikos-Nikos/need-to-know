@@ -97,6 +97,10 @@ def validate(protocol: dict) -> list[str]:
     if dev_items.get("exempt") != "every fact a deliberate default under the general label":
         problems.append("items.dev.exempt must be 'every fact a deliberate default under the general label', the "
                         "only dev family no item can ask (N58)")
+    # Version 7 (N60): the smallest visible effect is a simulation's, so its assumption and its bench are named.
+    if "bench/power.py" not in str(decision.get("smallest_visible_assumes", "")):
+        problems.append("decision.smallest_visible_assumes must state the discordance assumed and name bench/power.py, "
+                        "which prints the figure (RS-F18)")
     baseline = protocol.get("baseline", {})
     if baseline.get("cache") != "off":
         problems.append("baseline.cache must be 'off': a repeat sends the same prompt and would come back from the "

@@ -144,3 +144,10 @@ def test_version_6_spares_no_dev_family_but_one_no_item_can_ask(protocol, value)
     # N58: the exemption the checker applies, left unset or widened to defaults some role is refused, is refused.
     problems = validate(set_at(protocol, ("items", "dev", "exempt"), value))
     assert any("N58" in problem for problem in problems), problems
+
+
+@pytest.mark.parametrize("value", [None, "a discordance of 0.2 per item"])
+def test_version_7_names_the_assumption_and_the_bench_behind_the_smallest_visible_effect(protocol, value):
+    # N60, RS-F18: the figure is a simulation's, so it travels with what it assumes and the command that prints it.
+    problems = validate(set_at(protocol, ("decision", "smallest_visible_assumes"), value))
+    assert any("RS-F18" in problem for problem in problems), problems

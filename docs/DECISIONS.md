@@ -284,3 +284,17 @@ two may take one; no versioned or variant family has room, and the table items, 
 facts and near misses have counts registered exactly, so none of them takes a twin.
 
 **Reverses if.** A family is allowed a fourth item, or the registered number changes.
+
+## N60. The smallest visible effect is a simulation's, at a stated discordance
+
+**Call.** `eval/protocol.toml` version 7 records the smallest effect the dev units can show
+as 0.12, at an assumed discordance of 0.2 per item, the share of items a change flips, and
+names `bench/power.py`, which prints the figure: the smallest true effect the registered
+test adopts in 80 percent of simulated experiments.
+
+**Evidence.** The bench, on the dev split's 80 units: 0.08 at a discordance of 0.10, 0.10
+at 0.15, 0.12 at 0.20 and 0.14 at 0.30. The previous figure, 0.10, was an estimate for 63
+families that no command produced, and holds only at the lower discordance.
+
+**Reverses if.** The baseline measures the discordance, which then replaces the assumption,
+or the dev units change.
