@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**137 findings, 97 closed, 40 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**137 findings, 98 closed, 39 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -10,7 +10,7 @@ A finding's numbers are what its audit measured when it filed it, by that audit'
 
 ## `HS`, the hostile stranger
 
-An audit pass that tried to break a first run. 17 findings, 14 closed.
+An audit pass that tried to break a first run. 17 findings, 15 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -29,7 +29,7 @@ An audit pass that tried to break a first run. 17 findings, 14 closed.
 | `HS-F13` | low | fixed, tick 79 | An empty or blank question returns three arbitrary table rows |
 | `HS-F14` | low | fixed, tick 79 | ntk doctor says 9 of 9 ok with the index's server stopped |
 | `HS-F15` | medium | open | An English question that names a Greek place is answered in Greek: one Greek letter makes the language Greek, the prompt asks for a Greek answer and the refusal comes in Greek; decide by the question's majority script, English on a tie |
-| `HS-F16` | low | open | ntk eval check ends in a traceback on a golden line that is no object and on a missing eval/families.json: refuse each in one line, by line number and with the command that writes the file |
+| `HS-F16` | low | fixed, tick 105 | ntk eval check ends in a traceback on a golden line that is no object and on a missing eval/families.json: refuse each in one line, by line number and with the command that writes the file |
 | `HS-F17` | low | open | A corrupted answer cache ends ntk ask in a traceback after both models load: set it aside in one line that names the file and says it can be deleted, answer without it, and note it in the spend log |
 
 ## `RS`, the retrieval scientist
