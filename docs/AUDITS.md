@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**166 findings, 129 closed, 37 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**166 findings, 130 closed, 36 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -136,7 +136,7 @@ An audit pass on whether every number can be produced again. 16 findings, 9 clos
 
 ## `MT`, the maintainer in six months
 
-An audit pass on whether a fresh clone can be rebuilt and changed safely. 16 findings, 11 closed.
+An audit pass on whether a fresh clone can be rebuilt and changed safely. 16 findings, 12 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -155,7 +155,7 @@ An audit pass on whether a fresh clone can be rebuilt and changed safely. 16 fin
 | `MT-F13` | medium | open | Each bench saves one run per mode whatever its other arguments, and the tie tests hold timings too: the filter bench run 4 percent slower, the attack as its usage line's --role sales, and the recall bench with --selective-only each fail a tie test, the last with a KeyError, and overwrite the run a decision rests on: name each saved run by its arguments, have each test read the run its text quotes, and hold no timing or busy share |
 | `MT-F14` | low | open | bench/probe_recall.py, which the README quotes and a test holds, has no section in bench/README.md, and nothing asks every bench for one: an entry with its needs, commands and saved file, and a test that each script in bench/ has a section, helpers such as watched.py named as helpers |
 | `MT-F15` | low | open | tests/test_noninterference.py patches numpy's argsort for the whole process to stand for the server's ordering of exact ties, relying on qdrant-client's local mode sorting with np.argsort, which nothing checks: give the local collection module its own stable argsort and assert that its search still sorts with np.argsort |
-| `MT-F16` | low | open | bench/filter_bench.py --questions drops a gold unit the manifest lacks without a word, so the probe counts as off topic for every case, DR-F25's shape kept by the mode added the same day, and no test reaches the mode: set such probes apart and name them from one function the filter and recall benches share, with a test |
+| `MT-F16` | low | fixed, tick 133 | bench/filter_bench.py --questions drops a gold unit the manifest lacks without a word, so the probe counts as off topic for every case, DR-F25's shape kept by the mode added the same day, and no test reaches the mode: set such probes apart and name them from one function the filter and recall benches share, with a test |
 
 ## `SC`, the supply chain auditor
 
