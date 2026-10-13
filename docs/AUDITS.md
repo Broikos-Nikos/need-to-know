@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**132 findings, 91 closed, 41 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**132 findings, 95 closed, 37 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -31,7 +31,7 @@ An audit pass that tried to break a first run. 14 findings, 14 closed.
 
 ## `RS`, the retrieval scientist
 
-An audit pass on whether the evaluation can fail and its statistics are honest. 20 findings, 7 closed.
+An audit pass on whether the evaluation can fail and its statistics are honest. 20 findings, 10 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -51,10 +51,10 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 | `RS-F14` | medium | fixed, tick 94 | P4's exit counts citations that parse() has already made valid: it drops a citation it cannot place without a trace, so the exit cannot fail; parse returns what it dropped, runs record it, and each smoke answer cites an excerpt holding its value |
 | `RS-F15` | medium | open | Citation accuracy, a cited section among the expected sources, is passed by citing every excerpt: citation precision and recall per item, with a cite everything null through the scorer on dev |
 | `RS-F16` | low | open | The filter bench and the permission suite ask the first 30 words of a unit, not a question: the filter bench run on the dev probes when T5.4 makes them, and N51 says what its probes were |
-| `RS-F17` | medium | open | The protocol does not say how many table and absent fact items each split holds, so the test's easiest items can still be counted in late: register so many I and J items per split before any is written, and report the headline with and without them |
+| `RS-F17` | medium | fixed, tick 101 | The protocol does not say how many table and absent fact items each split holds, so the test's easiest items can still be counted in late: register so many I and J items per split before any is written, and report the headline with and without them |
 | `RS-F18` | medium | open | The registered smallest visible effect, 0.10, is N43's figure for 63 families and no command produces it; a simulation of the registered test puts it at 0.11 for 63 and 0.12 for 50: a committed bench over a range of discordance rates, and the protocol's figure from it |
-| `RS-F19` | low | open | Deliberate defaults sit in 5 of 31 test families and 6 of 50 dev, and nothing says whether an item may ask one: register that no item asks a default unless its category needs one, and report the closed book run's hits on defaults apart |
-| `RS-F20` | low | open | The items' language and category shares are checked in the spec, not in the hashed protocol: add them to item_properties with how close they must match |
+| `RS-F19` | low | fixed, tick 101 | Deliberate defaults sit in 5 of 31 test families and 6 of 50 dev, and nothing says whether an item may ask one: register that no item asks a default unless its category needs one, and report the closed book run's hits on defaults apart |
+| `RS-F20` | low | fixed, tick 101 | The items' language and category shares are checked in the spec, not in the hashed protocol: add them to item_properties with how close they must match |
 
 ## `DR`, the deep reviewer
 
@@ -189,7 +189,7 @@ An audit pass on time, memory and disk, its page half waiting for the page. 7 fi
 
 ## `KB1`, the plan, reviewed against a knowledge base
 
-A separate session's review of the plan against the author's research notes. 15 findings, 9 closed.
+A separate session's review of the plan against the author's research notes. 15 findings, 10 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -198,7 +198,7 @@ A separate session's review of the plan against the author's research notes. 15 
 | `KB1-F3` | medium | fixed, tick 69 | Filter on label_set, the tenant key, by computing each role's readable label sets at query time; keep labels for audit and display; measure both filters in the F2 bench |
 | `KB1-F4` | medium | fixed, tick 63 | BM25 IDF side channel: raw lexical scores never leave the server; P6 runs a term existence attack and publishes its success rate; if it works, per role view sparse collections |
 | `KB1-F5` | medium | open | Publish answerable accuracy, refusal correctness and leaks as separate figures; the overall rate only as a fourth |
-| `KB1-F6` | medium | open | Golden set needs near misses, multi hop across two documents and answers spanning a unit boundary; score near misses like J |
+| `KB1-F6` | medium | fixed, tick 101 | Golden set needs near misses, multi hop across two documents and answers spanning a unit boundary; score near misses like J |
 | `KB1-F7` | medium | open | Headline says synthetic; a closed book run with empty excerpts published beside it; planted values mostly non default, deliberate defaults flagged in the registry |
 | `KB1-F8` | medium | open | Corpus is mostly code generated structure while the eval is mostly prose: stats by layer, metrics by layer, cap layer C at about a third of units and raise table items |
 | `KB1-F9` | medium | open | Planted facts are too salient: a salience plan per fact recorded in the registry, and a noise pass (page headers and footers, cross references, numbering drift, typos) over layers A and B |
