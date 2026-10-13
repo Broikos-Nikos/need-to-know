@@ -7,12 +7,18 @@ repeat, the answer as `parse` reads it, the model that answered, which the provi
 (KB5-K14), what the call cost, the excerpts shown, by document, section and units, and how many of those units are
 table rows (KB1-F8). With `closed_book` the question is asked with no excerpts at all, the model's own knowledge
 alone (KB1-F7). `ntk eval score` reads the file, a repeat at a time and then over them.
+
+Before the first call a run writes its provenance beside the answers, `<file>.provenance.json`: the commit and whether
+the tree was clean, the protocol's version and fingerprint, the split, purpose, repeats and book, the provider, the
+model alias and the settings it is asked with, the manifest's last run and unit count, and the lexical analyser's
+version. A run is resumed only at the commit it started at, so one file never holds two versions of the code.
 """
 
 from __future__ import annotations
 
 import datetime as dt
 import json
+import subprocess
 from pathlib import Path
 
 from needtoknow.eval.golden import golden_path, load_items
@@ -29,6 +35,38 @@ def table_layers(units: list[str]) -> int:
                           f"({','.join('?' * len(units))})", units).fetchone()[0]
 
 
+class RunError(RuntimeError):
+    """A run that would mix two versions of the code in one file."""
+
+
+def commit() -> tuple[str, bool]:
+    """The repository's commit, and whether its tree is clean."""
+    from needtoknow.settings import repo_root
+    head = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo_root(), capture_output=True, text=True, check=True)
+    status = subprocess.run(["git", "status", "--porcelain"], cwd=repo_root(), capture_output=True, text=True,
+                            check=True)
+    return head.stdout.strip(), not status.stdout.strip()
+
+
+def provenance(split: str, purpose: str, repeats: int, closed_book: bool, at=commit) -> dict:
+    """What a run's answers were made by, as the run starts."""
+    from needtoknow import lexical
+    from needtoknow.answer.pipeline import settings_of
+    from needtoknow.eval.protocol import fingerprint, load_protocol
+    from needtoknow.ingest.manifest import opened
+    from needtoknow.providers.catalog import load_catalog
+    head, clean = at()
+    entry = load_catalog()["deepseek"]
+    with opened() as db:
+        last = db.execute("SELECT run_id, finished, units_total FROM runs ORDER BY run_id DESC LIMIT 1").fetchone()
+    return {"commit": head, "clean": clean, "protocol_version": load_protocol()["version"],
+            "protocol": fingerprint(), "split": split, "purpose": purpose, "repeats": repeats,
+            "closed_book": closed_book, "provider": "deepseek", "model": entry["model"], "settings": settings_of(entry),
+            "manifest": {"run": last[0], "finished": last[1], "units": last[2]} if last else None,
+            "analyser": lexical.frozen()["analyser"],
+            "started": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
+
+
 def asked(out: Path) -> set[tuple[str, int]]:
     """The items and repeats a file already holds."""
     if not out.is_file():
@@ -38,10 +76,20 @@ def asked(out: Path) -> set[tuple[str, int]]:
 
 
 def run(split: str, purpose: str, repeats: int, out: Path, client, closed_book: bool = False, ask=None,
-        tables=table_layers, report=None, first: int | None = None) -> dict:
+        tables=table_layers, report=None, first: int | None = None, made_by=None) -> dict:
     """Ask every item of the split as its role, `repeats` times, appending each answer to `out`; what it did. `first`
     asks only that many items, for a smoke run."""
     check_use(split, purpose)
+    sidecar = out.with_name(out.name + ".provenance.json")
+    now = (made_by or provenance)(split, purpose, repeats, closed_book)
+    if sidecar.is_file():
+        then = json.loads(sidecar.read_text(encoding="utf-8"))
+        if then["commit"] != now["commit"]:
+            raise RunError(f"{out} was started at {then['commit'][:12]} and this is {now['commit'][:12]}: resume it "
+                           "there, or start another file")
+    else:
+        sidecar.parent.mkdir(parents=True, exist_ok=True)
+        sidecar.write_bytes((json.dumps(now, indent=1, ensure_ascii=False) + "\n").encode("utf-8"))
     if ask is None:
         from needtoknow.answer.pipeline import ask
     items = load_items(golden_path(split))[:first]

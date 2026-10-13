@@ -410,7 +410,7 @@ def cmd_eval_run(args: argparse.Namespace, out) -> int:
 
     from needtoknow.eval.golden import GoldenError
     from needtoknow.eval.protocol import ProtocolError, load_protocol
-    from needtoknow.eval.run import run
+    from needtoknow.eval.run import RunError, run
     from needtoknow.index import server
     if not args.out or not args.purpose:
         print("eval run: give --out and --purpose", file=out, flush=True)
@@ -419,7 +419,7 @@ def cmd_eval_run(args: argparse.Namespace, out) -> int:
     try:
         summary = run(args.split, args.purpose, repeats, Path(args.out), server.client(), args.closed_book,
                       report=lambda line: print(line, file=out, flush=True), first=args.items)
-    except (GoldenError, ProtocolError) as error:
+    except (GoldenError, ProtocolError, RunError) as error:
         print(f"eval run: {error}", file=out, flush=True)
         return 1
     print(f"{summary['items']} items, {summary['repeats']} repeats{', closed book' if args.closed_book else ''}: "

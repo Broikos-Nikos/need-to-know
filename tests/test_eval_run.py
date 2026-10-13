@@ -7,6 +7,7 @@ import pytest
 
 from needtoknow.eval.golden import golden_path, load_items
 from needtoknow.eval.protocol import ProtocolError
+from needtoknow.eval import run as R
 from needtoknow.eval.run import run
 
 
@@ -23,6 +24,16 @@ class Asker:
         shown = [] if closed_book else [{"doc_id": "D1", "section": "S", "units": ["u1", "u2"]}]
         return {"status": "answered", "answer": "7 percent", "citations": [{"doc_id": "D1", "section": "S"}],
                 "dropped": [], "model": "deepseek-v4-flash", "cost_usd": 0.0005, "excerpts": shown}
+
+
+def made_by(head="a" * 40):
+    return lambda split, purpose, repeats, closed_book: {"commit": head, "split": split, "repeats": repeats}
+
+
+@pytest.fixture(autouse=True)
+def recorded(monkeypatch):
+    """The provenance stood in for, so a test needs no repository or manifest."""
+    monkeypatch.setattr(R, "provenance", made_by())
 
 
 def lines(path):
@@ -52,6 +63,17 @@ def test_a_run_cut_short_resumes_without_asking_anything_twice(tmp_path):
     summary = run("dev", "development", 1, out, None, ask=again, tables=lambda units: 0)
     assert (summary["kept"], summary["asked"], len(again.calls)) == (10, len(items) - 10, len(items) - 10)
     assert sorted(r["id"] for r in lines(out)) == sorted(i["id"] for i in items)
+
+
+def test_a_run_writes_its_provenance_first_and_is_resumed_only_at_its_commit(tmp_path):
+    out = tmp_path / "dev.jsonl"
+    with pytest.raises(RuntimeError):
+        run("dev", "development", 1, out, None, ask=Asker(fail_after=3), tables=lambda u: 0, made_by=made_by())
+    written = json.loads((tmp_path / "dev.jsonl.provenance.json").read_text(encoding="utf-8"))
+    assert written == {"commit": "a" * 40, "split": "dev", "repeats": 1}
+    with pytest.raises(R.RunError, match="started at aaaaaaaaaaaa and this is bbbbbbbbbbbb"):
+        run("dev", "development", 1, out, None, ask=Asker(), tables=lambda u: 0, made_by=made_by("b" * 40))
+    assert len(lines(out)) == 3  # nothing asked at the other commit
 
 
 def test_a_closed_book_run_asks_with_no_excerpts_and_the_protocol_is_asked_first(tmp_path):
