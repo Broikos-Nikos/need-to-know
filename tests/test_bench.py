@@ -6,6 +6,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 from needtoknow.corpus.plan import build
 
 BENCH = Path(__file__).resolve().parents[1] / "bench"
@@ -89,3 +91,48 @@ def test_the_injection_bench_judges_english_by_its_words_and_not_by_its_letters_
     assert not injection.in_language("El cliente puede devolver el dispositivo dentro de 30 dias.", "en")
     assert not injection.in_language("Asiakas voi palauttaa laitteen 30 päivän kuluessa.", "en")
     assert injection.in_language("Μέσα σε 30 ημέρες.", "el")
+
+
+def test_the_golden_readme_quotes_the_floor_the_null_run_scores():
+    # Tick 127: RS-F27 moved dev's figures to the originals and the README kept 35 of 153 for a tick; the floor it
+    # quotes is now held to the scorer's. Needs the plan and the manifest; a bare clone skips it.
+    from needtoknow.eval.golden import Context, golden_path, load_items
+    from needtoknow.eval.score import Sources, score
+    from needtoknow.eval.split import SplitError, load_plan
+    from needtoknow.ingest.manifest import manifest_path
+    from needtoknow.settings import repo_root
+    try:
+        load_plan()
+    except SplitError:
+        pytest.skip("no plan: ntk corpus plan makes it")
+    if not manifest_path().is_file():
+        pytest.skip("no manifest: ntk ingest build makes it")
+    spec = importlib.util.spec_from_file_location("null_runs", BENCH / "null_runs.py")
+    runs = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(runs)
+    ctx = Context()
+    text = " ".join((repo_root() / "eval" / "golden" / "README.md").read_text(encoding="utf-8").split())
+    for split, phrase in (("dev", "of dev's {items} originals, {rate:.3f}"), ("test", "of test's {items}, {rate:.3f}")):
+        items = load_items(golden_path(split))
+        overall = score(items, runs.null(items), ctx, Sources(ctx))[1]["overall"]
+        assert f"{overall['correct']} " + phrase.format(items=overall["items"], rate=overall["rate"]) in text, split
+
+
+
+def test_the_probe_recall_bench_counts_ranks_and_the_shown_excerpts_as_it_says():
+    # RS-F5: recall and MRR over probes, a probe with no gold unit among the hits counted as a miss.
+    spec = importlib.util.spec_from_file_location("probe_recall", BENCH / "probe_recall.py")
+    recall = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(recall)
+    rows = [{"rank": 1, "shown": True}, {"rank": 3, "shown": True}, {"rank": None, "shown": False},
+            {"rank": 12, "shown": False}]
+    assert recall.summarise(rows) == ("4 probes; recall@1 0.250, @5 0.500, @10 0.500; MRR 0.354; "
+                                      "in the shown excerpts 0.500")
+    hits = [{"unit_id": "u9"}, {"unit_id": "u2"}, {"unit_id": "u1"}]
+    found = recall.measure({"question": "q", "gold": ["u1", "u5"]}, "sales", None, lambda c, q, r: hits,
+                           lambda h: [{"units": ["u9", "u1"]}])
+    assert found == {"rank": 3, "shown": True}
+    # Among the hits but cut from the excerpts the prompt shows: found, not shown.
+    cut = recall.measure({"question": "q", "gold": ["u1"]}, "sales", None, lambda c, q, r: hits,
+                         lambda h: [{"units": ["u9", "u2"]}])
+    assert cut == {"rank": 3, "shown": False}

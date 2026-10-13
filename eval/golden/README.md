@@ -37,17 +37,20 @@ and original is reported (N59).
 `uv run python bench/null_runs.py` runs three answer sets no model wrote through the
 scorer, `--split test --no-search` the first two on test:
 
-* Refusing everything is right for every absent fact, near miss and no access item: 35 of
-  153 on dev and 8 of 35 on test, 0.229 on both. Every overall accuracy is read against
-  that floor, which is why the answerable accuracy is given apart.
+* Refusing everything is right for every absent fact, near miss and no access item: 32 of
+  dev's 133 originals, 0.241, and 8 of test's 35, 0.229; dev's figures leave the twenty
+  twins out, which are given apart. Every overall accuracy is read against that floor,
+  which is why the answerable accuracy is given apart.
 * Answering every item with its own first form and citing exactly the sections that plant
   its facts scores every item, citation precision and recall 1.000: the ceiling, and a
   check that each form matches itself.
 * Citing every excerpt the role's search shows, 7.8 a question, keeps citation recall at
-  0.970 and drops precision to 0.212, so precision is the citation figure that can fail.
-  The 0.970 is retrieval's: for 5 of the 118 answerable dev items the search never shows
-  a planted section. Three miss a fact planted only in the other language than the
-  question's; the other two ask two facts at once and were shown one fact's section only.
+  0.970 and drops precision to 0.215, so precision is the citation figure that can fail.
+  The 0.970 is retrieval's: for 5 of the 118 answerable dev items, twins included, the
+  search never shows a planted section. Three miss a fact planted only in the other
+  language than the question's; the other two ask two facts at once and were shown one
+  fact's section only. By category the shown sections hold every fact for A, B, D, G, H,
+  I and M, 0.882 for C, asked across languages, and 0.700 for F, two facts at once.
 
 ## How they were written, and what that leaves
 

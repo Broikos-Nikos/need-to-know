@@ -57,6 +57,11 @@ produces it.
 * Retrieval is probed apart from the answers: two questions a fact, one in each language,
   made by code from each split's own facts and worded apart from the planted sentences,
   each with its gold units and the roles that may read them: `uv run ntk eval probes --check`.
+  Asked by the narrowest role that may read each, the dev probes find a gold unit in the
+  top 10 for 0.964 of them: 1.000 when the question is in its documents' language and
+  0.915 across languages, where the first hit is right half as often, 0.500 against 0.973.
+  An upper bound, since templated questions sit near the planted text:
+  `uv run python bench/probe_recall.py`.
 * Every audit finding the history cites, open or fixed, is in `docs/AUDITS.md`, and
   every decision the code cites is in `docs/DECISIONS.md`.
 

@@ -96,6 +96,12 @@ def main(argv: list[str] | None = None) -> int:
         results, figures = score(items, everything, ctx, sources)
         report("cite everything", figures)
         unseen = [r["id"] for r in results if r["recall"] is not None and r["recall"] < 1]
+        shown = {}
+        for r in results:
+            if r["recall"] is not None:
+                shown.setdefault(r["category"], []).append(r["recall"])
+        print("cite everything, recall at the shown excerpts by category (RS-F24): " + "; ".join(
+            f"{c} {sum(v) / len(v):.3f} of {len(v)}" for c, v in sorted(shown.items())), flush=True)
         print(f"cite everything: {len(counts)} searches, {sum(counts) / len(counts):.1f} excerpts shown on average, "
               f"{time.perf_counter() - began:.0f} s; {len(unseen)} items with a fact the search never showed"
               + (f": {', '.join(unseen)}" if unseen else ""), flush=True)
