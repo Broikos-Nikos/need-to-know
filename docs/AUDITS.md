@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**169 findings, 136 closed, 33 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**170 findings, 138 closed, 32 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -69,7 +69,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 
 ## `DR`, the deep reviewer
 
-An audit pass on correctness, read in the logic rather than the comments. 25 findings, 23 closed.
+An audit pass on correctness, read in the logic rather than the comments. 25 findings, 24 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -96,7 +96,7 @@ An audit pass on correctness, read in the logic rather than the comments. 25 fin
 | `DR-F21` | low | fixed, tick 110 | Context.sections and split.salience see a fact planted twice in one document through its first section and first occurrence only; F22R12 sits in two logistics sections of LOG_MAN_007, so nothing decides wrongly yet: yield every section, measure each occurrence |
 | `DR-F22` | low | fixed, tick 109 | Three category rules are left to the writer: a G item may name any superseded fact, an E item's facts are never required empty, an N item's neighbour need not be readable by its role: tie each in check_item with a test |
 | `DR-F23` | low | fixed, tick 129 | probes.generate raises ValueError (min of no readers) on a fact no unit holds, so problems' no gold unit check is unreachable and ntk eval probes ends in a traceback after a corpus change: record the fact without a selective reader for problems to name; the class: golden.draw_rows calls rng.choice on a label and language's table units, an IndexError where a corpus has none |
-| `DR-F24` | low | open | ntk eval score on a missing answers file reports every item as unanswered, and Sources.of_row opens a missing manifest into a sqlite error the command does not catch: refuse the missing file by name, check the manifest as of_fact does |
+| `DR-F24` | low | fixed, tick 137 | ntk eval score on a missing answers file reports every item as unanswered, and Sources.of_row opens a missing manifest into a sqlite error the command does not catch: refuse the missing file by name, check the manifest as of_fact does |
 | `DR-F25` | low | fixed, tick 129 | bench/probe_recall.py counts a probe whose gold unit the manifest lacks as asked across languages, the figure the bench exists to watch: count such probes apart and name them |
 
 ## `OP`, the pipeline operator
@@ -136,7 +136,7 @@ An audit pass on whether every number can be produced again. 16 findings, 9 clos
 
 ## `MT`, the maintainer in six months
 
-An audit pass on whether a fresh clone can be rebuilt and changed safely. 16 findings, 12 closed.
+An audit pass on whether a fresh clone can be rebuilt and changed safely. 17 findings, 12 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -156,6 +156,7 @@ An audit pass on whether a fresh clone can be rebuilt and changed safely. 16 fin
 | `MT-F14` | low | open | bench/probe_recall.py, which the README quotes and a test holds, has no section in bench/README.md, and nothing asks every bench for one: an entry with its needs, commands and saved file, and a test that each script in bench/ has a section, helpers such as watched.py named as helpers |
 | `MT-F15` | low | open | tests/test_noninterference.py patches numpy's argsort for the whole process to stand for the server's ordering of exact ties, relying on qdrant-client's local mode sorting with np.argsort, which nothing checks: give the local collection module its own stable argsort and assert that its search still sorts with np.argsort |
 | `MT-F16` | low | fixed, tick 133 | bench/filter_bench.py --questions drops a gold unit the manifest lacks without a word, so the probe counts as off topic for every case, DR-F25's shape kept by the mode added the same day, and no test reaches the mode: set such probes apart and name them from one function the filter and recall benches share, with a test |
+| `MT-F17` | low | open | tests/test_readme.py's gate parses an ntk command only when it holds lower case letters, spaces and dashes, so 5 of the 38 the README mentions, every one with a placeholder, a quoted argument or a path, ntk ask and ntk eval run among them, are skipped without a word: parse each with its placeholders filled by a value of their kind, and fail on a command it cannot read |
 
 ## `SC`, the supply chain auditor
 
@@ -280,11 +281,11 @@ The same session's review of the retrieval design and its measured filtered reca
 
 ## `KB5`, the answer layer at P4 exit, reviewed against a knowledge base
 
-The same session's review of the answer layer, its cache and the measurements offered to the base. 4 findings, 3 closed.
+The same session's review of the answer layer, its cache and the measurements offered to the base. 4 findings, 4 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `KB5-K12` | medium | fixed, tick 134 | The provider's prefix cache and the cached count ntk ask prints keep open the cross-role channel AC-F11 closes: the asking role's readable label set inside the prompt after the fixed rules and before the excerpts, checked on dev to move no answer, and the cache counts kept in the spend log only |
 | `KB5-K13` | medium | fixed, tick 134 | The baseline's three repeats would come back from the answer cache, every item looking stable and one call counted where three were meant: every scored answer asks with the cache off or the repeat in the key, and a control leaves three provider calls for one item asked three times |
-| `KB5-K14` | low | open | A model alias in the cache key lets answers from a retired model outlive it: an entry is stale when a fresh reply names another model, and every evaluation run records the model that answered |
+| `KB5-K14` | low | fixed, tick 137 | A model alias in the cache key lets answers from a retired model outlive it: an entry is stale when a fresh reply names another model, and every evaluation run records the model that answered |
 | `KB5-K15` | low | fixed, tick 123 | The injection bench's language check passes any answer in unaccented Latin letters as English: judge the language by stopwords or a fixed identifier, the ASCII test kept as a second gate |
