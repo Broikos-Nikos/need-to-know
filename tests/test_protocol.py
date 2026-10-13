@@ -124,3 +124,16 @@ def test_version_3_refuses_its_own_rules_undone(protocol, path, value, words):
 def test_version_3_refuses_a_rule_left_unset(protocol, path, finding):
     problems = validate(set_at(protocol, path, remove=True))
     assert any(finding in problem for problem in problems), (path, problems)
+
+
+@pytest.mark.parametrize("path, value, words", [
+    (("items", "test", "A"), 7, "uses 32 families"),
+    (("items", "test", "F"), 0, "uses 29 families"),
+    (("items", "dev", "J"), None, "RS-F17"),
+    (("items", "defaults"), "", "RS-F19"),
+    (("splits", "balance", "item_properties"), ["stemmed_overlap"], "RS-F20"),
+])
+def test_version_5_refuses_a_count_or_a_rule_left_to_the_writing(protocol, path, value, words):
+    # N57: the categories and their counts are fixed before any item exists.
+    problems = validate(set_at(protocol, path, value))
+    assert any(words in problem for problem in problems), (path, problems)

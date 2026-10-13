@@ -8,7 +8,7 @@
 # newest hash in eval/protocol_history.toml, so a change is a new dated entry there
 # with its reason, never a quiet edit.
 
-version = 4
+version = 5
 registered = 2026-10-12
 
 [splits]
@@ -40,7 +40,7 @@ stratify_by = ["label", "kind"]
 # and the side it moved. After the first scored run, no family ever changes split.
 when = "construction"
 family_properties = ["placements", "document_size", "language", "salience"]
-item_properties = ["stemmed_overlap"]
+item_properties = ["stemmed_overlap", "category", "language"]
 max_standardized_mean_difference = 0.1
 rewrites = "logged, with the property and the side"
 
@@ -70,6 +70,42 @@ overlap_terms = "needtoknow.lexical.terms"
 rare_terms = 3
 max_shared_rare_terms = 1
 paraphrase_twins = 20
+# A fact whose value a model may know without the documents is asked only by an E
+# item, whose right answer is a refusal whatever the model knows (RS-F19).
+defaults = "asked only by E items"
+
+[items.test]
+# The categories (N57). Family items use every test family once: F and M each use two.
+#   A  the asker's own label, in English       B  the asker's own label, in Greek
+#   C  cross lingual                           D  a mixed file, the asker's section
+#   E  no access: the answer is where the asker may not read
+#   F  the administrator across two labels     M  multi hop across two documents
+#   G  a superseded value against the current  H  the right regional variant
+# Own units, written for this split only: I a table row; J a fact the corpus does not
+# hold; N a near miss, absent but with a neighbour that is present, scored like J.
+# No category holds an answer spanning a unit boundary: every planted fact is one self
+# contained sentence in one unit, and no item can honestly need two.
+A = 6
+B = 5
+C = 3
+D = 4
+E = 4
+F = 1
+M = 1
+G = 4
+H = 1
+I = 2
+J = 2
+N = 2
+
+[items.dev]
+# Two or three items for each dev family, in the test's category shares, each within
+# the tolerance; the own units counted here; Greek between the bounds in each split.
+I = 8
+J = 8
+N = 8
+share_tolerance = 0.05
+greek_share = [0.45, 0.55]
 
 [baseline]
 # deepseek-flash on both splits, three repeats, every scored answer asked with the
@@ -109,6 +145,12 @@ several_values = "each against the incumbent; the cheapest that clears an arm"
 # Variant families are few, so their items are reported family by family and decide
 # nothing alone.
 variant_items = "descriptive, by family"
+# The headline is the share of all test items answered right; beside it, the share of
+# the family items alone, since J and N items, refused by a model that invents nothing,
+# are the easiest (RS-F17). The closed book run's hits on deliberate defaults are
+# reported apart from its other hits (RS-F19, KB1-F7).
+headline = "all test items, and beside it the family items alone"
+defaults = "the closed book run's hits on deliberate defaults reported apart"
 
 [release]
 # Before each test run, a parity check on the exact build that will run it: the

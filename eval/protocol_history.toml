@@ -48,3 +48,16 @@ a test fact's sentence wherever a group straddled the splits, about seven groups
 at the registered share. The family is now the group (N56), and the same share, \
 0.388, draws 31 test families of 81, one item each; the other 50 carry the dev \
 items."""
+
+[[version]]
+date = 2026-10-13
+sha256 = "b4ad8e5b7e4459905119231f1e30f9726269bfdc328720b59b712b9c1297c6d5"
+reason = """\
+Still before any question, probe, answer or score existed. Version 4 fixed the 31 \
+test families and left every category count to the writing, where a count can be \
+chosen once items exist (RS-F17). The categories and their counts are now fixed \
+(N57): the test's 35 items, family items using every test family once and table, \
+absent and near miss items counted for each split; dev in the test's shares; a \
+deliberate default asked only by a refusal item (RS-F19); the category and the \
+language among the item properties balanced at writing (RS-F20); and the headline \
+given beside the share of the family items alone."""

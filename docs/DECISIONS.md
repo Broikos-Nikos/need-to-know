@@ -232,3 +232,24 @@ set: about 15.4 points of Wilson half width at 0.7 accuracy with 31 items, again
 with 40.
 
 **Reverses if.** The corpus is planned again with one fact to a section.
+
+## N57. The golden categories and their counts, fixed before any item
+
+**Call.** `eval/protocol.toml` version 5 counts every item before one is written. The test
+holds 35: family items that ask each of the 31 test families once, 6 in the asker's own
+label in English, 5 in Greek, 3 cross lingual, 4 in a mixed file, 4 with no access, 4 on
+a superseded value, 1 on a regional variant, and one administrator item and one multi hop
+item using two families each; and items that belong to no family, 2 on a table row, 2 on
+a fact the corpus does not hold, 2 near misses scored like them. Dev holds two or three
+items for each of its 50 families in the test's shares, within 0.05, and 8 of each own
+kind; each split is between 0.45 and 0.55 Greek. A fact whose value a model may know
+without the documents is asked only by a no access item, whose right answer is a refusal.
+
+**Evidence.** A count left to the writing can be chosen once items exist, and the items a
+careful model refuses are the easiest. Three test families hold nothing but such a
+default, so three of the four no access items are theirs. Every planted fact is one self
+contained sentence in one unit, so no item can honestly need an answer spanning two units,
+and none is asked for.
+
+**Reverses if.** The writing finds a category its split's families cannot fill; then a new
+version, dated, before any item is scored.

@@ -80,6 +80,18 @@ def validate(protocol: dict) -> list[str]:
         problems.append("items.overlap_terms must be needtoknow.lexical.terms, the terms BM25 matches (RS-F3)")
     if not (isinstance(rare, int) and isinstance(shared, int) and 0 <= shared < rare):
         problems.append("items.rare_terms and items.max_shared_rare_terms must cap the shared rare terms (KB3-K4)")
+    # Version 5 (N57): every count fixed before any item, so none can be chosen once items exist.
+    test_items, dev_items = items.get("test", {}), items.get("dev", {})
+    used = sum(test_items.get(code, 0) for code in "ABCDEGH") + 2 * sum(test_items.get(code, 0) for code in "FM")
+    if used != splits.get("test_families"):
+        problems.append(f"items.test uses {used} families, not the {splits.get('test_families')} test families: "
+                        "every test family is asked once, F and M items using two")
+    if any(not isinstance(counts.get(code), int) for counts in (test_items, dev_items) for code in "IJN"):
+        problems.append("items.test and items.dev must count the I, J and N items, which belong to no family (RS-F17)")
+    if not items.get("defaults"):
+        problems.append("items.defaults must say which items may ask a deliberate default (RS-F19)")
+    if not {"category", "language"} <= set(splits.get("balance", {}).get("item_properties", [])):
+        problems.append("splits.balance.item_properties must hold the category and the language (RS-F20)")
     baseline = protocol.get("baseline", {})
     if baseline.get("cache") != "off":
         problems.append("baseline.cache must be 'off': a repeat sends the same prompt and would come back from the "
