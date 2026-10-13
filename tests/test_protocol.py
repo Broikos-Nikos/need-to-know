@@ -90,3 +90,37 @@ def test_balance_is_checked_before_any_score(protocol):
     late = copy.deepcopy(protocol)
     late["splits"]["balance"]["when"] = "baseline"
     assert any("splits.balance.when" in problem for problem in validate(late))
+
+
+def set_at(protocol: dict, path: tuple, value=None, remove=False) -> dict:
+    broken = copy.deepcopy(protocol)
+    node = broken
+    for key in path[:-1]:
+        node = node[key]
+    if remove:
+        del node[path[-1]]
+    else:
+        node[path[-1]] = value
+    return broken
+
+
+@pytest.mark.parametrize("path, value, words", [
+    (("splits", "unit"), "item", "fact family"),
+    (("decision", "unit"), "item", "fact family"),
+    (("splits", "test", "items_per_family"), 2, "items_per_family must be 1"),
+    (("items", "overlap_terms"), "surface words", "lexical.terms"),
+    (("items", "max_shared_rare_terms"), 3, "cap the shared rare terms"),
+    (("baseline", "cache"), "on", "answer cache"),
+])
+def test_version_3_refuses_its_own_rules_undone(protocol, path, value, words):
+    # N43: the family is the unit; KB3-K4 and RS-F3: the overlap cap in BM25's terms; KB5-K13: repeats skip the cache.
+    problems = validate(set_at(protocol, path, value))
+    assert any(words in problem for problem in problems), (path, problems)
+
+
+@pytest.mark.parametrize("path, finding", [(("splits", "balance", "rewrites"), "KB2-K2"),
+                                           (("baseline", "aggregate"), "RS-F2"),
+                                           (("decision", "several_values"), "RS-F8")])
+def test_version_3_refuses_a_rule_left_unset(protocol, path, finding):
+    problems = validate(set_at(protocol, path, remove=True))
+    assert any(finding in problem for problem in problems), (path, problems)

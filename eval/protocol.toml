@@ -8,17 +8,20 @@
 # newest hash in eval/protocol_history.toml, so a change is a new dated entry there
 # with its reason, never a quiet edit.
 
-version = 2
+version = 3
 registered = 2026-10-12
 
 [splits]
-# The unit of the split is the fact family: a planted fact with its versions and
-# its regional or product variants. Every golden item and probe takes the split of
-# the families it asks about, so no fact is asked in both splits. Drawn at random
-# within each stratum, never by any score.
+# The unit of the split, and of every test, is the fact family: a planted fact with
+# its versions and its regional or product variants. Items about one family cluster,
+# so counting them as independent would overstate every interval. Every golden item
+# and probe takes the split of the families it asks about, so no fact is asked in
+# both. The 40 test families are drawn directly, at random within each stratum,
+# never by any score. Items that ask about no registry fact, a table row or a fact
+# the corpus does not hold, are their own units and are written for one split only.
 unit = "fact family"
 seed = 20261012
-test_share = 0.5
+test_families = 40
 stratify_by = ["label", "kind"]
 
 [splits.balance]
@@ -27,49 +30,80 @@ stratify_by = ["label", "kind"]
 # the items are written. Each property's standardized mean difference between the
 # halves stays under the limit. A family split that fails is replaced by the next
 # seed's before any item exists, and every draw is recorded; an item that unbalances
-# its split is rewritten, never moved. After the first scored run, no family ever
-# changes split.
+# its split is rewritten, never moved. At about half of fair writing rounds the bar
+# fails by chance, so it stays at 0.1 and every rewrite is logged with the property
+# and the side it moved. After the first scored run, no family ever changes split.
 when = "construction"
 family_properties = ["placements", "document_size", "language", "salience"]
 item_properties = ["stemmed_overlap"]
 max_standardized_mean_difference = 0.1
+rewrites = "logged, with the property and the side"
 
 [splits.test]
-# The published accuracy. The baseline is the first release.
-golden = 50
-probes = 600
+# The published accuracy: one item for each test family, by construction, with its
+# Wilson interval over families. The baseline is the first release.
+items_per_family = 1
+probes = "two per fact of the split's families"
 purposes = ["baseline", "release"]
 
 [splits.dev]
-# Four times the test set, because a decision needs a paired comparison with power,
-# and a release needs only an honest estimate.
-golden = 200
-probes = 600
+# Where the power is: two or three items for each dev family, differing in their
+# condition, English, Greek, cross lingual, mixed file or no access, rather than in
+# their wording.
+items_per_family = [2, 3]
+probes = "two per fact of the split's families"
 purposes = ["development", "baseline", "experiment", "parity"]
 
+[items]
+# Each item is drafted from the registry, then rewritten without the planted
+# sentence in view. Its overlap with the planted sentence is counted in the terms
+# the lexical search uses, so Greek stems count as BM25 sees them, on the planted
+# sentence's three rarest terms by the corpus's document frequency: at most one of
+# them may be in the question. About 20 dev items get a paraphrase twin, and the
+# gap between twins is reported.
+overlap_terms = "needtoknow.lexical.terms"
+rare_terms = 3
+max_shared_rare_terms = 1
+paraphrase_twins = 20
+
 [baseline]
-# deepseek-flash on both splits, three repeats; an item whose verdict changes between
-# repeats is marked unstable. The dev and test difference is published with its
-# interval as a diagnostic and changes nothing: the baseline is the first release,
-# and by then the dev items have been read during development.
+# deepseek-flash on both splits, three repeats, every scored answer asked with the
+# answer cache off, since a repeat sends the same prompt and would come back from
+# it. An item's score is its mean over the repeats, and an item whose verdict
+# changes between repeats is marked unstable. The dev and test difference is
+# published with its interval as a diagnostic and changes nothing: the baseline is
+# the first release, and by then the dev items have been read during development.
 repeats = 3
+cache = "off"
+aggregate = "per item mean over repeats"
 on_disagreement = "report"
 
 [decision]
-# One variable per experiment, against the incumbent, paired by item on dev. Never
-# adopted with a leak in the permission suite, the canaries or any dev answer.
-# Otherwise adopted by exactly one of these arms:
-#   up     more dev items fixed than broken, and the paired test under alpha
+# One variable per experiment, against the incumbent, paired by item on dev and
+# tested over families. Never adopted with a leak in the permission suite, the
+# canaries or any dev answer. Otherwise adopted by exactly one of these arms:
+#   up     the family mean difference above zero by the test under alpha
 #   cost   USD per question or p95 seconds down by cost_cut or more, and the lower
-#          end of the interval for the accuracy difference above minus the margin
-#   probe  dev probe recall@10 up by the paired test under alpha, and accuracy non
+#          end of the interval for the family mean difference above minus the margin
+#   probe  dev probe recall@10 up by the test under alpha, and accuracy non
 #          inferior as for cost
-test = "McNemar mid-p, two sided"
-interval = "Tango score interval for paired proportions, 95 percent, two sided"
+# An experiment with several values compares each with the incumbent; among the
+# values that clear an arm, the cheapest is adopted. The smallest effect these
+# families can show is stated beside every decision.
+unit = "fact family"
+test = "sign flip permutation test over family mean differences, two sided"
+interval = "percentile bootstrap over families, 10000 resamples, 95 percent"
 alpha = 0.05
 non_inferiority_margin = 0.05
+smallest_visible_effect = 0.10
 cost_cut = 0.20
 arms = ["up", "cost", "probe"]
+several_values = "each against the incumbent; the cheapest that clears an arm"
+
+[reporting]
+# Variant families are few, so their items are reported family by family and decide
+# nothing alone.
+variant_items = "descriptive, by family"
 
 [release]
 # Before each test run, a parity check on the exact build that will run it: the
@@ -78,7 +112,7 @@ arms = ["up", "cost", "probe"]
 # anything. A defect found after a test run, and visible without looking at any
 # outcome, allows one rerun per test set, with both runs published and the defect
 # named; a second such defect costs a new test set, written from test families that
-# no published test item has used.
+# no published test item has used, or a release without a test number, saying why.
 parity = "retrieval for every dev item equals the last dev run of the same configuration"
 reruns_per_test_set = 1
 published = "the latest release, with every release listed"

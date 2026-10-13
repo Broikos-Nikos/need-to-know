@@ -64,6 +64,27 @@ def validate(protocol: dict) -> list[str]:
     alpha = decision.get("alpha")
     if not isinstance(alpha, float) or not 0 < alpha <= 0.05:
         problems.append("decision.alpha must be a share above 0 and at most 0.05")
+    # Version 3 (N43): items about one family cluster, so the family is the unit of the split and of every test.
+    if splits.get("unit") != "fact family" or decision.get("unit") != "fact family":
+        problems.append("splits.unit and decision.unit must be 'fact family': items about one fact are not independent")
+    if splits.get("test", {}).get("items_per_family") != 1:
+        problems.append("splits.test.items_per_family must be 1: a test family carries one item, by construction")
+    if not splits.get("balance", {}).get("rewrites"):
+        problems.append("splits.balance.rewrites must say how a rewrite is logged (KB2-K2)")
+    items = protocol.get("items", {})
+    rare, shared = items.get("rare_terms"), items.get("max_shared_rare_terms")
+    if items.get("overlap_terms") != "needtoknow.lexical.terms":
+        problems.append("items.overlap_terms must be needtoknow.lexical.terms, the terms BM25 matches (RS-F3)")
+    if not (isinstance(rare, int) and isinstance(shared, int) and 0 <= shared < rare):
+        problems.append("items.rare_terms and items.max_shared_rare_terms must cap the shared rare terms (KB3-K4)")
+    baseline = protocol.get("baseline", {})
+    if baseline.get("cache") != "off":
+        problems.append("baseline.cache must be 'off': a repeat sends the same prompt and would come back from the "
+                        "answer cache (KB5-K13)")
+    if not baseline.get("aggregate"):
+        problems.append("baseline.aggregate must say how repeats make one score (RS-F2)")
+    if not decision.get("several_values"):
+        problems.append("decision.several_values must say how an experiment with several values adopts one (RS-F8)")
     ids = [entry.split(" ", 1)[0] for entry in protocol.get("experiments", {}).get("order", [])]
     if not ids or ids != [f"E{i}" for i in range(1, len(ids) + 1)]:
         problems.append("experiments.order must run E1, E2 and onwards with no gap or repeat")

@@ -19,3 +19,19 @@ the new test split. Now the baseline only reports that difference, the split's \
 balance is checked at construction on properties that carry no outcome, and no \
 family changes split after the first scored run. A test set voided twice is \
 replaced from test families no published item has used."""
+
+[[version]]
+date = 2026-10-13
+sha256 = "162ca513150de1ec171a2858701ab76250e18ba644e6a7bd9b2297d59ce190be"
+reason = """\
+Still before any question, probe, answer or score existed. The registry came to \
+103 fact families, not 600, so 50 test and 200 dev items would have asked several \
+items of one family as if they were independent. The family becomes the unit of \
+the split and of every test: 40 test families with one item each, the other 63 \
+with two or three dev items each, differing in condition rather than wording; a \
+sign flip permutation test and a bootstrap over family means replace McNemar and \
+Tango; the smallest visible effect is stated. Registered with them: the overlap \
+cap on the planted sentence's three rarest terms in the lexical analyser's terms, \
+twenty paraphrase twins, rewrites logged with their side, repeats asked with the \
+answer cache off and averaged per item, and an experiment with several values \
+adopting the cheapest that clears an arm."""
