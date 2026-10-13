@@ -110,6 +110,25 @@ def test_a_superseded_item_names_both_values_and_own_unit_items_keep_theirs(ctx)
     assert any("expects no fact" in p for p in G.check_item(absent, "dev", ctx))
 
 
+def test_a_superseded_fact_an_e_items_facts_and_a_near_misss_neighbour_are_held_to_their_category(ctx):
+    # DR-F22: each was left to the writer.
+    ctx.facts["F06V00OLD"] = {**ctx.facts["F06V00"], "id": "F06V00OLD", "kind": "superseded", "values": ["5", "5"]}
+    ctx.docs["D1"]["sections"][0]["facts"].append("F06V00OLD")
+    g = item(id="D01", category="G", families=["F09V00"],
+             expect={"status": "answered", "facts": [{"fact_id": "F09V00", "forms": ["22"]}], "superseded": ["F09V00OLD"]})
+    assert G.check_item(g, "dev", ctx) == []
+    g["expect"]["superseded"] = ["F06V00OLD"]  # superseded, but another fact's former value
+    assert any("superseded fact is a former value of the fact it asks" in p for p in G.check_item(g, "dev", ctx))
+    e = item(id="T02", category="E", families=["F38V00"], role="sales",
+             expect={"status": "not_found", "facts": [{"fact_id": "F38V00", "forms": ["35000"]}],
+                     "forbidden": [{"fact_id": "F38V00", "forms": ["35000"]}]})
+    assert any("an E item expects no fact" in p for p in G.check_item(e, "test", ctx))
+    near = item(id="D02", category="N", families=[], role="sales", near="F06V00",
+                expect={"status": "not_found", "facts": []})
+    assert G.check_item(near, "dev", ctx) == []
+    assert any("neighbour is a fact legal may read" in p for p in G.check_item({**near, "role": "legal"}, "dev", ctx))
+
+
 def test_the_split_must_hold_the_registered_counts_and_ask_each_test_family_once(ctx):
     protocol = copy.deepcopy(ctx.protocol)
     protocol["items"]["test"] = {code: 0 for code in "ABCDEFGHMIJN"} | {"A": 2}

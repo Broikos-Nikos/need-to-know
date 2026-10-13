@@ -22,7 +22,8 @@ reads; an M item's two facts share no document; every expected fact is in the re
 in one of the item's families, each of its forms holding its planted value or naming it; an answered item's
 role may read a section each fact is planted in, an E item's none; C asks in the other
 language than every document its facts sit in; G asks the current value and names the
-superseded one, H a regional variant; a deliberate default is asked only by E (RS-F19);
+superseded one of its own registry family, H a regional variant; E, J and N expect no fact, and a near miss's
+neighbour is one its role reads; a deliberate default is asked only by E (RS-F19);
 and the overlap cap: of the three rarest terms of each planted sentence by the corpus's
 document frequency, at most one in the question, counted by `needtoknow.lexical.terms`,
 the terms BM25 matches (RS-F3, KB3-K4). Per split: the test's category counts, every test
@@ -236,14 +237,20 @@ def check_item(item: dict, split: str, ctx: Context) -> list[str]:
         olds = [fid for fid in expect.get("superseded") or [] if ctx.facts.get(fid, {}).get("kind") == "superseded"]
         if not olds or not all(ctx.facts.get(e.get("fact_id"), {}).get("kind") == "versioned" for e in expected):
             say(f"{name}: a G item expects the current value and names the superseded fact")
+        asked = {ctx.facts[e["fact_id"]]["family"] for e in expected if e.get("fact_id") in ctx.facts}
+        if any(ctx.facts[old]["family"] not in asked for old in olds):
+            say(f"{name}: a G item's superseded fact is a former value of the fact it asks")
     if category == "H" and not all(ctx.facts.get(e.get("fact_id"), {}).get("kind") == "variant" for e in expected):
         say(f"{name}: an H item expects a regional variant")
     if category in FAMILY and not expected:
         say(f"{name}: a family item names the fact it asks" + (" under forbidden" if category == "E" else ""))
-    if category in {"J", "N"} and expect.get("facts"):
-        say(f"{name}: a {category} item expects no fact")
+    if category in REFUSED and expect.get("facts"):
+        say(f"{name}: {'a J' if category == 'J' else 'an ' + category} item expects no fact"
+            + ("; what it must not say is under forbidden" if category == "E" else ""))
     if category == "N" and item.get("near") not in ctx.facts:
         say(f"{name}: a near miss names the present fact it neighbours")
+    elif category == "N" and not any(section["label"] in reads for _, section in ctx.sections(item["near"])):
+        say(f"{name}: a near miss's neighbour is a fact {role} may read")
     return problems
 
 
