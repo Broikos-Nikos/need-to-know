@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**154 findings, 113 closed, 41 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**154 findings, 115 closed, 39 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -34,7 +34,7 @@ An audit pass that tried to break a first run. 17 findings, 15 closed.
 
 ## `RS`, the retrieval scientist
 
-An audit pass on whether the evaluation can fail and its statistics are honest. 24 findings, 15 closed.
+An audit pass on whether the evaluation can fail and its statistics are honest. 24 findings, 17 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -46,7 +46,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 | `RS-F6` | medium | open | Every number comes from one corpus draw: the small profile at two more seeds, the spread of the retrieval numbers reported, accuracy stated as one corpus |
 | `RS-F7` | medium | fixed, tick 119 | The accuracy has an 18 percent floor (9 of 50 by always answering not_found) and no null or oracle run is planned: run both through the scorer, publish them |
 | `RS-F8` | low | fixed, tick 98 | A multi valued experiment has no rule for choosing among its values: compare each with the incumbent, adopt the cheapest that clears an arm, or Holm within it |
-| `RS-F9` | low | open | Part of the simulation's false claims is an assumed probe coin (0.12 to 0.18 without it): print the assumption or simulate the probe arm |
+| `RS-F9` | low | fixed, tick 122 | Part of the simulation's false claims is an assumed probe coin (0.12 to 0.18 without it): print the assumption or simulate the probe arm |
 | `RS-F10` | low | fixed, tick 39 | Target shares must sum to 1 while a section may name several labels: define the share by first label, or check at least 1 |
 | `RS-F11` | low | fixed, tick 69 | Overlap@10 on off topic probes counts swaps among near equal scores: report a tie aware overlap and gate on misses beyond the tolerance |
 | `RS-F12` | medium | open | N50 and the bench README quote the attack's share over the whole collection and its null, and leave out its own share over the view, 58 to 65 percent against 45 to 50: all three with their counts and intervals, the view's claim carried by KB4-K9's noninterference test Measured by bench/idf_attack.py. |
@@ -55,7 +55,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 | `RS-F15` | medium | fixed, tick 119 | Citation accuracy, a cited section among the expected sources, is passed by citing every excerpt: citation precision and recall per item, with a cite everything null through the scorer on dev |
 | `RS-F16` | low | open | The filter bench and the permission suite ask the first 30 words of a unit, not a question: the filter bench run on the dev probes when T5.4 makes them, and N51 says what its probes were |
 | `RS-F17` | medium | fixed, tick 101 | The protocol does not say how many table and absent fact items each split holds, so the test's easiest items can still be counted in late: register so many I and J items per split before any is written, and report the headline with and without them |
-| `RS-F18` | medium | open | The registered smallest visible effect, 0.10, is N43's figure for 63 families and no command produces it; a simulation of the registered test puts it at 0.11 for 63 and 0.12 for 50: a committed bench over a range of discordance rates, and the protocol's figure from it |
+| `RS-F18` | medium | fixed, tick 122 | The registered smallest visible effect, 0.10, is N43's figure for 63 families and no command produces it; a simulation of the registered test puts it at 0.11 for 63 and 0.12 for 50: a committed bench over a range of discordance rates, and the protocol's figure from it |
 | `RS-F19` | low | fixed, tick 101 | Deliberate defaults sit in 5 of 31 test families and 6 of 50 dev, and nothing says whether an item may ask one: register that no item asks a default unless its category needs one, and report the closed book run's hits on defaults apart |
 | `RS-F20` | low | fixed, tick 101 | The items' language and category shares are checked in the spec, not in the hashed protocol: add them to item_properties with how close they must match |
 | `RS-F21` | low | fixed, tick 114 | The test items were drafted with the planted sentences in view, against the registered rewrite without them; the cap on shared rare terms holds them and eval/golden/README.md says so: the dev items are drafted from the registry's topic and value alone |
