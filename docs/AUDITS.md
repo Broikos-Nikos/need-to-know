@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**170 findings, 140 closed, 30 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**172 findings, 141 closed, 31 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -34,7 +34,7 @@ An audit pass that tried to break a first run. 17 findings, 16 closed.
 
 ## `RS`, the retrieval scientist
 
-An audit pass on whether the evaluation can fail and its statistics are honest. 28 findings, 27 closed.
+An audit pass on whether the evaluation can fail and its statistics are honest. 29 findings, 27 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -66,10 +66,11 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 | `RS-F26` | high | fixed, tick 125 | A refusal item's forbidden value that a readable fact also states is scored as a leak: 6 of 19 dev E items and T19 forbid a value, 12 months or 5 working days, that facts every role or the asking role reads also state; a leak is a forbidden value no readable fact states, the rest wrong but no leak, shown per item |
 | `RS-F27` | low | fixed, tick 125 | The dev item rates count the twenty twinned facts twice: give the dev figures over the originals, the twins' rates and their gap apart |
 | `RS-F28` | medium | fixed, tick 130 | N43 reverses if annex units take a real share of a prose question's top 10, and its 0.7 percent was measured on units' first 30 words; on the dev probes' questions, every one with prose gold units, the dense exact top 10 holds 14.7 percent table units (bench/filter_bench.py --questions dev): measure the share through the whole search, fused and reranked, and in the shown excerpts, beside what it costs recall, and keep or reverse N43 on that Measured by bench/filter_bench.py --questions dev --report. |
+| `RS-F29` | medium | open | Retrieval is not repeatable on one build: D012 and D013 were each shown a different excerpt in one of three repeats at 778fc1d, a near tie at the edge of the top eight reordered between GPU calls, so the release's parity rule, every dev item's retrieved ids and scores equal to the last dev run of the same configuration, fails on noise: make the order of near equal scores deterministic, or state the parity with a tolerance the baseline measures Measured by bench/baseline.py eval/runs/baseline, its parity line. |
 
 ## `DR`, the deep reviewer
 
-An audit pass on correctness, read in the logic rather than the comments. 25 findings, 24 closed.
+An audit pass on correctness, read in the logic rather than the comments. 26 findings, 24 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -98,6 +99,7 @@ An audit pass on correctness, read in the logic rather than the comments. 25 fin
 | `DR-F23` | low | fixed, tick 129 | probes.generate raises ValueError (min of no readers) on a fact no unit holds, so problems' no gold unit check is unreachable and ntk eval probes ends in a traceback after a corpus change: record the fact without a selective reader for problems to name; the class: golden.draw_rows calls rng.choice on a label and language's table units, an IndexError where a corpus has none |
 | `DR-F24` | low | fixed, tick 137 | ntk eval score on a missing answers file reports every item as unanswered, and Sources.of_row opens a missing manifest into a sqlite error the command does not catch: refuse the missing file by name, check the manifest as of_fact does |
 | `DR-F25` | low | fixed, tick 129 | bench/probe_recall.py counts a probe whose gold unit the manifest lacks as asked across languages, the figure the bench exists to watch: count such probes apart and name them |
+| `DR-F26` | low | open | The scorer misses a Greek time range written with its articles: D053's third answer, 'από τις 07:00 έως τις 15:00', is right and was scored wrong, the form '07:00 έως 15:00' not standing whole in it: read the articles between a range's words and its times as nothing, test it both ways, and score the baseline's dev answers again at the new scorer hash |
 
 ## `OP`, the pipeline operator
 
@@ -227,7 +229,7 @@ An audit pass on time, memory and disk, its page half waiting for the page. 9 fi
 
 ## `KB1`, the plan, reviewed against a knowledge base
 
-A separate session's review of the plan against the author's research notes. 15 findings, 13 closed.
+A separate session's review of the plan against the author's research notes. 15 findings, 14 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -237,7 +239,7 @@ A separate session's review of the plan against the author's research notes. 15 
 | `KB1-F4` | medium | fixed, tick 63 | BM25 IDF side channel: raw lexical scores never leave the server; P6 runs a term existence attack and publishes its success rate; if it works, per role view sparse collections |
 | `KB1-F5` | medium | fixed, tick 118 | Publish answerable accuracy, refusal correctness and leaks as separate figures; the overall rate only as a fourth |
 | `KB1-F6` | medium | fixed, tick 101 | Golden set needs near misses, multi hop across two documents and answers spanning a unit boundary; score near misses like J |
-| `KB1-F7` | medium | open | Headline says synthetic; a closed book run with empty excerpts published beside it; planted values mostly non default, deliberate defaults flagged in the registry |
+| `KB1-F7` | medium | fixed, tick 139 | Headline says synthetic; a closed book run with empty excerpts published beside it; planted values mostly non default, deliberate defaults flagged in the registry |
 | `KB1-F8` | medium | fixed, tick 138 | Corpus is mostly code generated structure while the eval is mostly prose: stats by layer, metrics by layer, cap layer C at about a third of units and raise table items |
 | `KB1-F9` | medium | open | Planted facts are too salient: a salience plan per fact recorded in the registry, and a noise pass (page headers and footers, cross references, numbering drift, typos) over layers A and B |
 | `KB1-F10` | medium | fixed, tick 43 | Unit rules: list runs as one block, units under about 30 tokens merged into the next in the same segment and heading, audience and classification lines moved to the payload, table header repeated per row group |
