@@ -1,0 +1,7 @@
+command: uv run python bench/served.py
+recorded 2026-10-18 23:37, run at 9e22fde
+---
+the models loaded in 21.2 s; 20 dev probes searched through the server as their selective readers, 2 sessions: the first in 1.62 s, then a median of 1.01 s and a 95th percentile of 1.47 s; the trace's own queries a median of 0.133 s
+the fused scores against reciprocal rank fusion of the two searches as traced: 2000 fused units, the largest gap 2.3e-09
+
+

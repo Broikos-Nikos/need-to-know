@@ -59,6 +59,17 @@ command in this repository that produces it.
   citations able to name only what it was shown, and an instruction planted in a
   document is quoted rather than followed: `uv run ntk ask "<question>" --as <role>` and
   `uv run python bench/injection.py`.
+* The local server is the index's one client on the served path: `uv run ntk serve` listens
+  on the loopback alone and answers only requests addressed to it there, a role signs in
+  once, and every search sends the session's token, never a role (N64). Each search answers
+  with its stage trace: the role's filter and how many units it passes and holds back, each
+  search's own candidates and scores, their fusion, the reranker's order, the excerpts and
+  each stage's seconds, every unit in it one the role may read; the leak gate asks every
+  case through it too. The models load as it starts, 21.2 s here, so its first search took
+  1.62 s and the rest a median of 1.01 s and 1.47 s at the 95th percentile, the trace's own
+  queries 0.133 s of it at the median; over 2,000 fused units the engine's scores match
+  reciprocal rank fusion of the two searches as traced within 2.3e-09:
+  `uv run python bench/served.py`.
 * The evaluation's fact families are split into test and dev by a seed registered before
   any question was written, with every draw that failed the balance check recorded:
   `uv run ntk eval split --check`.
@@ -161,6 +172,7 @@ uv run ntk index create
 uv run ntk index sync
 uv run ntk search "How many days does a customer have to return a device?" --as returns
 uv run ntk ask "How many days does a customer have to return a device?" --as returns
+uv run ntk serve
 uv run ntk ingest watch
 ```
 
@@ -186,7 +198,8 @@ uv run ntk ingest watch
   the spend log in the data directory, the provider's cached token counts with them.
   `ntk doctor` checks each of these.
 * `ntk` is the operator's tool: `--as` takes the role on the caller's word, to stand in
-  for a user. A served path takes the role from the session, never from the request.
+  for a user. `ntk serve` takes it from the session instead: a role signs in once, on the
+  same word, where a deployment's identity provider would stand, and no query can name one.
 * The provider reads every excerpt the asking role may read, restricted sections
   included: it is a reader outside the role model, and choosing one is a decision about
   where the documents may go.
