@@ -33,7 +33,9 @@ command in this repository that produces it.
   more would want cutting a section at a time: `uv run python bench/ingest_steps.py`.
 * The full build, from the assembled corpus to a searchable index, runs phase by
   phase with the memory and disk each needs, about 80 minutes here, an hour of it
-  embedding on the GPU: `uv run python bench/full_build.py --fresh`.
+  embedding on the GPU: `uv run python bench/full_build.py --fresh`. It holds 160
+  documents of 314,698,575 bytes, cut into 501,031 units and as many vectors, the index
+  taking 3,948,030,510 bytes of disk: `uv run ntk stats`.
 * Every unit is embedded as its passage, its heading path above its text, and kept
   in a cache under that passage, so a second run, a relabel or a rebuilt index
   embeds nothing again; a passage longer than the model takes is refused, never

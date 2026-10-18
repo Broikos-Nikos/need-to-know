@@ -97,6 +97,8 @@ def build_parser() -> argparse.ArgumentParser:
                                  "control KB1-F7 asks for (DR-F27)")
     embed = commands.add_parser("embed", help="embed every unit of the manifest whose passage the vector cache lacks")
     embed.add_argument("--budget", type=int, help="padded tokens per batch; config/models.toml sets the default")
+    commands.add_parser("stats", help="what the build holds: documents, their bytes, units, vectors and the index's "
+                                      "size on disk")
     return parser
 
 
@@ -675,6 +677,48 @@ def cmd_corpus(args: argparse.Namespace, out=None) -> int:
     return 0 if not result["problems"] else 1
 
 
+def folder_bytes(path: Path) -> int:
+    """The bytes of every file under a folder, none when it is not there."""
+    return sum(file.stat().st_size for file in path.rglob("*") if file.is_file()) if path.is_dir() else 0
+
+
+def cmd_stats(out=None, client=None) -> int:
+    """What the build holds, PLAN section 1's number 6 bar the build's time, which bench/full_build.py measures: the
+    documents, their bytes and units from the manifest, the collection's vectors from the server, and on disk the
+    index's storage, the manifest and the vector cache."""
+    import sqlite3
+
+    from needtoknow.embed.cache import cache_path
+    from needtoknow.embed.model import load_config
+    from needtoknow.index.collection import COLLECTION
+    from needtoknow.ingest.manifest import manifest_path
+    from needtoknow.settings import data_dir
+    out = out or sys.stdout
+    path = manifest_path()
+    if not path.is_file():
+        print(f"stats: no manifest at {path}: ntk ingest build makes it", file=out, flush=True)
+        return 1
+    db = sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True)
+    try:
+        documents, size = db.execute("SELECT COUNT(*), COALESCE(SUM(size), 0) FROM files").fetchone()
+        layers = dict(db.execute("SELECT layer, COUNT(*) FROM units GROUP BY layer").fetchall())
+    finally:
+        db.close()
+    try:
+        vectors = f"{(client or server.client()).count(COLLECTION, exact=True).count:,} vectors in {COLLECTION}"
+    except Exception as error:
+        if not server_down(error, out, "stats"):
+            raise
+        vectors = "the vectors not counted"
+    cache = cache_path(load_config())
+    print(f"{documents} documents, {size:,} bytes; {sum(layers.values()):,} units ("
+          + ", ".join(f"{layer} {count:,}" for layer, count in sorted(layers.items())) + f"); {vectors}; on disk, the "
+          f"index {folder_bytes(data_dir() / 'qdrant' / 'storage' / 'collections' / COLLECTION):,} bytes, the "
+          f"manifest {path.stat().st_size:,}, the vector cache {cache.stat().st_size if cache.is_file() else 0:,}",
+          file=out, flush=True)
+    return 0
+
+
 def cmd_qdrant(args: argparse.Namespace, out=None) -> int:
     """Exit 0 when the action succeeded; for status, when the server is running and ready."""
     out = out or sys.stdout
@@ -758,6 +802,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_ask(args)
     if args.command == "eval":
         return cmd_eval(args)
+    if args.command == "stats":
+        return cmd_stats()
     parser.print_help()
     return 0
 
