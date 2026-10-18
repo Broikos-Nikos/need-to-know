@@ -1,0 +1,27 @@
+command: uv run python bench/probe_recall.py --split test
+recorded 2026-10-18 21:56 from the log probe-recall-test-t147.log, written 2026-10-18 21:14
+---
+test, each probe once, as its selective reader: 108 probes; recall@1 0.898, @5 0.935, @10 0.944; MRR 0.913; in the shown excerpts 0.935
+  table units 21.3% of the top 10 and 29.1% of the shown excerpts' units; set aside, recall@1 0.898 and @10 0.954
+  same language: 62 probes; recall@1 1.000, @5 1.000, @10 1.000; MRR 1.000; in the shown excerpts 1.000
+  across languages: 46 probes; recall@1 0.761, @5 0.848, @10 0.870; MRR 0.797; in the shown excerpts 0.848
+as admin: 108 probes; recall@1 0.889, @5 0.926, @10 0.935; MRR 0.904; in the shown excerpts 0.926
+  table units 19.9% of the top 10 and 27.6% of the shown excerpts' units; set aside, recall@1 0.889 and @10 0.944
+as customer-care: 38 probes; recall@1 1.000, @5 1.000, @10 1.000; MRR 1.000; in the shown excerpts 1.000
+  table units 33.9% of the top 10 and 43.7% of the shown excerpts' units; set aside, recall@1 1.000 and @10 1.000
+as finance: 38 probes; recall@1 1.000, @5 1.000, @10 1.000; MRR 1.000; in the shown excerpts 1.000
+  table units 31.3% of the top 10 and 41.0% of the shown excerpts' units; set aside, recall@1 1.000 and @10 1.000
+as hr: 36 probes; recall@1 1.000, @5 1.000, @10 1.000; MRR 1.000; in the shown excerpts 1.000
+  table units 33.9% of the top 10 and 44.2% of the shown excerpts' units; set aside, recall@1 1.000 and @10 1.000
+as legal: 38 probes; recall@1 1.000, @5 1.000, @10 1.000; MRR 1.000; in the shown excerpts 1.000
+  table units 31.3% of the top 10 and 41.2% of the shown excerpts' units; set aside, recall@1 1.000 and @10 1.000
+as logistics: 40 probes; recall@1 0.975, @5 1.000, @10 1.000; MRR 0.983; in the shown excerpts 1.000
+  table units 25.0% of the top 10 and 35.1% of the shown excerpts' units; set aside, recall@1 0.975 and @10 1.000
+as network-ops: 36 probes; recall@1 0.972, @5 1.000, @10 1.000; MRR 0.981; in the shown excerpts 1.000
+  table units 31.1% of the top 10 and 40.6% of the shown excerpts' units; set aside, recall@1 0.972 and @10 1.000
+as returns: 46 probes; recall@1 0.957, @5 0.978, @10 1.000; MRR 0.970; in the shown excerpts 0.978
+  table units 27.6% of the top 10 and 36.2% of the shown excerpts' units; set aside, recall@1 0.957 and @10 1.000
+as sales: 74 probes; recall@1 0.878, @5 0.905, @10 0.919; MRR 0.892; in the shown excerpts 0.905
+  table units 27.6% of the top 10 and 35.8% of the shown excerpts' units; set aside, recall@1 0.878 and @10 0.932
+test answerable golden items, originals, each asked as its role: 27 items; every section they need within the first 1 for 22, 5 for 27, 10 for 27 (recall@10 1.000); in the shown excerpts 27
+481 searches in 398 s

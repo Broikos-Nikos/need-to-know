@@ -1,0 +1,12 @@
+command: uv run python bench/ingest_steps.py
+recorded 2026-10-18 21:56 from the log ingest-steps-t73.log, written 2026-10-12 23:32
+---
+files 160, 300.1 MB; elements 4329939: audience 1880, heading 1860, paragraph 1287, row 4324912; units 501031
+all steps: wall 91.5 s, cpu 91.0 s
+  decode     wall    2.8 s (  3%), cpu    2.8 s (  3%)
+  parse      wall   43.7 s ( 48%), cpu   43.3 s ( 48%)
+  structure  wall   12.2 s ( 13%), cpu   12.2 s ( 13%)
+  segments   wall   14.1 s ( 15%), cpu   14.0 s ( 15%)
+  units      wall   18.8 s ( 21%), cpu   18.7 s ( 21%)
+units digest 9505bbb439ed9048
+largest file NET_MAN_009, 8.43 MB: peak traced memory 114 MB, 14 times its size

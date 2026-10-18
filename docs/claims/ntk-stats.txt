@@ -1,0 +1,4 @@
+command: uv run ntk stats
+recorded 2026-10-18 21:56, run at e5ece23, the tree holding changes
+---
+160 documents, 314,698,575 bytes; 501,031 units (prose 1,641, table 499,390); 501,031 vectors in documents_v2; on disk, the index 3,948,030,510 bytes, the manifest 561,278,976, the vector cache 1,073,283,072

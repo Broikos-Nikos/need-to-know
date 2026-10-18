@@ -1,0 +1,22 @@
+command: uv run python bench/permission_suite.py
+recorded 2026-10-18 21:56 from the log permission-suite-t133.log, written 2026-10-13 15:30
+---
+start 15:07:56
+
+501031 units; 120 probes, dev probes' questions, over 9 labels; 12 cases, each asked 3 ways 100 deep and once as ask asks
+
+  legal                    foreign units: dense 0, sparse 0, fused 0, excerpts 0; canaries in the prompt 0; a gold unit in the fused top 10 for 7 of 14, top 100 for 14, the excerpts for 14
+  logistics                foreign units: dense 0, sparse 0, fused 0, excerpts 0; canaries in the prompt 0; a gold unit in the fused top 10 for 15 of 24, top 100 for 23, the excerpts for 22
+  sales                    foreign units: dense 0, sparse 0, fused 0, excerpts 0; canaries in the prompt 0; a gold unit in the fused top 10 for 22 of 36, top 100 for 35, the excerpts for 34
+  returns                  foreign units: dense 0, sparse 0, fused 0, excerpts 0; canaries in the prompt 0; a gold unit in the fused top 10 for 10 of 16, top 100 for 16, the excerpts for 16
+  customer-care            foreign units: dense 0, sparse 0, fused 0, excerpts 0; canaries in the prompt 0; a gold unit in the fused top 10 for 17 of 22, top 100 for 21, the excerpts for 21
+  finance                  foreign units: dense 0, sparse 0, fused 0, excerpts 0; canaries in the prompt 0; a gold unit in the fused top 10 for 6 of 14, top 100 for 14, the excerpts for 14
+  hr                       foreign units: dense 0, sparse 0, fused 0, excerpts 0; canaries in the prompt 0; a gold unit in the fused top 10 for 6 of 10, top 100 for 10, the excerpts for 10
+  network-ops              foreign units: dense 0, sparse 0, fused 0, excerpts 0; canaries in the prompt 0; a gold unit in the fused top 10 for 18 of 24, top 100 for 24, the excerpts for 22
+  admin                    foreign units: dense 0, sparse 0, fused 0, excerpts 0; canaries in the prompt 0; a gold unit in the fused top 10 for 89 of 120, top 100 for 112, the excerpts for 109
+  sales and hr             foreign units: dense 0, sparse 0, fused 0, excerpts 0; canaries in the prompt 0; a gold unit in the fused top 10 for 28 of 42, top 100 for 41, the excerpts for 40
+  general alone            foreign units: dense 0, sparse 0, fused 0, excerpts 0; canaries in the prompt 0; a gold unit in the fused top 10 for 1 of 4, top 100 for 4, the excerpts for 4
+  sales, returns removed   foreign units: dense 0, sparse 0, fused 0, excerpts 0; canaries in the prompt 0; a gold unit in the fused top 10 for 12 of 24, top 100 for 23, the excerpts for 22
+5760 searches in 1357 s; foreign units and canaries in all: 0
+exit 0
+end 15:30:39

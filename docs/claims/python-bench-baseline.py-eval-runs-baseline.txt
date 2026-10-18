@@ -1,0 +1,32 @@
+command: uv run python bench/baseline.py eval/runs/baseline
+recorded 2026-10-18 21:56, run at e5ece23, the tree holding changes
+---
+baseline at 778fc1de0bc7; protocol version 7; deepseek-flash at temperature 0.0; manifest run 87, 501031 units; 3 repeats; scorer 2e7ad64ce7fa8975
+  commit differs: test, test-closed, dev, dev-closed at 778fc1de0bc7; test-guess, dev-guess at 472f4a60414e
+  tree not clean when made: test, test-closed, dev-closed
+headline: all 35 test items, 0.981 answered right, Wilson 0.869 to 0.997; the 29 family items alone 0.977
+test: answerable 0.975 of 27; refusals 1.000 of 8; overall 0.981 of 35; grounded 0.975 of 27; leaks 0; unstable 1 (T12)
+  by category: A 1.000 of 6; B 1.000 of 5; C 0.778 of 3; D 1.000 of 4; E 1.000 of 4; F 1.000 of 1; G 1.000 of 4; H 1.000 of 1; I 1.000 of 2; J 1.000 of 2; M 1.000 of 1; N 1.000 of 2
+  by layer: prose 0.980 of 33; table 1.000 of 2
+  by language: el 1.000 of 16; en 0.965 of 19
+  by table rows shown, answerable prose: shown 1.000 of 2; none 0.971 of 23
+  by G, on a value a law contradicts: no 1.000 of 4
+  wrong answers to answerable items over the repeats: 0 not shown a section planting every fact they needed; 2 shown every one (T12, T12)
+  verdicts that differ between two repeats: 0.0190 of the items, over every pair
+dev: answerable 0.960 of 101; refusals 1.000 of 32; overall 0.970 of 133; grounded 0.960 of 101; leaks 0; unstable 1 (D136)
+  by category: A 1.000 of 17; B 1.000 of 19; C 0.857 of 14; D 1.000 of 17; E 1.000 of 16; F 0.500 of 4; G 1.000 of 14; H 1.000 of 4; I 1.000 of 8; J 1.000 of 8; M 1.000 of 4; N 1.000 of 8
+  by layer: prose 0.968 of 125; table 1.000 of 8
+  by language: el 0.971 of 68; en 0.969 of 65
+  by table rows shown, answerable prose: shown 0.952 of 21; none 0.958 of 72
+  by G, on a value a law contradicts: yes 1.000 of 3; no 1.000 of 11
+  wrong answers to answerable items over the repeats: 15 not shown a section planting every fact they needed (D019, D021, D092, D099, D134, D019, D021, D092, D099, D134, D019, D021, D092, D099, D134); 4 shown every one (D136, D141, D141, D141)
+  verdicts that differ between two repeats: 0.0044 of the items, over every pair
+test, no documents under the answer rules: 105 of 105 answers refused, which shows the rules hold and nothing of what the model knows
+test, the best guess with no documents: answerable 0.074 of 27 right from the model's own knowledge alone; 0 of 105 answers declined; E items answered with a deliberate default 1 (T21); any other forbidden value 0
+dev, no documents under the answer rules: 459 of 459 answers refused, which shows the rules hold and nothing of what the model knows
+dev, the best guess with no documents: answerable 0.043 of 101 right from the model's own knowledge alone; 0 of 459 answers declined; E items answered with a deliberate default 2 (D105, D142); any other forbidden value 1 (D036); G on the value a law contradicts 0.000 of 3
+dev less test over fact families, a diagnostic that changes nothing (N33): -0.018, 95 percent -0.069 to +0.038, over 80 dev and 35 test units
+parity, the same units shown in every repeat: test 35 of 35 items; dev 151 of 153 items
+cost: 0.169260 USD over the 6 runs
+ledger, test: 0.000213 USD a question at the mean over 105; median 1.91 s and p95 2.53 s, over the 105 of 105 answers whose seconds were found
+ledger, dev: 0.000191 USD a question at the mean over 459; median 1.87 s and p95 2.32 s, over the 459 of 459 answers whose seconds were found

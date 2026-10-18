@@ -32,8 +32,8 @@ command in this repository that produces it.
   the corpus, at about 14 times that file's size; a file of a hundred megabytes or
   more would want cutting a section at a time: `uv run python bench/ingest_steps.py`.
 * The full build, from the assembled corpus to a searchable index, runs phase by
-  phase with the memory and disk each needs, about 80 minutes here, an hour of it
-  embedding on the GPU: `uv run python bench/full_build.py --fresh`. It holds 160
+  phase with the memory and disk each needs, 4912 s here, 3620 of them embedding on
+  the GPU: `uv run python bench/full_build.py --fresh`. It holds 160
   documents of 314,698,575 bytes, cut into 501,031 units and as many vectors, the index
   taking 3,948,030,510 bytes of disk: `uv run ntk stats`.
 * Every unit is embedded as its passage, its heading path above its text, and kept
@@ -81,8 +81,8 @@ command in this repository that produces it.
   1.000; no leak on either split. The lowest categories ask across languages, C, 0.778 over
   3 test items and 0.857 over 14 dev ones, and two facts at once, F, 0.500 over 4 dev items.
   Of the wrong answers over the repeats, 15, all on dev, were not shown a section planting
-  every fact they needed, and 6 were shown it and refused: T12 twice on test, D141 three
-  times and D136 once on dev. With no documents the same model refused every time, 105 of
+  every fact they needed, and 2 on test and 4 on dev were shown it and refused: T12 twice,
+  D141 three times and D136 once. With no documents the same model refused every time, 105 of
   105 answers on test and 459 of 459 on dev, as its rules require, which shows nothing of
   what it knows; asked
   instead for its best guess from its own knowledge, it got 0.074 of the 27 answerable
@@ -104,7 +104,7 @@ command in this repository that produces it.
   top 10 for 0.964 of the 194: 1.000 when the question is in its documents' language and
   0.915 across languages, where the first hit is right half as often, 0.500 against 0.973.
   Table rows, the padding that makes up most units, take 13.0 percent of that top 10 and
-  15.6 percent of the excerpts' units shown, and setting them aside changes recall@1 for no
+  15.7 percent of the excerpts' units shown, and setting them aside changes recall@1 for no
   role (N43). An upper bound, since templated questions sit near the planted text:
   `uv run python bench/probe_recall.py`. On the test split, asked once for the baseline,
   the 108 test probes find a gold unit in the top 10 for 0.944, 1.000 in their documents'
@@ -117,6 +117,9 @@ command in this repository that produces it.
   dev probes find a gold unit first for 49 and in the top 10 and the excerpts for all 56.
   The figures belong to the method and the prose, not to one draw of values and tables
   (RS-F6, N62): `uv run python bench/draws.py`.
+* Every number this list states is printed by a command its bullet names, the output
+  recorded in `docs/claims/` and checked by the test suite:
+  `uv run python bench/claims.py check`.
 * Every audit finding the history cites, open or fixed, is in `docs/AUDITS.md`, and
   every decision the code cites is in `docs/DECISIONS.md`.
 

@@ -1,0 +1,16 @@
+command: uv run python bench/freshness.py
+recorded 2026-10-18 21:56 from the log freshness-t149.log, written 2026-10-18 21:30
+---
+NET_MAN_009, 8.8 MB, as network-ops; the watcher's catch up, a scan and a sync of every document: 23.2 s
+  run 1, the edit: scan at 1.02 s took 1.65 s (1 read); sync at 2.70 s took 0.80 s (read 0.24, deletes 0.06, embedding 0.38, upserts 0.02, check 0.09); seen at 3.47 s
+  run 1, the undoing: scan at 1.00 s took 1.71 s (1 read); sync at 2.75 s took 0.38 s (read 0.25, deletes 0.01, embedding 0.00, upserts 0.01, check 0.12); seen at 3.11 s
+  run 2, the edit: scan at 1.00 s took 1.67 s (1 read); sync at 2.70 s took 0.52 s (read 0.41, deletes 0.01, embedding 0.00, upserts 0.00, check 0.09); seen at 3.20 s
+  run 2, the undoing: scan at 0.98 s took 1.53 s (1 read); sync at 2.55 s took 0.38 s (read 0.26, deletes 0.02, embedding 0.00, upserts 0.00, check 0.10); seen at 2.97 s
+  run 3, the edit: scan at 0.99 s took 1.56 s (1 read); sync at 2.58 s took 0.50 s (read 0.39, deletes 0.01, embedding 0.00, upserts 0.00, check 0.09); seen at 3.03 s
+  run 3, the undoing: scan at 1.01 s took 1.68 s (1 read); sync at 2.72 s took 0.36 s (read 0.26, deletes 0.01, embedding 0.00, upserts 0.00, check 0.09); seen at 3.12 s
+  run 4, the edit: scan at 0.99 s took 1.71 s (1 read); sync at 2.73 s took 0.55 s (read 0.44, deletes 0.01, embedding 0.00, upserts 0.00, check 0.09); seen at 3.22 s
+  run 4, the undoing: scan at 1.03 s took 1.63 s (1 read); sync at 2.70 s took 0.40 s (read 0.29, deletes 0.01, embedding 0.00, upserts 0.00, check 0.10); seen at 3.11 s
+  run 5, the edit: scan at 1.03 s took 1.71 s (1 read); sync at 2.78 s took 0.36 s (read 0.26, deletes 0.01, embedding 0.00, upserts 0.01, check 0.09); seen at 3.10 s
+  run 5, the undoing: scan at 1.02 s took 1.58 s (1 read); sync at 2.64 s took 0.53 s (read 0.43, deletes 0.01, embedding 0.00, upserts 0.00, check 0.09); seen at 3.17 s
+NET_MAN_009: the edited sentence reached a query in median 3.2 s, largest 3.5 s, over 5 runs; its undoing in median 3.1 s, largest 3.2 s, over 5 runs (watch interval 0.5 s; objective 5 s)
+NET_MAN_009: units embedded again, each edit [1, 0, 0, 0, 0] and each undoing [0, 0, 0, 0, 0], out of 501031 points in the collection

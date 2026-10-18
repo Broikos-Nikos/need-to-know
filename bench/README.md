@@ -361,3 +361,20 @@ rows to NTK_DATA_DIR/bench/draws.json. It needs the corpus's plan and narrative,
 ```
 uv run python bench/draws.py --seeds 20261012,2,3 --every 4
 ```
+
+## claims.py
+
+The claims gate: every number the README's "What works today" states must be printed by a
+record of a command its bullet names. `record` runs a command the way the README names it
+and keeps its output in `docs/claims/`, headed by when and at which commit it ran, or takes
+the output from the log of an earlier run, for a run that takes an hour on the GPU; a
+progress bar's lines are left out. `check` names every number no record of its bullet's
+commands prints, and every bullet with numbers and no record; identifiers and a measure's
+parameters, the 10 of a top 10, are not claims. `tests/test_claims.py` runs the check in
+the build.
+
+```
+uv run python bench/claims.py check
+uv run python bench/claims.py record "uv run ntk stats"
+uv run python bench/claims.py record "uv run python bench/draws.py" --log draws-t146.log
+```

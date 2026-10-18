@@ -1,0 +1,30 @@
+command: uv run python bench/draws.py
+recorded 2026-10-18 21:56 from the log draws-t146.log, written 2026-10-13 20:16
+---
+== start 18:35:20 at cc1029b
+draw 20261012: 40 documents planting 44 facts, 0 of them drawn a new value, in 14 s
+  ingest: 147127 units in 27 s
+
+  embed: 147127 passages, 34742121 tokens in 1023 s
+C:\xampp\htdocs\playground\github-projects\projects\need-to-know\src\needtoknow\index\collection.py:125: UserWarning: Payload indexes have no effect in the local Qdrant. Please use server Qdrant if you need payload indexes.
+  client.create_payload_index(COLLECTION, field, field_schema=schema)
+C:\xampp\htdocs\playground\github-projects\projects\need-to-know\src\needtoknow\index\sync.py:119: UserWarning: Local mode is not recommended for collections with more than 20,000 points. Current collection contains 20224 points. Consider using Qdrant in Docker or Qdrant Cloud for better performance with large datasets.
+  client.upsert(COLLECTION, wait=True, points=models.Batch(
+  index, Qdrant's local mode: 377 s
+
+  56 dev probes asked in 556 s
+draw 20261012: 40 documents, 147127 units, 44 facts; 56 dev probes: recall@1 0.875 (49 of 56, Wilson 0.764 to 0.938); recall@10 1.000 (56 of 56, Wilson 0.936 to 1.000); shown 1.000 (56 of 56, Wilson 0.936 to 1.000)
+draw 2: 40 documents planting 44 facts, 31 of them drawn a new value, in 18 s
+  ingest: 146869 units in 29 s
+  embed: 146869 passages, 34721752 tokens in 1074 s
+  index, Qdrant's local mode: 401 s
+  56 dev probes asked in 587 s
+draw 2: 40 documents, 146869 units, 44 facts; 56 dev probes: recall@1 0.875 (49 of 56, Wilson 0.764 to 0.938); recall@10 1.000 (56 of 56, Wilson 0.936 to 1.000); shown 1.000 (56 of 56, Wilson 0.936 to 1.000)
+draw 3: 40 documents planting 44 facts, 32 of them drawn a new value, in 18 s
+  ingest: 146819 units in 31 s
+  embed: 146819 passages, 34707837 tokens in 1057 s
+  index, Qdrant's local mode: 290 s
+  56 dev probes asked in 538 s
+draw 3: 40 documents, 146819 units, 44 facts; 56 dev probes: recall@1 0.875 (49 of 56, Wilson 0.764 to 0.938); recall@10 1.000 (56 of 56, Wilson 0.936 to 1.000); shown 1.000 (56 of 56, Wilson 0.936 to 1.000)
+spread over the 3 draws: recall@1 0.875 to 0.875; recall@10 1.000 to 1.000; shown 1.000 to 1.000
+== done 20:16:16
