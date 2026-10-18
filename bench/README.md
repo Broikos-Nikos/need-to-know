@@ -6,6 +6,7 @@ a script outside this repository. `operator_probes.py`, `crash_points.py`,
 corpus, and no GPU, key or network; `deepseek_call.py` and `injection.py` need a
 DeepSeek key and the network, and nothing else; the others need the GPU, the running index server or both, as
 each section says.
+`watched.py` is no bench: the change benches import it to run the watcher and read its lines.
 
 ## operator_probes.py
 
@@ -276,8 +277,11 @@ which shows the rules hold and nothing of what the model knows, and the best gue
 answerable items the model got right from its own knowledge alone, with the E items it
 answered with a deliberate default and G on the value a law contradicts apart (DR-F27,
 N61); dev less test over fact families with its interval, a diagnostic that changes
-nothing (N33); and how many items were shown the same units in every repeat. It needs the
-plan, the frequency table and the manifest the scorer reads.
+nothing (N33); how many items were shown the same units in every repeat; and the ledger,
+each split's mean USD a question and the median and 95th percentile seconds a question
+took, from each answer's own seconds where its run kept them, or else from the line `ask`
+wrote for it in this machine's spend log, matched by role, repeat, status, cost and time.
+It needs the plan, the frequency table and the manifest the scorer reads.
 
 ```
 uv run python bench/baseline.py eval/runs/baseline
@@ -377,4 +381,24 @@ the build.
 uv run python bench/claims.py check
 uv run python bench/claims.py record "uv run ntk stats"
 uv run python bench/claims.py record "uv run python bench/draws.py" --log draws-t146.log
+```
+
+## probe_recall.py
+
+Retrieval recall on the probes, the committed questions two a fact, each asked through its
+reader's filter and the configured reranker as `ask` searches: recall@1, @5 and @10, the
+mean reciprocal rank and the share whose shown excerpts hold a gold unit, once a probe
+under its narrowest reader and then for every reader; split by whether the question is in
+its documents' language; the table units' share of the top 10 and of the shown excerpts,
+with recall over the same hits with them set aside. Then the split's answerable golden
+items, each asked as its role: the rank by which every section it needs is among the hits,
+and whether the excerpts hold each. A probe whose gold unit the manifest lacks is set
+apart and named. It asks the protocol first, dev for development and test for the
+baseline, saves its rows to NTK_DATA_DIR/bench/probe_recall_<split>.json, which a test
+holds the README and N43 to, and needs the manifest, the index on the running server, the
+`embed` extra and the GPU.
+
+```
+uv run python bench/probe_recall.py
+uv run python bench/probe_recall.py --split test
 ```

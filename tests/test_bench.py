@@ -18,6 +18,16 @@ def run(script: str, *args: str) -> subprocess.CompletedProcess:
                           encoding="utf-8", errors="replace")
 
 
+def test_every_bench_script_has_a_section_in_the_bench_readme_or_is_named_no_bench():
+    # MT-F14, MT-F19: probe_recall.py, which the README quotes, had no section, and nothing asked a bench for one.
+    text = (BENCH / "README.md").read_text(encoding="utf-8")
+    helpers = set(re.findall(r"`(\w+\.py)` is no bench", text))
+    sections = set(re.findall(r"^## (\S+\.py)$", text, re.MULTILINE))
+    scripts = {path.name for path in BENCH.glob("*.py")}
+    assert helpers == {"watched.py"} and not scripts - helpers - sections, sorted(scripts - helpers - sections)
+    assert not sections - scripts, sorted(sections - scripts)  # no section for a script that is gone
+
+
 def test_the_draws_bench_reuses_a_draw_only_at_the_same_share_and_states_each_share_with_its_count(monkeypatch,
                                                                                                    tmp_path):
     # RS-F6: a draw folder left from another share of the catalogue would be built and probed as if it were this one.
