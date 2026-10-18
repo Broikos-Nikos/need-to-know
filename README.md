@@ -38,6 +38,10 @@ command in this repository that produces it.
   in a cache under that passage, so a second run, a relabel or a rebuilt index
   embeds nothing again; a passage longer than the model takes is refused, never
   cut: `ntk embed`.
+* One paragraph edited in the largest file, 8.8 MB, is embedded again as one unit of
+  the 501,031 and reaches a question through `ntk ingest watch` in 3.2 s at the median
+  and 3.5 s at most over five edits; its undoing takes 3.1 s and 3.2 s and embeds
+  nothing, the vector cache holding the old passage: `uv run python bench/freshness.py`.
 * A role's question is searched inside that role's filter, on the dense and the lexical
   side alike, and fused in the engine: no unit a role may not read came back in 5,760
   searches, nor reached the excerpts a prompt would hold, every role and three

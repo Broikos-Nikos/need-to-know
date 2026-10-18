@@ -54,16 +54,19 @@ uv run python bench/parse_corpus.py
 
 ## freshness.py
 
-The change bench of the freshness objective: a one sentence edit to a planted fact in a
-plain text file, timed until a role that may read it finds the new sentence by asking it,
-and its undoing, through `ntk ingest watch` running as a process of its own, as a
-deployment runs it, started once its catch up is done. Every scan and sync between an
-edit and the query that saw it prints with its seconds and parts, from the lines the
-watcher prints (`bench/watched.py`). It makes the edit and its undoing five times,
-`--runs` to change that, and prints each change's median, largest and count, since one
-run is one draw of the watcher's poll, the scan and the machine's load; it exits 1 when
-any run passes the objective, 5 s, and leaves the corpus as it found it. It needs the corpus, the manifest, the vector cache, the `embed`
-extra and the index on the running server.
+The change bench of the freshness objective: a one sentence edit to a planted fact in the
+largest plain text file that plants a number, timed until a role that may read it finds
+the new sentence by asking it, and its undoing, through `ntk ingest watch` running as a
+process of its own, as a deployment runs it, started once its catch up is done. Every
+scan and sync between an edit and the query that saw it prints with its seconds and
+parts, from the lines the watcher prints (`bench/watched.py`), and how many units each
+change's syncs embedded again out of the collection's points. It makes the edit and its
+undoing five times, `--runs` to change that, and prints each change's median, largest
+and count, since one run is one draw of the watcher's poll, the scan and the machine's
+load; the first edit is the one that embeds, since the vector cache then holds both
+passages. It exits 1 when any run passes the objective, 5 s, and leaves the corpus as it
+found it. It needs the corpus, the manifest, the vector cache, the `embed` extra and the
+index on the running server.
 
 ```
 uv run python bench/freshness.py

@@ -265,6 +265,12 @@ and at most 4.1 s; the one sentence edit at 1.4 s and at most 1.5 s, its undoing
 s. The largest document's margin under 5 s is 0.2 s, and its sync read more slowly with
 each run, from 0.40 to 0.73 s.
 
+**Measured again, 2026-10-18.** The freshness bench edits the largest plain text file
+that plants a number now, NET_MAN_009 at 8.8 MB, where the figures above came from the
+first such file: the edit reached a query at a median of 3.2 s and at most 3.5 s, its
+undoing at 3.1 s and at most 3.2 s, the scan of the file taking 1.5 to 1.7 s of it, and
+the first edit embedded one unit of the 501,031 (`bench/freshness.py`).
+
 **Reverses if.** A look at the corpus folder costs more than a few percent of a core,
 or the largest document's change passes 5 s again; then a scan cuts only the sections
 that changed.
