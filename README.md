@@ -48,7 +48,9 @@ command in this repository that produces it.
   side alike, and fused in the engine: no unit a role may not read came back in 5,760
   searches, nor reached the excerpts a prompt would hold, every role and three
   combinations of them asking up to 20 dev probes a label:
-  `uv run python bench/permission_suite.py`. Asked three times on one build, every dev item
+  `uv run python bench/permission_suite.py`. The test suite asks the same of a small
+  profile on CPU, with no GPU or server, so the build itself fails on a leak:
+  `uv run pytest tests/test_permission_gate.py`. Asked three times on one build, every dev item
   is shown the same excerpts, ties in the fused list and the reranker ordered by unit id:
   `uv run python bench/repeatability.py`. No answer the cache holds, read for each role
   the spend log names, carries a canary of a label that role may not read:
