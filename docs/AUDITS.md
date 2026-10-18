@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**183 findings, 152 closed, 31 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**183 findings, 153 closed, 30 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -34,7 +34,7 @@ An audit pass that tried to break a first run. 17 findings, 16 closed.
 
 ## `RS`, the retrieval scientist
 
-An audit pass on whether the evaluation can fail and its statistics are honest. 31 findings, 30 closed.
+An audit pass on whether the evaluation can fail and its statistics are honest. 31 findings, 31 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -68,7 +68,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 | `RS-F28` | medium | fixed, tick 130 | N43 reverses if annex units take a real share of a prose question's top 10, and its 0.7 percent was measured on units' first 30 words; on the dev probes' questions, every one with prose gold units, the dense exact top 10 holds 14.7 percent table units (bench/filter_bench.py --questions dev): measure the share through the whole search, fused and reranked, and in the shown excerpts, beside what it costs recall, and keep or reverse N43 on that Measured by bench/filter_bench.py --questions dev --report. |
 | `RS-F29` | medium | fixed, tick 141 | Retrieval is not repeatable on one build: D012 and D013 were each shown a different excerpt in one of three repeats at 778fc1d, a near tie at the edge of the top eight reordered between GPU calls, so the release's parity rule, every dev item's retrieved ids and scores equal to the last dev run of the same configuration, fails on noise: make the order of near equal scores deterministic, or state the parity with a tolerance the baseline measures Measured by bench/baseline.py eval/runs/baseline, its parity line. |
 | `RS-F30` | medium | fixed, tick 157 | The registered decision can no longer adopt a change for being better: the sign flip test over families sees only the families that change, the baseline left 4 of the 80 dev families below a perfect score, so the best experiment possible gets p 0.125, too small to tell, and the probe arm's misses sit in 5 families, p 0.0625 at best; only the cost arm can adopt: print the best p the dev units allow beside every decision, then grow dev where the baseline misses as a dated protocol version before any experiment, or register that P8 adopts on cost alone and say so |
-| `RS-F31` | low | open | A table row item is judged by its section, and its section is a whole register of up to 13,977 units: a hit or an excerpt on another row counts as the row found and shown, though none does today: judge shown and found by the units holding the row or the fact, keeping the section for citations |
+| `RS-F31` | low | fixed, tick 158 | A table row item is judged by its section, and its section is a whole register of up to 13,977 units: a hit or an excerpt on another row counts as the row found and shown, though none does today: judge shown and found by the units holding the row or the fact, keeping the section for citations |
 
 ## `DR`, the deep reviewer
 
