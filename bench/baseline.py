@@ -192,6 +192,11 @@ def main() -> int:
     print(f"reach on dev, every family below a perfect score made perfect and none worse: p {best:.4g} by the "
           f"registered test, {room} of {len(dev_units)} families with room; at alpha {alpha} an experiment "
           + ("can" if best < alpha else "cannot") + " be adopted for being better")
+    # Counted by item, as N63 weighed and refused: items about one fact are not independent (MA-F19).
+    items_room = sorted(item for item, score in runs["dev"]["scores"].items() if score < 1)
+    print(f"  counted by item instead: {len(items_room)} of {len(runs['dev']['scores'])} dev originals below a perfect "
+          f"score ({', '.join(items_room)}), p {reach(list(runs['dev']['scores'].values())):.4g}; the unit stays the "
+          "family")
     print("parity, the same units shown in every repeat: " + "; ".join(
         f"{split} {same} of {total} items" for split, (same, total) in parity.items()))
     print(f"cost: {sum(run['usd'] for run in runs.values()):.6f} USD over the {len(runs)} runs")

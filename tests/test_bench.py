@@ -277,6 +277,19 @@ def test_the_recall_bench_reads_a_golden_item_by_the_units_holding_its_facts(mon
     assert [(r["id"], r["rank"], r["shown"]) for r in rows] == [("D1", 2, True), ("D2", None, False)]
 
 
+def test_the_recall_bench_reports_the_probe_arms_reach_by_family_from_a_saved_run():
+    # MA-F19: the probe arm's misses by family and its best p, printed by a committed command and not by a scratch one.
+    spec = importlib.util.spec_from_file_location("probe_recall", BENCH / "probe_recall.py")
+    recall = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(recall)
+    probes = [{"id": f"P{n}", "family": family} for n, family in enumerate(["F1", "F1", "F2", "F3", "F3", "F4"])]
+    rows = [{"rank": rank} for rank in (1, 12, None, 3, 2, 30)]  # P1 of F1, P2 of F2 and P5 of F4 outside the top 10
+    arm = recall.reach_of(probes, rows)
+    assert (arm["probes"], arm["misses"], arm["families"], arm["with_room"], arm["p"]) == (6, 3, 4, 3, 0.25)
+    named = [{**row, "id": probe["id"]} for probe, row in zip(reversed(probes), reversed(rows))]
+    assert recall.reach_of(probes, named) == arm  # a run whose rows name their probes, in any order
+
+
 def test_the_recall_bench_says_what_the_table_units_take_and_what_recall_is_without_them():
     # RS-F28: N43 reverses if the annexes take a real share of a prose question's top 10, which the filter bench
     # measured on the dense side alone; this bench measures it through the whole search, as ask searches.

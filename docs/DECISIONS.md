@@ -422,13 +422,20 @@ in the categories the baseline misses, as a dated version, before any experiment
 families that change, and with k of them it cannot go below 2 in 2^k. The baseline left 4
 of the 80 dev families below a perfect score, so the best experiment there can be, every
 one of them made perfect and none worse, reaches p 0.125 (`bench/baseline.py
-eval/runs/baseline`); the probe arm's misses sit in 5 families. Any gain would have read
-too small to tell, however large.
+eval/runs/baseline`); the probe arm's 7 misses of 194 sit in 5 of 50 families, p 0.0625
+at best (`bench/probe_recall.py --report`). Any gain would have read too small to tell,
+however large.
 
-**Weighed.** Counting items instead of families would reach alpha with 7 items, but the
-protocol made the family the unit in its version 3, since items about one fact are not
+**Weighed.** Counting items instead of families reaches no further: the dev originals below
+a perfect score are 4 of 133, p 0.125 again (`bench/baseline.py eval/runs/baseline`), and
+the protocol made the family the unit in its version 3, since items about one fact are not
 independent. Growing dev now would write and answer new items before any experiment needs
 them.
 
 **Reverses if.** Dev grows until the reach falls below alpha, when the arm that reads a
 gain can adopt again; or the incumbent changes.
+
+*Corrected 2026-10-18, tick 161:* as first written this entry said counting items would
+reach alpha with 7 of them, a count no command printed that took in three paraphrase
+twins, which are no units; and the probe arm's 5 families came from an audit's scratch
+work (MA-F19). Both now come from the commands named.

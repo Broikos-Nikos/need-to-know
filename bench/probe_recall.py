@@ -120,12 +120,46 @@ def layers(db: sqlite3.Connection):
     return layer
 
 
+def reach_of(probes: list[dict], selective: list[dict]) -> dict:
+    """The probe arm's reach from a saved run: each family's recall@10 over its probes, asked by their selective
+    reader, and the best p the registered test could give a candidate that made every family perfect and none worse
+    (RS-F30). A saved row names its probe, or, in a run from before rows did, stands at its probe's place."""
+    from needtoknow.eval.stats import reach
+    by_id = {probe["id"]: probe for probe in probes}
+    families: dict[str, list[float]] = defaultdict(list)
+    for probe, row in zip(probes, selective):
+        family = by_id[row["id"]]["family"] if "id" in row else probe["family"]
+        families[family].append(float(row["rank"] is not None and row["rank"] <= 10))
+    means = [sum(hits) / len(hits) for hits in families.values()]
+    misses = sum(1 for row in selective if row["rank"] is None or row["rank"] > 10)
+    return {"probes": len(selective), "misses": misses, "families": len(means),
+            "with_room": sum(mean < 1 for mean in means), "p": reach(means)}
+
+
+def report(split: str) -> int:
+    """The probe arm's reach, read from the run probe_recall saved for the split."""
+    saved = json.loads((data_dir() / "bench" / f"probe_recall_{split}.json").read_text(encoding="utf-8"))
+    probes = load(split)
+    if len(saved["selective"]) != len(probes) and not all("id" in row for row in saved["selective"]):
+        raise SystemExit(f"the saved run has {len(saved['selective'])} rows for {len(probes)} probes and names none: "
+                         "run the bench again")
+    arm = reach_of(probes, saved["selective"])
+    print(f"the probe arm's reach on {split}: {arm['misses']} of {arm['probes']} probes outside the top 10, in "
+          f"{arm['with_room']} of {arm['families']} families; every family made perfect and none worse: p "
+          f"{arm['p']:.4g} by the registered test")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--split", choices=("dev", "test"), default="dev")
     parser.add_argument("--selective-only", action="store_true", help="ask each probe as its selective reader only")
+    parser.add_argument("--report", action="store_true",
+                        help="print the probe arm's reach from the saved run instead of searching (MA-F19)")
     args = parser.parse_args(argv)
     check_use(args.split, "development" if args.split == "dev" else "baseline")
+    if args.report:
+        return report(args.split)
     from needtoknow.index import server
     from needtoknow.index.expand import excerpts
     from needtoknow.index.search import search
@@ -148,7 +182,7 @@ def main(argv: list[str] | None = None) -> int:
         across = probe["lang"] not in {language[u] for u in probe["gold"]}
         roles = [probe["selective"]] if args.selective_only else probe["readers"]
         for role in roles:
-            row = {**measure(probe, role, client, search, excerpts, layer), "across": across}
+            row = {**measure(probe, role, client, search, excerpts, layer), "across": across, "id": probe["id"]}
             per_role[role].append(row)
             if role == probe["selective"]:
                 selective.append(row)

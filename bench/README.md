@@ -277,7 +277,8 @@ which shows the rules hold and nothing of what the model knows, and the best gue
 answerable items the model got right from its own knowledge alone, with the E items it
 answered with a deliberate default and G on the value a law contradicts apart (DR-F27,
 N61); dev less test over fact families with its interval, a diagnostic that changes
-nothing (N33); how many items were shown the same units in every repeat; and the ledger,
+nothing (N33); the reach on dev, the best p any experiment could get, by family and by
+item (N63); how many items were shown the same units in every repeat; and the ledger,
 each split's mean USD a question and the median and 95th percentile seconds a question
 took, from each answer's own seconds where its run kept them, or else from the line `ask`
 wrote for it in this machine's spend log, matched by role, repeat, status, cost and time.
@@ -393,7 +394,9 @@ its documents' language; the table units' share of the top 10 and of the shown e
 with recall over the same hits with them set aside. Then the split's answerable golden
 items, each asked as its role: the rank by which every section it needs is among the hits,
 and whether the excerpts hold each. A probe whose gold unit the manifest lacks is set
-apart and named. It asks the protocol first, dev for development and test for the
+apart and named. `--report` prints, from the saved run, the probe arm's reach: the probes
+outside the top 10, the families they sit in, and the best p (N63). It asks the protocol
+first, dev for development and test for the
 baseline, saves its rows to NTK_DATA_DIR/bench/probe_recall_<split>.json, which a test
 holds the README and N43 to, and needs the manifest, the index on the running server, the
 `embed` extra and the GPU.
@@ -401,4 +404,5 @@ holds the README and N43 to, and needs the manifest, the index on the running se
 ```
 uv run python bench/probe_recall.py
 uv run python bench/probe_recall.py --split test
+uv run python bench/probe_recall.py --report
 ```
