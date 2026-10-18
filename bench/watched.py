@@ -21,6 +21,8 @@ from pathlib import Path
 OBJECTIVE = 5.0  # seconds from an edit to a query that sees it: specs/architecture.md, sections 5 and 15
 SCAN = re.compile(r"^(?:scan|build) run [0-9]+: files [0-9]+, read ([0-9]+).*; in ([0-9.]+) s$")
 SYNC = re.compile(r"^index: .*; in ([0-9.]+) s [(](.*)[)]$")
+# What a sync embedded and the collection's points after it, from the same line (PLAN section 1, number 5).
+EMBEDDED = re.compile(r"embedded ([0-9]+), upserted [0-9]+; points ([0-9]+) for")
 EVERY = re.compile(r"^watching .* every ([0-9.]+) s;")
 
 
@@ -58,9 +60,17 @@ class Watched:
                                     "detail": f"{scanned.group(1)} read"})
             elif synced:
                 seconds = float(synced.group(1))
+                counts = EMBEDDED.search(line)
                 self.events.append({"kind": "sync", "began": arrived - seconds, "seconds": seconds,
-                                    "detail": synced.group(2)})
+                                    "detail": synced.group(2), "embedded": int(counts.group(1)) if counts else None,
+                                    "points": int(counts.group(2)) if counts else None})
                 self.caught_up.set()
+
+    def embedded(self, edit: float, seen: float) -> tuple[int, int | None]:
+        """The units the syncs between an edit and the query that saw it embedded again, and the collection's points
+        after the last of them."""
+        syncs = [e for e in self.events if e["kind"] == "sync" and edit <= e["began"] <= edit + seen]
+        return sum(e["embedded"] or 0 for e in syncs), (syncs[-1]["points"] if syncs else None)
 
     def stop(self) -> None:
         if self.process is not None:

@@ -48,6 +48,30 @@ def test_the_baseline_report_names_every_provenance_field_its_runs_differ_on():
         "commit differs: test, dev at aaaaaaaaaaaa; test-guess at bbbbbbbbbbbb", "tree not clean when made: test-guess"]
 
 
+def test_the_change_benches_read_what_each_sync_embedded_again_out_of_the_points():
+    # PLAN section 1, number 5: the units one edit embeds again, out of the collection's points, read from the line the
+    # watcher's sync prints, as cli.report_run writes it.
+    spec = importlib.util.spec_from_file_location("watched", BENCH / "watched.py")
+    watched = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(watched)
+    import io
+
+    from needtoknow.cli import report_run
+    printed = io.StringIO()
+    for embedded, seconds in ((1, 0.85), (0, 0.40)):
+        report_run({"deleted": 1 - embedded, "embedded": embedded, "upserted": 1, "points_after": 501031, "units": 3366,
+                    "seconds": seconds, "parts": {"embed": 0.30}}, printed)
+    seen = watched.Watched()
+
+    class Process:
+        stdout = iter(printed.getvalue().splitlines(keepends=True))
+
+    seen.process = Process()
+    seen.read()
+    assert [e["embedded"] for e in seen.events] == [1, 0]
+    assert seen.embedded(min(e["began"] for e in seen.events), 60) == (1, 501031)
+
+
 def test_a_change_bench_reports_the_spread_of_its_runs_and_the_largest_decides():
     # RS-F13: N53 quoted one run's 4.6 s; three runs later took 4.0 to 4.5 s.
     spec = importlib.util.spec_from_file_location("watched", BENCH / "watched.py")
