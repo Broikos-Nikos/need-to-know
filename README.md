@@ -91,6 +91,9 @@ command in this repository that produces it.
   hit a deliberate default on three refusal items, T21, D105 and D142 (N61). Verdicts
   differ between two repeats for 0.0190 of the test items and 0.0044 of dev's, and dev less
   test over families is -0.018, -0.069 to +0.038, a diagnostic that changes nothing (N33).
+  At this baseline 4 of the 80 dev families have room, so the best experiment there can be
+  reaches p 0.125 by the registered test: until dev grows, an experiment is adopted on
+  cost alone (N63).
   A question cost 0.000213 USD on test and 0.000191 on dev at the mean, and took 1.91 s and
   1.87 s at the median and 2.53 s and 2.32 s at the 95th percentile, each answer's seconds
   read from the spend log line written for it on this machine.

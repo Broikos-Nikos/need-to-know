@@ -410,3 +410,25 @@ few dev facts to read a spread across draws; one in four doubles them for twice 
 **Reverses if.** The draws differ by more than their probes' intervals and the server's
 exact path is needed to rule local mode out as the cause, or a draw must be searched
 through the filtered graph.
+
+## N63. Until dev can show a gain, an experiment is adopted on cost alone
+
+**Call.** Protocol version 8 states beside every decision its reach, the best p any
+candidate could get against the incumbent's dev units (`stats.reach`), and registers that
+until dev can show a gain an experiment is adopted on cost alone. P8 opens by growing dev
+in the categories the baseline misses, as a dated version, before any experiment.
+
+**Evidence.** The registered test, a sign flip over family differences, sees only the
+families that change, and with k of them it cannot go below 2 in 2^k. The baseline left 4
+of the 80 dev families below a perfect score, so the best experiment there can be, every
+one of them made perfect and none worse, reaches p 0.125 (`bench/baseline.py
+eval/runs/baseline`); the probe arm's misses sit in 5 families. Any gain would have read
+too small to tell, however large.
+
+**Weighed.** Counting items instead of families would reach alpha with 7 items, but the
+protocol made the family the unit in its version 3, since items about one fact are not
+independent. Growing dev now would write and answer new items before any experiment needs
+them.
+
+**Reverses if.** Dev grows until the reach falls below alpha, when the arm that reads a
+gain can adopt again; or the incumbent changes.
