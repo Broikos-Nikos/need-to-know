@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**194 findings, 168 closed, 26 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**195 findings, 169 closed, 26 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -78,7 +78,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 
 ## `DR`, the deep reviewer
 
-An audit pass on correctness, read in the logic rather than the comments. 34 findings, 33 closed.
+An audit pass on correctness, read in the logic rather than the comments. 35 findings, 33 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -116,6 +116,7 @@ An audit pass on correctness, read in the logic rather than the comments. 34 fin
 | `DR-F32` | medium | fixed, tick 169 | The claims gate counts a record's own head as printed: bench/claims.py reads each record whole, so the digits of the date and time it was recorded pass as output; the README's first search set to 37 s passed against a record made at 23:37: read the records below their --- line, with a test |
 | `DR-F33` | low | fixed, tick 169 | lines.append mends before it appends and cannot tell a stopped write from one in flight: the spend log has three writers and no lock, so two questions ending together could cut one line: mend and append under an operating system lock beside the file, waited on briefly |
 | `DR-F34` | low | fixed, tick 169 | The served answer holds the GPU's lock through the provider's network call, so every search waits behind it with the GPU idle: hold the lock for the search and the excerpts only |
+| `DR-F35` | medium | open | tests/test_watch.py's touch test expects a touch to move the folder's fingerprint of path, size and mtime, which holds only when the clock ticked since the edit just before it: it failed once in the full suite at tick 171 and once in four runs alone, two scan reports expected and one made, the machine's clock and load setting the result (the brief's class): set the touched file's mtime past the edit's with os.utime, and ask whether two same size edits within one tick can slip past the fingerprint and the scan's shortcut alike |
 
 ## `OP`, the pipeline operator
 
@@ -203,7 +204,7 @@ An audit pass of three minutes, on whether the author ships, measures and says s
 
 ## `AC`, the access control red team
 
-An audit pass that tried to make restricted text readable by the wrong role. 15 findings, 11 closed.
+An audit pass that tried to make restricted text readable by the wrong role. 15 findings, 12 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -219,7 +220,7 @@ An audit pass that tried to make restricted text readable by the wrong role. 15 
 | `AC-F10` | low | fixed, tick 94 | A role's excerpts, restricted sections included, are posted to the provider, and neither the README nor the enforcement table names it as a reader outside the role model: one row and one sentence |
 | `AC-F11` | medium | fixed, tick 134 | The answer cache shares an entry between roles shown the same text, so a reply from the cache tells one role that someone in another asked the same question, the timing channel the research notes key caches by permission set against: key by the prompt as sent and the asking role's readable label set, never by the role's name |
 | `AC-F12` | low | open | Units of exactly equal score are ordered by the engine, and in Qdrant's local mode by an unstable sort over every point's score, so hidden points move the order of a role's tied units there; how the server orders them is unmeasured: measure on the server whether units a role may not read move its tied units' order, through a collection a bench can name, and say so in N50 |
-| `AC-F13` | low | open | A citation names a document whose title AC-F4 hides from the role by an id that carries its owner and type, SAL_CIR_017 to returns, and the model reads the same id: show the role and the model an id that names no owner or type, mapped back for the operator, or record the exposure as decided in the README |
+| `AC-F13` | low | fixed, tick 171 | A citation names a document whose title AC-F4 hides from the role by an id that carries its owner and type, SAL_CIR_017 to returns, and the model reads the same id: show the role and the model an id that names no owner or type, mapped back for the operator, or record the exposure as decided in the README |
 | `AC-F14` | low | open | The canary scan finds a canary only in capitals with its underscores: canary_0a1b2c_legal, CANARY 0A1B2C LEGAL and a canary split across a line pass it, and a mixed-case suffix is caught only by accident: match any case and any run of spaces, underscores or dashes between its parts, upper-case the suffix, and test each shape |
 | `AC-F15` | low | open | ntk eval canaries over an empty data folder prints zeros and exits 0, as after a clean scan of hundreds of answers, so in CI, where the spec means it to run, it passes on nothing: say there was nothing to scan, exit 1 where a run should have left answers, and give it the page's data at P6 |
 
