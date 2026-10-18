@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**190 findings, 161 closed, 29 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**190 findings, 162 closed, 28 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -10,7 +10,7 @@ A finding's numbers are what its audit measured when it filed it, by that audit'
 
 ## `HS`, the hostile stranger
 
-An audit pass that tried to break a first run. 23 findings, 21 closed.
+An audit pass that tried to break a first run. 23 findings, 22 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -30,7 +30,7 @@ An audit pass that tried to break a first run. 23 findings, 21 closed.
 | `HS-F14` | low | fixed, tick 79 | ntk doctor says 9 of 9 ok with the index's server stopped |
 | `HS-F15` | medium | fixed, tick 135 | An English question that names a Greek place is answered in Greek: one Greek letter makes the language Greek, the prompt asks for a Greek answer and the refusal comes in Greek; decide by the question's majority script, English on a tie |
 | `HS-F16` | low | fixed, tick 105 | ntk eval check ends in a traceback on a golden line that is no object and on a missing eval/families.json: refuse each in one line, by line number and with the command that writes the file |
-| `HS-F17` | low | open | A corrupted answer cache ends ntk ask in a traceback after both models load: set it aside in one line that names the file and says it can be deleted, answer without it, and note it in the spend log |
+| `HS-F17` | low | fixed, tick 166 | A corrupted answer cache ends ntk ask in a traceback after both models load: set it aside in one line that names the file and says it can be deleted, answer without it, and note it in the spend log |
 | `HS-F18` | medium | fixed, tick 165 | ntk serve says it is serving before it holds its port: with the port taken it loads both models for 20.9 s, prints 'serving on http://127.0.0.1:6435 until stopped', then fails to bind and exits 3, 24 s in: bind the socket before loading, refusing at once by port and --port, and say serving once it listens |
 | `HS-F19` | low | fixed, tick 165 | A lone surrogate in a question, which JSON carries as an escape, reaches the tokenizer and is the server's one 500, a TypeError in its console, ntk search and ntk ask taking the same path: refuse a question that does not encode as UTF-8 as a QuestionError that names where |
 | `HS-F20` | low | fixed, tick 165 | A refused role is echoed whole: a sign in with a million character role gets a 1,000,138 byte 400, and ntk --as prints it whole too: quote the first 40 characters and say how long it was |
