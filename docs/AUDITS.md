@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**194 findings, 164 closed, 30 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**194 findings, 168 closed, 26 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -78,7 +78,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 
 ## `DR`, the deep reviewer
 
-An audit pass on correctness, read in the logic rather than the comments. 34 findings, 29 closed.
+An audit pass on correctness, read in the logic rather than the comments. 34 findings, 33 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -112,10 +112,10 @@ An audit pass on correctness, read in the logic rather than the comments. 34 fin
 | `DR-F28` | low | fixed, tick 145 | A run resumed with another book, split or purpose is accepted into the same file under the first provenance, a last line cut mid write stops any resume with a JSONDecodeError, and the baseline report prints the test run's provenance for all four runs: compare the sidecar on a resume, set a cut last line aside, and compare the four provenances in the report |
 | `DR-F29` | low | fixed, tick 146 | ntk corpus draw prints new values counted over the plan's facts beside sentences counted in its own documents, takes 0 and negatives for --every, and writes a plan whose facts point at documents its catalogue lacks, on which the probe generator stops with a KeyError: count what the drawn documents hold, refuse --every below 1, and cut the draw's plan to the facts its documents plant |
 | `DR-F30` | low | fixed, tick 167 | The other append only line files break on a last line a stopped write cut, the shape DR-F28 fixed in the runner: spend() and the canary scan raise on such a line of the spend log, and the change journal skips it but decodes the whole file first, so a cut inside a Greek letter raises, and its crash recovery appends after it, gluing the next record to it: one helper that cuts such a line before appending and reads whole lines as bytes, used by every reader and writer of these files |
-| `DR-F31` | medium | open | A busy answer cache is taken for an unreadable one: sqlite3.OperationalError, 'database is locked' past the 5 s timeout, is a DatabaseError, so ask() tries to set aside a file another writer holds open, and Windows refuses with PermissionError WinError 32, a traceback; elsewhere a good cache would move aside: set aside only a DatabaseError that is not an OperationalError, and answer beside a busy cache without it |
-| `DR-F32` | medium | open | The claims gate counts a record's own head as printed: bench/claims.py reads each record whole, so the digits of the date and time it was recorded pass as output; the README's first search set to 37 s passed against a record made at 23:37: read the records below their --- line, with a test |
-| `DR-F33` | low | open | lines.append mends before it appends and cannot tell a stopped write from one in flight: the spend log has three writers and no lock, so two questions ending together could cut one line: mend and append under an operating system lock beside the file, waited on briefly |
-| `DR-F34` | low | open | The served answer holds the GPU's lock through the provider's network call, so every search waits behind it with the GPU idle: hold the lock for the search and the excerpts only |
+| `DR-F31` | medium | fixed, tick 169 | A busy answer cache is taken for an unreadable one: sqlite3.OperationalError, 'database is locked' past the 5 s timeout, is a DatabaseError, so ask() tries to set aside a file another writer holds open, and Windows refuses with PermissionError WinError 32, a traceback; elsewhere a good cache would move aside: set aside only a DatabaseError that is not an OperationalError, and answer beside a busy cache without it |
+| `DR-F32` | medium | fixed, tick 169 | The claims gate counts a record's own head as printed: bench/claims.py reads each record whole, so the digits of the date and time it was recorded pass as output; the README's first search set to 37 s passed against a record made at 23:37: read the records below their --- line, with a test |
+| `DR-F33` | low | fixed, tick 169 | lines.append mends before it appends and cannot tell a stopped write from one in flight: the spend log has three writers and no lock, so two questions ending together could cut one line: mend and append under an operating system lock beside the file, waited on briefly |
+| `DR-F34` | low | fixed, tick 169 | The served answer holds the GPU's lock through the provider's network call, so every search waits behind it with the GPU idle: hold the lock for the search and the excerpts only |
 
 ## `OP`, the pipeline operator
 
