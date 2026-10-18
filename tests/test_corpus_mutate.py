@@ -194,3 +194,11 @@ def test_the_simulator_leaves_no_file_open(corpus):
     run = subprocess.run([sys.executable, "-X", "dev", "-c", code], capture_output=True, text=True, encoding="utf-8", errors="replace")
     assert run.returncode == 0, run.stderr[-2000:]
     assert "ResourceWarning" not in run.stderr, run.stderr[-2000:]
+
+
+def test_the_journal_is_read_in_whole_lines_even_cut_inside_a_greek_letter(tmp_path):
+    # DR-F30: entries() decoded the whole file first, so a line cut inside a Greek letter raised.
+    journal = tmp_path / "full.journal.jsonl"
+    line = json.dumps({"seq": 1, "state": "applied", "new": "Ελληνικά"}, ensure_ascii=False).encode("utf-8")
+    journal.write_bytes(line + b"\n" + line[:line.index("Ελ".encode("utf-8")) + 3])
+    assert [entry["seq"] for entry in mutate.entries(journal)] == [1]

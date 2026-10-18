@@ -14,13 +14,13 @@ set aside, the question answered without it, and the line names where it went (H
 from __future__ import annotations
 
 import datetime as dt
-import json
 import math
 import sqlite3
 import statistics
 import time
 from pathlib import Path
 
+from needtoknow import lines
 from needtoknow.answer import cache
 from needtoknow.answer.prompt import build, build_guess, parse, reader_mark, section_of
 from needtoknow.index.expand import excerpts as expand
@@ -130,10 +130,7 @@ def ask(client, question: str, role: str, policy: dict | None = None, provider: 
               "seconds": {stage: round(value, 3) for stage, value in seconds.items()}}
     if aside:
         record["cache_set_aside"] = str(aside)
-    log = spend_path()
-    log.parent.mkdir(parents=True, exist_ok=True)
-    with open(log, "a", encoding="utf-8", newline="\n") as handle:
-        handle.write(json.dumps(record) + "\n")
+    lines.append(spend_path(), record)  # after any line a stopped write cut, never glued to it (DR-F30)
     return {**answer, "excerpts": [{"doc_id": e["doc_id"], "section": section_of(e), "units": e["units"]} for e in shown],
             "cached": kept is not None, "model": model, "usage": usage, "cost_usd": usd, "stop_reason": stop,
             "attempts": attempts, "seconds": seconds, "prompt": entry_key,
@@ -144,12 +141,10 @@ def spend(path: Path | None = None) -> dict:
     """The spend log summed: questions, how many the cache answered, USD, tokens as billed, and the median and 95th
     percentile seconds of a question, by nearest rank. A question's seconds leave out the models' loading, which its
     line keeps apart since PF-F8; a line from before then counts its load in its search."""
-    path = path or spend_path()
-    lines = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()] \
-        if path.is_file() else []
-    times = sorted(line["seconds"]["total"] for line in lines)
-    return {"questions": len(lines), "cached": sum(line["cached"] for line in lines),
-            "usd": sum(line["usd"] or 0.0 for line in lines), "unpriced": sum(line["usd"] is None for line in lines),
-            "tokens": {kind: sum(line["usage"].get(kind) or 0 for line in lines) for kind in KINDS},
+    logged = lines.records(path or spend_path())  # whole lines: a stopped write's last one is left out (DR-F30)
+    times = sorted(line["seconds"]["total"] for line in logged)
+    return {"questions": len(logged), "cached": sum(line["cached"] for line in logged),
+            "usd": sum(line["usd"] or 0.0 for line in logged), "unpriced": sum(line["usd"] is None for line in logged),
+            "tokens": {kind: sum(line["usage"].get(kind) or 0 for line in logged) for kind in KINDS},
             "median_seconds": statistics.median(times) if times else None,
             "p95_seconds": times[math.ceil(0.95 * len(times)) - 1] if times else None}

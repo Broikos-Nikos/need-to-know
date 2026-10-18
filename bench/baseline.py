@@ -39,13 +39,15 @@ from pathlib import Path
 
 from needtoknow.eval.golden import Context, golden_path, load_items
 from needtoknow.eval.protocol import check_use, load_protocol
+from needtoknow.eval.run import answers as run_answers
 from needtoknow.eval.score import FAMILY, Sources, over_repeats, scorer_hash
 from needtoknow.eval.stats import difference, reach, unit_means, wilson
+from needtoknow.lines import records
 from needtoknow.settings import data_dir
 
 
 def read(path: Path) -> tuple[list[dict], dict]:
-    answers = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    answers = run_answers(path)  # whole lines, each what a run writes (DR-F30, HS-F21)
     sidecar = path.with_name(path.name + ".provenance.json")
     return answers, json.loads(sidecar.read_text(encoding="utf-8")) if sidecar.is_file() else {}
 
@@ -201,8 +203,7 @@ def main() -> int:
         f"{split} {same} of {total} items" for split, (same, total) in parity.items()))
     print(f"cost: {sum(run['usd'] for run in runs.values()):.6f} USD over the {len(runs)} runs")
     log = data_dir() / "logs" / "spend.jsonl"
-    spend = [json.loads(line) for line in log.read_text(encoding="utf-8").splitlines() if line.strip()] \
-        if log.is_file() else []
+    spend = records(log)  # whole lines (DR-F30)
     for split in ("test", "dev"):
         answers = opened[split]
         found = seconds_of(answers, {item["id"]: item["role"] for item in items[split]}, spend)

@@ -431,6 +431,7 @@ def cmd_eval_run(args: argparse.Namespace, out) -> int:
     from needtoknow.eval.protocol import ProtocolError, load_protocol
     from needtoknow.eval.run import RunError, run
     from needtoknow.index import server
+    from needtoknow.lines import LineError
     if not args.out or not args.purpose:
         print("eval run: give --out and --purpose", file=out, flush=True)
         return 1
@@ -438,7 +439,7 @@ def cmd_eval_run(args: argparse.Namespace, out) -> int:
     try:
         summary = run(args.split, args.purpose, repeats, Path(args.out), server.client(), args.closed_book,
                       report=lambda line: print(line, file=out, flush=True), first=args.items, guess=args.guess)
-    except (GoldenError, ProtocolError, RunError) as error:
+    except (GoldenError, ProtocolError, RunError, LineError) as error:
         print(f"eval run: {error}", file=out, flush=True)
         return 1
     book = ", the best guess with no excerpts" if args.guess else ", closed book" if args.closed_book else ""
@@ -454,8 +455,13 @@ def cmd_eval_canaries(out) -> int:
     not read (T5.4e); exits 1 on any."""
     from needtoknow.answer.cache import cache_path
     from needtoknow.answer.pipeline import spend_path
-    from needtoknow.canaries import scan
-    report = scan(spend_path(), cache_path())
+    from needtoknow.canaries import ScanError, scan
+    from needtoknow.lines import LineError
+    try:
+        report = scan(spend_path(), cache_path())
+    except (ScanError, LineError) as error:
+        print(f"eval canaries: {error}", file=out, flush=True)
+        return 1
     for leak in report["leaks"]:
         print(f"leak: {leak}", file=out)
     print(f"{report['lines']} spend log lines, {report['answers']} cached answers read through them, "
@@ -507,8 +513,10 @@ def cmd_eval_score(args: argparse.Namespace, out) -> int:
 
     from needtoknow.eval.golden import Context, GoldenError, golden_path, load_items
     from needtoknow.eval.protocol import ProtocolError, check_use
+    from needtoknow.eval.run import answers as run_answers
     from needtoknow.eval.score import over_repeats, score
     from needtoknow.eval.split import SplitError
+    from needtoknow.lines import LineError
     if not args.answers or not args.purpose:
         print("eval score: give the answers file and --purpose", file=out, flush=True)
         return 1
@@ -517,13 +525,13 @@ def cmd_eval_score(args: argparse.Namespace, out) -> int:
         return 1
     try:
         check_use(args.split, args.purpose)
-        answers = load_items(Path(args.answers))
+        answers = run_answers(Path(args.answers))  # each line what a run writes, by file and line (HS-F21)
         items = load_items(golden_path(args.split))
         repeats = sorted({answer.get("repeat", 0) for answer in answers})
         if len(repeats) > 1:
             return print_repeats(over_repeats(items, answers, Context()), args, out)
         results, figures = score(items, answers, Context())
-    except (GoldenError, ProtocolError, SplitError, OSError) as error:
+    except (GoldenError, ProtocolError, SplitError, LineError, OSError) as error:
         print(f"eval score: {error}", file=out, flush=True)
         return 1
 
@@ -627,10 +635,11 @@ def cmd_corpus(args: argparse.Namespace, out=None) -> int:
     """A corpus action; one that needs the plan where none was made says so in one line, where it was a traceback
     (HS-F22)."""
     from needtoknow.corpus import NoPlan
+    from needtoknow.lines import LineError
     out = out or sys.stdout
     try:
         return corpus_action(args, out)
-    except NoPlan as error:
+    except (NoPlan, LineError) as error:
         print(f"corpus {args.action}: {error}", file=out, flush=True)
         return 1
 

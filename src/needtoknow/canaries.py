@@ -19,9 +19,14 @@ import re
 import sqlite3
 from pathlib import Path
 
+from needtoknow import lines
 from needtoknow.policy import PolicyError, load_labels, load_policy, readable
 
 PATTERN = re.compile(r"CANARY_[0-9A-F]{6}_([A-Z]+)")
+
+
+class ScanError(RuntimeError):
+    """What the scan must read could not be read, so it can say nothing of leaks."""
 
 
 def suffixes(labels: dict | None = None) -> dict[str, str]:
@@ -43,15 +48,17 @@ def scan(spend: Path, answers: Path, policy: dict | None = None) -> dict:
     entries = {}
     if answers.is_file():
         db = sqlite3.connect(f"file:{answers.as_posix()}?mode=ro", uri=True)
-        entries = {key: text + "\n" + reasoning for key, text, reasoning in
-                   db.execute("SELECT key, text, reasoning FROM answers")}
-        db.close()
+        try:
+            entries = {key: text + "\n" + reasoning for key, text, reasoning in
+                       db.execute("SELECT key, text, reasoning FROM answers")}
+        except sqlite3.DatabaseError as error:  # a scan that cannot read says so: it can clear nothing
+            raise ScanError(f"the answer cache at {answers} could not be read ({error}), so nothing was scanned; the "
+                            "next ntk ask sets it aside") from None
+        finally:
+            db.close()
     named = set()
-    lines = spend.read_text(encoding="utf-8").splitlines() if spend.is_file() else []
-    for number, line in enumerate(lines, 1):
-        if not line.strip():
-            continue
-        record = json.loads(line)
+    for number, record in enumerate(lines.records(spend), 1):  # whole lines (DR-F30)
+        line = json.dumps(record, ensure_ascii=False)
         try:
             reads = readable(policy, record["role"])
         except PolicyError:  # a role the policy no longer has reads nothing now

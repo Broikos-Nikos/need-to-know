@@ -9,6 +9,7 @@ from needtoknow.eval.golden import golden_path, load_items
 from needtoknow.eval.protocol import ProtocolError
 from needtoknow.eval import run as R
 from needtoknow.eval.run import run
+from needtoknow.lines import LineError
 
 
 class Asker:
@@ -133,3 +134,25 @@ def test_a_last_line_a_stopped_write_left_is_cut_off_and_asked_again(tmp_path):
     summary = run("dev", "development", 1, out, None, ask=Asker(), tables=lambda u: 0)
     assert summary["mended"] and summary["kept"] == 4
     assert sorted(r["id"] for r in lines(out)) == sorted(item["id"] for item in load_items(golden_path("dev")))
+
+
+def test_a_folder_or_a_line_no_run_wrote_is_refused_before_anything_is_asked_or_written(tmp_path):
+    # HS-F21: --out naming a folder failed only when the first answer, paid for, was appended; a bad line in a file
+    # resumed ended in a traceback after a fresh provenance sidecar had been written beside it.
+    asker = Asker()
+    with pytest.raises(R.RunError, match="is a folder: --out names the file the answers go to"):
+        run("dev", "development", 1, tmp_path, None, ask=asker, tables=lambda u: 0)
+    out = tmp_path / "dev.jsonl"
+    out.write_bytes(b'{"id": "D001", "repeat": 0, "status": "answered", "answer": ["7"], "citations": []}\n')
+    with pytest.raises(LineError, match='dev.jsonl line 1: answer is \\["7"\\], where a run writes text'):
+        run("dev", "development", 1, out, None, ask=asker, tables=lambda u: 0)
+    assert asker.calls == [] and not out.with_name("dev.jsonl.provenance.json").exists()
+
+
+def test_the_scorer_refuses_a_line_no_run_wrote_by_file_and_line(tmp_path, capsys):
+    # HS-F21: lines of an id alone scored as wrong answers with exit 0, and an answer that was a list was a traceback.
+    from needtoknow.cli import main
+    bare = tmp_path / "bare.jsonl"
+    bare.write_bytes(b'{"id": "D001"}\n')
+    assert main(["eval", "score", str(bare), "--purpose", "development"]) == 1
+    assert capsys.readouterr().out == "eval score: bare.jsonl line 1: no repeat, which every answer a run writes holds\n"

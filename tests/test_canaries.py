@@ -60,6 +60,22 @@ def test_the_scan_reads_each_cached_answer_for_every_role_its_log_names(tmp_path
                                               "spend log line 6, sales: CANARY_00000D_FINANCE"])
 
 
+def test_the_scan_reads_whole_lines_and_says_when_it_cannot_read_the_cache(monkeypatch, tmp_path, capsys):
+    # DR-F30: a last line a stopped write cut ended the scan in a traceback, and so did a cache it could not read,
+    # which must clear nothing.
+    monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path))
+    (tmp_path / "logs").mkdir()
+    (tmp_path / "llm-cache").mkdir()
+    answer_cache(tmp_path / "llm-cache" / "answers.db", [("e" * 64, "CANARY_00000E_HR", "")])
+    whole = json.dumps({"role": "hr", "prompt": "e" * 16}).encode("utf-8")
+    (tmp_path / "logs" / "spend.jsonl").write_bytes(whole + b"\n" + whole[:20])
+    assert main(["eval", "canaries"]) == 0
+    assert capsys.readouterr().out.startswith("1 spend log lines, 1 cached answers read through them")
+    (tmp_path / "llm-cache" / "answers.db").write_bytes(b"not a database")
+    assert main(["eval", "canaries"]) == 1
+    assert capsys.readouterr().out.startswith("eval canaries: the answer cache at ")
+
+
 def test_ntk_eval_canaries_exits_1_on_a_leak_and_0_on_none(monkeypatch, tmp_path, capsys):
     monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path))
     (tmp_path / "logs").mkdir()

@@ -25,6 +25,7 @@ import re
 import shutil
 from pathlib import Path
 
+from needtoknow import lines
 from needtoknow.corpus import exclusive, json_bytes, read_plan
 from needtoknow.corpus.plan import LABEL_EL, LABEL_EN, MIXES
 from needtoknow.settings import data_dir
@@ -84,21 +85,17 @@ def entries(journal: Path) -> list[dict]:
     """The journal's changes in order, each with its latest state.
 
     A last line a crash cut short is left out: as a pending line it named a change
-    never begun, and as an applied line it leaves its change pending, to be finished.
+    never begun, and as an applied line it leaves its change pending, to be finished. It
+    is read as bytes, so a cut inside a Greek letter is left out too (DR-F30).
     """
-    if not journal.is_file():
-        return []
     changes: dict[int, dict] = {}
-    for line in journal.read_bytes().decode("utf-8").split("\n")[:-1]:
-        if line:
-            record = json.loads(line)
-            changes.setdefault(record["seq"], {}).update(record)
+    for record in lines.records(journal):
+        changes.setdefault(record["seq"], {}).update(record)
     return [changes[seq] for seq in sorted(changes)]
 
 
 def append(journal: Path, record: dict) -> None:
-    with journal.open("ab") as handle:
-        handle.write((json.dumps(record, ensure_ascii=False) + "\n").encode("utf-8"))
+    lines.append(journal, record)
 
 
 def mutate(count: int, seed: int = 1) -> list[dict]:
@@ -133,11 +130,7 @@ def recover(base: Path) -> list[int]:
     bytes staged for a change whose line was never written are deleted.
     """
     journal = base / "full.journal.jsonl"
-    if journal.is_file():
-        data = journal.read_bytes()
-        if not data.endswith(b"\n"):
-            with journal.open("r+b") as handle:
-                handle.truncate(data.rfind(b"\n") + 1)
+    lines.mend(journal)
     finished = []
     for entry in entries(journal):
         if entry.get("state") == "pending":

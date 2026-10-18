@@ -27,6 +27,7 @@ import json
 import subprocess
 from pathlib import Path
 
+from needtoknow import lines
 from needtoknow.eval.golden import golden_path, load_items
 from needtoknow.eval.protocol import check_use
 
@@ -77,25 +78,32 @@ def provenance(split: str, purpose: str, repeats: int, closed_book: bool, guess:
             "started": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
 
 
+# What every answer a run has written holds, of the kinds it wrote them: what the scorer and a resumed run read.
+FIELDS = {"id": str, "repeat": int, "status": str, "answer": str, "citations": list}
+KINDS = {str: "text", int: "a whole number", list: "a list"}
+
+
+def unlike(record: dict) -> str | None:
+    """What an answer line lacks, or holds of another kind, of what a run writes; None when nothing (HS-F21)."""
+    for field, kind in FIELDS.items():
+        if field not in record:
+            return f"no {field}, which every answer a run writes holds"
+        value = record[field]
+        if not isinstance(value, kind) or isinstance(value, bool):
+            return f"{field} is {json.dumps(value, ensure_ascii=False)[:40]}, where a run writes {KINDS[kind]}"
+    return None
+
+
+def answers(out: Path) -> list[dict]:
+    """A run's answers, its whole lines (DR-F28, DR-F30), each refused by file and line when it is not what a run
+    writes (HS-F21)."""
+    return lines.records(out, check=unlike)
+
+
 def asked(out: Path) -> set[tuple[str, int]]:
     """The items and repeats a file already holds, in its whole lines: a last line with no newline is a write that
     was stopped, and holds nothing yet."""
-    if not out.is_file():
-        return set()
-    whole = out.read_bytes().split(b"\n")[:-1]  # bytes: a write stopped inside a Greek letter is cut there too
-    return {(record["id"], record["repeat"]) for record in (json.loads(line) for line in whole if line.strip())}
-
-
-def mend(out: Path) -> bool:
-    """Cut off a last line that a stopped write left without its newline, so the next answer starts a line of its
-    own; whether there was one (DR-F28)."""
-    if not out.is_file():
-        return False
-    data = out.read_bytes()
-    if not data or data.endswith(b"\n"):
-        return False
-    out.write_bytes(data[:data.rfind(b"\n") + 1])
-    return True
+    return {(record["id"], record["repeat"]) for record in answers(out)}
 
 
 def run(split: str, purpose: str, repeats: int, out: Path, client, closed_book: bool = False, ask=None,
@@ -103,6 +111,9 @@ def run(split: str, purpose: str, repeats: int, out: Path, client, closed_book: 
     """Ask every item of the split as its role, `repeats` times, appending each answer to `out`; what it did. `first`
     asks only that many items, for a smoke run."""
     check_use(split, purpose)
+    if out.is_dir():  # found only when the first answer, already paid for, was appended (HS-F21)
+        raise RunError(f"{out} is a folder: --out names the file the answers go to")
+    done = asked(out)  # a line no run wrote is named before anything is written or asked (HS-F21)
     closed_book = closed_book or guess
     sidecar = out.with_name(out.name + ".provenance.json")
     now = (made_by or provenance)(split, purpose, repeats, closed_book, guess=guess)
@@ -124,8 +135,7 @@ def run(split: str, purpose: str, repeats: int, out: Path, client, closed_book: 
     if ask is None:
         from needtoknow.answer.pipeline import ask
     items = load_items(golden_path(split))[:first]
-    mended = mend(out)
-    done = asked(out)
+    mended = lines.mend(out)
     out.parent.mkdir(parents=True, exist_ok=True)
     summary = {"items": len(items), "repeats": repeats, "asked": 0, "kept": len(done), "usd": 0.0, "models": set(),
                "mended": mended}
@@ -144,8 +154,7 @@ def run(split: str, purpose: str, repeats: int, out: Path, client, closed_book: 
                       "closed_book": closed_book, "guess": guess, "excerpts": result["excerpts"], "units": len(units),
                       "tables_shown": tables(units),
                       "at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
-            with open(out, "a", encoding="utf-8", newline="\n") as handle:
-                handle.write(json.dumps(record, ensure_ascii=False) + "\n")
+            lines.append(out, record)
             summary["asked"] += 1
             summary["usd"] += result["cost_usd"] or 0.0
             summary["models"].add(result["model"])

@@ -157,6 +157,17 @@ def test_the_spend_log_holds_numbers_and_no_text_and_sums(world):
     assert total["tokens"]["input_miss"] == 600 and total["p95_seconds"] >= total["median_seconds"]
 
 
+def test_the_spend_log_is_read_and_written_in_whole_lines(world):
+    # DR-F30: a last line a stopped write cut made spend() raise, and the next question's line was glued to it.
+    log = pipeline.spend_path()
+    pipeline.ask(None, QUESTION, "sales")
+    whole = log.read_bytes()
+    log.write_bytes(whole + whole[:30])  # a second line stopped part way
+    assert pipeline.spend()["questions"] == 1
+    pipeline.ask(None, QUESTION, "sales")
+    assert [json.loads(line)["cached"] for line in log.read_bytes().split(b"\n")[:-1]] == [False, True]
+
+
 def test_a_closed_book_question_searches_nothing_and_shows_no_excerpt(world):
     # Under the answer rules a question with no documents is refused: the check that the rules hold (DR-F27).
     closed = pipeline.ask(None, QUESTION, "sales", closed_book=True)
