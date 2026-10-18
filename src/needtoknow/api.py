@@ -16,7 +16,10 @@ them (PF-F7); one query runs at a time, as the GPU holds one batch.
 and the units it passes and holds back, counted; each search's candidates with its own
 scores; their fusion; the reranker's order; the excerpts a question would be shown; each
 stage's seconds; and the document, section, labels and text of every unit named. Every unit
-in it passed the role's filter; of the units held back it has the count alone.
+in it passed the role's filter; of the units held back it has the count alone. `POST /ask`
+answers with the same trace, the excerpts as they were sent, and the answer with its
+citations; whether the cache answered, and the call's tokens and price, stay in the spend
+log, the operator's, since they would tell a role that someone asked the same (KB5-K12).
 """
 
 from __future__ import annotations
@@ -25,11 +28,13 @@ import json
 import secrets
 import threading
 import time
+from contextlib import contextmanager
 
 from fastapi import Depends, FastAPI, HTTPException, Request
 from pydantic import BaseModel, ConfigDict
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
+from needtoknow.answer.pipeline import ask
 from needtoknow.answer.prompt import section_of
 from needtoknow.embed.model import EmbedError
 from needtoknow.index import server
@@ -37,13 +42,17 @@ from needtoknow.index.expand import excerpts
 from needtoknow.index.search import QuestionError, search
 from needtoknow.ingest.manifest import opened
 from needtoknow.policy import PolicyError, load_policy, readable
+from needtoknow.providers.call import ProviderError
 
 HOST = "127.0.0.1"
 NAMES = [HOST, "localhost"]
 PORT = 6435  # beside the index's server, on 6433 and 6434
 SESSIONS = 256  # sign ins kept, the oldest dropped first
 STAGES = ("dense", "sparse", "fused", "reranked")
+# What a served answer holds; never whether the cache answered, the tokens or the price (KB5-K12).
+ANSWERED = ("status", "answer", "citations", "dropped", "error", "model", "stop_reason")
 NO_SESSION = "no session: sign in with POST /session and send its token; a query names no role"
+STOPPED = "the index's server is not running, so nothing reached it: ntk qdrant start"
 
 
 class SignIn(BaseModel):
@@ -71,6 +80,39 @@ def described(unit_ids: list[str]) -> dict[str, dict]:
                 found[unit] = {"doc_id": doc_id, "section": " > ".join(json.loads(path)), "labels": json.loads(labels),
                                "text": text}
     return found
+
+
+@contextmanager
+def refused():
+    """A query's errors as the answers that say them: no traceback reaches the caller."""
+    try:
+        yield
+    except QuestionError as error:
+        raise HTTPException(400, str(error)) from None
+    except PolicyError as error:  # the role left the policy after its sign in
+        raise HTTPException(403, str(error)) from None
+    except ProviderError as error:
+        raise HTTPException(502, str(error)) from None
+    except EmbedError as error:
+        raise HTTPException(503, str(error)) from None
+    except Exception:
+        if server.stopped():
+            raise HTTPException(503, STOPPED) from None
+        raise
+
+
+def staged(role: str, trace: dict, shown: list[dict], seconds: dict, began: float) -> dict:
+    """The stage trace as served: the filter, each stage's units, ranks and scores, the excerpts, the text of every
+    unit named, and each stage's seconds."""
+    clock = time.perf_counter()
+    units = described(list(dict.fromkeys(hit["unit_id"] for stage in STAGES for hit in trace[stage])))
+    seconds = {**seconds, "texts": time.perf_counter() - clock, "total": time.perf_counter() - began}
+    return {"role": role, "filter": trace["filter"],
+            **{stage: [{"unit_id": hit["unit_id"], "rank": hit["rank"], "score": float(hit["score"])}
+                       for hit in trace[stage]] for stage in STAGES},
+            "excerpts": [{"doc_id": e["doc_id"], "section": section_of(e), "labels": e["labels"], "units": e["units"],
+                          "rank": e["rank"], "text": e["text"]} for e in shown],
+            "units": units, "seconds": {stage: round(value, 4) for stage, value in seconds.items()}}
 
 
 def create(client, *, policy: dict | None = None, encode=None, rerank: str | None = None) -> FastAPI:
@@ -101,37 +143,27 @@ def create(client, *, policy: dict | None = None, encode=None, rerank: str | Non
             del sessions[next(iter(sessions))]
         return {"token": token, "role": body.role}
 
-    @app.post("/search")
-    # The dependency as a default, not an annotation: the module's annotations are strings, which cannot name a
+    # Each dependency is a default, not an annotation: the module's annotations are strings, which cannot name a
     # function local to create().
+    @app.post("/search")
     def find(body: Question, role: str = Depends(role_of)) -> dict:
         began = time.perf_counter()
         trace: dict = {}
-        with lock:
-            try:
-                search(client, body.question, role, policy, encode=encode, rerank=rerank, trace=trace)
-            except QuestionError as error:
-                raise HTTPException(400, str(error)) from None
-            except PolicyError as error:  # the role left the policy after its sign in
-                raise HTTPException(403, str(error)) from None
-            except EmbedError as error:
-                raise HTTPException(503, str(error)) from None
-            except Exception:
-                if server.stopped():
-                    raise HTTPException(503, "the index's server is not running, so nothing reached it: ntk qdrant "
-                                             "start") from None
-                raise
+        with lock, refused():
+            search(client, body.question, role, policy, encode=encode, rerank=rerank, trace=trace)
             clock = time.perf_counter()
             shown = excerpts(trace["reranked"])
-            seconds = {**trace["seconds"], "expand": time.perf_counter() - clock}
-        clock = time.perf_counter()
-        units = described(list(dict.fromkeys(hit["unit_id"] for stage in STAGES for hit in trace[stage])))
-        seconds.update(texts=time.perf_counter() - clock, total=time.perf_counter() - began)
-        return {"role": role, "filter": trace["filter"],
-                **{stage: [{"unit_id": hit["unit_id"], "rank": hit["rank"], "score": float(hit["score"])}
-                           for hit in trace[stage]] for stage in STAGES},
-                "excerpts": [{"doc_id": e["doc_id"], "section": section_of(e), "labels": e["labels"], "units": e["units"],
-                              "rank": e["rank"], "text": e["text"]} for e in shown],
-                "units": units, "seconds": {stage: round(value, 4) for stage, value in seconds.items()}}
+        return staged(role, trace, shown, {**trace["seconds"], "expand": time.perf_counter() - clock}, began)
+
+    @app.post("/ask")
+    def answer(body: Question, role: str = Depends(role_of)) -> dict:
+        began = time.perf_counter()
+        trace: dict = {}
+        with lock, refused():
+            result = ask(client, body.question, role, policy, encode=encode, rerank=rerank, trace=trace)
+        taken = result["seconds"]
+        served = staged(role, trace, trace["shown"], {**trace["seconds"], "expand": taken["expand"],
+                                                      "provider": taken["provider"], "parse": taken["parse"]}, began)
+        return {**served, "answer": {key: result.get(key) for key in ANSWERED}}
 
     return app

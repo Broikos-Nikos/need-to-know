@@ -29,6 +29,15 @@ def run(monkeypatch, result=None, raises=None) -> tuple[int, str]:
     return code, out.getvalue()
 
 
+def test_a_cache_set_aside_is_said_in_one_line(monkeypatch):
+    # HS-F17: the line names the file and says it can be deleted.
+    aside = "C:/data/llm-cache/answers.db.unreadable-20261019-000207"
+    code, text = run(monkeypatch, {**RESULT, "cache_set_aside": aside})
+    assert code == 0 and text.splitlines()[0] == (f"the answer cache could not be read and was set aside as {aside}, "
+                                                  "which can be deleted; this answer did without it")
+    assert "set aside" not in run(monkeypatch, {**RESULT, "cache_set_aside": None})[1]
+
+
 def test_an_answer_prints_its_citations_what_could_not_be_cited_and_its_cost(monkeypatch):
     code, text = run(monkeypatch, RESULT)
     assert code == 0

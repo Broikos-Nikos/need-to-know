@@ -62,6 +62,19 @@ def opened(path: Path | None = None) -> Iterator[sqlite3.Connection]:
         db.close()
 
 
+def set_aside(path: Path | None = None) -> Path:
+    """Move a cache SQLite cannot read out of the way, with any journal beside it, so the next opening starts a fresh
+    one; where it went (HS-F17). A journal left beside a new file would be rolled back into it as its own."""
+    path = path or cache_path()
+    aside = path.with_name(f"{path.name}.unreadable-{time.strftime('%Y%m%d-%H%M%S')}")
+    path.replace(aside)
+    for suffix in ("-journal", "-wal", "-shm"):
+        beside = path.with_name(path.name + suffix)
+        if beside.exists():
+            beside.replace(aside.with_name(aside.name + suffix))
+    return aside
+
+
 def get(db: sqlite3.Connection, entry: str, alias: str | None = None) -> dict | None:
     """The entry's reply, or None when there is none or when the alias it was asked by now answers with another
     model."""

@@ -3,6 +3,7 @@ by the prompt as sent, so a narrowed section is never answered from it (AC-F8); 
 read from the catalogue; and a spend log that holds numbers and hashes and no text."""
 
 import json
+from pathlib import Path
 
 import pytest
 
@@ -98,6 +99,35 @@ def test_an_entry_goes_stale_when_its_alias_answers_with_another_model(world, mo
     pipeline.ask(None, "Who issues the authorisation?", "sales")  # a fresh reply names the new model
     moved = pipeline.ask(None, QUESTION, "sales")
     assert (moved["cached"], moved["model"]) == (False, "deepseek-next")
+
+
+def test_a_cache_sqlite_cannot_read_is_set_aside_and_the_question_answered_without_it(world):
+    # HS-F17: a corrupted answer cache ended ntk ask in a traceback after both models loaded.
+    from needtoknow.answer import cache
+    path = cache.cache_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(b"not a database " * 64)
+    journal = path.with_name(path.name + "-journal")
+    journal.write_bytes(b"the old file's journal, which a new file would take for its own")
+    first = pipeline.ask(None, QUESTION, "sales")
+    aside = Path(first["cache_set_aside"])
+    assert first["status"] == "answered" and aside.read_bytes().startswith(b"not a database")
+    assert not journal.exists()  # nothing of the old file is left beside the new one
+    line = json.loads(pipeline.spend_path().read_text(encoding="utf-8").splitlines()[-1])
+    assert line["cache_set_aside"] == str(aside)
+    again = pipeline.ask(None, QUESTION, "sales")  # the fresh cache kept the answer
+    assert again["cached"] and again["cache_set_aside"] is None and len(world["calls"]) == 1
+
+
+def test_a_cache_set_aside_takes_its_journal_with_it(tmp_path):
+    # SQLite reads a journal beside a file as that file's own; one left beside a fresh cache would be rolled into it.
+    from needtoknow.answer import cache
+    path = tmp_path / "answers.db"
+    path.write_bytes(b"not a database")
+    path.with_name("answers.db-journal").write_bytes(b"its journal")
+    aside = cache.set_aside(path)
+    assert not path.exists() and not path.with_name("answers.db-journal").exists()
+    assert aside.with_name(aside.name + "-journal").read_bytes() == b"its journal"
 
 
 def test_only_a_reply_that_ended_normally_is_kept_and_the_settings_come_from_the_catalogue(world):

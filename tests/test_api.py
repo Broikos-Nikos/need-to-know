@@ -16,6 +16,7 @@ from needtoknow import api, cli
 from needtoknow.embed.model import EmbedError
 from needtoknow.index.search import RRF_K
 from needtoknow.policy import load_policy, readable
+from needtoknow.providers.call import Completion, ProviderError
 
 pytestmark = [pytest.mark.filterwarnings("ignore:Payload indexes have no effect in the local Qdrant"),
               pytest.mark.filterwarnings("ignore:Local mode performs exact")]  # the trace asks its searches apart
@@ -116,6 +117,44 @@ def test_units_of_equal_score_keep_the_ranks_the_fusion_gave_them(monkeypatch, t
     assert engine != sorted(engine), "the engine orders the tied units by id, so this test cannot tell the two apart"
     assert [hit["unit_id"] for hit in body["sparse"]] == engine
     assert [hit["score"] for hit in body["fused"]] == pytest.approx(fusion_of(body), rel=1e-6)
+
+
+def echoing(system, messages, config=None, **settings):
+    """A provider that answers with the whole prompt it read, so whatever the prompt holds shows in the answer."""
+    return Completion(text=json.dumps({"status": "answered", "answer": messages[0]["content"], "citations": [1]}),
+                      reasoning="", usage={"input_hit": 7, "input_miss": 300, "output": 20, "reasoning": 0},
+                      stop_reason="stop", seconds=0.01, cost_usd=0.00006, model="deepseek-flash", attempts=1)
+
+
+def test_ask_answers_with_the_trace_the_excerpts_sent_and_nothing_of_the_cache(client, monkeypatch):
+    from needtoknow.answer import pipeline
+    monkeypatch.setitem(pipeline.ADAPTERS, "deepseek", echoing)
+    monkeypatch.setattr(pipeline, "warm", lambda encode=None, rerank=None: 0.0)
+    http = served(client)
+    for role, secrets in (("sales", False), ("legal", True)):
+        body = http.post("/ask", json=ASKED, headers=signed(http, role)).json()
+        reads = readable(load_policy(), role)
+        assert named(body) and all(LABELS[unit] & reads for unit in named(body)), role
+        said = body["answer"]["answer"]
+        # The provider read the role's excerpts, the ones the trace shows, and no other text.
+        assert ("Legal note on matters of counsel." in said) == secrets, role
+        assert body["excerpts"] and all(excerpt["text"] in said for excerpt in body["excerpts"]), role
+        assert said.count("<document number=") == len(body["excerpts"]), role  # every one sent, and only those
+    assert set(body) == {"role", "filter", *api.STAGES, "excerpts", "units", "seconds", "answer"}
+    assert set(body["answer"]) == {"status", "answer", "citations", "dropped", "error", "model", "stop_reason"}
+    assert body["answer"]["citations"]
+    assert {"provider", "parse", "expand", "total"} <= set(body["seconds"])
+    # From the cache now: the asker cannot tell, the tokens, the price and the cache's part staying in the spend log.
+    again = http.post("/ask", json=ASKED, headers=signed(http, "legal")).json()
+    assert again["answer"] == body["answer"] and set(again) == set(body)
+    lines = [json.loads(line) for line in pipeline.spend_path().read_text(encoding="utf-8").splitlines()]
+    assert [line["cached"] for line in lines] == [False, False, True]
+
+    def refused(system, messages, config=None, **settings):
+        raise ProviderError("deepseek: the key was refused")
+    monkeypatch.setitem(pipeline.ADAPTERS, "deepseek", refused)
+    response = http.post("/ask", json={"question": "settlement ceiling for claims"}, headers=signed(http, "sales"))
+    assert response.status_code == 502 and response.json()["detail"] == "deepseek: the key was refused"
 
 
 def test_a_missing_gpu_or_a_stopped_index_is_a_503_that_names_it(client, monkeypatch):

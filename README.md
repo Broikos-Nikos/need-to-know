@@ -65,7 +65,9 @@ command in this repository that produces it.
   with its stage trace: the role's filter and how many units it passes and holds back, each
   search's own candidates and scores, their fusion, the reranker's order, the excerpts and
   each stage's seconds, every unit in it one the role may read; the leak gate asks every
-  case through it too. The models load as it starts, 21.2 s here, so its first search took
+  case through it too. `POST /ask` answers with the same trace, the excerpts as they were sent
+  and the answer with its citations, and never whether the cache answered, which the spend
+  log keeps with the tokens and the price. The models load as it starts, 21.2 s here, so its first search took
   1.62 s and the rest a median of 1.01 s and 1.47 s at the 95th percentile, the trace's own
   queries 0.133 s of it at the median; over 2,000 fused units the engine's scores match
   reciprocal rank fusion of the two searches as traced within 2.3e-09:
@@ -196,7 +198,9 @@ uv run ntk ingest watch
   role's label set: a narrowed section is never answered from the cache, and a role shares
   a cached answer only with roles that read the same labels, a mark that moved no dev
   answer (`uv run python bench/reader_line.py`). Every question adds a line of numbers to
-  the spend log in the data directory, the provider's cached token counts with them.
+  the spend log in the data directory, the provider's cached token counts with them. A cache
+  that cannot be read is set aside under a name that says so, and the question answered
+  without it.
   `ntk doctor` checks each of these.
 * `ntk` is the operator's tool: `--as` takes the role on the caller's word, to stand in
   for a user. `ntk serve` takes it from the session instead: a role signs in once, on the
