@@ -13,6 +13,19 @@ class CorpusBusy(RuntimeError):
     """Another process is writing the corpus."""
 
 
+class NoPlan(RuntimeError):
+    """The corpus folder holds no plan, which `ntk corpus plan` makes."""
+
+
+def read_plan(base: Path, name: str):
+    """A file of the plan in the corpus folder `base`, read as JSON; refused in one line when no plan was made there,
+    in the words the evaluation's commands use, where it was a traceback (HS-F22)."""
+    path = base / "plan" / name
+    if not path.is_file():
+        raise NoPlan(f"no plan in {path.parent}: run ntk corpus plan first")
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
 def json_bytes(data) -> bytes:
     """JSON with LF line ends on every platform: Path.write_text would write CRLF on Windows."""
     return (json.dumps(data, ensure_ascii=False, indent=1) + "\n").encode("utf-8")

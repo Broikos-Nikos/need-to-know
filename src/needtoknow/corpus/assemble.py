@@ -26,7 +26,7 @@ from datetime import date, timedelta
 from functools import lru_cache
 from pathlib import Path
 
-from needtoknow.corpus import dump_json, exclusive, narrative_dir
+from needtoknow.corpus import dump_json, exclusive, narrative_dir, read_plan
 from needtoknow.corpus.plan import DEPARTMENTS, LABEL_EL, LABEL_EN, SEED, world
 from needtoknow.ingest.structure import Element
 from needtoknow.ingest.units import table_groups
@@ -274,7 +274,7 @@ def assemble(profile: str = "full") -> dict:
     `settle` before the next build.
     """
     base = data_dir() / "corpus"
-    docs = json.loads((base / "plan" / "catalogue.json").read_text(encoding="utf-8"))
+    docs = read_plan(base, "catalogue.json")
     shares = {label: entry["target_share"] for label, entry in load_labels().items()}
     narrative = narrative_dir(base)
     missing = [doc["id"] for doc in docs if not (narrative / f"{doc['id']}.txt").is_file()]
@@ -385,7 +385,7 @@ def sample_ids(docs: list[dict]) -> list[str]:
 def samples(out: Path) -> list[Path]:
     """The six sample files, small: the writers' full text, then each table cut to a page of rows."""
     base = data_dir() / "corpus"
-    docs = json.loads((base / "plan" / "catalogue.json").read_text(encoding="utf-8"))
+    docs = read_plan(base, "catalogue.json")
     w, by_id = world(), {d["id"]: d for d in docs}
     out.mkdir(parents=True, exist_ok=True)
     for stale in out.glob("*"):

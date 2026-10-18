@@ -88,6 +88,11 @@ def search(client, question: str, role: str, policy: dict | None = None, form: s
         raise QuestionError("a question needs at least one word")
     if len(question) > MAX_QUESTION:
         raise QuestionError(f"a question is at most {MAX_QUESTION:,} characters; this one has {len(question):,}")
+    try:  # JSON carries half a surrogate pair, which the tokenizer met as the server's one 500 (HS-F19)
+        question.encode("utf-8")
+    except UnicodeEncodeError as error:
+        raise QuestionError(f"a question must be text: character {error.start + 1:,} is half of a surrogate pair "
+                            "alone") from None
     if encode is None:
         from needtoknow.embed.model import encode
     policy = policy or load_policy()

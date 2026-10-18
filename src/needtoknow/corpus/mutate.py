@@ -25,7 +25,7 @@ import re
 import shutil
 from pathlib import Path
 
-from needtoknow.corpus import exclusive, json_bytes
+from needtoknow.corpus import exclusive, json_bytes, read_plan
 from needtoknow.corpus.plan import LABEL_EL, LABEL_EN, MIXES
 from needtoknow.settings import data_dir
 
@@ -104,7 +104,7 @@ def append(journal: Path, record: dict) -> None:
 def mutate(count: int, seed: int = 1) -> list[dict]:
     base = data_dir() / "corpus"
     full, journal = base / "full", base / "full.journal.jsonl"
-    facts = json.loads((base / "plan" / "facts.json").read_text(encoding="utf-8"))
+    facts = read_plan(base, "facts.json")
     rng = random.Random(seed)
     made = []
     with exclusive(base):

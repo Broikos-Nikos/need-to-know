@@ -187,6 +187,8 @@ def test_a_blank_or_a_megabyte_question_is_refused_by_name_and_a_question_of_sto
     long = " ".join(f"word{n}" for n in range(MAX_QUESTION))
     with pytest.raises(QuestionError, match="at most 4,000 characters"):
         ask(client, question=long)
+    with pytest.raises(QuestionError, match="character 8 is half of a surrogate pair alone"):  # HS-F19
+        ask(client, question="return " + chr(0xD800) + " days")
     assert ask(client, question="the and of", role="sales")  # stopwords alone still ask the dense side
 
 

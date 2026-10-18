@@ -14,7 +14,7 @@ import re
 import unicodedata
 from collections import Counter
 
-from needtoknow.corpus import narrative_dir
+from needtoknow.corpus import narrative_dir, read_plan
 from needtoknow.corpus.assemble import parse_sections
 from needtoknow.corpus.mutate import corpus_files, entries, read
 from needtoknow.corpus.plan import LABEL_EL, LABEL_EN, header
@@ -44,8 +44,8 @@ def squash(text: str) -> str:
 
 def check() -> dict:
     base = data_dir() / "corpus"
-    docs = json.loads((base / "plan" / "catalogue.json").read_text(encoding="utf-8"))
-    facts = {f["id"]: f for f in json.loads((base / "plan" / "facts.json").read_text(encoding="utf-8"))}
+    docs = read_plan(base, "catalogue.json")
+    facts = {f["id"]: f for f in read_plan(base, "facts.json")}
     sentences = {lang: {squash(f[lang]): fid for fid, f in facts.items()} for lang in ("en", "el")}
     report = Counter()
     problems: list[str] = []

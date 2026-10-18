@@ -621,7 +621,18 @@ def cmd_coverage(out) -> int:
 
 
 def cmd_corpus(args: argparse.Namespace, out=None) -> int:
+    """A corpus action; one that needs the plan where none was made says so in one line, where it was a traceback
+    (HS-F22)."""
+    from needtoknow.corpus import NoPlan
     out = out or sys.stdout
+    try:
+        return corpus_action(args, out)
+    except NoPlan as error:
+        print(f"corpus {args.action}: {error}", file=out, flush=True)
+        return 1
+
+
+def corpus_action(args: argparse.Namespace, out) -> int:
     if args.action == "plan":
         from needtoknow.corpus.plan import build, summary
         path = build()
@@ -728,29 +739,48 @@ def cmd_stats(out=None, client=None) -> int:
 
 def cmd_serve(args: argparse.Namespace, out=None, run=None) -> int:
     """The local server (T6.1), its models loaded before it listens, so no question waits for them (PF-F7). It
-    listens on 127.0.0.1 alone, and nothing here can make it listen anywhere else."""
+    listens on 127.0.0.1 alone, and nothing here can make it listen anywhere else. The port is taken first, so a
+    port another program holds is said at once, not after the models load, and the line that says it serves comes
+    once it listens (HS-F18)."""
+    import socket
+
     from needtoknow import api
     from needtoknow.answer.pipeline import warm
     from needtoknow.embed.model import EmbedError
     out = out or sys.stdout
+    port = args.port or api.PORT
+    listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    try:
+        listener.bind((api.HOST, port))
+        listener.listen()
+    except OSError as error:
+        listener.close()
+        print(f"serve: port {port} on {api.HOST} is taken, by another ntk serve or another program: --port names "
+              f"another ({error.strerror})", file=out, flush=True)
+        return 1
     try:
         config = server.load_config()
         if server.running(config) is None:
+            listener.close()
             print("serve: the index's server is not running: ntk qdrant start", file=out, flush=True)
             return 1
         client = server.client(config)
         loaded = warm()
     except (server.ServerError, EmbedError) as error:
+        listener.close()
         print(f"serve: {error}", file=out, flush=True)
         return 1
-    port = args.port or api.PORT
     print(f"the models loaded in {loaded:.1f} s; serving on http://{api.HOST}:{port} until stopped", file=out,
           flush=True)
-    if run is None:
-        import uvicorn
-        run = uvicorn.run
-    run(api.create(client), host=api.HOST, port=port, access_log=False, proxy_headers=False, log_level="warning")
+    (run or served)(api.create(client), listener)
     return 0
+
+
+def served(app, listener) -> None:
+    """The app on the socket `ntk serve` holds, with no access log and no proxy's headers believed, until stopped."""
+    import uvicorn
+    config = uvicorn.Config(app, access_log=False, proxy_headers=False, log_level="warning")
+    uvicorn.Server(config).run(sockets=[listener])
 
 
 def cmd_qdrant(args: argparse.Namespace, out=None) -> int:

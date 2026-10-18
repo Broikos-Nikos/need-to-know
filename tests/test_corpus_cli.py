@@ -52,6 +52,15 @@ def test_plan_then_assemble_without_a_narrative_names_the_gap_without_a_tracebac
     assert not (tmp_path / "corpus" / "full").exists()
 
 
+@pytest.mark.parametrize("action", [["assemble"], ["check"], ["samples"], ["mutate", "--count", "1"], ["draw"]])
+def test_a_corpus_command_without_a_plan_says_so_in_one_line(monkeypatch, tmp_path, capsys, action):
+    # HS-F22: draw named the missing file as an Errno; assemble, check, samples and mutate ended in a traceback.
+    monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path))
+    assert main(["corpus", *action]) == 1
+    assert capsys.readouterr().out == (f"corpus {action[0]}: no plan in {tmp_path / 'corpus' / 'plan'}: run ntk corpus "
+                                       "plan first\n")
+
+
 def test_a_fresh_clone_finds_the_committed_narrative_and_it_carries_the_whole_plan(monkeypatch, tmp_path):
     # MT-F2: the plan is code and the narrative is committed, so a clone has the corpus's whole source.
     monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path))

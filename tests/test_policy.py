@@ -59,6 +59,14 @@ def test_an_unknown_role_is_named_rather_than_a_key_error(policy):
         readable(policy, "auditor")
 
 
+def test_an_unknown_role_is_quoted_short(policy):
+    # HS-F20: a sign in sent a million characters as its role and had them all back.
+    with pytest.raises(PolicyError) as caught:
+        readable(policy, "x" * 1_000_000)
+    said = str(caught.value)
+    assert said.startswith("no role named '" + "x" * 40 + "', cut from 1,000,000 characters,") and len(said) < 300
+
+
 def test_a_label_nobody_defined_is_refused(policy, labels):
     broken = copy.deepcopy(policy)
     broken["roles"]["legal"]["reads"].append("legl")

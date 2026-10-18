@@ -23,6 +23,9 @@ BENCH_ONLY = {
     "hr alone": frozenset({"hr"}),
 }
 
+# The characters of an unknown role that an error quotes (HS-F20).
+QUOTED = 40
+
 
 class PolicyError(Exception):
     """The policy is inconsistent, or a role it does not define was asked for."""
@@ -67,8 +70,9 @@ def validate(policy: dict, labels: dict) -> list[str]:
 def readable(policy: dict, role: str) -> frozenset[str]:
     """The labels a role's queries send as their filter."""
     entry = policy.get("roles", {}).get(role)
-    if entry is None:
-        raise PolicyError(f"no role named {role!r}; config/policy.toml defines {', '.join(policy.get('roles', {}))}")
+    if entry is None:  # quoted short: a sign in sent a million characters and had them all back (HS-F20)
+        named = repr(role) if len(role) <= QUOTED else f"{role[:QUOTED]!r}, cut from {len(role):,} characters,"
+        raise PolicyError(f"no role named {named}; config/policy.toml defines {', '.join(policy.get('roles', {}))}")
     return frozenset(entry["reads"])
 
 

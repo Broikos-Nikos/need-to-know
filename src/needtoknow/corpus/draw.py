@@ -21,12 +21,11 @@ and how many planted sentences were written again.
 
 from __future__ import annotations
 
-import json
 import random
 import re
 from pathlib import Path
 
-from needtoknow.corpus import dump_json, narrative_dir
+from needtoknow.corpus import dump_json, narrative_dir, read_plan
 from needtoknow.corpus.assemble import assemble_doc, budgets, legacy_id
 from needtoknow.corpus.mutate import as_written
 from needtoknow.corpus.plan import SEED, TEMPLATES, num, world
@@ -75,8 +74,8 @@ def draw(seed: int, every: int) -> dict:
     if every < 1:  # 0 stopped in a traceback and a negative step read the catalogue from its end (DR-F29)
         raise DrawError(f"every {every}: a draw takes every Nth document of the catalogue, N at least 1")
     base = data_dir() / "corpus"
-    catalogue = json.loads((base / "plan" / "catalogue.json").read_text(encoding="utf-8"))
-    facts = json.loads((base / "plan" / "facts.json").read_text(encoding="utf-8"))
+    catalogue = read_plan(base, "catalogue.json")
+    facts = read_plan(base, "facts.json")
     drawn = redraw(facts, seed)
     docs = catalogue[::every]
     held = {doc["id"] for doc in docs}

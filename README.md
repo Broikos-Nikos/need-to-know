@@ -176,6 +176,7 @@ uv run ntk serve
 uv run ntk ingest watch
 ```
 
+* `ntk serve` and `ntk ingest watch` run until stopped, each in a terminal of its own.
 * The build needs a CUDA GPU for the encoder and the Qdrant binary that
   `config/qdrant.toml` pins. `ntk qdrant start` says where to download it, the sha256
   to check and where to unpack it, and writes the server's key into `.env`.

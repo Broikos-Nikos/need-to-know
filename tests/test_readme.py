@@ -29,6 +29,14 @@ def test_every_ntk_command_the_readme_gives_parses():
             pytest.fail(f"ntk {command}: exit {error.code}")
 
 
+def test_the_readme_says_which_commands_run_until_stopped():
+    # HS-F23: ntk serve came before ntk ingest watch in the commands, and nothing said that both run until stopped.
+    endless = ("ntk serve", "ntk ingest watch")
+    assert all(f"uv run {command}" in README for command in endless)
+    said = [s for s in re.split(r"(?<=[.;])\s+", README) if "run until stopped" in s]
+    assert said and all(f"`{command}`" in said[0] for command in endless), said
+
+
 def test_every_bench_the_readme_runs_is_in_the_repository():
     scripts = set(re.findall(r"python (bench/[\w]+\.py)", README))
     assert scripts and all((repo_root() / s).is_file() for s in scripts), scripts

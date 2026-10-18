@@ -4,6 +4,9 @@ the loopback's names; a search's trace shows each search's own candidates, which
 its fused list, and counts the units the role's filter passes and holds back; and `ntk serve` loads the models before
 it listens, on 127.0.0.1 alone."""
 
+import json
+import socket
+
 import numpy as np
 import pytest
 from fastapi.testclient import TestClient
@@ -129,20 +132,53 @@ def test_a_missing_gpu_or_a_stopped_index_is_a_503_that_names_it(client, monkeyp
     assert response.status_code == 503 and response.json()["detail"].startswith("the index's server is not running")
 
 
-def test_ntk_serve_loads_the_models_first_and_listens_on_the_loopback_alone(monkeypatch, capsys):
+def test_a_question_utf8_cannot_carry_is_refused_by_name(client):
+    # HS-F19: JSON carries half a surrogate pair as an escape, and the tokenizer met it as the server's one 500.
+    http = served(client)
+    body = json.dumps({"question": "return " + chr(0xD800) + " days"})  # escaped, as JSON carries it
+    response = http.post("/search", content=body, headers={**signed(http, "sales"), "Content-Type": "application/json"})
+    assert response.status_code == 400
+    assert response.json()["detail"] == "a question must be text: character 8 is half of a surrogate pair alone"
+
+
+def free_port() -> int:
+    with socket.socket() as probe:
+        probe.bind(("127.0.0.1", 0))
+        return probe.getsockname()[1]
+
+
+def test_ntk_serve_holds_its_port_then_loads_the_models_and_listens_on_the_loopback_alone(monkeypatch, capsys):
     from needtoknow.answer import pipeline
     monkeypatch.setattr(cli.server, "load_config", lambda: {})
     monkeypatch.setattr(cli.server, "running", lambda config: 4242)
     monkeypatch.setattr(cli.server, "client", lambda config: None)
+    port = free_port()
+    args = cli.build_parser().parse_args(["serve", "--port", str(port)])
+    # HS-F18: a port another program holds is said at once, before any model loads, and nothing claims to serve.
+    monkeypatch.setattr(pipeline, "warm", lambda: pytest.fail("the models loaded for a port it could not hold"))
+    with socket.socket() as other:
+        other.bind(("127.0.0.1", port))
+        other.listen()
+        assert cli.cmd_serve(args, run=lambda app, listener: pytest.fail("it listened")) == 1
+    assert capsys.readouterr().out.startswith(f"serve: port {port} on 127.0.0.1 is taken, by another ntk serve or "
+                                              "another program: --port names another (")
+    # The port free: held on the loopback, the models loaded, and then the line that it serves.
     monkeypatch.setattr(pipeline, "warm", lambda: 31.4)
-    ran = {}
-    args = cli.build_parser().parse_args(["serve"])
-    assert cli.cmd_serve(args, run=lambda app, **kwargs: ran.update(kwargs)) == 0
-    assert (ran["host"], ran["port"], ran["access_log"]) == ("127.0.0.1", api.PORT, False)
-    assert capsys.readouterr().out == f"the models loaded in 31.4 s; serving on http://127.0.0.1:{api.PORT} until stopped\n"
+    held = {}
+
+    def listening(app, listener):
+        held["at"] = listener.getsockname()
+        listener.close()
+
+    assert cli.cmd_serve(args, run=listening) == 0
+    assert held["at"] == ("127.0.0.1", port)
+    assert capsys.readouterr().out == f"the models loaded in 31.4 s; serving on http://127.0.0.1:{port} until stopped\n"
+    assert cli.build_parser().parse_args(["serve"]).port is None and api.PORT == 6435
     with pytest.raises(SystemExit):
         cli.build_parser().parse_args(["serve", "--host", "0.0.0.0"])
+    # The index's server down: nothing loads, and the port is let go.
     monkeypatch.setattr(cli.server, "running", lambda config: None)
-    monkeypatch.setattr(pipeline, "warm", lambda: pytest.fail("the models loaded for a server that cannot search"))
-    assert cli.cmd_serve(args, run=lambda app, **kwargs: pytest.fail("it listened")) == 1
+    assert cli.cmd_serve(args, run=lambda app, listener: pytest.fail("it listened")) == 1
     assert capsys.readouterr().out == "serve: the index's server is not running: ntk qdrant start\n"
+    with socket.socket() as again:
+        again.bind(("127.0.0.1", port))
