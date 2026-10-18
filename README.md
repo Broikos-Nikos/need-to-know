@@ -95,7 +95,11 @@ command in this repository that produces it.
   Table rows, the padding that makes up most units, take 13.0 percent of that top 10 and
   15.6 percent of the excerpts' units shown, and setting them aside changes recall@1 for no
   role (N43). An upper bound, since templated questions sit near the planted text:
-  `uv run python bench/probe_recall.py`.
+  `uv run python bench/probe_recall.py`. On the test split, asked once for the baseline,
+  the 108 test probes find a gold unit in the top 10 for 0.944, 1.000 in their documents'
+  language and 0.870 across, and every one of the 27 answerable test items, asked as its
+  role, has each section it needs in the top 10:
+  `uv run python bench/probe_recall.py --split test`.
 * Retrieval holds on other draws of the corpus. One document in four of the catalogue,
   drawn three times, the corpus's own and twice with every single and regional value and
   every table drawn again under another seed, the writers' prose shared: in each, the 56
