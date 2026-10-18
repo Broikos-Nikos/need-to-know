@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**182 findings, 149 closed, 33 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**182 findings, 151 closed, 31 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -146,7 +146,7 @@ An audit pass on whether every number can be produced again. 18 findings, 11 clo
 
 ## `MT`, the maintainer in six months
 
-An audit pass on whether a fresh clone can be rebuilt and changed safely. 19 findings, 12 closed.
+An audit pass on whether a fresh clone can be rebuilt and changed safely. 19 findings, 14 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -163,12 +163,12 @@ An audit pass on whether a fresh clone can be rebuilt and changed safely. 19 fin
 | `MT-F11` | medium | fixed, tick 113 | The dev set rests on two checks no command repeats: the table rows' seeded draw and each absent fact's and near miss's search of the corpus prose ran from the session's scratchpad; a regenerated narrative could answer one in passing, as it already mentions a courier C3: each J and N item names its probe words and ntk eval check confirms none is held, the row draw a committed command |
 | `MT-F12` | low | fixed, tick 113 | ntk eval split writes over eval/families.json whatever it draws, though the split's salience reads narrative/ and the items were written against the registered split: refuse a differing result once items exist, behind a flag the protocol history records |
 | `MT-F13` | medium | open | Each bench saves one run per mode whatever its other arguments, and the tie tests hold timings too: the filter bench run 4 percent slower, the attack as its usage line's --role sales, and the recall bench with --selective-only each fail a tie test, the last with a KeyError, and overwrite the run a decision rests on: name each saved run by its arguments, have each test read the run its text quotes, and hold no timing or busy share |
-| `MT-F14` | low | open | bench/probe_recall.py, which the README quotes and a test holds, has no section in bench/README.md, and nothing asks every bench for one: an entry with its needs, commands and saved file, and a test that each script in bench/ has a section, helpers such as watched.py named as helpers |
+| `MT-F14` | low | fixed, tick 155 | bench/probe_recall.py, which the README quotes and a test holds, has no section in bench/README.md, and nothing asks every bench for one: an entry with its needs, commands and saved file, and a test that each script in bench/ has a section, helpers such as watched.py named as helpers |
 | `MT-F15` | low | open | tests/test_noninterference.py patches numpy's argsort for the whole process to stand for the server's ordering of exact ties, relying on qdrant-client's local mode sorting with np.argsort, which nothing checks: give the local collection module its own stable argsort and assert that its search still sorts with np.argsort |
 | `MT-F16` | low | fixed, tick 133 | bench/filter_bench.py --questions drops a gold unit the manifest lacks without a word, so the probe counts as off topic for every case, DR-F25's shape kept by the mode added the same day, and no test reaches the mode: set such probes apart and name them from one function the filter and recall benches share, with a test |
 | `MT-F17` | low | open | tests/test_readme.py's gate parses an ntk command only when it holds lower case letters, spaces and dashes, so 5 of the 38 the README mentions, every one with a placeholder, a quoted argument or a path, ntk ask and ntk eval run among them, are skipped without a word: parse each with its placeholders filled by a value of their kind, and fail on a command it cannot read |
 | `MT-F18` | medium | open | Pointed at a draw's data folder, as the draw's docstring invites, ntk index sync deletes the served collection: the client reaches the one server whatever NTK_DATA_DIR says, and draw 2's manifest explains 411 of the 501,031 served points, so a sync would delete the other 500,620 without asking: refuse a sync that would delete more than half of the points without --force, naming the data folder and the counts, and say in the draw's docstring that the index commands reach the served index |
-| `MT-F19` | low | open | bench/README.md has no section for probe_recall.py, which the README quotes twice and N43 once, and its baseline.py section says nothing of the ledger or the spend log it reads; nothing holds the bench README to bench/: the sections, and a test that every bench script but the watched.py helper has one |
+| `MT-F19` | low | fixed, tick 155 | bench/README.md has no section for probe_recall.py, which the README quotes twice and N43 once, and its baseline.py section says nothing of the ledger or the spend log it reads; nothing holds the bench README to bench/: the sections, and a test that every bench script but the watched.py helper has one |
 
 ## `SC`, the supply chain auditor
 
