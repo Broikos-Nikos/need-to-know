@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**184 findings, 154 closed, 30 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**184 findings, 155 closed, 29 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -121,7 +121,7 @@ An audit pass that killed the pipeline mid build and mid change. 5 findings, 5 c
 
 ## `MA`, the measurement auditor
 
-An audit pass on whether every number can be produced again. 19 findings, 11 closed.
+An audit pass on whether every number can be produced again. 19 findings, 12 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -143,7 +143,7 @@ An audit pass on whether every number can be produced again. 19 findings, 11 clo
 | `MA-F16` | medium | open | 18 of 128 commit messages count the negative controls a gate failed, but the controls ran from the session's scratchpad: commit them as data (file, line broken, replacement, test that must fail) with a runner that applies, runs, restores and prints the count, and cite its output, or stop counting them |
 | `MA-F17` | medium | fixed, tick 142 | The README credits the baseline's weak categories to retrieval, but 7 of its 22 wrong answers were shown a section planting every fact they needed: T12, the test's only C miss, refused twice with its fact shown, D141 three times and D136 once, and D053's was right and scored wrong: the report counts the wrong answers shown and not shown their facts, and the README quotes both |
 | `MA-F18` | low | fixed, tick 142 | The README quotes category figures of three and four items without their count, C 0.778 on test over 3, F 0.500 on dev over 4, and the probes' 0.964 without its 194: give each quoted figure its count |
-| `MA-F19` | medium | open | The registered protocol, its version 8 history, N63 and fdbd498's commit message quote the probe arm's misses in 5 families, printed only by a scratch script of tick 148's audit, and N63 7 items with room, printed by nothing (MA-F1's class): bench/probe_recall.py --report prints the probe arm's reach from the saved run, bench/baseline.py the items with room, and the protocol and N63 name the commands |
+| `MA-F19` | medium | fixed, tick 161 | The registered protocol, its version 8 history, N63 and fdbd498's commit message quote the probe arm's misses in 5 families, printed only by a scratch script of tick 148's audit, and N63 7 items with room, printed by nothing (MA-F1's class): bench/probe_recall.py --report prints the probe arm's reach from the saved run, bench/baseline.py the items with room, and the protocol and N63 name the commands |
 
 ## `MT`, the maintainer in six months
 
