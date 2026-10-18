@@ -19,15 +19,20 @@ runs, `test-guess.jsonl` and `dev-guess.jsonl`, with each file's provenance, and
 * dev less test over fact families, with a percentile bootstrap interval of the difference, a diagnostic that changes
   nothing (N33);
 * the release's parity on its own build: how many items were shown the same units in every repeat, the retrieval the
-  protocol requires to be the same before a test run.
+  protocol requires to be the same before a test run;
+* the ledger, PLAN section 1's number 7: each split's mean USD a question from the answers, and the median and p95
+  seconds a question took, from the answer's own seconds where the run kept them, or else from the spend log line
+  `ask` wrote for it, found by its role, repeat, status, cost and time, with how many were found.
 
-Needs the plan, the frequency table and the manifest the scorer reads; asks the protocol for each split's purpose.
+Needs the plan, the frequency table and the manifest the scorer reads; asks the protocol for each split's purpose. The
+seconds of runs made before they kept their own come from this machine's spend log, NTK_DATA_DIR/logs/spend.jsonl.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import statistics
 import sys
 from collections import Counter
 from pathlib import Path
@@ -36,6 +41,7 @@ from needtoknow.eval.golden import Context, golden_path, load_items
 from needtoknow.eval.protocol import check_use
 from needtoknow.eval.score import FAMILY, Sources, over_repeats, scorer_hash
 from needtoknow.eval.stats import difference, unit_means, wilson
+from needtoknow.settings import data_dir
 
 
 def read(path: Path) -> tuple[list[dict], dict]:
@@ -69,6 +75,37 @@ def differences(made: dict[str, dict]) -> list[str]:
     return lines
 
 
+def nearest_rank(values: list[float], share: float) -> float:
+    """The value at a share by nearest rank, as `answer.pipeline.spend` reads the spend log."""
+    ordered = sorted(values)
+    # round, not int: 0.57 * 100 is 56.99999999999999 in floating point, though 0.95 * 100 is 95.0.
+    return ordered[max(0, -(-round(share * 100) * len(ordered) // 100) - 1)]
+
+
+def seconds_of(answers: list[dict], roles: dict[str, str], spend: list[dict], window: float = 5.0) -> list[float]:
+    """Each answer's seconds in all: its own where the run kept them; else those of the spend log line `ask` wrote for
+    it, the one of the same role, repeat, status and cost written at most `window` seconds before the answer, each
+    line taken once."""
+    import datetime as dt
+
+    def at(text: str) -> float:
+        return dt.datetime.fromisoformat(text).timestamp()
+
+    taken, found = set(), []
+    for answer in answers:
+        own = (answer.get("seconds") or {}).get("total")
+        if own is not None:
+            found.append(own)
+            continue
+        line = next((n for n, line in enumerate(spend) if n not in taken and line.get("role") == roles[answer["id"]]
+                     and line.get("repeat", 0) == answer["repeat"] and line.get("status") == answer["status"]
+                     and line.get("usd") == answer["usd"] and 0 <= at(answer["at"]) - at(line["at"]) <= window), None)
+        if line is not None:
+            taken.add(line)
+            found.append(spend[line]["seconds"]["total"])
+    return found
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("folder", type=Path)
@@ -77,7 +114,7 @@ def main() -> int:
     ctx = Context()
     sources = Sources(ctx)
     defaults = {fid for family in ctx.families.values() for fid in family.get("defaults") or {}}
-    runs, items, parity, statuses = {}, {}, {}, {}
+    runs, items, parity, statuses, opened = {}, {}, {}, {}, {}
     for split in ("test", "dev"):
         check_use(split, "baseline")
         items[split] = load_items(golden_path(split))
@@ -86,6 +123,7 @@ def main() -> int:
                 continue
             answers, made = read(args.folder / f"{split}{book}.jsonl")
             if not book:
+                opened[split] = answers
                 shown: dict[str, set] = {}
                 for answer in answers:
                     shown.setdefault(answer["id"], set()).add(json.dumps(answer.get("excerpts"), sort_keys=True))
@@ -150,6 +188,17 @@ def main() -> int:
     print("parity, the same units shown in every repeat: " + "; ".join(
         f"{split} {same} of {total} items" for split, (same, total) in parity.items()))
     print(f"cost: {sum(run['usd'] for run in runs.values()):.6f} USD over the {len(runs)} runs")
+    log = data_dir() / "logs" / "spend.jsonl"
+    spend = [json.loads(line) for line in log.read_text(encoding="utf-8").splitlines() if line.strip()] \
+        if log.is_file() else []
+    for split in ("test", "dev"):
+        answers = opened[split]
+        found = seconds_of(answers, {item["id"]: item["role"] for item in items[split]}, spend)
+        timing = (f"median {statistics.median(found):.2f} s and p95 {nearest_rank(found, 0.95):.2f} s, over the "
+                  f"{len(found)} of {len(answers)} answers whose seconds were found" if found else
+                  "no seconds found: the run kept none and no spend log line matches")
+        print(f"ledger, {split}: {sum(a.get('usd') or 0.0 for a in answers) / len(answers):.6f} USD a question at the "
+              f"mean over {len(answers)}; {timing}")
     return 0
 
 

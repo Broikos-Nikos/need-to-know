@@ -24,7 +24,8 @@ class Asker:
                            "guess": guess})
         shown = [] if closed_book else [{"doc_id": "D1", "section": "S", "units": ["u1", "u2"]}]
         return {"status": "answered", "answer": "7 percent", "citations": [{"doc_id": "D1", "section": "S"}],
-                "dropped": [], "model": "deepseek-v4-flash", "cost_usd": 0.0005, "excerpts": shown}
+                "dropped": [], "model": "deepseek-v4-flash", "cost_usd": 0.0005, "excerpts": shown,
+                "seconds": {"search": 0.25, "provider": 1.2504, "total": 1.6}}
 
 
 def made_by(head="a" * 40):
@@ -52,6 +53,9 @@ def test_every_item_is_asked_as_its_role_once_a_repeat_with_the_cache_off(tmp_pa
     assert {(r["id"], r["repeat"]) for r in written} == {(i["id"], n) for i in items for n in (0, 1)}
     assert {(r["model"], r["units"], r["tables_shown"], r["closed_book"]) for r in written} == {
         ("deepseek-v4-flash", 2, 1, False)}
+    # Each answer keeps its stages' seconds, so the run's ledger holds its latency as well as its cost (number 7).
+    assert {json.dumps(r["seconds"], sort_keys=True) for r in written} == {
+        json.dumps({"provider": 1.25, "search": 0.25, "total": 1.6}, sort_keys=True)}
 
 
 def test_a_run_cut_short_resumes_without_asking_anything_twice(tmp_path):

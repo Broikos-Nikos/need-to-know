@@ -35,6 +35,38 @@ def test_the_draws_bench_reuses_a_draw_only_at_the_same_share_and_states_each_sh
     assert draws.spread([0.5, 0.9, 0.7]) == "0.500 to 0.900"
 
 
+def test_the_baseline_ledger_finds_each_answers_seconds_once_and_reads_p95_by_nearest_rank():
+    # PLAN section 1, number 7: the seconds of a run that kept none come from the spend log line ask wrote for each
+    # answer, matched by role, repeat, status, cost and time, each line taken once; a run's own seconds come first.
+    spec = importlib.util.spec_from_file_location("baseline", BENCH / "baseline.py")
+    baseline = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(baseline)
+    answers = [{"id": "D1", "repeat": 0, "status": "answered", "usd": 0.0002, "at": "2026-10-13T13:00:03+00:00"},
+               {"id": "D1", "repeat": 1, "status": "answered", "usd": 0.0002, "at": "2026-10-13T13:00:09+00:00"},
+               {"id": "D2", "repeat": 0, "status": "not_found", "usd": 0.0001, "at": "2026-10-13T13:00:20+00:00",
+                "seconds": {"total": 9.0}}]
+    spend = [{"role": "hr", "repeat": 0, "status": "answered", "usd": 0.0002, "at": "2026-10-13T13:00:02+00:00",
+              "seconds": {"total": 1.5}},
+             {"role": "sales", "repeat": 1, "status": "answered", "usd": 0.0002, "at": "2026-10-13T13:00:08+00:00",
+              "seconds": {"total": 7.0}},  # another role's line at the same cost
+             {"role": "hr", "repeat": 1, "status": "answered", "usd": 0.0002, "at": "2026-10-13T13:00:01+00:00",
+              "seconds": {"total": 8.0}},  # eight seconds before the answer: not its line
+             {"role": "hr", "repeat": 1, "status": "answered", "usd": 0.0002, "at": "2026-10-13T13:00:08+00:00",
+              "seconds": {"total": 2.5}}]
+    assert baseline.seconds_of(answers, {"D1": "hr", "D2": "hr"}, spend) == [1.5, 2.5, 9.0]
+    # Two answers alike in all but time each take their own line.
+    twins = [{"id": "D3", "repeat": 0, "status": "answered", "usd": 0.0003, "at": "2026-10-13T13:00:30+00:00"},
+             {"id": "D4", "repeat": 0, "status": "answered", "usd": 0.0003, "at": "2026-10-13T13:00:31+00:00"}]
+    lines = [{"role": "hr", "repeat": 0, "status": "answered", "usd": 0.0003, "at": "2026-10-13T13:00:29+00:00",
+              "seconds": {"total": 2.0}},
+             {"role": "hr", "repeat": 0, "status": "answered", "usd": 0.0003, "at": "2026-10-13T13:00:30+00:00",
+              "seconds": {"total": 3.0}}]
+    assert baseline.seconds_of(twins, {"D3": "hr", "D4": "hr"}, lines) == [2.0, 3.0]
+    hundred = [float(n) for n in range(1, 101)]
+    assert (baseline.nearest_rank(hundred, 0.95), baseline.nearest_rank(hundred, 0.57)) == (95.0, 57.0)
+    assert baseline.nearest_rank([3.0, 1.0, 2.0], 0.95) == 3.0
+
+
 def test_the_baseline_report_names_every_provenance_field_its_runs_differ_on():
     # DR-F28: the report printed the test run's provenance as the baseline's and never compared the others.
     spec = importlib.util.spec_from_file_location("baseline", BENCH / "baseline.py")

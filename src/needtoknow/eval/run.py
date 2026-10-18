@@ -139,6 +139,8 @@ def run(split: str, purpose: str, repeats: int, out: Path, client, closed_book: 
             record = {"id": item["id"], "repeat": repeat, "status": result["status"], "answer": result["answer"],
                       "citations": result["citations"], "dropped": result.get("dropped", []),
                       "error": result.get("error"), "model": result["model"], "usd": result["cost_usd"],
+                      # Each stage's seconds, so a run's ledger holds its latency as well as its cost (number 7).
+                      "seconds": {stage: round(value, 3) for stage, value in (result.get("seconds") or {}).items()},
                       "closed_book": closed_book, "guess": guess, "excerpts": result["excerpts"], "units": len(units),
                       "tables_shown": tables(units),
                       "at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
