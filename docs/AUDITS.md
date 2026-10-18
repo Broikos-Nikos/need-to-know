@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**190 findings, 162 closed, 28 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**190 findings, 164 closed, 26 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -10,7 +10,7 @@ A finding's numbers are what its audit measured when it filed it, by that audit'
 
 ## `HS`, the hostile stranger
 
-An audit pass that tried to break a first run. 23 findings, 22 closed.
+An audit pass that tried to break a first run. 23 findings, 23 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -34,7 +34,7 @@ An audit pass that tried to break a first run. 23 findings, 22 closed.
 | `HS-F18` | medium | fixed, tick 165 | ntk serve says it is serving before it holds its port: with the port taken it loads both models for 20.9 s, prints 'serving on http://127.0.0.1:6435 until stopped', then fails to bind and exits 3, 24 s in: bind the socket before loading, refusing at once by port and --port, and say serving once it listens |
 | `HS-F19` | low | fixed, tick 165 | A lone surrogate in a question, which JSON carries as an escape, reaches the tokenizer and is the server's one 500, a TypeError in its console, ntk search and ntk ask taking the same path: refuse a question that does not encode as UTF-8 as a QuestionError that names where |
 | `HS-F20` | low | fixed, tick 165 | A refused role is echoed whole: a sign in with a million character role gets a 1,000,138 byte 400, and ntk --as prints it whole too: quote the first 40 characters and say how long it was |
-| `HS-F21` | low | open | The evaluation's run files are read on trust: ntk eval score scores lines of an id alone as wrong answers with exit 0 and ends in a TypeError on an answer that is a list; ntk eval run, resuming a file with a line that is not JSON, writes a fresh provenance sidecar and ends in a JSONDecodeError; --out naming a folder fails only when the first paid answer is appended: one reader of run lines, beside DR-F30's, that names a bad line by file and line, and --out checked before the sidecar and the first call |
+| `HS-F21` | low | fixed, tick 167 | The evaluation's run files are read on trust: ntk eval score scores lines of an id alone as wrong answers with exit 0 and ends in a TypeError on an answer that is a list; ntk eval run, resuming a file with a line that is not JSON, writes a fresh provenance sidecar and ends in a JSONDecodeError; --out naming a folder fails only when the first paid answer is appended: one reader of run lines, beside DR-F30's, that names a bad line by file and line, and --out checked before the sidecar and the first call |
 | `HS-F22` | low | fixed, tick 165 | ntk corpus draw on a data folder without a plan prints the missing catalogue's path as an Errno and not the command that makes it: a DrawError that names ntk corpus plan |
 | `HS-F23` | low | fixed, tick 165 | The README's commands put ntk serve, which runs until stopped, before ntk ingest watch, which does too, and nothing beside the block says so: say both run until stopped, each in its own terminal |
 
@@ -78,7 +78,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 
 ## `DR`, the deep reviewer
 
-An audit pass on correctness, read in the logic rather than the comments. 30 findings, 28 closed.
+An audit pass on correctness, read in the logic rather than the comments. 30 findings, 29 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -111,7 +111,7 @@ An audit pass on correctness, read in the logic rather than the comments. 30 fin
 | `DR-F27` | high | fixed, tick 145 | The closed book run asks under the same rules as the open one, which forbid the model's own knowledge and any guess, so every closed book answer was a refusal, and the zero the baseline report calls the model's own knowledge is the instruction's; KB1-F7 was closed on it: ask the closed book questions under rules that let the model answer from what it knows, report that floor with the deliberate defaults and the item against the law apart, keep the run under the real rules as the check that they hold with no documents, and say in the README which is which |
 | `DR-F28` | low | fixed, tick 145 | A run resumed with another book, split or purpose is accepted into the same file under the first provenance, a last line cut mid write stops any resume with a JSONDecodeError, and the baseline report prints the test run's provenance for all four runs: compare the sidecar on a resume, set a cut last line aside, and compare the four provenances in the report |
 | `DR-F29` | low | fixed, tick 146 | ntk corpus draw prints new values counted over the plan's facts beside sentences counted in its own documents, takes 0 and negatives for --every, and writes a plan whose facts point at documents its catalogue lacks, on which the probe generator stops with a KeyError: count what the drawn documents hold, refuse --every below 1, and cut the draw's plan to the facts its documents plant |
-| `DR-F30` | low | open | The other append only line files break on a last line a stopped write cut, the shape DR-F28 fixed in the runner: spend() and the canary scan raise on such a line of the spend log, and the change journal skips it but decodes the whole file first, so a cut inside a Greek letter raises, and its crash recovery appends after it, gluing the next record to it: one helper that cuts such a line before appending and reads whole lines as bytes, used by every reader and writer of these files |
+| `DR-F30` | low | fixed, tick 167 | The other append only line files break on a last line a stopped write cut, the shape DR-F28 fixed in the runner: spend() and the canary scan raise on such a line of the spend log, and the change journal skips it but decodes the whole file first, so a cut inside a Greek letter raises, and its crash recovery appends after it, gluing the next record to it: one helper that cuts such a line before appending and reads whole lines as bytes, used by every reader and writer of these files |
 
 ## `OP`, the pipeline operator
 
