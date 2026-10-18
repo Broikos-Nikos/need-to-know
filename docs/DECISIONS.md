@@ -439,3 +439,32 @@ gain can adopt again; or the incumbent changes.
 reach alpha with 7 of them, a count no command printed that took in three paraphrase
 twins, which are no units; and the probe arm's 5 families came from an audit's scratch
 work (MA-F19). Both now come from the commands named.
+
+## N64. The server takes the role at sign in, and its trace shows each search's own scores
+
+**Call.** `ntk serve` listens on 127.0.0.1 alone and answers only requests addressed to that
+name or to localhost. A role signs in once, `POST /session`, a role of the policy taken on
+the caller's word as `ntk --as` takes it, and gets a token; every query sends the token in a
+header and never a role: a body that names one is refused, and so is a query without a
+session. Each search answers with its stage trace: the role's filter, with the units it
+passes and holds back counted; each search's candidates with its own scores, asked again on
+their own since the engine returns only their fusion, in the engine's order; the fusion; the
+reranker's order; the excerpts; each stage's seconds; and the text of every unit named.
+
+**Evidence.** The research notes resolve a user's roles at query time from the identity
+provider and make the retrieval API the store's only path (`03-retrieval-rag/11` sections 4
+and 6). A token in a header, unlike a cookie, is attached by no browser on its own, so a page
+served elsewhere cannot ask as the signed in role, and the host check refuses one that
+reaches the loopback through a name of its own; a page can hold a token a role, to ask the
+same question as several. KB1-F4's first condition kept the raw lexical scores in the
+server while the weights read the whole collection; N50 made them a function of the role's
+view, and the noninterference test now holds each search's own candidates and scores as the
+trace shows them, and the count of units the filter passes. The count of units held back is
+the one figure of the trace that moves when text the role may not read changes: it says how
+much the filter keeps from the role, never what. Units of equal score keep the engine's
+order, the order the fusion ranks them in: sorted by unit id, tied units showed ranks the
+fusion had not given them.
+
+**Reverses if.** The noninterference test fails on the trace; an attack on the side scores
+separates words frequent in hidden text from the null; or a deployment signs its users in
+through an identity provider, which replaces the sign in and keeps the rest.

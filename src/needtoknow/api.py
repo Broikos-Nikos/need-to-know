@@ -1,0 +1,137 @@
+"""The local server (T6.1): on the served path the index's only client, listening on 127.0.0.1 alone.
+
+A role reaches it once, at sign in: `POST /session` takes a role of `config/policy.toml` on
+the caller's word, as `ntk --as` does, and answers with a token. Every query carries the
+token and never a role: a body that names one is refused, and so is a query without a
+session (`specs/architecture.md` section 10, the store). A deployment puts its identity
+provider where the sign in stands. The role's labels are read from the policy at each
+query, so a change to it holds from the next one (`03-retrieval-rag/11` section 9).
+
+It answers only requests addressed to 127.0.0.1 or localhost, so a page served elsewhere
+cannot reach it through a name of its own that resolves here, and it keeps no access log.
+`ntk serve` loads the encoder and the reranker before it listens, so no question waits for
+them (PF-F7); one query runs at a time, as the GPU holds one batch.
+
+`POST /search` answers with the question's stage trace (N64): the role's filter, its labels
+and the units it passes and holds back, counted; each search's candidates with its own
+scores; their fusion; the reranker's order; the excerpts a question would be shown; each
+stage's seconds; and the document, section, labels and text of every unit named. Every unit
+in it passed the role's filter; of the units held back it has the count alone.
+"""
+
+from __future__ import annotations
+
+import json
+import secrets
+import threading
+import time
+
+from fastapi import Depends, FastAPI, HTTPException, Request
+from pydantic import BaseModel, ConfigDict
+from starlette.middleware.trustedhost import TrustedHostMiddleware
+
+from needtoknow.answer.prompt import section_of
+from needtoknow.embed.model import EmbedError
+from needtoknow.index import server
+from needtoknow.index.expand import excerpts
+from needtoknow.index.search import QuestionError, search
+from needtoknow.ingest.manifest import opened
+from needtoknow.policy import PolicyError, load_policy, readable
+
+HOST = "127.0.0.1"
+NAMES = [HOST, "localhost"]
+PORT = 6435  # beside the index's server, on 6433 and 6434
+SESSIONS = 256  # sign ins kept, the oldest dropped first
+STAGES = ("dense", "sparse", "fused", "reranked")
+NO_SESSION = "no session: sign in with POST /session and send its token; a query names no role"
+
+
+class SignIn(BaseModel):
+    """A role of the policy, on the caller's word: where a deployment's identity provider would stand."""
+    model_config = ConfigDict(extra="forbid")
+    role: str
+
+
+class Question(BaseModel):
+    """A question, and nothing else: the session holds the role."""
+    model_config = ConfigDict(extra="forbid")
+    question: str
+
+
+def described(unit_ids: list[str]) -> dict[str, dict]:
+    """Each named unit's document, section, labels and text, from the manifest; one a scan dropped since its search is
+    left out (DR-F15)."""
+    found: dict[str, dict] = {}
+    with opened() as db:
+        for start in range(0, len(unit_ids), 900):
+            part = unit_ids[start:start + 900]
+            for unit, doc_id, labels, path, text in db.execute(
+                    f"SELECT unit_id, doc_id, labels, path, text FROM units WHERE unit_id IN ({','.join('?' * len(part))})",
+                    part):
+                found[unit] = {"doc_id": doc_id, "section": " > ".join(json.loads(path)), "labels": json.loads(labels),
+                               "text": text}
+    return found
+
+
+def create(client, *, policy: dict | None = None, encode=None, rerank: str | None = None) -> FastAPI:
+    """The server's app over the index's client. `policy`, `encode` and `rerank` reach the search as they would from
+    `ntk`: None reads the policy at each query and takes the configured models."""
+    sessions: dict[str, str] = {}
+    lock = threading.Lock()
+    app = FastAPI(title="need-to-know", docs_url=None, redoc_url=None)
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=NAMES)
+
+    def role_of(request: Request) -> str:
+        scheme, _, token = request.headers.get("authorization", "").partition(" ")
+        role = sessions.get(token) if scheme.lower() == "bearer" else None
+        if role is None:
+            raise HTTPException(401, NO_SESSION, headers={"WWW-Authenticate": "Bearer"})
+        return role
+
+    # Async, so every sign in runs on the event loop's one thread and the sessions change in one place.
+    @app.post("/session")
+    async def sign_in(body: SignIn) -> dict:
+        try:
+            readable(policy or load_policy(), body.role)
+        except PolicyError as error:
+            raise HTTPException(400, str(error)) from None
+        token = secrets.token_urlsafe(32)
+        sessions[token] = body.role
+        while len(sessions) > SESSIONS:
+            del sessions[next(iter(sessions))]
+        return {"token": token, "role": body.role}
+
+    @app.post("/search")
+    # The dependency as a default, not an annotation: the module's annotations are strings, which cannot name a
+    # function local to create().
+    def find(body: Question, role: str = Depends(role_of)) -> dict:
+        began = time.perf_counter()
+        trace: dict = {}
+        with lock:
+            try:
+                search(client, body.question, role, policy, encode=encode, rerank=rerank, trace=trace)
+            except QuestionError as error:
+                raise HTTPException(400, str(error)) from None
+            except PolicyError as error:  # the role left the policy after its sign in
+                raise HTTPException(403, str(error)) from None
+            except EmbedError as error:
+                raise HTTPException(503, str(error)) from None
+            except Exception:
+                if server.stopped():
+                    raise HTTPException(503, "the index's server is not running, so nothing reached it: ntk qdrant "
+                                             "start") from None
+                raise
+            clock = time.perf_counter()
+            shown = excerpts(trace["reranked"])
+            seconds = {**trace["seconds"], "expand": time.perf_counter() - clock}
+        clock = time.perf_counter()
+        units = described(list(dict.fromkeys(hit["unit_id"] for stage in STAGES for hit in trace[stage])))
+        seconds.update(texts=time.perf_counter() - clock, total=time.perf_counter() - began)
+        return {"role": role, "filter": trace["filter"],
+                **{stage: [{"unit_id": hit["unit_id"], "rank": hit["rank"], "score": float(hit["score"])}
+                           for hit in trace[stage]] for stage in STAGES},
+                "excerpts": [{"doc_id": e["doc_id"], "section": section_of(e), "labels": e["labels"], "units": e["units"],
+                              "rank": e["rank"], "text": e["text"]} for e in shown],
+                "units": units, "seconds": {stage: round(value, 4) for stage, value in seconds.items()}}
+
+    return app

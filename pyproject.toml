@@ -8,10 +8,13 @@ license-files = ["LICENSE"]
 authors = [{ name = "Nikos Broikos", email = "broikos.nikolaos@gmail.com" }]
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    # The local server, ntk serve (T6.1), with uvicorn below.
+    "fastapi>=0.146.0,<0.147",
     # Only the tests' local mode uses it for now; the index writes and searches through
     # it from T3.3 on, so it stays a runtime dependency rather than moving twice (SC-F2).
     "qdrant-client>=1.19.1,<1.20",
     "snowballstemmer>=3.1.1,<3.2",
+    "uvicorn>=0.54.0,<0.55",
 ]
 
 [project.optional-dependencies]
@@ -46,5 +49,6 @@ testpaths = ["tests"]
 
 [dependency-groups]
 dev = [
+    "httpx>=0.28.1",
     "pytest>=9.1.1",
 ]

@@ -145,6 +145,15 @@ def running(config: dict) -> int | None:
     return pid if is_ours(pid, config) else None
 
 
+def stopped() -> bool:
+    """Whether this project's Qdrant is known not to be running: False when that cannot be told, the pid file
+    unreadable, say, so an error stands as it came (HS-F11)."""
+    try:
+        return running(load_config()) is None
+    except Exception:
+        return False
+
+
 def start(config: dict, popen=subprocess.Popen, timeout: float = 30.0) -> tuple[int, float, bool]:
     """Start the server. Returns its pid, the seconds until it was ready, and whether a new key was written."""
     if os.name != "nt":

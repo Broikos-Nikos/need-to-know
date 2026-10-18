@@ -8,8 +8,10 @@ filter, taken from `policy.readable()` and nowhere else (N31). The filter is par
 search, never a pass over its results, so a unit the role may not read can neither be
 returned nor take a candidate's place. Qdrant fuses the two lists by reciprocal rank,
 1 / (60 + rank) summed as the base's M9 did (`03-retrieval-rag/12` section 5), and returns
-the fused order with fused scores only: no raw lexical score leaves the server (KB1-F4's
-first condition). The dense search is exact under the role's filter, every vector the
+the fused order with fused scores only. KB1-F4's first condition kept the raw lexical
+scores in the server; since N50 made them a function of the role's view, the served
+trace shows each search's own scores, which the noninterference test holds (N64). The
+dense search is exact under the role's filter, every vector the
 filter passes scored in float32, as Qdrant's exact path does whatever quantization is
 asked: the filter bench found Qdrant's graph short of the exact top 10 under every
 role's filter at every ef up to 512, and the exact path at 1.000 for every role in a
@@ -22,6 +24,8 @@ holds one of them.
 """
 
 from __future__ import annotations
+
+import time
 
 from needtoknow import lexical
 from needtoknow.index import frequencies
@@ -67,12 +71,16 @@ def role_filter(policy: dict, role: str, form: str = "labels", sets: list[str] |
 
 def search(client, question: str, role: str, policy: dict | None = None, form: str = "labels", limit: int = CANDIDATES,
            ef: int | None = None, encode=None, sides: tuple[str, ...] = ("dense", "sparse"),
-           rerank: str | None = None) -> list[dict]:
+           rerank: str | None = None, trace: dict | None = None) -> list[dict]:
     """The role's candidates for the question, best first: unit id, rank and score, nothing else.
 
     `sides` leaves one search out, for the evaluation's run of each path alone and for the side channel bench;
     whatever runs, runs inside the role's filter. `rerank` reorders the fused candidates (T3.6); None takes
     `config/models.toml`'s switch, and the score is then the reranker's.
+
+    `trace`, a dict, is filled with the stages as the served path shows them (T6.1, N64): the role's labels and the
+    units its filter passes and holds back, counted; each search's own candidates and scores, asked again on their
+    own, since the engine hands back only their fusion; the fused list; the reranked one; and each stage's seconds.
     """
     from qdrant_client import models
 
@@ -83,10 +91,20 @@ def search(client, question: str, role: str, policy: dict | None = None, form: s
     if encode is None:
         from needtoknow.embed.model import encode
     policy = policy or load_policy()
+    reads = readable(policy, role)
     flt = role_filter(policy, role, form, label_sets(client) if form == "label_set" else None)
+    seconds: dict[str, float] = {}
+    clock = time.perf_counter()
+
+    def lap(stage: str) -> None:
+        nonlocal clock
+        now = time.perf_counter()
+        seconds[stage], clock = now - clock, now
+
     prefetch = []
     if "dense" in sides:
         dense = encode([question])[0]
+        lap("encode")
         # No ef: the exact path (N51), every vector the filter passes scored in float32; Qdrant ignores quantization
         # there, so none is sent. An ef asks for the graph, its int8 codes rescored against the originals.
         params = (models.SearchParams(exact=True) if ef is None else
@@ -94,26 +112,57 @@ def search(client, question: str, role: str, policy: dict | None = None, form: s
         prefetch.append(models.Prefetch(query=dense.tolist(), using=DENSE, filter=flt, limit=limit, params=params))
     indices, _ = lexical.query(question)
     if indices and "sparse" in sides:  # a question of stopwords alone has no lexical side
-        reads = readable(policy, role)
         with frequencies.opened(COLLECTION) as counts:
             view = [s for (s,) in counts.execute("SELECT label_set FROM sets") if reads & set(s.split("+"))]
             values = frequencies.weights(counts, indices, view)
         prefetch.append(models.Prefetch(query=models.SparseVector(indices=indices, values=values), using=SPARSE,
                                         filter=flt, limit=limit))
+        lap("weights")
     found = client.query_points(COLLECTION, prefetch=prefetch, query=models.RrfQuery(rrf=models.Rrf(k=RRF_K + 1)),
                                 query_filter=flt, limit=limit + TIES, with_payload=["unit_id"]).points
     found = sorted(found, key=lambda point: (-point.score, point.payload["unit_id"]))[:limit]
+    lap("fusion")
     # A point whose unit the manifest no longer holds awaits its sync, and its labels may be the ones a relabel has
     # just narrowed: the manifest decides what exists, so such a point is dropped here, before the reranker reads
     # passages, and a narrowing takes effect at the scan (DR-F15).
     kept = in_manifest([point.payload["unit_id"] for point in found])
     hits = [{"unit_id": unit, "rank": rank, "score": score} for rank, (unit, score) in
             enumerate(((p.payload["unit_id"], p.score) for p in found if p.payload["unit_id"] in kept), 1)]
+    lap("manifest")
+    if trace is not None:
+        passes = client.count(COLLECTION, count_filter=flt, exact=True).count
+        # The whole collection's size, which `ntk stats` prints too: a count, and no unit of those held back.
+        trace.update(filter={"form": form, "labels": sorted(reads), "passes": passes,
+                             "holds_back": client.count(COLLECTION, exact=True).count - passes},
+                     **apart(client, prefetch), fused=hits)
+        lap("trace")
     from needtoknow.index import rerank as second
     mode = rerank or second.load_config()["mode"]
-    if mode == "none" or not hits:
-        return hits
-    return second.rerank(question, hits, passages_of([hit["unit_id"] for hit in hits]), mode)
+    result = hits if mode == "none" or not hits else second.rerank(
+        question, hits, passages_of([hit["unit_id"] for hit in hits]), mode)
+    if trace is not None:
+        lap("rerank")
+        trace.update(reranked=result, seconds=seconds)
+    return result
+
+
+def apart(client, prefetch: list) -> dict:
+    """Each search's own candidates and scores, as the fusion's prefetches ask them, asked again on their own: the same
+    query, filter, parameters and limit, in one round trip. In the engine's order, units of equal score as it placed
+    them, since the fusion ranks them so: ordered by unit id instead, as the fused list is (RS-F29), tied units showed
+    ranks the fusion had not given them (tick 163). A unit the manifest no longer holds is left out, as from the
+    fusion (DR-F15)."""
+    from qdrant_client import models
+
+    asked = client.query_batch_points(COLLECTION, requests=[
+        models.QueryRequest(query=p.query, using=p.using, filter=p.filter, params=p.params, limit=p.limit,
+                            with_payload=["unit_id"]) for p in prefetch]) if prefetch else []
+    found = {p.using: [(point.payload["unit_id"], point.score) for point in response.points]
+             for p, response in zip(prefetch, asked)}
+    kept = in_manifest(sorted({unit for pairs in found.values() for unit, _ in pairs}))
+    return {side: [{"unit_id": unit, "rank": rank, "score": score} for rank, (unit, score) in
+                   enumerate(((u, s) for u, s in found.get(name, []) if u in kept), 1)]
+            for side, name in (("dense", DENSE), ("sparse", SPARSE))}
 
 
 def in_manifest(unit_ids: list[str]) -> set[str]:

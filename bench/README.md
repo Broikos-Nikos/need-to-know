@@ -406,3 +406,20 @@ uv run python bench/probe_recall.py
 uv run python bench/probe_recall.py --split test
 uv run python bench/probe_recall.py --report
 ```
+
+## served.py
+
+The served path: the server's app as `ntk serve` builds it, over the running index and in
+this process, the encoder and the reranker loaded first as `ntk serve` loads them; then a
+session for each role and the first 20 dev probes asked through `POST /search`, each as its
+narrowest reader, `--questions` to change how many, a probe whose gold unit the manifest
+lacks set apart and named. It prints the models' load, the first
+search's seconds and the median and 95th percentile of the rest, what the trace's own
+queries took, and the fusion check: the engine's fused scores against reciprocal rank
+fusion of the two searches as the trace shows them (N64). It asks the protocol first, dev
+for development, and needs the manifest, the index on the running server, the `embed`
+extra and the GPU.
+
+```
+uv run python bench/served.py
+```

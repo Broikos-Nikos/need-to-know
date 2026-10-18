@@ -101,6 +101,10 @@ def build_parser() -> argparse.ArgumentParser:
     embed.add_argument("--budget", type=int, help="padded tokens per batch; config/models.toml sets the default")
     commands.add_parser("stats", help="what the build holds: documents, their bytes, units, vectors and the index's "
                                       "size on disk")
+    serve = commands.add_parser("serve", help="the local server, on 127.0.0.1 alone: a role signs in once, and each "
+                                              "search answers with its stage trace")
+    serve.add_argument("--port", type=ranged(int, 1024, 65535), help="the port to listen on; the server's own when "
+                                                                     "not given")
     return parser
 
 
@@ -120,10 +124,7 @@ def ranged(kind, low, high):
 
 def server_down(error: Exception, out, command: str) -> bool:
     """Whether an error came from the index's server not running, said in one line when it did (HS-F11)."""
-    try:
-        down = server.running(server.load_config()) is None
-    except Exception:  # the pid file unreadable, say: the error stands as it came
-        return False
+    down = server.stopped()
     if down:
         print(f"{command}: the index's server is not running, so nothing reached it: ntk qdrant start "
               f"({type(error).__name__})", file=out, flush=True)
@@ -725,6 +726,33 @@ def cmd_stats(out=None, client=None) -> int:
     return 0
 
 
+def cmd_serve(args: argparse.Namespace, out=None, run=None) -> int:
+    """The local server (T6.1), its models loaded before it listens, so no question waits for them (PF-F7). It
+    listens on 127.0.0.1 alone, and nothing here can make it listen anywhere else."""
+    from needtoknow import api
+    from needtoknow.answer.pipeline import warm
+    from needtoknow.embed.model import EmbedError
+    out = out or sys.stdout
+    try:
+        config = server.load_config()
+        if server.running(config) is None:
+            print("serve: the index's server is not running: ntk qdrant start", file=out, flush=True)
+            return 1
+        client = server.client(config)
+        loaded = warm()
+    except (server.ServerError, EmbedError) as error:
+        print(f"serve: {error}", file=out, flush=True)
+        return 1
+    port = args.port or api.PORT
+    print(f"the models loaded in {loaded:.1f} s; serving on http://{api.HOST}:{port} until stopped", file=out,
+          flush=True)
+    if run is None:
+        import uvicorn
+        run = uvicorn.run
+    run(api.create(client), host=api.HOST, port=port, access_log=False, proxy_headers=False, log_level="warning")
+    return 0
+
+
 def cmd_qdrant(args: argparse.Namespace, out=None) -> int:
     """Exit 0 when the action succeeded; for status, when the server is running and ready."""
     out = out or sys.stdout
@@ -810,6 +838,8 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_eval(args)
     if args.command == "stats":
         return cmd_stats()
+    if args.command == "serve":
+        return cmd_serve(args)
     parser.print_help()
     return 0
 

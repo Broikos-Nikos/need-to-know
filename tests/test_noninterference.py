@@ -7,8 +7,10 @@ read byte for byte, and changes only units it may not read: once writing the que
 counts a weight over the whole collection would read move as far as they can, and once dropping every other one. The
 questions are every fifteenth dev probe's, in both languages, and the attack's, a word the role sees one to three
 times that text it may not read holds often beside one that such text never holds (`bench/idf_attack.py`). The
-weights the search sends, the role's fused ids, order and scores, and its order under a stand in reranker must be
-the same in all three builds.
+weights the search sends, the role's fused ids, order and scores, its order under a stand in reranker, each search's
+own candidates and scores as the served trace shows them, and the count of units the role's filter passes must be the
+same in all three builds. The count of units the filter holds back is the one figure of the trace that moves, by
+design (N64).
 
 Local mode scores every point, those the filter leaves out too, and orders them with numpy's quicksort, so units of
 exactly equal score come out in an order the hidden points' scores move. The server's filtered exact search scores
@@ -39,7 +41,8 @@ from needtoknow.ingest.units import passage
 from needtoknow.policy import load_policy, readable
 from needtoknow.settings import data_dir, repo_root
 
-pytestmark = pytest.mark.filterwarnings("ignore:Payload indexes have no effect in the local Qdrant")
+pytestmark = [pytest.mark.filterwarnings("ignore:Payload indexes have no effect in the local Qdrant"),
+              pytest.mark.filterwarnings("ignore:Local mode performs exact")]  # the trace asks its searches apart
 
 
 def cut() -> list:
@@ -95,8 +98,8 @@ def overlap(question: str, passages: list[str]) -> list[float]:
 
 
 def answers(monkeypatch, root, client, role: str, questions: list[str]) -> list[dict]:
-    """What the role gets for each question in the build at `root`: the sparse weights sent, the fused hits, and the
-    reranked order."""
+    """What the role gets for each question in the build at `root`: the sparse weights sent, the fused hits, the
+    reranked order, and from the served trace each search's own hits and the count of units the filter passes."""
     monkeypatch.setenv("NTK_DATA_DIR", str(root))
     sent = []
     real = client.query_points
@@ -108,10 +111,15 @@ def answers(monkeypatch, root, client, role: str, questions: list[str]) -> list[
     monkeypatch.setattr(client, "query_points", spy)
     out = []
     for question in questions:
-        fused = search(client, question, role, rerank="none")
+        trace = {}
+        fused = search(client, question, role, rerank="none", trace=trace)
         order = rerank.rerank(question, fused, passages_of([h["unit_id"] for h in fused]), "cross") if fused else []
         out.append({"weights": sent[-1], "fused": [(h["unit_id"], h["rank"], h["score"]) for h in fused],
-                    "reranked": [h["unit_id"] for h in order]})
+                    "reranked": [h["unit_id"] for h in order], "passes": trace["filter"]["passes"],
+                    # At the engine's precision: local mode scores in float64 over a matrix the hidden units size,
+                    # so the last bits of a dense score move with them; the server's scores are float32.
+                    **{side: [(h["unit_id"], h["rank"], float(np.float32(h["score"]))) for h in trace[side]]
+                       for side in ("dense", "sparse")}})
     monkeypatch.setattr(client, "query_points", real)
     return out
 

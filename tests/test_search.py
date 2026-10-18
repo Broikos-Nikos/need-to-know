@@ -32,14 +32,14 @@ UNITS = ([(f"secret{n}", ["legal"], "Legal note on matters of counsel.", near(10
             ("lost", ["unlabelled"], "Text under an audience no label knows.", near(4, 0.2))])
 
 
-@pytest.fixture
-def client(monkeypatch, tmp_path):
+def indexed(monkeypatch, tmp_path, units: list) -> QdrantClient:
+    """These units in a local collection, with the manifest and the frequencies a sync leaves beside it."""
     monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path))
     client = QdrantClient(location=":memory:")
-    ensure(client, lambda: (text for _, _, text, _ in UNITS))
+    ensure(client, lambda: (text for _, _, text, _ in units))
     avgdl = frozen()["avgdl"]
     points = []
-    for unit, labels, text, vector in UNITS:
+    for unit, labels, text, vector in units:
         indices, values = document(text, avgdl)
         points.append(models.PointStruct(id=point_id(unit), vector={DENSE: vector.tolist(),
                                          SPARSE: models.SparseVector(indices=indices, values=values)},
@@ -48,10 +48,15 @@ def client(monkeypatch, tmp_path):
     with opened() as db:  # the manifest holds what the index holds, as a sync leaves them (DR-F15)
         db.execute("INSERT INTO files VALUES ('DOC', 'doc.md', 1, 1, 1, 1, 'h', 'md', 'utf-8', 'en', 'v', 1)")
         db.executemany("INSERT INTO units VALUES (?, 'DOC', 'key', 'prose', ?, ?, ?, 0, 1, 'en', 1)",
-                       [(unit, json.dumps(labels), json.dumps(["Policy"]), text) for unit, labels, text, _ in UNITS])
+                       [(unit, json.dumps(labels), json.dumps(["Policy"]), text) for unit, labels, text, _ in units])
     with frequencies.opened(COLLECTION) as db:  # as the sync counts them (N50)
-        frequencies.count(db, [(label_set(labels), document(text, avgdl)[0]) for _, labels, text, _ in UNITS], 1)
+        frequencies.count(db, [(label_set(labels), document(text, avgdl)[0]) for _, labels, text, _ in units], 1)
     return client
+
+
+@pytest.fixture
+def client(monkeypatch, tmp_path):
+    return indexed(monkeypatch, tmp_path, UNITS)
 
 
 def ask(client, question="settlement ceiling", role="sales", **kwargs):

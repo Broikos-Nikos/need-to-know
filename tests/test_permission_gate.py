@@ -2,7 +2,8 @@
 ask over a small profile, built in Qdrant's local mode with the stand in encoder and reranker of
 test_noninterference, and no unit the case may not read comes back from the dense search, the sparse search, their
 fusion or the search as `ask` makes it, nor reaches the excerpts, and no canary of a label it may not read reaches the
-prompt they make. `bench/permission_suite.py` runs the same check over the whole index with the real models; this one
+prompt they make; nor does either reach what the local server answers the case's session, its stage trace, the text of
+the units it names and its excerpts (T6.1). `bench/permission_suite.py` runs the same check over the whole index with the real models; this one
 runs wherever the suite runs, with no GPU and no server.
 
 The profile is the committed narrative of every eighth catalogue document, a planted canary in some of its sections;
@@ -11,12 +12,15 @@ words only hidden text holds. Before anything is counted, the test shows it can 
 units the narrowest case may not read for the same questions."""
 
 import copy
+import json
 
 import pytest
+from fastapi.testclient import TestClient
+from test_api import named
 from test_embed_cache import Gpu, fake_tokenize
 from test_noninterference import attack, built, cut, overlap
 
-from needtoknow import canaries
+from needtoknow import api, canaries
 from needtoknow.answer.prompt import build, reader_mark
 from needtoknow.embed import model
 from needtoknow.eval.probes import load as load_probes
@@ -25,7 +29,8 @@ from needtoknow.index.expand import excerpts
 from needtoknow.index.search import search
 from needtoknow.policy import load_policy, readable
 
-pytestmark = pytest.mark.filterwarnings("ignore:Payload indexes have no effect in the local Qdrant")
+pytestmark = [pytest.mark.filterwarnings("ignore:Payload indexes have no effect in the local Qdrant"),
+              pytest.mark.filterwarnings("ignore:Local mode performs exact")]  # the trace asks its searches apart
 SIDES = {"dense": ("dense",), "sparse": ("sparse",), "fused": ("dense", "sparse")}
 
 
@@ -60,16 +65,26 @@ def test_no_case_gets_a_unit_or_a_canary_it_may_not_read(monkeypatch, tmp_path):
     def foreign(hits, reads):
         return [h["unit_id"] for h in hits if not labels_of[h["unit_id"]] & reads]
 
+    def served(case_policy, role):
+        """The case's session on the local server, signed in as its role: a question in, the server's answer out."""
+        http = TestClient(api.create(client, policy=case_policy), base_url="http://127.0.0.1")
+        headers = {"Authorization": f"Bearer {http.post('/session', json={'role': role}).json()['token']}"}
+        return lambda question: http.post("/search", json={"question": question}, headers=headers).json()
+
     # The questions reach text the narrowest case may not read: without its filter they bring it back.
     reached = sum(len(foreign(search(client, q, "admin", policy, limit=100, sides=SIDES["fused"], rerank="none"),
                               narrow)) for q in probes)
     assert reached > 0
     planted = sum(len(canaries.PATTERN.findall(u.text)) for u in units)
     assert planted > 0, "the profile holds no canary, so the prompt check could not fail"
+    # The server shows the reader of everything canaries the narrowest case may not read, so its scan can fail.
+    everything = served(policy, "admin")
+    assert any(canaries.found(json.dumps(everything(q), ensure_ascii=False), narrow, names) for q in probes)
 
     leaks, searches = [], 0
     for name, role, case_policy in cases(policy):
         reads = readable(case_policy, role)
+        session = served(case_policy, role)
         for question in probes + attack(units, reads, pairs=6):
             for side, sides in SIDES.items():
                 hits = search(client, question, role, case_policy, limit=100, sides=sides, rerank="none")
@@ -82,6 +97,10 @@ def test_no_case_gets_a_unit_or_a_canary_it_may_not_read(monkeypatch, tmp_path):
                       if not labels_of[unit] & reads]
             leaks += [(name, "prompt", question, c) for c in canaries.found(
                 build(question, shown, reader=reader_mark(reads))[1], reads, names)]
-            searches += 1
-    # Every case asked at least every probe each of the four ways, and nothing it may not read anywhere.
-    assert searches >= 4 * len(cases(policy)) * len(probes) and not leaks, leaks[:5]
+            body = session(question)
+            leaks += [(name, "served", question, unit) for unit in sorted(named(body)) if not labels_of[unit] & reads]
+            leaks += [(name, "served text", question, c) for c in canaries.found(json.dumps(body, ensure_ascii=False),
+                                                                                 reads, names)]
+            searches += 2
+    # Every case asked at least every probe each of the five ways, and nothing it may not read anywhere.
+    assert searches >= 5 * len(cases(policy)) * len(probes) and not leaks, leaks[:5]
