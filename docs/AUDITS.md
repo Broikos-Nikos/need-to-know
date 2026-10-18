@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**184 findings, 155 closed, 29 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**184 findings, 156 closed, 28 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -224,7 +224,7 @@ An audit pass of ten seconds on the first screen, by someone who hires but does 
 
 ## `PF`, the performance auditor
 
-An audit pass on time, memory and disk, its page half waiting for the page. 10 findings, 6 closed.
+An audit pass on time, memory and disk, its page half waiting for the page. 10 findings, 7 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -234,7 +234,7 @@ An audit pass on time, memory and disk, its page half waiting for the page. 10 f
 | `PF-F4` | medium | fixed, tick 78 | The cross encoder pads each batch of 16, in rank order, to its longest pair: sorted by length it scores a question in 572 ms instead of 843, the same top 8 |
 | `PF-F5` | low | fixed, tick 78 | Expansion finds each hit's segment by reading its whole document through the doc_id index: 31 to 43 ms for the top 8 |
 | `PF-F6` | low | open | Within one watcher, each widening of the largest document made the next sync's read slower, 0.40 to 0.73 s over five runs, leaving 0.2 s under the 5 s objective: run the change thirty times to see whether the engine's own vacuum bounds it, and if it does not, read only the sections that changed Measured by bench/revocation.py. |
-| `PF-F7` | low | open | Each ntk ask loads the encoder and the reranker in a fresh process, 30 s of search before the question reaches the provider against 0.65 s warm: the served path keeps both loaded, and the README says what a first question costs Measured by ntk ask. |
+| `PF-F7` | low | fixed, tick 163 | Each ntk ask loads the encoder and the reranker in a fresh process, 30 s of search before the question reaches the provider against 0.65 s warm: the served path keeps both loaded, and the README says what a first question costs Measured by ntk ask. |
 | `PF-F8` | medium | fixed, tick 135 | The spend log books the models' loading as search time: each process's first question shows 28 to 35 s of search against a 0.77 s median, cached answers too, so the log's p95 of 28 s is loading, not search: load the models before the clock and record the load apart, or mark cold questions and report cold and warm apart |
 | `PF-F9` | low | open | The golden checks read the whole manifest for ten keys: the table items' check scans every unit's text, 5.2 of ntk eval check's 7.1 s, and the row draw scans once per candidate key, its test the suite's slowest at 43 s of 139: count each key's units in one pass and cache it beside the manifest under its last run id |
 | `PF-F10` | medium | open | The largest document's relabel passed the 5 s objective on one run in ten: bench/revocation.py on LOG_CAT_006 found the widened section in 5.6 s, its scan alone 3.87 s against 2.24 to 2.96 s on the other runs, and exited 1; run again it held at 3.9 s; N53's reversal condition is met: a scan that cuts only the sections a change touched, or the objective restated with ten runs and the largest deciding, and N53 amended either way |
