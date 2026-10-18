@@ -1,7 +1,7 @@
 command: uv run python bench/baseline.py eval/runs/baseline
-recorded 2026-10-18 22:31, run at fdbd498
+recorded 2026-10-18 22:42, run at 96b140f
 ---
-baseline at 778fc1de0bc7; protocol version 7; deepseek-flash at temperature 0.0; manifest run 87, 501031 units; 3 repeats; scorer 2e7ad64ce7fa8975
+baseline at 778fc1de0bc7; protocol version 7; deepseek-flash at temperature 0.0; manifest run 87, 501031 units; 3 repeats; scorer af0f0e111b236112
   commit differs: test, test-closed, dev, dev-closed at 778fc1de0bc7; test-guess, dev-guess at 472f4a60414e
   tree not clean when made: test, test-closed, dev-closed
 headline: all 35 test items, 0.981 answered right, Wilson 0.869 to 0.997; the 29 family items alone 0.977
@@ -11,7 +11,7 @@ test: answerable 0.975 of 27; refusals 1.000 of 8; overall 0.981 of 35; grounded
   by language: el 1.000 of 16; en 0.965 of 19
   by table rows shown, answerable prose: shown 1.000 of 2; none 0.971 of 23
   by G, on a value a law contradicts: no 1.000 of 4
-  wrong answers to answerable items over the repeats: 0 not shown a section planting every fact they needed; 2 shown every one (T12, T12)
+  wrong answers to answerable items over the repeats: 0 not shown a unit holding every fact they needed; 2 shown every one (T12, T12)
   verdicts that differ between two repeats: 0.0190 of the items, over every pair
 dev: answerable 0.960 of 101; refusals 1.000 of 32; overall 0.970 of 133; grounded 0.960 of 101; leaks 0; unstable 1 (D136)
   by category: A 1.000 of 17; B 1.000 of 19; C 0.857 of 14; D 1.000 of 17; E 1.000 of 16; F 0.500 of 4; G 1.000 of 14; H 1.000 of 4; I 1.000 of 8; J 1.000 of 8; M 1.000 of 4; N 1.000 of 8
@@ -19,7 +19,7 @@ dev: answerable 0.960 of 101; refusals 1.000 of 32; overall 0.970 of 133; ground
   by language: el 0.971 of 68; en 0.969 of 65
   by table rows shown, answerable prose: shown 0.952 of 21; none 0.958 of 72
   by G, on a value a law contradicts: yes 1.000 of 3; no 1.000 of 11
-  wrong answers to answerable items over the repeats: 15 not shown a section planting every fact they needed (D019, D021, D092, D099, D134, D019, D021, D092, D099, D134, D019, D021, D092, D099, D134); 4 shown every one (D136, D141, D141, D141)
+  wrong answers to answerable items over the repeats: 15 not shown a unit holding every fact they needed (D019, D021, D092, D099, D134, D019, D021, D092, D099, D134, D019, D021, D092, D099, D134); 4 shown every one (D136, D141, D141, D141)
   verdicts that differ between two repeats: 0.0044 of the items, over every pair
 test, no documents under the answer rules: 105 of 105 answers refused, which shows the rules hold and nothing of what the model knows
 test, the best guess with no documents: answerable 0.074 of 27 right from the model's own knowledge alone; 0 of 105 answers declined; E items answered with a deliberate default 1 (T21); any other forbidden value 0
