@@ -101,6 +101,10 @@ def validate(protocol: dict) -> list[str]:
     if "bench/power.py" not in str(decision.get("smallest_visible_assumes", "")):
         problems.append("decision.smallest_visible_assumes must state the discordance assumed and name bench/power.py, "
                         "which prints the figure (RS-F18)")
+    # Version 8 (N63): what the test can reach against the incumbent is stated, and what adopts while it cannot.
+    if "bench/baseline.py" not in str(decision.get("reach", "")) or not decision.get("until_dev_can_show_a_gain"):
+        problems.append("decision.reach must name bench/baseline.py, which prints the best p any experiment could get, "
+                        "and decision.until_dev_can_show_a_gain must say what adopts meanwhile (RS-F30)")
     baseline = protocol.get("baseline", {})
     if baseline.get("cache") != "off":
         problems.append("baseline.cache must be 'off': a repeat sends the same prompt and would come back from the "

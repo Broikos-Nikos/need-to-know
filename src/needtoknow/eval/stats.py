@@ -104,10 +104,19 @@ def difference(first: list[float], second: list[float], resamples: int = 10000, 
     return observed, low, high
 
 
+def reach(means: list[float]) -> float:
+    """The smallest p the registered test can give any candidate against an incumbent with these unit means: every
+    unit below a perfect score brought to it and none made worse, the best experiment there can be. The test sees
+    only the units that change, so with k of them it cannot go below 2 in 2^k (RS-F30)."""
+    return sign_flip([1.0 - mean for mean in means])
+
+
 def decide(diffs: list[float], alpha: float, margin: float, smallest_visible: float, cost_cut: float | None = None,
-           cost_ratio: float | None = None, probe_diffs: list[float] | None = None) -> dict:
+           cost_ratio: float | None = None, probe_diffs: list[float] | None = None,
+           incumbent: list[float] | None = None) -> dict:
     """The registered arms over one comparison. `cost_ratio` is the candidate's cost over the incumbent's, USD a
-    question or p95 seconds; `probe_diffs` the dev probes' recall differences by unit."""
+    question or p95 seconds; `probe_diffs` the dev probes' recall differences by unit; `incumbent` its unit means,
+    whose reach, the best p any candidate could get, is stated beside the verdict (RS-F30)."""
     p = sign_flip(diffs)
     low, high = bootstrap(diffs)
     mean = sum(diffs) / len(diffs)
@@ -122,4 +131,5 @@ def decide(diffs: list[float], alpha: float, margin: float, smallest_visible: fl
     elif p < alpha and mean < 0:
         verdict = "worse"
     return {"verdict": verdict, "mean": mean, "p": p, "interval": (low, high), "units": len(diffs),
-            "smallest_visible_effect": smallest_visible}
+            "smallest_visible_effect": smallest_visible,
+            "reach": reach(incumbent) if incumbent is not None else None}

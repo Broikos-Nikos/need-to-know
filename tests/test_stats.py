@@ -67,6 +67,19 @@ def test_the_arms_adopt_only_what_the_registered_rules_clear_and_say_too_small_t
     assert T.decide([0] * 50, probe_diffs=[0.5] * 30, **rules)["verdict"] == "probe"
 
 
+def test_the_reach_is_the_best_p_any_candidate_could_get_against_the_incumbent():
+    # RS-F30: the baseline left four dev families below a perfect score, and the test sees only the families that
+    # change, so the best experiment there can be gets 0.125 and no quality arm can adopt.
+    baseline = [1.0] * 76 + [0.5, 0.5, 0.0, 0.0]
+    assert T.reach(baseline) == 0.125
+    assert T.reach([1.0] * 74 + [0.5] * 6) == 0.03125  # six families with room would let a gain through
+    assert T.reach([1.0] * 80) == 1.0  # nothing left to gain
+    rules = {"alpha": 0.05, "margin": 0.05, "smallest_visible": 0.12}
+    best = T.decide([1.0 - mean for mean in baseline], incumbent=baseline, **rules)
+    assert (best["verdict"], best["reach"]) == ("too small to tell", 0.125)
+    assert T.decide([0] * 80, **rules)["reach"] is None
+
+
 def test_each_answered_item_says_whether_its_file_holds_a_section_its_role_may_not_read():
     # RS-F22: D's condition, which an A, B or C item can share, as a property beside the category.
     docs = {"MIX": {"sections": [{"label": "sales", "facts": ["F1"]}, {"label": "legal", "facts": []}]},

@@ -80,3 +80,14 @@ figure for 63 families, and no command produced it (RS-F18). bench/power.py simu
 registered test on the dev split's 80 units: at an assumed discordance of 0.2 per item the \
 smallest effect adopted in 80 percent of trials is 0.12, from 0.08 at 0.10 to 0.14 at 0.30. \
 The figure and its assumption are recorded together (N60)."""
+
+[[version]]
+date = 2026-10-18
+sha256 = "5d5f2827c30fc3c5bef5413aa9aa5e8bf47500aa38f8a5678fca76efa39dfa88"
+reason = """\
+After the baseline, before any experiment. The sign flip test sees only the families \
+that change, and the baseline left 4 of the 80 dev families below a perfect score: the \
+best experiment there can be reaches p 0.125, and the probe arm's misses sit in 5 \
+families, so neither arm that reads quality can adopt anything (RS-F30). The reach is \
+stated beside every decision, bench/baseline.py printing it, and until dev can show a \
+gain an experiment is adopted on cost alone; P8 opens by growing dev (N63)."""

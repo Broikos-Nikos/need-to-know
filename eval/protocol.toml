@@ -8,7 +8,7 @@
 # newest hash in eval/protocol_history.toml, so a change is a new dated entry there
 # with its reason, never a quiet edit.
 
-version = 7
+version = 8
 registered = 2026-10-12
 
 [splits]
@@ -148,6 +148,16 @@ smallest_visible_assumes = "a discordance of 0.2 per item, until the baseline me
 cost_cut = 0.20
 arms = ["up", "cost", "probe"]
 several_values = "each against the incumbent; the cheapest that clears an arm"
+# The test sees only the families that change, so against an incumbent with k
+# families below a perfect score no candidate can get below 2 in 2^k. At the
+# baseline 4 of the 80 dev families have room and the best experiment there can be
+# reaches p 0.125, and the probe arm's misses sit in 5 families: neither arm that
+# reads quality can adopt anything. Until dev can show a gain, an experiment is
+# adopted on cost alone, and the reach is stated beside every decision; P8 opens by
+# growing dev in the categories the baseline misses, as a dated version, before any
+# experiment (RS-F30, N63).
+reach = "stated beside every decision: stats.reach over the incumbent's dev units, which bench/baseline.py prints"
+until_dev_can_show_a_gain = "cost alone"
 
 [reporting]
 # Variant families are few, so their items are reported family by family and decide

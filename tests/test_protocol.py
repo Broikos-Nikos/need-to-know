@@ -120,7 +120,9 @@ def test_version_3_refuses_its_own_rules_undone(protocol, path, value, words):
 
 @pytest.mark.parametrize("path, finding", [(("splits", "balance", "rewrites"), "KB2-K2"),
                                            (("baseline", "aggregate"), "RS-F2"),
-                                           (("decision", "several_values"), "RS-F8")])
+                                           (("decision", "several_values"), "RS-F8"),
+                                           (("decision", "reach"), "RS-F30"),
+                                           (("decision", "until_dev_can_show_a_gain"), "RS-F30")])
 def test_version_3_refuses_a_rule_left_unset(protocol, path, finding):
     problems = validate(set_at(protocol, path, remove=True))
     assert any(finding in problem for problem in problems), (path, problems)

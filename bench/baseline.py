@@ -17,7 +17,7 @@ runs, `test-guess.jsonl` and `dev-guess.jsonl`, with each file's provenance, and
   items the model got right from its own knowledge alone, apart the E items it answered with a deliberate default and
   G on the value a law contradicts (RS-F19, RS-F23, DR-F27);
 * dev less test over fact families, with a percentile bootstrap interval of the difference, a diagnostic that changes
-  nothing (N33);
+  nothing (N33); and the reach on dev, the best p any experiment could get against this baseline (RS-F30);
 * the release's parity on its own build: how many items were shown the same units in every repeat, the retrieval the
   protocol requires to be the same before a test run;
 * the ledger, PLAN section 1's number 7: each split's mean USD a question from the answers, and the median and p95
@@ -38,9 +38,9 @@ from collections import Counter
 from pathlib import Path
 
 from needtoknow.eval.golden import Context, golden_path, load_items
-from needtoknow.eval.protocol import check_use
+from needtoknow.eval.protocol import check_use, load_protocol
 from needtoknow.eval.score import FAMILY, Sources, over_repeats, scorer_hash
-from needtoknow.eval.stats import difference, unit_means, wilson
+from needtoknow.eval.stats import difference, reach, unit_means, wilson
 from needtoknow.settings import data_dir
 
 
@@ -185,6 +185,13 @@ def main() -> int:
     gap, low, high = difference(list(dev_units.values()), list(test_units.values()))
     print(f"dev less test over fact families, a diagnostic that changes nothing (N33): {gap:+.3f}, 95 percent "
           f"{low:+.3f} to {high:+.3f}, over {len(dev_units)} dev and {len(test_units)} test units")
+    # The best p any experiment could get against this baseline: the test sees only the families that change (RS-F30).
+    alpha = load_protocol()["decision"]["alpha"]
+    best = reach(list(dev_units.values()))
+    room = sum(mean < 1 for mean in dev_units.values())
+    print(f"reach on dev, every family below a perfect score made perfect and none worse: p {best:.4g} by the "
+          f"registered test, {room} of {len(dev_units)} families with room; at alpha {alpha} an experiment "
+          + ("can" if best < alpha else "cannot") + " be adopted for being better")
     print("parity, the same units shown in every repeat: " + "; ".join(
         f"{split} {same} of {total} items" for split, (same, total) in parity.items()))
     print(f"cost: {sum(run['usd'] for run in runs.values()):.6f} USD over the {len(runs)} runs")
