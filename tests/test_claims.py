@@ -37,3 +37,14 @@ def test_a_number_no_record_prints_and_a_bullet_with_no_record_are_named(tmp_pat
     record.write_text("command: uv run python bench/x.py --split test\n---\n12 of 5761 found in 3.5 s\n",
                       encoding="utf-8")
     assert any(p.endswith("prints 5,760") for p in gate.check(readme, tmp_path))
+
+
+def test_a_number_only_a_records_head_holds_is_named(tmp_path):
+    # DR-F32: the head's date and time were read as the command's output, so a figure equal to them passed.
+    gate = claims()
+    readme = "# x\n\n## What works today\n\n* Took 37 s: `uv run python bench/x.py`.\n\n## Run it\n"
+    (tmp_path / "python-bench-x.py.txt").write_text(
+        "command: uv run python bench/x.py\nrecorded 2026-10-18 23:37, run at 9e22fde\n---\nthe first in 1.62 s\n",
+        encoding="utf-8")
+    problems = gate.check(readme, tmp_path)
+    assert len(problems) == 1 and problems[0].endswith("prints 37")

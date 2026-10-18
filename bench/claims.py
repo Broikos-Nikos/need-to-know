@@ -75,8 +75,9 @@ def check(readme: str, records: Path = RECORDS) -> list[str]:
         if not numbers:
             continue
         commands = [command_of(c) for c in COMMAND.findall(bullet)]
-        texts = [path.read_text(encoding="utf-8") for path in (records / record_path(c).name for c in commands)
-                 if path.is_file()]
+        # Below the head alone: its date and time are no output, and passed a figure equal to them (DR-F32).
+        texts = [path.read_text(encoding="utf-8").partition("\n---\n")[2]
+                 for path in (records / record_path(c).name for c in commands) if path.is_file()]
         first = " ".join(bullet.split())[:60]
         if not texts:
             problems.append(f"{first}: {len(numbers)} numbers, and no record of {', '.join(commands) or 'any command'}")

@@ -157,6 +157,34 @@ def test_ask_answers_with_the_trace_the_excerpts_sent_and_nothing_of_the_cache(c
     assert response.status_code == 502 and response.json()["detail"] == "deepseek: the key was refused"
 
 
+def test_a_search_does_not_wait_for_an_answers_provider(client, monkeypatch):
+    # DR-F34: the GPU's lock was held through the provider's network call, so every search queued behind an answer.
+    import threading
+
+    from needtoknow.answer import pipeline
+    waiting, release, finished = threading.Event(), threading.Event(), threading.Event()
+
+    def slow(system, messages, config=None, **settings):
+        waiting.set()
+        release.wait(3)
+        finished.set()
+        return echoing(system, messages, config, **settings)
+
+    monkeypatch.setitem(pipeline.ADAPTERS, "deepseek", slow)
+    monkeypatch.setattr(pipeline, "warm", lambda encode=None, rerank=None: 0.0)
+    http = served(client)
+    headers = signed(http, "sales")
+    answered = []
+    asking = threading.Thread(target=lambda: answered.append(http.post("/ask", json=ASKED, headers=headers)))
+    asking.start()
+    assert waiting.wait(10)
+    found = http.post("/search", json=ASKED, headers=headers)  # while the answer waits on its provider
+    early = not finished.is_set()
+    release.set()
+    asking.join(10)
+    assert found.status_code == 200 and early and answered[0].status_code == 200
+
+
 def test_a_missing_gpu_or_a_stopped_index_is_a_503_that_names_it(client, monkeypatch):
     def lost(texts):
         raise EmbedError("no CUDA device is visible to torch")

@@ -43,16 +43,17 @@ def narrative_dir(base: Path) -> Path:
 
 
 @contextmanager
-def exclusive(base: Path, wait: float = 0.0):
+def exclusive(base: Path, wait: float = 0.0, name: str = "writer.lock"):
     """One writer at a time of what lives under `base`: the corpus, assembly or the change simulator (OP-F3), the
     index, every sync (OP-F5), or the manifest, every scan (HS-F9).
 
     The lock is the operating system's, on one byte of `writer.lock`, so it ends with
     the process that holds it, and a crash never leaves a stale lock behind. Without
     `wait` a held lock is refused at once; with it, the lock is tried every tenth of a
-    second for that many seconds, as a watcher's scan waits out a build.
+    second for that many seconds, as a watcher's scan waits out a build. `name` gives one
+    file its own lock, as a line file's writers take (DR-F33).
     """
-    handle = open(base / "writer.lock", "a+b")
+    handle = open(base / name, "a+b")
     try:
         deadline = time.monotonic() + wait
         while True:
@@ -62,7 +63,7 @@ def exclusive(base: Path, wait: float = 0.0):
             except OSError:
                 if time.monotonic() >= deadline:
                     waited = f" after {wait:g} s" if wait else ""
-                    raise CorpusBusy(f"another process is writing here: {base / 'writer.lock'} is held{waited}") from None
+                    raise CorpusBusy(f"another process is writing here: {base / name} is held{waited}") from None
                 time.sleep(0.1)
         try:
             yield

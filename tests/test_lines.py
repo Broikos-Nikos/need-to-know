@@ -40,3 +40,32 @@ def test_a_whole_line_that_is_not_a_record_is_named_by_file_and_line(tmp_path):
     path.write_bytes(GREEK + b"\n")
     with pytest.raises(LineError, match="run.jsonl line 1: no answer"):
         records(path, check=lambda record: None if "answer" in record else "no answer")
+
+
+def test_a_shared_files_writer_waits_for_its_lock_before_it_mends(tmp_path):
+    # DR-F33: the spend log has three writers, and a mend cannot tell a line in flight from a stopped one, so a writer
+    # takes the file's own lock first.
+    import threading
+    import time
+
+    from needtoknow.corpus import exclusive
+    path = tmp_path / "spend.jsonl"
+    held, let_go = threading.Event(), threading.Event()
+
+    def other_writer():
+        with exclusive(tmp_path, name="spend.jsonl.lock"):
+            path.write_bytes(GREEK[:9])  # its line, half written
+            held.set()
+            let_go.wait(5)
+            with path.open("ab") as handle:
+                handle.write(GREEK[9:] + b"\n")
+
+    thread = threading.Thread(target=other_writer)
+    thread.start()
+    held.wait(5)
+    threading.Timer(0.3, let_go.set).start()
+    began = time.perf_counter()
+    append(path, {"seq": 2}, shared=True)
+    thread.join()
+    assert time.perf_counter() - began >= 0.25
+    assert records(path) == [{"seq": 1, "new": "Ελληνικά"}, {"seq": 2}]

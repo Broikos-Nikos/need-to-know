@@ -119,6 +119,28 @@ def test_a_cache_sqlite_cannot_read_is_set_aside_and_the_question_answered_witho
     assert again["cached"] and again["cache_set_aside"] is None and len(world["calls"]) == 1
 
 
+def test_a_cache_another_writer_holds_busy_is_answered_beside_and_left_where_it_is(world, monkeypatch):
+    # DR-F31: 'database is locked' is an OperationalError, which is a DatabaseError, so the corruption branch tried to
+    # move a file another writer held open: PermissionError on Windows, a good cache lost elsewhere.
+    import sqlite3
+
+    from needtoknow.answer import cache
+    pipeline.ask(None, QUESTION, "sales")  # a good cache, one entry
+    real = sqlite3.connect
+    monkeypatch.setattr(cache.sqlite3, "connect", lambda path, **kw: real(path, timeout=0.1))
+    holder = real(cache.cache_path())
+    holder.execute("BEGIN EXCLUSIVE")  # another writer, past the wait
+    try:
+        busy = pipeline.ask(None, "What is the floor?", "sales")
+    finally:
+        holder.rollback()
+        holder.close()
+    assert busy["status"] == "answered" and busy["cache_busy"] and busy["cache_set_aside"] is None
+    assert not list(cache.cache_path().parent.glob("*unreadable*"))
+    assert json.loads(pipeline.spend_path().read_text(encoding="utf-8").splitlines()[-1])["cache_busy"] is True
+    assert pipeline.ask(None, QUESTION, "sales")["cached"]  # the cache kept, and read again once free
+
+
 def test_a_cache_set_aside_takes_its_journal_with_it(tmp_path):
     # SQLite reads a journal beside a file as that file's own; one left beside a fresh cache would be rolled into it.
     from needtoknow.answer import cache

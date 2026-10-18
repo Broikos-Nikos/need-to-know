@@ -38,6 +38,13 @@ def test_a_cache_set_aside_is_said_in_one_line(monkeypatch):
     assert "set aside" not in run(monkeypatch, {**RESULT, "cache_set_aside": None})[1]
 
 
+def test_a_busy_cache_is_said_in_one_line(monkeypatch):
+    # DR-F31: answered beside a cache another writer held, which is left as it was.
+    code, text = run(monkeypatch, {**RESULT, "cache_busy": True})
+    assert code == 0 and text.splitlines()[0] == ("the answer cache was held by another writer past its wait, so this "
+                                                  "answer did without it and left it as it was")
+
+
 def test_an_answer_prints_its_citations_what_could_not_be_cited_and_its_cost(monkeypatch):
     code, text = run(monkeypatch, RESULT)
     assert code == 0

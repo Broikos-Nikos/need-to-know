@@ -320,6 +320,9 @@ def cmd_ask(args: argparse.Namespace, out=None, client=None) -> int:
     if result.get("cache_set_aside"):  # HS-F17
         print(f"the answer cache could not be read and was set aside as {result['cache_set_aside']}, which can be "
               "deleted; this answer did without it", file=out)
+    if result.get("cache_busy"):  # DR-F31
+        print("the answer cache was held by another writer past its wait, so this answer did without it and left "
+              "it as it was", file=out)
     if result["status"] == "invalid":
         print(f"the reply could not be read: {result['error']}", file=out)
     else:

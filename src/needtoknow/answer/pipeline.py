@@ -7,8 +7,9 @@ NTK_DATA_DIR/logs/spend.jsonl: when, the role, the provider and model, the promp
 whether the cache answered, the tokens as billed, the USD, the stop reason, the status,
 how many citations no excerpt could take (RS-F14) and each stage's seconds. The line holds numbers and hashes and never the text of a
 question, an excerpt or an answer, so the log tells nobody what a role may read
-(`specs/architecture.md` section 10, logs). `spend` sums it. A cache SQLite cannot read is
-set aside, the question answered without it, and the line names where it went (HS-F17).
+(`specs/architecture.md` section 10, logs). `spend` sums it. A cache that is no database is
+set aside, the question answered without it, and the line names where it went (HS-F17); a
+cache another writer holds busy is answered beside, never moved, and the line says so (DR-F31).
 """
 
 from __future__ import annotations
@@ -18,6 +19,7 @@ import math
 import sqlite3
 import statistics
 import time
+from contextlib import nullcontext
 from pathlib import Path
 
 from needtoknow import lines
@@ -65,14 +67,16 @@ def warm(encode=None, rerank: str | None = None) -> float:
 
 def ask(client, question: str, role: str, policy: dict | None = None, provider: str = "deepseek",
         use_cache: bool = True, config: dict | None = None, encode=None, rerank: str | None = None,
-        repeat: int = 0, closed_book: bool = False, guess: bool = False, trace: dict | None = None) -> dict:
+        repeat: int = 0, closed_book: bool = False, guess: bool = False, trace: dict | None = None,
+        hold=None) -> dict:
     """The role's answer to the question: status, answer and citations as `parse` reads them, the excerpts shown,
     whether the cache answered, the model, the tokens and USD of the call, its stop reason and each stage's seconds.
     An evaluation's repeats pass their number, which the cache key carries (KB5-K13). A closed book question is asked
     with no excerpts and nothing searched, under the answer rules, which leave the model nothing but to refuse: the
     check that they hold with no documents. With `guess` it is asked instead under rules that want the model's best
     guess from its own knowledge, the control KB1-F7 asks for (DR-F27). `trace`, a dict, gets the search's stages
-    (`index.search.search`) and the excerpts as shown, for the served path (T6.1)."""
+    (`index.search.search`) and the excerpts as shown, for the served path (T6.1); `hold`, a lock, is held for the
+    search and the excerpts alone, the GPU's part, and not through the provider's call (DR-F34)."""
     catalog = config or load_catalog()
     entry = catalog[provider]
     closed_book = closed_book or guess
@@ -85,10 +89,12 @@ def ask(client, question: str, role: str, policy: dict | None = None, provider: 
         now = time.perf_counter()
         seconds[stage], clock = now - clock, now
 
-    hits = [] if closed_book else search(client, question, role, policy, encode=encode, rerank=rerank, trace=trace)
-    lap("search")
-    shown = expand(hits) if hits else []
-    lap("expand")
+    with hold or nullcontext():
+        hits = [] if closed_book else search(client, question, role, policy, encode=encode, rerank=rerank,
+                                             trace=trace)
+        lap("search")
+        shown = expand(hits) if hits else []
+        lap("expand")
     if trace is not None:
         trace["shown"] = shown
     reader = reader_mark(readable(policy or load_policy(), role))
@@ -96,12 +102,16 @@ def ask(client, question: str, role: str, policy: dict | None = None, provider: 
     messages = [{"role": "user", "content": user}]
     settings = settings_of(entry)
     entry_key = cache.key(provider, entry["model"], system, messages, settings, repeat)
-    kept, aside = None, None
+    kept, aside, busy = None, None, False
     if use_cache:
         try:
             with cache.opened() as db:
                 kept = cache.get(db, entry_key, entry["model"])
-        except sqlite3.DatabaseError:  # it ended the question in a traceback after both models loaded (HS-F17)
+        # Busy past the timeout, or a disk's error, is an OperationalError, which is a DatabaseError too: such a file
+        # is no corrupt one, and moving it failed, or would lose a good cache (DR-F31).
+        except sqlite3.OperationalError:
+            busy = True
+        except sqlite3.DatabaseError:  # no database: it ended the question in a traceback (HS-F17)
             aside = cache.set_aside()
     if kept is None:
         done = ADAPTERS[provider](system, messages, config=catalog, **settings)
@@ -110,6 +120,8 @@ def ask(client, question: str, role: str, policy: dict | None = None, provider: 
                 cache.served(db, entry["model"], done.model)
                 if use_cache:
                     cache.put(db, entry_key, provider, done)
+        except sqlite3.OperationalError:
+            busy = True
         except sqlite3.DatabaseError:
             aside = aside or cache.set_aside()
         text, model, stop, usage, usd, attempts = (done.text, done.model, done.stop_reason, done.usage, done.cost_usd,
@@ -130,11 +142,13 @@ def ask(client, question: str, role: str, policy: dict | None = None, provider: 
               "seconds": {stage: round(value, 3) for stage, value in seconds.items()}}
     if aside:
         record["cache_set_aside"] = str(aside)
-    lines.append(spend_path(), record)  # after any line a stopped write cut, never glued to it (DR-F30)
+    if busy:
+        record["cache_busy"] = True
+    lines.append(spend_path(), record, shared=True)  # whole, under its lock (DR-F30, DR-F33)
     return {**answer, "excerpts": [{"doc_id": e["doc_id"], "section": section_of(e), "units": e["units"]} for e in shown],
             "cached": kept is not None, "model": model, "usage": usage, "cost_usd": usd, "stop_reason": stop,
             "attempts": attempts, "seconds": seconds, "prompt": entry_key,
-            "cache_set_aside": str(aside) if aside else None}
+            "cache_set_aside": str(aside) if aside else None, "cache_busy": busy}
 
 
 def spend(path: Path | None = None) -> dict:

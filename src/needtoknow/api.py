@@ -10,7 +10,8 @@ query, so a change to it holds from the next one (`03-retrieval-rag/11` section 
 It answers only requests addressed to 127.0.0.1 or localhost, so a page served elsewhere
 cannot reach it through a name of its own that resolves here, and it keeps no access log.
 `ntk serve` loads the encoder and the reranker before it listens, so no question waits for
-them (PF-F7); one query runs at a time, as the GPU holds one batch.
+them (PF-F7); one search runs at a time, as the GPU holds one batch, and an answer waits on its
+provider outside that lock (DR-F34).
 
 `POST /search` answers with the question's stage trace (N64): the role's filter, its labels
 and the units it passes and holds back, counted; each search's candidates with its own
@@ -159,8 +160,8 @@ def create(client, *, policy: dict | None = None, encode=None, rerank: str | Non
     def answer(body: Question, role: str = Depends(role_of)) -> dict:
         began = time.perf_counter()
         trace: dict = {}
-        with lock, refused():
-            result = ask(client, body.question, role, policy, encode=encode, rerank=rerank, trace=trace)
+        with refused():  # the lock is the GPU's, held for the search alone, not the provider's call (DR-F34)
+            result = ask(client, body.question, role, policy, encode=encode, rerank=rerank, trace=trace, hold=lock)
         taken = result["seconds"]
         served = staged(role, trace, trace["shown"], {**trace["seconds"], "expand": taken["expand"],
                                                       "provider": taken["provider"], "parse": taken["parse"]}, began)
