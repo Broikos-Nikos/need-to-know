@@ -21,7 +21,8 @@ FACTS = {
 }
 CTX = types.SimpleNamespace(facts=FACTS)
 SOURCES = S.Sources(CTX, given={"F06V00": {("D1", "Policy > SECTION 2")}, "F40V00": {("D4", "Payments > SECTION 1")},
-                                "O1001": {("D9", "Log > SECTION 5")}})
+                                "O1001": {("D9", "Log > SECTION 5")}},
+                    units={"F06V00": {"u7"}, "F40V00": {"u40"}, "O1001": {"u91"}})
 
 
 def item(category="A", facts=(("F06V00", ["7%", "7 percent", "7 τοις εκατό"]),), **fields):
@@ -177,12 +178,16 @@ def test_the_prose_items_are_grouped_by_table_rows_shown_and_g_by_a_value_a_law_
     assert S.score_item(item(), answer(), CTX, SOURCES)["table_rows_shown"] is None  # a run that recorded none
 
 
-def test_a_miss_says_whether_its_excerpts_held_a_section_planting_every_fact():
-    # MA-F17: the README credited the weak categories to retrieval, and some misses had been shown their facts.
-    shown = {**answer("No idea.", "not_found", ()), "excerpts": [{"doc_id": "D1", "section": "Policy > SECTION 2"}]}
-    hidden = {**shown, "excerpts": [{"doc_id": "D7", "section": "Commissions > SECTION 3"}]}
+def test_a_miss_says_whether_its_excerpts_held_a_unit_holding_every_fact():
+    # MA-F17: the README credited the weak categories to retrieval, and some misses had been shown their facts. RS-F31:
+    # judged by the unit that holds the fact, so an excerpt of another unit of the same section shows nothing of it.
+    shown = {**answer("No idea.", "not_found", ()),
+             "excerpts": [{"doc_id": "D1", "section": "Policy > SECTION 2", "units": ["u6", "u7"]}]}
+    hidden = {**shown, "excerpts": [{"doc_id": "D7", "section": "Commissions > SECTION 3", "units": ["u70"]}]}
+    beside = {**shown, "excerpts": [{"doc_id": "D1", "section": "Policy > SECTION 2", "units": ["u8"]}]}
     assert S.score_item(item(), shown, CTX, SOURCES)["shown_facts"] is True
     assert S.score_item(item(), hidden, CTX, SOURCES)["shown_facts"] is False
+    assert S.score_item(item(), beside, CTX, SOURCES)["shown_facts"] is False
     assert S.score_item(item(), answer(), CTX, SOURCES)["shown_facts"] is None  # a run that recorded no excerpts
     run = S.over_repeats([item(), {**item(), "id": "D02"}],
                          [{**shown, "repeat": 0}, {**hidden, "id": "D02", "repeat": 0},

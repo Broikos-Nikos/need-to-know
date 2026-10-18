@@ -247,6 +247,36 @@ def test_the_recall_bench_finds_a_golden_item_only_once_every_section_it_needs_i
     assert recall.found_at([{a}, {b}], [a, c, a]) is None
 
 
+def test_the_recall_bench_reads_a_golden_item_by_the_units_holding_its_facts(monkeypatch):
+    # RS-F31: a table row's section is a whole register, so an item is found and shown by the unit holding its fact or
+    # row; a hit or an excerpt of another unit of the same section counts for nothing.
+    spec = importlib.util.spec_from_file_location("probe_recall", BENCH / "probe_recall.py")
+    recall = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(recall)
+    from needtoknow.eval import golden as G
+    from needtoknow.eval import score as S
+
+    class Units:
+        def __init__(self, ctx):
+            pass
+
+        def units_of_fact(self, fact_id):
+            return {"u7"}
+
+        def units_of_row(self, row):
+            return {"r9"}
+
+    monkeypatch.setattr(G, "Context", lambda: None)
+    monkeypatch.setattr(G, "golden_path", lambda split: split)
+    monkeypatch.setattr(G, "load_items", lambda path: [
+        {"id": "D1", "category": "A", "question": "q", "role": "sales", "expect": {"facts": [{"fact_id": "F1"}]}},
+        {"id": "D2", "category": "I", "question": "q", "role": "sales", "row": {"doc_id": "X", "key": "K"}}])
+    monkeypatch.setattr(S, "Sources", Units)
+    hits = [{"unit_id": "u6"}, {"unit_id": "u7"}, {"unit_id": "r8"}]
+    rows = recall.golden("dev", None, lambda client, question, role: hits, lambda found: [{"units": ["u6", "u7"]}])
+    assert [(r["id"], r["rank"], r["shown"]) for r in rows] == [("D1", 2, True), ("D2", None, False)]
+
+
 def test_the_recall_bench_says_what_the_table_units_take_and_what_recall_is_without_them():
     # RS-F28: N43 reverses if the annexes take a real share of a prose question's top 10, which the filter bench
     # measured on the dense side alone; this bench measures it through the whole search, as ask searches.

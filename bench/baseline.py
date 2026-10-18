@@ -156,8 +156,8 @@ def main() -> int:
             print(f"  by {axis}: " + "; ".join(f"{key} {g['rate']:.3f} of {g['items']}" for key, g in groups.items()
                                                if g["rate"] is not None))
         misses = run["misses"]
-        print(f"  wrong answers to answerable items over the repeats: {len(misses['not shown'])} not shown a section "
-              f"planting every fact they needed" + (f" ({', '.join(misses['not shown'])})" if misses["not shown"]
+        print(f"  wrong answers to answerable items over the repeats: {len(misses['not shown'])} not shown a unit "
+              f"holding every fact they needed" + (f" ({', '.join(misses['not shown'])})" if misses["not shown"]
                                                     else "") + f"; {len(misses['shown'])} shown every one"
               + (f" ({', '.join(misses['shown'])})" if misses["shown"] else ""))
         print(f"  verdicts that differ between two repeats: {run['discordance']:.4f} of the items, over every pair")

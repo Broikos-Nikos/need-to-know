@@ -205,45 +205,53 @@ def former_forms(current_forms: list[str], current: list[str], former: list[str]
 
 
 class Sources:
-    """The sections that plant each fact and the unit that holds each table row, as `(doc_id, section)` pairs, read
-    from the manifest once each; or given, in a test."""
+    """The units that hold each planted fact and each table row, read from the manifest once each, and their sections
+    as `(doc_id, section)` pairs; or given, in a test. A citation can only name a section, so citations are read
+    against the sections; whether an answer was shown a fact is read against the units that hold it, since a table
+    row's section is a whole register and a hit on another row of it shows nothing of this one (RS-F31)."""
 
-    def __init__(self, ctx, given: dict | None = None):
-        self.ctx, self.given, self.cache = ctx, given, {}
+    def __init__(self, ctx, given: dict | None = None, units: dict | None = None):
+        self.ctx, self.given, self.given_units, self.cache = ctx, given, units, {}
+
+    def holding(self, key: str, finds: list[tuple[str, str]]) -> list[tuple[str, str]]:
+        """The units holding any of these texts in these documents, as (unit, section) pairs, read once a key."""
+        if key not in self.cache:
+            path = manifest_path()
+            if not path.is_file():  # rather than a sqlite error no command catches (DR-F24)
+                raise GoldenError(f"no manifest at {path}: ntk ingest build makes it, and citations are read against it")
+            db = sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True)
+            try:
+                self.cache[key] = [(unit, f"{doc_id}\0{' > '.join(json.loads(raw))}") for doc_id, text in finds
+                                   for unit, raw in db.execute("SELECT unit_id, path FROM units WHERE doc_id = ? "
+                                                               "AND instr(text, ?) > 0", (doc_id, text))]
+            finally:
+                db.close()
+        return self.cache[key]
+
+    def fact_finds(self, fact_id: str) -> list[tuple[str, str]]:
+        fact = self.ctx.facts[fact_id]
+        return [(doc_id, fact[self.ctx.docs[doc_id]["language"]]) for doc_id in dict.fromkeys(fact["placements"])]
 
     def of_fact(self, fact_id: str) -> set[tuple[str, str]]:
         if self.given is not None:
             return set(self.given.get(fact_id, ()))
-        if fact_id not in self.cache:
-            fact = self.ctx.facts[fact_id]
-            path = manifest_path()
-            if not path.is_file():
-                raise GoldenError(f"no manifest at {path}: ntk ingest build makes it, and citations are read against it")
-            db = sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True)
-            try:
-                found = set()
-                for doc_id in dict.fromkeys(fact["placements"]):
-                    sentence = fact[self.ctx.docs[doc_id]["language"]]
-                    for (raw,) in db.execute("SELECT path FROM units WHERE doc_id = ? AND instr(text, ?) > 0",
-                                             (doc_id, sentence)):
-                        found.add((doc_id, " > ".join(json.loads(raw))))
-            finally:
-                db.close()
-            self.cache[fact_id] = found
-        return self.cache[fact_id]
+        return {tuple(section.split("\0")) for _, section in self.holding(f"fact {fact_id}", self.fact_finds(fact_id))}
 
     def of_row(self, row: dict) -> set[tuple[str, str]]:
         if self.given is not None:
             return set(self.given.get(row.get("key"), ()))
-        path = manifest_path()
-        if not path.is_file():  # as of_fact does, rather than a sqlite error no command catches (DR-F24)
-            raise GoldenError(f"no manifest at {path}: ntk ingest build makes it, and citations are read against it")
-        db = sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True)
-        try:
-            return {(row["doc_id"], " > ".join(json.loads(raw))) for (raw,) in db.execute(
-                "SELECT path FROM units WHERE doc_id = ? AND instr(text, ?) > 0", (row["doc_id"], row["key"]))}
-        finally:
-            db.close()
+        return {tuple(section.split("\0")) for _, section in
+                self.holding(f"row {row['doc_id']} {row['key']}", [(row["doc_id"], row["key"])])}
+
+    def units_of_fact(self, fact_id: str) -> set[str]:
+        if self.given_units is not None:
+            return set(self.given_units.get(fact_id, ()))
+        return {unit for unit, _ in self.holding(f"fact {fact_id}", self.fact_finds(fact_id))}
+
+    def units_of_row(self, row: dict) -> set[str]:
+        if self.given_units is not None:
+            return set(self.given_units.get(row.get("key"), ()))
+        return {unit for unit, _ in self.holding(f"row {row['doc_id']} {row['key']}", [(row["doc_id"], row["key"])])}
 
 
 def elsewhere(forms: list[str], role: str, fact_id: str, ctx) -> list[str]:
@@ -314,8 +322,12 @@ def score_item(item: dict, answer: dict, ctx, sources: Sources) -> dict:
     wanted = [sources.of_row(item["row"])] if category == "I" else \
         [sources.of_fact(e["fact_id"]) for e in facts if e.get("fact_id")]
     if isinstance(answer.get("excerpts"), list) and wanted:
-        shown = {(e.get("doc_id"), e.get("section")) for e in answer["excerpts"] if isinstance(e, dict)}
-        result["shown_facts"] = all(places & shown for places in wanted)
+        # By the units that hold each fact or the row, not their sections: a register's section is thousands of
+        # units, and an excerpt of another row shows nothing of this one (RS-F31).
+        holding = [sources.units_of_row(item["row"])] if category == "I" else \
+            [sources.units_of_fact(e["fact_id"]) for e in facts if e.get("fact_id")]
+        shown = {unit for e in answer["excerpts"] if isinstance(e, dict) for unit in e.get("units") or []}
+        result["shown_facts"] = all(units & shown for units in holding)
     if status == "answered":
         cited = {(c.get("doc_id"), c.get("section")) for c in answer.get("citations") or [] if isinstance(c, dict)}
         every = set().union(*wanted) if wanted else set()

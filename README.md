@@ -80,8 +80,8 @@ command in this repository that produces it.
   family items alone 0.977; dev 0.970 over its 133 originals, answerable 0.960 and refusals
   1.000; no leak on either split. The lowest categories ask across languages, C, 0.778 over
   3 test items and 0.857 over 14 dev ones, and two facts at once, F, 0.500 over 4 dev items.
-  Of the wrong answers over the repeats, 15, all on dev, were not shown a section planting
-  every fact they needed, and 2 on test and 4 on dev were shown it and refused: T12 twice,
+  Of the wrong answers over the repeats, 15, all on dev, were not shown a unit holding every
+  fact they needed, and 2 on test and 4 on dev were shown it and refused: T12 twice,
   D141 three times and D136 once. With no documents the same model refused every time, 105 of
   105 answers on test and 459 of 459 on dev, as its rules require, which shows nothing of
   what it knows; asked
