@@ -169,6 +169,18 @@ def test_the_probe_recall_bench_counts_ranks_and_the_shown_excerpts_as_it_says()
     assert (cut["rank"], cut["shown"]) == (3, False)
 
 
+def test_the_recall_bench_finds_a_golden_item_only_once_every_section_it_needs_is_hit():
+    # PLAN section 1, number 3: an answerable item counts at the rank by which a section for each of its facts is hit,
+    # so a two fact item is not found by its first fact alone.
+    spec = importlib.util.spec_from_file_location("probe_recall", BENCH / "probe_recall.py")
+    recall = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(recall)
+    a, b, c = ("D1", "S1"), ("D2", "S2"), ("D3", "S3")
+    assert recall.found_at([{a}], [c, a, b]) == 2
+    assert recall.found_at([{a}, {b, c}], [a, None, c]) == 3
+    assert recall.found_at([{a}, {b}], [a, c, a]) is None
+
+
 def test_the_recall_bench_says_what_the_table_units_take_and_what_recall_is_without_them():
     # RS-F28: N43 reverses if the annexes take a real share of a prose question's top 10, which the filter bench
     # measured on the dense side alone; this bench measures it through the whole search, as ask searches.

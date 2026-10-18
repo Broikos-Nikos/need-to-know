@@ -14,8 +14,14 @@ so these recalls are an upper bound; their worth is in comparisons.
 
 Beside each, what the table units take: their share of the top 10 and of the units in the
 shown excerpts, and recall@1 and @10 over the same hits with them set aside, gold units
-kept, the nearest this index comes to one without them (RS-F28, KB3-K3). The rows are
-saved to NTK_DATA_DIR/bench/probe_recall_<split>.json, which the README and N43 are held to.
+kept, the nearest this index comes to one without them (RS-F28, KB3-K3).
+
+Then the split's answerable golden items, originals only, each asked as its role, as the
+baseline asks them (PLAN section 1, number 3): an item is found at rank k when every
+section it needs, one planting each of its facts or holding its table row as the scorer
+reads them, sits among the first k hits, and shown when the excerpts hold each. The rows
+are saved to NTK_DATA_DIR/bench/probe_recall_<split>.json, which the README and N43 are
+held to.
 
 Asks the protocol first: dev for development, test for its baseline. Needs the manifest, the
 index on the running server, the `embed` extra and the GPU.
@@ -68,6 +74,40 @@ def annex(rows: list[dict]) -> str:
     aside = {k: sum(r["aside"] is not None and r["aside"] <= k for r in rows) / n for k in (1, 10)}
     return (f"table units {top:.1%} of the top 10 and {shown:.1%} of the shown excerpts' units; set aside, "
             f"recall@1 {aside[1]:.3f} and @10 {aside[10]:.3f}")
+
+
+def found_at(wanted: list[set], placed: list) -> int | None:
+    """The first rank by which every place set wanted holds one of the places hit so far; None when the hits never
+    cover them all."""
+    for k in range(1, len(placed) + 1):
+        if all(places & set(placed[:k]) for places in wanted):
+            return k
+    return None
+
+
+def golden(split: str, client, search, excerpts, db: sqlite3.Connection) -> list[dict]:
+    """The split's answerable golden items, originals only, each asked as its role: the rank by which the hits hold
+    a section for every fact it needs, and whether the shown excerpts do (PLAN section 1, number 3)."""
+    from needtoknow.answer.prompt import section_of
+    from needtoknow.eval.golden import Context, golden_path, load_items
+    from needtoknow.eval.score import ANSWERED, Sources
+    sources = Sources(Context())
+    rows = []
+    for item in load_items(golden_path(split)):
+        if item["category"] not in ANSWERED or item.get("twin"):
+            continue
+        wanted = [sources.of_row(item["row"])] if item["category"] == "I" else [
+            sources.of_fact(e["fact_id"]) for e in (item.get("expect") or {}).get("facts") or [] if e.get("fact_id")]
+        hits = search(client, item["question"], item["role"])
+        units = [hit["unit_id"] for hit in hits]
+        where = {unit: (doc, " > ".join(json.loads(path))) for unit, doc, path in db.execute(
+            f"SELECT unit_id, doc_id, path FROM units WHERE unit_id IN ({','.join('?' * len(units))})", units)} \
+            if units else {}
+        shown = {(e["doc_id"], section_of(e)) for e in excerpts(hits)}
+        rows.append({"id": item["id"], "category": item["category"], "facts": len(wanted),
+                     "rank": found_at(wanted, [where.get(unit) for unit in units]) if wanted else None,
+                     "shown": bool(wanted) and all(places & shown for places in wanted)})
+    return rows
 
 
 def layers(db: sqlite3.Connection):
@@ -129,12 +169,21 @@ def main(argv: list[str] | None = None) -> int:
     if missing:
         print(f"{len(missing)} probes with a gold unit the manifest lacks, left out: {', '.join(missing)}; "
               "ntk eval probes --check says why", flush=True)
-    searches = sum(len(rows) for rows in per_role.values())
+    items = golden(args.split, client, search, excerpts, db)
+    n = len(items)
+    within = {k: sum(r["rank"] is not None and r["rank"] <= k for r in items) for k in KS}
+    print(f"{args.split} answerable golden items, originals, each asked as its role: {n} items; every section they "
+          f"need within the first 1 for {within[1]}, 5 for {within[5]}, 10 for {within[10]} (recall@10 "
+          f"{within[10] / n:.3f}); in the shown excerpts {sum(r['shown'] for r in items)}", flush=True)
+    missed = [f"{r['id']} ({r['category']}, rank {r['rank']})" for r in items if r["rank"] is None or r["rank"] > 10]
+    if missed:
+        print(f"  not within the first 10: {', '.join(missed)}", flush=True)
+    searches = sum(len(rows) for rows in per_role.values()) + n
     print(f"{searches} searches in {time.perf_counter() - began:.0f} s", flush=True)
     db.close()
     out = data_dir() / "bench" / f"probe_recall_{args.split}.json"
     out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_bytes((json.dumps({"selective": selective, "per_role": per_role}) + "\n").encode("utf-8"))
+    out.write_bytes((json.dumps({"selective": selective, "per_role": per_role, "items": items}) + "\n").encode("utf-8"))
     return 0
 
 
