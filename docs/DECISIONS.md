@@ -470,3 +470,23 @@ of the two searches as traced within 2.3e-09 over 2,000 fused units on the runni
 **Reverses if.** The noninterference test fails on the trace; an attack on the side scores
 separates words frequent in hidden text from the null; or a deployment signs its users in
 through an identity provider, which replaces the sign in and keeps the rest.
+
+## N65. A document is shown by its id, which names its owner and its kind
+
+**Call.** Citations, excerpts, the served trace and a document's view name a document by its
+id, as `SAL_CIR_017`: the owning department's code, the kind of document and a number. A
+role that may read any part of a document learns those three, even where the document's
+title stands in a section the role may not read, which AC-F4 keeps from it; it learns none
+of the document's other text.
+
+**Evidence.** The policy labels text, not documents: each section names its audience. An id
+that named nothing would stand in every prompt, for the model and the role alike, mapped
+back for the operator, so every prompt would change, the registered baseline's with them,
+and the baseline would be asked again, to hide a document's kind from a role that already
+reads part of it. The research notes ask that citations and titles come from the segment
+the role may read (`03-retrieval-rag/11` section 4); an id is the document's address, not
+its text.
+
+**Reverses if.** A document's owner or kind becomes something a role may not know, or a
+deployment's ids carry people or subjects: then ids are mapped to opaque ones at the prompt
+and at the interface, under a new protocol version, and the baseline is asked again.

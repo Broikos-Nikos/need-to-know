@@ -24,6 +24,12 @@ log, the operator's, since they would tell a role that someone asked the same (K
 dev golden question asked as its own role is scored beside its answer by the registered
 scorer; `eval/protocol.toml` registers the test split for the baseline and the release
 alone, so a test question is answered here and never scored.
+
+`GET /doc/<id>` is the role's view of a document: the segments it may read, in document
+order, each with its heading path, labels, how many units it holds and its first units'
+text, and nothing of the others, not their count; a document it may read nothing of is
+refused in the words an unknown one is, so the refusal tells nothing (`specs/architecture.md`
+section 9, step 7). A document is named by its id, which says its owner and kind (N65).
 """
 
 from __future__ import annotations
@@ -60,6 +66,7 @@ SESSIONS = 256  # sign ins kept, the oldest dropped first
 STAGES = ("dense", "sparse", "fused", "reranked")
 # What a served answer holds; never whether the cache answered, the tokens or the price (KB5-K12).
 ANSWERED = ("status", "answer", "citations", "dropped", "error", "model", "stop_reason")
+PREVIEW = 3  # the units of a segment's text a document's outline shows
 # What a served verdict holds of the scorer's result.
 VERDICT = ("category", "correct", "grounded", "leak", "partial", "shown_facts")
 NO_SESSION = "no session: sign in with POST /session and send its token; a query names no role"
@@ -91,6 +98,25 @@ def described(unit_ids: list[str]) -> dict[str, dict]:
                 found[unit] = {"doc_id": doc_id, "section": " > ".join(json.loads(path)), "labels": json.loads(labels),
                                "text": text}
     return found
+
+
+def outline(doc_id: str, reads: frozenset[str]) -> list[dict]:
+    """The document's segments a reader of `reads` may read, from the manifest, in document order: each one's key,
+    heading path, labels, units and first units' text. A segment holds one label set, so it is read whole or not at
+    all, by the rule the index's filter applies: any of its labels read."""
+    with opened() as db:
+        rows = db.execute("SELECT section_key, labels, path, text FROM units WHERE doc_id = ? ORDER BY start, unit_id",
+                          (doc_id,)).fetchall()
+    segments: dict[tuple[str, str], dict] = {}
+    for key, labels, path, text in rows:
+        if not set(json.loads(labels)) & reads:
+            continue
+        segment = segments.setdefault((key, labels), {"key": key, "section": " > ".join(json.loads(path)),
+                                                      "labels": json.loads(labels), "units": 0, "preview": []})
+        segment["units"] += 1
+        if len(segment["preview"]) < PREVIEW:
+            segment["preview"].append(text)
+    return list(segments.values())
 
 
 def verdict(question: str, role: str, answered: dict, items=None, ctx=None, sources=None) -> dict | None:
@@ -181,6 +207,14 @@ def create(client, *, policy: dict | None = None, encode=None, rerank: str | Non
             clock = time.perf_counter()
             shown = excerpts(trace["reranked"])
         return staged(role, trace, shown, {**trace["seconds"], "expand": time.perf_counter() - clock}, began)
+
+    @app.get("/doc/{doc_id}")
+    def document(doc_id: str, role: str = Depends(role_of)) -> dict:
+        with refused():
+            sections = outline(doc_id, readable(policy or load_policy(), role))
+        if not sections:  # unknown, or nothing of it the role may read: one answer for both
+            raise HTTPException(404, f"no document {doc_id[:40]!r}")
+        return {"doc_id": doc_id, "sections": sections}
 
     @app.post("/ask")
     def answer(body: Question, role: str = Depends(role_of)) -> dict:

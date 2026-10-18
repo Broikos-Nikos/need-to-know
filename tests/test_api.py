@@ -75,6 +75,28 @@ def test_each_session_is_shown_its_roles_units_and_no_other(client):
         assert all(body["units"][unit]["text"] == text for unit, _, text, _ in UNITS if unit in units)
 
 
+def test_a_documents_view_holds_the_segments_the_role_may_read_and_nothing_of_the_others(client):
+    # T6.1c: the role's view of a document; one it may read nothing of is refused as an unknown one is.
+    from needtoknow.ingest.manifest import opened
+    with opened() as db:  # a second document, all of it legal's
+        db.execute("INSERT INTO files VALUES ('LEG', 'leg.md', 1, 1, 1, 1, 'h', 'md', 'utf-8', 'en', 'v', 1)")
+        db.execute("INSERT INTO units VALUES ('legal1', 'LEG', 'k9', 'prose', ?, ?, 'Privileged advice.', 0, 1, 'en', 1)",
+                   (json.dumps(["legal"]), json.dumps(["Counsel"])))
+    http = served(client)
+    sales, legal = signed(http, "sales"), signed(http, "legal")
+    assert http.get("/doc/DOC").status_code == 401
+    assert http.get("/doc/DOC", headers=sales).json() == {"doc_id": "DOC", "sections": [
+        {"key": "key", "section": "Policy", "labels": ["general"], "units": 1, "preview": ["Shops open at nine on weekdays."]},
+        {"key": "key", "section": "Policy", "labels": ["sales"], "units": 1,
+         "preview": ["The settlement ceiling for sales claims is set each quarter."]}]}
+    sections = http.get("/doc/DOC", headers=legal).json()["sections"]
+    assert [(s["labels"], s["units"], len(s["preview"])) for s in sections] == [(["general"], 1, 1), (["legal"], 50, 3)]
+    assert http.get("/doc/LEG", headers=legal).json()["sections"][0]["preview"] == ["Privileged advice."]
+    hidden, unknown = http.get("/doc/LEG", headers=sales), http.get("/doc/NOPE", headers=sales)
+    assert (hidden.status_code, unknown.status_code) == (404, 404)
+    assert hidden.json()["detail"] == "no document 'LEG'" and unknown.json()["detail"] == "no document 'NOPE'"
+
+
 def test_a_request_addressed_by_another_name_is_refused(client):
     # A page elsewhere whose name resolves to this machine reaches the loopback with that name as its host.
     app = served(client).app

@@ -3,8 +3,8 @@ ask over a small profile, built in Qdrant's local mode with the stand in encoder
 test_noninterference, and no unit the case may not read comes back from the dense search, the sparse search, their
 fusion or the search as `ask` makes it, nor reaches the excerpts, and no canary of a label it may not read reaches the
 prompt they make; nor does either reach what the local server answers the case's session, its stage trace, the text of
-the units it names and its excerpts (T6.1). `bench/permission_suite.py` runs the same check over the whole index with the real models; this one
-runs wherever the suite runs, with no GPU and no server.
+the units it names and its excerpts, or its view of each document (T6.1). `bench/permission_suite.py` runs the same
+check over the whole index with the real models; this one runs wherever the suite runs, with no GPU and no server.
 
 The profile is the committed narrative of every eighth catalogue document, a planted canary in some of its sections;
 the questions are every fifteenth dev probe's and, for each case, the attack's, words its view sees rarely beside
@@ -66,10 +66,13 @@ def test_no_case_gets_a_unit_or_a_canary_it_may_not_read(monkeypatch, tmp_path):
         return [h["unit_id"] for h in hits if not labels_of[h["unit_id"]] & reads]
 
     def served(case_policy, role):
-        """The case's session on the local server, signed in as its role: a question in, the server's answer out."""
+        """The case's session on the local server, signed in as its role: a question in, the server's answer out, and
+        a document's id in, its view out."""
         http = TestClient(api.create(client, policy=case_policy), base_url="http://127.0.0.1")
         headers = {"Authorization": f"Bearer {http.post('/session', json={'role': role}).json()['token']}"}
-        return lambda question: http.post("/search", json={"question": question}, headers=headers).json()
+        session = lambda question: http.post("/search", json={"question": question}, headers=headers).json()  # noqa
+        session.view = lambda doc_id: http.get(f"/doc/{doc_id}", headers=headers)
+        return session
 
     # The questions reach text the narrowest case may not read: without its filter they bring it back.
     reached = sum(len(foreign(search(client, q, "admin", policy, limit=100, sides=SIDES["fused"], rerank="none"),
@@ -80,6 +83,8 @@ def test_no_case_gets_a_unit_or_a_canary_it_may_not_read(monkeypatch, tmp_path):
     # The server shows the reader of everything canaries the narrowest case may not read, so its scan can fail.
     everything = served(policy, "admin")
     assert any(canaries.found(json.dumps(everything(q), ensure_ascii=False), narrow, names) for q in probes)
+    documents = sorted({u.doc_id for u in units})
+    assert any(canaries.found(everything.view(d).text, narrow, names) for d in documents)
 
     leaks, searches = [], 0
     for name, role, case_policy in cases(policy):
@@ -102,5 +107,12 @@ def test_no_case_gets_a_unit_or_a_canary_it_may_not_read(monkeypatch, tmp_path):
             leaks += [(name, "served text", question, c) for c in canaries.found(json.dumps(body, ensure_ascii=False),
                                                                                  reads, names)]
             searches += 2
+        for doc_id in documents:  # the case's view of every document: its segments and their text
+            view = session.view(doc_id)
+            if view.status_code == 404:
+                continue
+            leaks += [(name, "document", doc_id, s["labels"]) for s in view.json()["sections"]
+                      if not set(s["labels"]) & reads]
+            leaks += [(name, "document text", doc_id, c) for c in canaries.found(view.text, reads, names)]
     # Every case asked at least every probe each of the five ways, and nothing it may not read anywhere.
     assert searches >= 5 * len(cases(policy)) * len(probes) and not leaks, leaks[:5]
