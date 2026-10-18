@@ -140,7 +140,8 @@ def test_ask_answers_with_the_trace_the_excerpts_sent_and_nothing_of_the_cache(c
         assert ("Legal note on matters of counsel." in said) == secrets, role
         assert body["excerpts"] and all(excerpt["text"] in said for excerpt in body["excerpts"]), role
         assert said.count("<document number=") == len(body["excerpts"]), role  # every one sent, and only those
-    assert set(body) == {"role", "filter", *api.STAGES, "excerpts", "units", "seconds", "answer"}
+    assert set(body) == {"role", "filter", *api.STAGES, "excerpts", "units", "seconds", "answer", "verdict"}
+    assert body["verdict"] is None  # no golden question
     assert set(body["answer"]) == {"status", "answer", "citations", "dropped", "error", "model", "stop_reason"}
     assert body["answer"]["citations"]
     assert {"provider", "parse", "expand", "total"} <= set(body["seconds"])
@@ -155,6 +156,40 @@ def test_ask_answers_with_the_trace_the_excerpts_sent_and_nothing_of_the_cache(c
     monkeypatch.setitem(pipeline.ADAPTERS, "deepseek", refused)
     response = http.post("/ask", json={"question": "settlement ceiling for claims"}, headers=signed(http, "sales"))
     assert response.status_code == 502 and response.json()["detail"] == "deepseek: the key was refused"
+
+
+def test_a_dev_golden_question_asked_as_its_role_is_scored_beside_its_answer_and_no_other(client, monkeypatch):
+    # T6.1f: the registered scorer's verdict on the answer; asked by another role, or a question of the test split,
+    # it has none, eval/protocol.toml keeping the test split for the baseline and the release.
+    import types
+
+    from needtoknow.answer import pipeline
+    from needtoknow.eval import score as S
+    from needtoknow.eval.golden import GoldenError, golden_path, load_items
+    from needtoknow.eval.split import SplitError
+    monkeypatch.setitem(pipeline.ADAPTERS, "deepseek", echoing)
+    monkeypatch.setattr(pipeline, "warm", lambda encode=None, rerank=None: 0.0)
+    golden = [{"id": "D01", "category": "A", "role": "sales", "lang": "en", "question": "settlement  ceiling",
+               "expect": {"status": "answered", "facts": [{"fact_id": "F01", "forms": ["each quarter"]}]}}]
+    ctx = types.SimpleNamespace(facts={"F01": {"id": "F01", "family": "F01", "values": ["each quarter"] * 2}})
+    sources = S.Sources(ctx, given={"F01": {("DOC", "Policy")}}, units={"F01": {"sales"}})
+    judge = lambda question, role, answered: api.verdict(question, role, answered, golden, ctx, sources)  # noqa: E731
+    http = TestClient(api.create(client, encode=lambda texts: np.vstack([QUESTION] * len(texts)), rerank="none",
+                                 judge=judge), base_url="http://127.0.0.1")
+    body = http.post("/ask", json=ASKED, headers=signed(http, "sales")).json()
+    assert body["verdict"] == {"item": "D01", "category": "A", "correct": True, "grounded": True, "leak": False,
+                               "partial": 1.0, "shown_facts": True}
+    assert http.post("/ask", json=ASKED, headers=signed(http, "legal")).json()["verdict"] is None
+    first = load_items(golden_path("test"))[0]  # the committed test split, asked as its own role
+    assert api.verdict(first["question"], first["role"], {"status": "answered", "answer": "", "citations": []}) is None
+
+    def unbuilt(question, role, answered):  # the plan missing raises a SplitError, the split a GoldenError
+        raise (SplitError if question.startswith("settlement") else GoldenError)("no plan in data: run ntk corpus plan first")
+    http = TestClient(api.create(client, encode=lambda texts: np.vstack([QUESTION] * len(texts)), rerank="none",
+                                 judge=unbuilt), base_url="http://127.0.0.1")
+    response = http.post("/ask", json=ASKED, headers=signed(http, "sales"))  # the answer stands, and says why
+    assert response.status_code == 200
+    assert response.json()["verdict"] == {"error": "no verdict: no plan in data: run ntk corpus plan first"}
 
 
 def test_a_search_does_not_wait_for_an_answers_provider(client, monkeypatch):

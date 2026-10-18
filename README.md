@@ -67,7 +67,10 @@ command in this repository that produces it.
   each stage's seconds, every unit in it one the role may read; the leak gate asks every
   case through it too. `POST /ask` answers with the same trace, the excerpts as they were sent
   and the answer with its citations, and never whether the cache answered, which the spend
-  log keeps with the tokens and the price. The models load as it starts, 21.2 s here, so its first search took
+  log keeps with the tokens and the price. A dev golden question asked as its own role is
+  scored beside its answer by the registered scorer; a test question is answered and never
+  scored, `eval/protocol.toml` keeping the test split for the baseline and the release. The
+  models load as it starts, 21.2 s here, so its first search took
   1.62 s and the rest a median of 1.01 s and 1.47 s at the 95th percentile, the trace's own
   queries 0.133 s of it at the median; over 2,000 fused units the engine's scores match
   reciprocal rank fusion of the two searches as traced within 2.3e-09:

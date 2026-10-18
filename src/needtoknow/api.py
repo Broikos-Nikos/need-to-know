@@ -20,13 +20,17 @@ stage's seconds; and the document, section, labels and text of every unit named.
 in it passed the role's filter; of the units held back it has the count alone. `POST /ask`
 answers with the same trace, the excerpts as they were sent, and the answer with its
 citations; whether the cache answered, and the call's tokens and price, stay in the spend
-log, the operator's, since they would tell a role that someone asked the same (KB5-K12).
+log, the operator's, since they would tell a role that someone asked the same (KB5-K12). A
+dev golden question asked as its own role is scored beside its answer by the registered
+scorer; `eval/protocol.toml` registers the test split for the baseline and the release
+alone, so a test question is answered here and never scored.
 """
 
 from __future__ import annotations
 
 import json
 import secrets
+import sqlite3
 import threading
 import time
 from contextlib import contextmanager
@@ -38,6 +42,10 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from needtoknow.answer.pipeline import ask
 from needtoknow.answer.prompt import section_of
 from needtoknow.embed.model import EmbedError
+from needtoknow.eval.golden import Context, GoldenError, golden_path, load_items
+from needtoknow.eval.protocol import ProtocolError, check_use
+from needtoknow.eval.score import Sources, score_item
+from needtoknow.eval.split import SplitError
 from needtoknow.index import server
 from needtoknow.index.expand import excerpts
 from needtoknow.index.search import QuestionError, search
@@ -52,6 +60,8 @@ SESSIONS = 256  # sign ins kept, the oldest dropped first
 STAGES = ("dense", "sparse", "fused", "reranked")
 # What a served answer holds; never whether the cache answered, the tokens or the price (KB5-K12).
 ANSWERED = ("status", "answer", "citations", "dropped", "error", "model", "stop_reason")
+# What a served verdict holds of the scorer's result.
+VERDICT = ("category", "correct", "grounded", "leak", "partial", "shown_facts")
 NO_SESSION = "no session: sign in with POST /session and send its token; a query names no role"
 STOPPED = "the index's server is not running, so nothing reached it: ntk qdrant start"
 
@@ -81,6 +91,22 @@ def described(unit_ids: list[str]) -> dict[str, dict]:
                 found[unit] = {"doc_id": doc_id, "section": " > ".join(json.loads(path)), "labels": json.loads(labels),
                                "text": text}
     return found
+
+
+def verdict(question: str, role: str, answered: dict, items=None, ctx=None, sources=None) -> dict | None:
+    """The registered scorer's verdict on an answer to a dev golden question asked as its own role, None for any other
+    question (T6.1f). Its context is built for each verdict, a tenth of a second, so no SQLite connection crosses the
+    server's threads. `items`, `ctx` and `sources` stand in for the committed dev items and the build's context."""
+    if items is None:
+        check_use("dev", "development")
+        items = load_items(golden_path("dev"))
+    asked = " ".join(question.split())
+    item = next((i for i in items if i["role"] == role and " ".join(i["question"].split()) == asked), None)
+    if item is None:
+        return None
+    ctx = ctx or Context()
+    result = score_item(item, answered, ctx, sources or Sources(ctx))
+    return {"item": item["id"], **{key: result[key] for key in VERDICT}}
 
 
 @contextmanager
@@ -116,9 +142,9 @@ def staged(role: str, trace: dict, shown: list[dict], seconds: dict, began: floa
             "units": units, "seconds": {stage: round(value, 4) for stage, value in seconds.items()}}
 
 
-def create(client, *, policy: dict | None = None, encode=None, rerank: str | None = None) -> FastAPI:
+def create(client, *, policy: dict | None = None, encode=None, rerank: str | None = None, judge=verdict) -> FastAPI:
     """The server's app over the index's client. `policy`, `encode` and `rerank` reach the search as they would from
-    `ntk`: None reads the policy at each query and takes the configured models."""
+    `ntk`: None reads the policy at each query and takes the configured models. `judge` scores an answer."""
     sessions: dict[str, str] = {}
     lock = threading.Lock()
     app = FastAPI(title="need-to-know", docs_url=None, redoc_url=None)
@@ -165,6 +191,10 @@ def create(client, *, policy: dict | None = None, encode=None, rerank: str | Non
         taken = result["seconds"]
         served = staged(role, trace, trace["shown"], {**trace["seconds"], "expand": taken["expand"],
                                                       "provider": taken["provider"], "parse": taken["parse"]}, began)
-        return {**served, "answer": {key: result.get(key) for key in ANSWERED}}
+        try:
+            judged = judge(body.question, role, result)
+        except (GoldenError, ProtocolError, SplitError, OSError, sqlite3.Error) as error:  # the answer stands
+            judged = {"error": f"no verdict: {error}"}
+        return {**served, "answer": {key: result.get(key) for key in ANSWERED}, "verdict": judged}
 
     return app
