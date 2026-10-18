@@ -148,6 +148,43 @@ def test_a_syncs_seconds_count_its_reading_and_are_printed_by_part(world, capsys
     assert shown and float(shown.group(1)) >= 0.3 and float(shown.group(2)) >= 0.3
 
 
+def test_a_sync_that_would_delete_most_of_the_collection_refuses_unless_forced(world, monkeypatch, tmp_path):
+    # MT-F18: the server and its key are the same whatever NTK_DATA_DIR names, and a corpus draw's data folder holds
+    # a quarter of the units: a sync from it would empty the served index.
+    client, _, _ = world
+    rows = [(f"u{n}", ["sales"], ["SECTION 1  Scope"], f"Line {n} of the procedure.") for n in range(1, 9)]
+    manifest(rows)
+    loader.sync(client, force=True)  # the served collection: eight points
+    other = tmp_path / "draw"
+    (other / "index").mkdir(parents=True)  # a draw's folder holds the statistics its own build froze
+    (other / "index" / "lexical.json").write_bytes((tmp_path / "index" / "lexical.json").read_bytes())
+    monkeypatch.setenv("NTK_DATA_DIR", str(other))
+    manifest(rows[:3])  # another data folder, three of the eight units
+    with pytest.raises(loader.SyncError, match="would delete 5 of the collection's 8 points"):
+        loader.sync(client)
+    assert len(points(client)) == 8  # nothing deleted
+    # ntk index sync says so and fails, with this collection and never the running server.
+    import argparse
+    import io
+
+    from needtoknow.cli import cmd_index
+    said = io.StringIO()
+    assert cmd_index(argparse.Namespace(action="sync", replace=False, force=False), out=said, client=client) == 1
+    assert "more than half" in said.getvalue() and len(points(client)) == 8
+    assert loader.sync(client, force=True)["deleted"] == 5
+    # The watcher's sync of the documents it changed is measured against the whole collection: a small document
+    # deleted whole is every point of those documents, and a sliver of the collection.
+    monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path))
+    manifest(rows)
+    with manifest_opened() as db:
+        db.execute("INSERT INTO files VALUES ('DOC_2', 'two.md', 1, 1, 1, 1, 'h', 'md', 'utf-8', 'en', 'v', 1)")
+        db.execute("""INSERT INTO units VALUES ('u9', 'DOC_2', 's', 'prose', '["hr"]', '[]', 'Pay bands', 0, 1, 'en', 1)""")
+    loader.sync(client, force=True)
+    with manifest_opened() as db:
+        db.execute("DELETE FROM units WHERE doc_id = 'DOC_2'")
+    assert loader.sync(client, doc_ids=["DOC_2"])["deleted"] == 1
+
+
 def test_a_sync_of_some_documents_compares_those_alone(world):
     client, _, _ = world
     with manifest_opened() as db:

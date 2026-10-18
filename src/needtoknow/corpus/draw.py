@@ -6,7 +6,10 @@ not only on the one corpus every other number comes from.
 the catalogue in its `corpus/full/`, each with its sidecar, the narrative they were assembled from in
 `corpus/narrative/`, and the draw's plan in `corpus/plan/`, the catalogue cut to those documents and the facts they
 plant, each with the value it holds there and its placements cut to them (DR-F29). With NTK_DATA_DIR set to it, the
-ingest, the embedder and the probes read the draw as they read the corpus. A single fact or a regional variant takes
+ingest, the embedder and the probes read the draw as they read the corpus; the index commands do not, since they
+reach the one server the config names whatever the data folder, and a sync from a draw would delete the served
+index's points, which the sync refuses without --force (MT-F18): `bench/draws.py` builds each draw's own index, in
+Qdrant's local mode. A single fact or a regional variant takes
 a new value from its own template under the seed, written into every sentence that plants it; a versioned fact and
 the one it superseded keep theirs, since their pair is what their items ask about. The annexes, each document's
 register, directory and small tables, are assembled under the seed, sized as in the whole corpus. The base seed keeps

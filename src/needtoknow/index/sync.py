@@ -41,6 +41,10 @@ from needtoknow.ingest.units import passage
 BATCH = 256
 
 
+class SyncError(RuntimeError):
+    """A sync that would delete most of the collection, which one asked for only when it is meant."""
+
+
 def held(client, doc_ids: list[str] | None = None) -> set[str]:
     """Every point id in the collection, or in the given documents."""
     from qdrant_client import models
@@ -57,16 +61,19 @@ def held(client, doc_ids: list[str] | None = None) -> set[str]:
             return ids
 
 
-def sync(client, manifest: Path | None = None, report=None, doc_ids: list[str] | None = None) -> dict:
+def sync(client, manifest: Path | None = None, report=None, doc_ids: list[str] | None = None,
+         force: bool = False) -> dict:
     """Delete the points the manifest no longer explains, then upsert the units the collection lacks; in every
-    document, or in the given ones. One sync at a time."""
+    document, or in the given ones. One sync at a time. A sync that would delete more than half of the collection
+    refuses unless `force`: the server and its key are the same whatever NTK_DATA_DIR names, so a sync from another
+    data folder, a corpus draw's, would empty the served index (MT-F18)."""
     folder = data_dir() / "index"
     folder.mkdir(parents=True, exist_ok=True)
     with exclusive(folder):
-        return _sync(client, manifest, report, doc_ids)
+        return _sync(client, manifest, report, doc_ids, force)
 
 
-def _sync(client, manifest: Path | None, report, doc_ids: list[str] | None) -> dict:
+def _sync(client, manifest: Path | None, report, doc_ids: list[str] | None, force: bool = False) -> dict:
     from qdrant_client import models
 
     from needtoknow.ingest.manifest import opened as manifest_opened
@@ -91,6 +98,13 @@ def _sync(client, manifest: Path | None, report, doc_ids: list[str] | None) -> d
     present = held(client, None if doc_ids is None else sorted(set(doc_ids)))
     stale = sorted(present - set(wanted))
     todo = [wanted[pid] for pid in sorted(set(wanted) - present)]
+    # Measured against the whole collection, so the watcher's sync of the documents it changed never trips it.
+    total = len(present) if doc_ids is None else client.count(COLLECTION, exact=True).count
+    if stale and 2 * len(stale) > total and not force:
+        raise SyncError(f"this sync would delete {len(stale):,} of the collection's {total:,} points, more than half, "
+                        f"for the manifest in {data_dir()}: a data folder other than the one the index was built "
+                        "from, a corpus draw's say, reaches the same server. ntk index sync --force deletes them "
+                        "when that is meant (MT-F18)")
     summary = {"units": len(wanted), "points_before": len(present), "deleted": len(stale), "upserted": 0,
                "embedded": 0, "seconds": 0.0, "parts": parts}
     lap("read")

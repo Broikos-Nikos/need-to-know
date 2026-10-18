@@ -54,6 +54,8 @@ def build_parser() -> argparse.ArgumentParser:
     index.add_argument("action", choices=("create", "sync"))
     index.add_argument("--replace", action="store_true", help="delete the collection, its frequency table and its "
                                                               "lexical statistics first; the vector cache stays")
+    index.add_argument("--force", action="store_true", help="sync: delete even when more than half of the collection "
+                                                            "would go, which a sync from another data folder does")
     find = commands.add_parser("search", help="the candidates a role's question finds, fused, best first")
     find.add_argument("question")
     find.add_argument("--as", dest="role", required=True, help="a role of config/policy.toml")
@@ -234,9 +236,13 @@ def cmd_index(args: argparse.Namespace, out=None, client=None) -> int:
     print(f"{COLLECTION}: {'created' if result['created'] else 'already there, and of this shape'}; lexical statistics "
           f"frozen over {stats['passages']} passages, avgdl {stats['avgdl']:.2f}", file=out, flush=True)
     if getattr(args, "action", "create") == "sync":
-        from needtoknow.index.sync import sync
+        from needtoknow.index.sync import SyncError, sync
         try:
-            done = sync(client, report=lambda line: print(line, file=out, flush=True))
+            done = sync(client, report=lambda line: print(line, file=out, flush=True),
+                        force=getattr(args, "force", False))
+        except SyncError as error:  # most of the served index would go: asked before, never done (MT-F18)
+            print(f"index: {error}", file=out, flush=True)
+            return 1
         except EmbedError as error:
             print(f"index: {error}", file=out, flush=True)
             return 1

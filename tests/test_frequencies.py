@@ -68,7 +68,7 @@ def test_the_table_follows_the_index_through_syncs_and_a_recount_agrees(monkeypa
     ensure(client, lambda: (passage(p, t) for _, _, p, t in rows))
     loader.sync(client)
     manifest([rows[0], ("u2b", ["legal", "sales"], ["Counsel"], rows[1][3])])  # a relabel, and a unit gone
-    loader.sync(client)
+    loader.sync(client, force=True)  # two of three points go, which a collection this small makes most of it (MT-F18)
     with frequencies.opened(COLLECTION) as db:
         kept = table(db)
         assert frequencies.recount(db, client, COLLECTION) == 2
