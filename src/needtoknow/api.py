@@ -19,15 +19,16 @@ scores; their fusion; the reranker's order; the excerpts a question would be sho
 stage's seconds; and the document, section, labels and text of every unit named. Every unit
 in it passed the role's filter; of the units held back it has the count alone. `POST /ask`
 answers with the same trace, the excerpts as they were sent, and the answer with its
-citations; whether the cache answered, and the call's tokens and price, stay in the spend
-log, the operator's, since they would tell a role that someone asked the same (KB5-K12). A
-dev golden question asked as its own role is scored beside its answer by the registered
-scorer, its seconds among the stages'; `eval/protocol.toml` registers the test split for
-the baseline and the release alone, so a test question is answered here and never scored.
-The verdict names no category and, for a refusal, no leak: the category says whether a
-refused answer exists where the role may not read, E, or nowhere, J and N, and the leak
-flag compares the answer with the hidden values themselves, so either would tell a role
-what its refusal is worded to hide (AC-F16).
+citations. It asks the provider every time, reading and keeping no cached answer: one read
+back comes in milliseconds, and its time would tell a role that someone with its access
+asked the same (N68); the call's tokens and price stay in the spend log, the operator's
+(KB5-K12). A dev golden question asked as its own role is scored beside its answer by the
+registered scorer, its seconds among the stages'; `eval/protocol.toml` registers the test
+split for the baseline and the release alone, so a test question is answered here and never
+scored. The verdict names no category and, for a refusal, no leak: the category says
+whether a refused answer exists where the role may not read, E, or nowhere, J and N, and
+the leak flag compares the answer with the hidden values themselves, so either would tell a
+role what its refusal is worded to hide (AC-F16).
 
 `GET /doc/<id>` is the role's view of a document: the segments it may read, in document
 order, each with its heading path, labels, how many units it holds and its first units'
@@ -279,8 +280,12 @@ def create(client, *, policy: dict | None = None, encode=None, rerank: str | Non
     def answer(body: Question, role: str = Depends(role_of)) -> dict:
         began = time.perf_counter()
         trace: dict = {}
-        with refused():  # the lock is the GPU's, held for the search alone, not the provider's call (DR-F34)
-            result = ask(client, body.question, role, policy, encode=encode, rerank=rerank, trace=trace, hold=lock)
+        # The lock is the GPU's, held for the search alone, not the provider's call (DR-F34). No cached answer is read
+        # or kept: one read back comes in milliseconds, and its time would tell the asker that someone with its access
+        # asked the same before (N68).
+        with refused():
+            result = ask(client, body.question, role, policy, encode=encode, rerank=rerank, trace=trace, hold=lock,
+                         use_cache=False)
         taken = result["seconds"]
         clock = time.perf_counter()
         try:

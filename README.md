@@ -66,8 +66,10 @@ command in this repository that produces it.
   search's own candidates and scores, their fusion, the reranker's order, the excerpts and
   each stage's seconds, every unit in it one the role may read; the leak gate asks every
   case through it too. `POST /ask` answers with the same trace, the excerpts as they were sent
-  and the answer with its citations, and never whether the cache answered, which the spend
-  log keeps with the tokens and the price. A dev golden question asked as its own role is
+  and the answer with its citations, and asks the provider every time: an answer read back
+  from a cache comes in milliseconds, and its time would tell the asker that someone with the
+  same access asked the same before (N68). The spend log keeps the tokens and the price. A
+  dev golden question asked as its own role is
   scored beside its answer by the registered scorer; a test question is answered and never
   scored, `eval/protocol.toml` keeping the test split for the baseline and the release; a
   refusal's verdict reads the same whether its answer exists where the role may not read or

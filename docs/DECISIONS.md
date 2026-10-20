@@ -530,3 +530,25 @@ answers 200 live and 404 on a static host, and brings the role names the sign in
 
 **Reverses if.** A display face with Greek and a licence for the web is chosen for the
 house, or the page needs to find a server it is not served by.
+
+## N68. The served path asks the provider every time
+
+**Call.** `POST /ask` reads and keeps no cached answer. The answer cache stays for `ntk ask`,
+the operator's.
+
+**Evidence.** The cache is keyed by the prompt as sent, the reader's mark in it, so two people
+share an entry only when they read the same labels and were shown the same text (AC-F11). But
+an answer read back comes in milliseconds where a call takes seconds, so the trace's seconds,
+and the response's time on any clock, told an asker that someone with the same access had
+asked the same before, which the served answer was written not to tell (KB5-K12). The base
+agrees on both counts: show cache hits to the operator, not to the asker, and a shared cache
+leaks by its timing. `tests/test_api.py` asks one question twice, as two sessions of one
+role, of a provider that takes its time: both reach the provider and both take that time,
+and the test fails with the cache read.
+
+**What stays open.** The provider's own prefix cache is shared within one label set, which the
+reader's mark parts, and a repeat may come back from it faster. Where the existence of a
+question is itself sensitive, a deployment keys by user.
+
+**Reverses if.** The served path needs the cache's saving more than an asker's privacy among
+people of the same access, or the cache comes to be keyed by user.

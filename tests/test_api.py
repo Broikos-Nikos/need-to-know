@@ -216,17 +216,38 @@ def test_ask_answers_with_the_trace_the_excerpts_sent_and_nothing_of_the_cache(c
     assert set(body["answer"]) == {"status", "answer", "citations", "dropped", "error", "model", "stop_reason"}
     assert body["answer"]["citations"]
     assert {"provider", "parse", "expand", "total"} <= set(body["seconds"])
-    # From the cache now: the asker cannot tell, the tokens, the price and the cache's part staying in the spend log.
+    # Asked again, it is asked of the provider again, and the tokens and the price stay in the spend log (N68).
     again = http.post("/ask", json=ASKED, headers=signed(http, "legal")).json()
     assert again["answer"] == body["answer"] and set(again) == set(body)
     lines = [json.loads(line) for line in pipeline.spend_path().read_text(encoding="utf-8").splitlines()]
-    assert [line["cached"] for line in lines] == [False, False, True]
+    assert [line["cached"] for line in lines] == [False, False, False]
 
     def refused(system, messages, config=None, **settings):
         raise ProviderError("deepseek: the key was refused")
     monkeypatch.setitem(pipeline.ADAPTERS, "deepseek", refused)
     response = http.post("/ask", json={"question": "settlement ceiling for claims"}, headers=signed(http, "sales"))
     assert response.status_code == 502 and response.json()["detail"] == "deepseek: the key was refused"
+
+
+def test_a_question_asked_again_takes_a_calls_time_so_it_tells_no_one_who_asked_before(client, monkeypatch):
+    # T6.1k: an answer read from the cache came back in milliseconds where a call takes seconds, so the trace's seconds,
+    # and the response's time on any clock, told a role that someone with its access had asked the same (N68).
+    import time as clock
+
+    from needtoknow.answer import pipeline
+    calls = []
+
+    def slow(system, messages, config=None, **settings):
+        calls.append(1)
+        clock.sleep(0.2)
+        return echoing(system, messages, config, **settings)
+    monkeypatch.setitem(pipeline.ADAPTERS, "deepseek", slow)
+    monkeypatch.setattr(pipeline, "warm", lambda encode=None, rerank=None: 0.0)
+    http = served(client)
+    first, second = (http.post("/ask", json=ASKED, headers=signed(http, "sales")).json() for _ in range(2))
+    assert second["answer"] == first["answer"]
+    assert len(calls) == 2 and min(first["seconds"]["provider"], second["seconds"]["provider"]) >= 0.2, (
+        len(calls), first["seconds"]["provider"], second["seconds"]["provider"])
 
 
 def test_a_dev_golden_question_asked_as_its_role_is_scored_beside_its_answer_and_no_other(client, monkeypatch):
