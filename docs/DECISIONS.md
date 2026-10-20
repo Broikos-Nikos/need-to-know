@@ -490,3 +490,9 @@ its text.
 **Reverses if.** A document's owner or kind becomes something a role may not know, or a
 deployment's ids carry people or subjects: then ids are mapped to opaque ones at the prompt
 and at the interface, under a new protocol version, and the baseline is asked again.
+
+*Amended 2026-10-20, tick 173 (AC-F17):* the documents number their sections across
+audiences, so a role reading sections 1, 8, 10 and 12 of a document learns from headings it
+may read that the others exist and are someone else's. The numbers are the documents' own
+text, as the ids are their addresses, and stay; a deployment whose section counts were
+sensitive would number sections within each audience.

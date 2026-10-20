@@ -23,7 +23,10 @@ citations; whether the cache answered, and the call's tokens and price, stay in 
 log, the operator's, since they would tell a role that someone asked the same (KB5-K12). A
 dev golden question asked as its own role is scored beside its answer by the registered
 scorer; `eval/protocol.toml` registers the test split for the baseline and the release
-alone, so a test question is answered here and never scored.
+alone, so a test question is answered here and never scored. The verdict names no category
+and, for a refusal, no leak: the category says whether a refused answer exists where the role
+may not read, E, or nowhere, J and N, and the leak flag compares the answer with the hidden
+values themselves, so either would tell a role what its refusal is worded to hide (AC-F16).
 
 `GET /doc/<id>` is the role's view of a document: the segments it may read, in document
 order, each with its heading path, labels, how many units it holds and its first units'
@@ -50,7 +53,7 @@ from needtoknow.answer.prompt import section_of
 from needtoknow.embed.model import EmbedError
 from needtoknow.eval.golden import Context, GoldenError, golden_path, load_items
 from needtoknow.eval.protocol import ProtocolError, check_use
-from needtoknow.eval.score import Sources, score_item
+from needtoknow.eval.score import REFUSALS, Sources, score_item
 from needtoknow.eval.split import SplitError
 from needtoknow.index import server
 from needtoknow.index.expand import excerpts
@@ -67,8 +70,8 @@ STAGES = ("dense", "sparse", "fused", "reranked")
 # What a served answer holds; never whether the cache answered, the tokens or the price (KB5-K12).
 ANSWERED = ("status", "answer", "citations", "dropped", "error", "model", "stop_reason")
 PREVIEW = 3  # the units of a segment's text a document's outline shows
-# What a served verdict holds of the scorer's result.
-VERDICT = ("category", "correct", "grounded", "leak", "partial", "shown_facts")
+# What a served verdict holds of the scorer's result: nothing that reads text the role may not read (AC-F16).
+VERDICT = ("correct", "grounded", "partial", "shown_facts")
 NO_SESSION = "no session: sign in with POST /session and send its token; a query names no role"
 STOPPED = "the index's server is not running, so nothing reached it: ntk qdrant start"
 
@@ -132,7 +135,8 @@ def verdict(question: str, role: str, answered: dict, items=None, ctx=None, sour
         return None
     ctx = ctx or Context()
     result = score_item(item, answered, ctx, sources or Sources(ctx))
-    return {"item": item["id"], **{key: result[key] for key in VERDICT}}
+    # One verdict for every refusal: E, J and N alike, answered by the answer the role sees and nothing else.
+    return {"item": item["id"], "refusal": item["category"] in REFUSALS, **{key: result[key] for key in VERDICT}}
 
 
 @contextmanager

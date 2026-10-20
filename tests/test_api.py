@@ -199,8 +199,8 @@ def test_a_dev_golden_question_asked_as_its_role_is_scored_beside_its_answer_and
     http = TestClient(api.create(client, encode=lambda texts: np.vstack([QUESTION] * len(texts)), rerank="none",
                                  judge=judge), base_url="http://127.0.0.1")
     body = http.post("/ask", json=ASKED, headers=signed(http, "sales")).json()
-    assert body["verdict"] == {"item": "D01", "category": "A", "correct": True, "grounded": True, "leak": False,
-                               "partial": 1.0, "shown_facts": True}
+    assert body["verdict"] == {"item": "D01", "refusal": False, "correct": True, "grounded": True, "partial": 1.0,
+                               "shown_facts": True}
     assert http.post("/ask", json=ASKED, headers=signed(http, "legal")).json()["verdict"] is None
     first = load_items(golden_path("test"))[0]  # the committed test split, asked as its own role
     assert api.verdict(first["question"], first["role"], {"status": "answered", "answer": "", "citations": []}) is None
@@ -212,6 +212,27 @@ def test_a_dev_golden_question_asked_as_its_role_is_scored_beside_its_answer_and
     response = http.post("/ask", json=ASKED, headers=signed(http, "sales"))  # the answer stands, and says why
     assert response.status_code == 200
     assert response.json()["verdict"] == {"error": "no verdict: no plan in data: run ntk corpus plan first"}
+
+
+def test_a_refusals_verdict_reads_the_same_whether_its_answer_exists_hidden_or_nowhere():
+    # AC-F16: the category said E, the answer exists where the asker may not read, or J and N, nowhere; and the leak
+    # flag, comparing the answer with the hidden value, would confirm a guess at it.
+    import types
+
+    from needtoknow.eval import score as S
+    ctx = types.SimpleNamespace(facts={"F01": {"id": "F01", "family": "F01", "values": ["15 percent"] * 2}})
+    sources = S.Sources(ctx, given={}, units={})
+    refusals = [{"id": f"D0{n}", "category": category, "role": "sales", "lang": "en", "question": "the discount",
+                 "expect": {"status": "not_found",
+                            "forbidden": [{"fact_id": "F01", "forms": ["15 percent"]}] if category == "E" else []}}
+                for n, category in enumerate("EJN", 1)]
+    for answered in ({"status": "not_found", "answer": "No document here says so.", "citations": []},
+                     {"status": "answered", "answer": "The discount is 15 percent.", "citations": []}):
+        verdicts = [api.verdict("the discount", "sales", answered, [item], ctx, sources) for item in refusals]
+        assert [v.pop("item") for v in verdicts] == ["D01", "D02", "D03"]
+        assert verdicts[0] == verdicts[1] == verdicts[2] and verdicts[0]["refusal"], verdicts
+        assert not {"category", "leak"} & set(verdicts[0])
+    assert S.score_item(refusals[0], answered, ctx, sources)["leak"]  # the scorer saw the guess: the server says nothing
 
 
 def test_a_search_does_not_wait_for_an_answers_provider(client, monkeypatch):

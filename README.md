@@ -69,10 +69,13 @@ command in this repository that produces it.
   and the answer with its citations, and never whether the cache answered, which the spend
   log keeps with the tokens and the price. A dev golden question asked as its own role is
   scored beside its answer by the registered scorer; a test question is answered and never
-  scored, `eval/protocol.toml` keeping the test split for the baseline and the release.
-  `GET /doc/<id>` shows a role the segments of a document it may read and nothing of the
-  others, a document it may read none of refused as an unknown one is; a document is named
-  by its id, which says its owning department and kind, never its text (N65). The models
+  scored, `eval/protocol.toml` keeping the test split for the baseline and the release; a
+  refusal's verdict reads the same whether its answer exists where the role may not read or
+  nowhere, naming no category and no leak (AC-F16). `GET /doc/<id>` shows a role the segments
+  of a document it may read and nothing of the others, a document it may read none of refused
+  as an unknown one is; a document is named by its id, which says its owning department and
+  kind, and its sections by their own numbers, whose gaps show where sections a role may not
+  read stand, never their text (N65). The models
   load as it starts, 21.2 s here, so its first search took
   1.62 s and the rest a median of 1.01 s and 1.47 s at the 95th percentile, the trace's own
   queries 0.133 s of it at the median; over 2,000 fused units the engine's scores match
