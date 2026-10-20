@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**197 findings, 171 closed, 26 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**197 findings, 172 closed, 25 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -78,7 +78,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 
 ## `DR`, the deep reviewer
 
-An audit pass on correctness, read in the logic rather than the comments. 35 findings, 33 closed.
+An audit pass on correctness, read in the logic rather than the comments. 35 findings, 34 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -116,7 +116,7 @@ An audit pass on correctness, read in the logic rather than the comments. 35 fin
 | `DR-F32` | medium | fixed, tick 169 | The claims gate counts a record's own head as printed: bench/claims.py reads each record whole, so the digits of the date and time it was recorded pass as output; the README's first search set to 37 s passed against a record made at 23:37: read the records below their --- line, with a test |
 | `DR-F33` | low | fixed, tick 169 | lines.append mends before it appends and cannot tell a stopped write from one in flight: the spend log has three writers and no lock, so two questions ending together could cut one line: mend and append under an operating system lock beside the file, waited on briefly |
 | `DR-F34` | low | fixed, tick 169 | The served answer holds the GPU's lock through the provider's network call, so every search waits behind it with the GPU idle: hold the lock for the search and the excerpts only |
-| `DR-F35` | medium | open | tests/test_watch.py's touch test expects a touch to move the folder's fingerprint of path, size and mtime, which holds only when the clock ticked since the edit just before it: it failed once in the full suite at tick 171 and once in four runs alone, two scan reports expected and one made, the machine's clock and load setting the result (the brief's class): set the touched file's mtime past the edit's with os.utime, and ask whether two same size edits within one tick can slip past the fingerprint and the scan's shortcut alike |
+| `DR-F35` | medium | fixed, tick 174 | tests/test_watch.py's touch test expects a touch to move the folder's fingerprint of path, size and mtime, which holds only when the clock ticked since the edit just before it: it failed once in the full suite at tick 171 and once in four runs alone, two scan reports expected and one made, the machine's clock and load setting the result (the brief's class): set the touched file's mtime past the edit's with os.utime, and ask whether two same size edits within one tick can slip past the fingerprint and the scan's shortcut alike |
 
 ## `OP`, the pipeline operator
 
