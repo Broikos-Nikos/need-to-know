@@ -2,6 +2,7 @@
 and an edit visible in the manifest within a few intervals."""
 
 import json
+import os
 import threading
 import time
 
@@ -110,11 +111,18 @@ def test_the_watcher_reports_a_refused_scan_and_keeps_watching(monkeypatch, tmp_
     assert runs == 2 and "is not there" in reports[0]["error"] and reports[1]["files"] == 1
 
 
+def later(path):
+    """A touch the fingerprint sees whatever the clock: the file's mtime a second past its own. A touch at the clock's
+    time moved nothing when the edit before it fell in the same tick, so the test failed by the machine (DR-F35)."""
+    stat = path.stat()
+    os.utime(path, ns=(stat.st_atime_ns, stat.st_mtime_ns + 1_000_000_000))
+
+
 def test_a_scan_that_changed_a_unit_is_followed_by_a_sync_and_a_touch_is_not(monkeypatch, tmp_path):
     full = make_corpus(monkeypatch, tmp_path)
     synced = []
     steps = Script([edit(full, b"notes", b"logs"), lambda: None, lambda: None,
-                    lambda: (full / "RET_PRO_001.txt").touch(), lambda: None, lambda: None])
+                    lambda: later(full / "RET_PRO_001.txt"), lambda: None, lambda: None])
     reports = []
     watch(full, catch_up=False, stop=steps.stop, sleep=steps.sleep, report=reports.append,
           sync_fn=lambda docs: synced.append(docs) or {"upserted": 1})

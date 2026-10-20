@@ -33,6 +33,8 @@ order, each with its heading path, labels, how many units it holds and its first
 text, and nothing of the others, not their count; a document it may read nothing of is
 refused in the words an unknown one is, so the refusal tells nothing (`specs/architecture.md`
 section 9, step 7). A document is named by its id, which says its owner and kind (N65).
+`GET /stats` answers with what the build holds, as `ntk stats` prints it: the whole
+collection's figures, the same for every role.
 """
 
 from __future__ import annotations
@@ -57,6 +59,7 @@ from needtoknow.eval.score import REFUSALS, Sources, score_item
 from needtoknow.eval.split import SplitError
 from needtoknow.index import server
 from needtoknow.index.expand import excerpts
+from needtoknow.index.footprint import NoBuild, footprint, vectors
 from needtoknow.index.search import QuestionError, search
 from needtoknow.ingest.manifest import opened
 from needtoknow.policy import PolicyError, load_policy, readable
@@ -150,7 +153,7 @@ def refused():
         raise HTTPException(403, str(error)) from None
     except ProviderError as error:
         raise HTTPException(502, str(error)) from None
-    except EmbedError as error:
+    except (EmbedError, NoBuild) as error:
         raise HTTPException(503, str(error)) from None
     except Exception:
         if server.stopped():
@@ -219,6 +222,11 @@ def create(client, *, policy: dict | None = None, encode=None, rerank: str | Non
         if not sections:  # unknown, or nothing of it the role may read: one answer for both
             raise HTTPException(404, f"no document {doc_id[:40]!r}")
         return {"doc_id": doc_id, "sections": sections}
+
+    @app.get("/stats")
+    def figures(role: str = Depends(role_of)) -> dict:
+        with refused():
+            return {**footprint(), "vectors": vectors(client)}
 
     @app.post("/ask")
     def answer(body: Question, role: str = Depends(role_of)) -> dict:

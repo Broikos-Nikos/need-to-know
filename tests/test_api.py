@@ -97,6 +97,16 @@ def test_a_documents_view_holds_the_segments_the_role_may_read_and_nothing_of_th
     assert hidden.json()["detail"] == "no document 'LEG'" and unknown.json()["detail"] == "no document 'NOPE'"
 
 
+def test_stats_are_the_builds_figures_the_same_for_every_role(client):
+    # T6.1h: what ntk stats prints, for the whole collection, behind a session like every other route.
+    http = served(client)
+    assert http.get("/stats").status_code == 401
+    seen = [http.get("/stats", headers=signed(http, role)).json() for role in ("sales", "legal")]
+    assert seen[0] == seen[1]
+    assert (seen[0]["documents"], seen[0]["units"], seen[0]["layers"], seen[0]["vectors"]) == (
+        1, len(UNITS), {"prose": len(UNITS)}, len(UNITS))
+
+
 def test_a_request_addressed_by_another_name_is_refused(client):
     # A page elsewhere whose name resolves to this machine reaches the loopback with that name as its host.
     app = served(client).app
