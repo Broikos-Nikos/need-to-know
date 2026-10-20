@@ -1,0 +1,22 @@
+{
+  "name": "need-to-know",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "The instrument page: a role's question through its filter, both searches, their fusion, the rerank, the excerpts and the answer, live against the local server or replayed from committed runs.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.6",
+    "typescript": "5.9.3",
+    "vite": "8.3.0"
+  },
+  "allowScripts": {
+    "fsevents": true
+  }
+}

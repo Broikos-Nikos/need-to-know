@@ -513,3 +513,20 @@ its token in the address; a poll sends it as every other route does.
 
 **Reverses if.** The manifest keeps a removed unit's labels, when a role's share of a removal
 can be shown; or the page needs changes faster than a poll brings them.
+
+## N67. The page sets every word in faces that draw Greek, and finds its server by an open route
+
+**Call.** The page is set in Manrope and Roboto Mono, subsets of Latin and Greek, and not in
+the house's display face, Teko, which draws no Greek. It is live when the address that
+serves it answers `GET /roles`, the one route that asks no session, as `ntk serve` does
+where it serves the built page beside its routes; anywhere else it replays.
+
+**Evidence.** Half of the corpus and of the golden questions is Greek, and a face whose Greek
+falls back to another face is the house style's own fourth warning for an instrument.
+`tests/test_page.py` holds both files to every character the narrative and the golden
+questions use, and fails on a Manrope cut without Greek. A probe of a route that wants a
+session answers 401, which a browser reports as an error on every load; the open route
+answers 200 live and 404 on a static host, and brings the role names the sign in needs.
+
+**Reverses if.** A display face with Greek and a licence for the web is chosen for the
+house, or the page needs to find a server it is not served by.

@@ -187,11 +187,15 @@ uv run ntk index create
 uv run ntk index sync
 uv run ntk search "How many days does a customer have to return a device?" --as returns
 uv run ntk ask "How many days does a customer have to return a device?" --as returns
+npm ci
+npm run build
 uv run ntk serve
 uv run ntk ingest watch
 ```
 
 * `ntk serve` and `ntk ingest watch` run until stopped, each in a terminal of its own.
+* `npm ci` and `npm run build`, with Node 22 or later, build the page into `web/dist`, which
+  `ntk serve` serves at its own address beside its routes.
 * The build needs a CUDA GPU for the encoder and the Qdrant binary that
   `config/qdrant.toml` pins. `ntk qdrant start` says where to download it, the sha256
   to check and where to unpack it, and writes the server's key into `.env`.

@@ -40,6 +40,10 @@ the documents and how many, keyed by the time it finished. A scan that added non
 is left out whole, so a change to text the role may not read shows as nothing, not even its
 time; the scans' own numbers stay in the server, whose gaps would count those changes; and a
 removal shows as nothing, a removed unit's labels having gone with it (N66).
+
+`GET /roles` names the policy's roles, which the sign in needs and the public policy file
+holds, and asks no session. When the page is built, `web/dist`, it is served at `/` beside
+the routes, so the page's calls stay on one origin.
 """
 
 from __future__ import annotations
@@ -47,6 +51,7 @@ from __future__ import annotations
 import json
 import secrets
 import sqlite3
+from pathlib import Path
 import threading
 import time
 from contextlib import contextmanager
@@ -54,6 +59,7 @@ from contextlib import contextmanager
 from fastapi import Depends, FastAPI, HTTPException, Request
 from pydantic import BaseModel, ConfigDict
 from starlette.middleware.trustedhost import TrustedHostMiddleware
+from starlette.staticfiles import StaticFiles
 
 from needtoknow.answer.pipeline import ask
 from needtoknow.answer.prompt import section_of
@@ -69,6 +75,7 @@ from needtoknow.index.search import QuestionError, search
 from needtoknow.ingest.manifest import opened
 from needtoknow.policy import PolicyError, load_policy, readable
 from needtoknow.providers.call import ProviderError
+from needtoknow.settings import repo_root
 
 HOST = "127.0.0.1"
 NAMES = [HOST, "localhost"]
@@ -203,9 +210,11 @@ def staged(role: str, trace: dict, shown: list[dict], seconds: dict, began: floa
             "units": units, "seconds": {stage: round(value, 4) for stage, value in seconds.items()}}
 
 
-def create(client, *, policy: dict | None = None, encode=None, rerank: str | None = None, judge=verdict) -> FastAPI:
+def create(client, *, policy: dict | None = None, encode=None, rerank: str | None = None, judge=verdict,
+           page: Path | None = None) -> FastAPI:
     """The server's app over the index's client. `policy`, `encode` and `rerank` reach the search as they would from
-    `ntk`: None reads the policy at each query and takes the configured models. `judge` scores an answer."""
+    `ntk`: None reads the policy at each query and takes the configured models. `judge` scores an answer. `page`, the
+    built page's folder, `web/dist` unless given, is served at `/` when it holds one."""
     sessions: dict[str, str] = {}
     lock = threading.Lock()
     app = FastAPI(title="need-to-know", docs_url=None, redoc_url=None)
@@ -251,6 +260,10 @@ def create(client, *, policy: dict | None = None, encode=None, rerank: str | Non
             raise HTTPException(404, f"no document {doc_id[:40]!r}")
         return {"doc_id": doc_id, "sections": sections}
 
+    @app.get("/roles")
+    def roles() -> dict:
+        return {"roles": list((policy or load_policy())["roles"])}
+
     @app.get("/events")
     def feed(after: str = "", role: str = Depends(role_of)) -> dict:
         with refused():
@@ -276,4 +289,7 @@ def create(client, *, policy: dict | None = None, encode=None, rerank: str | Non
             judged = {"error": f"no verdict: {error}"}
         return {**served, "answer": {key: result.get(key) for key in ANSWERED}, "verdict": judged}
 
+    built = page or repo_root() / "web" / "dist"
+    if (built / "index.html").is_file():  # mounted last, so every route above answers before the page's files
+        app.mount("/", StaticFiles(directory=built, html=True), name="page")
     return app

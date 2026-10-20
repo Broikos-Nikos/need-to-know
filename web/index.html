@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      The page talks to nothing but its own origin: live, the local server that serves it beside its routes
+      (`ntk serve`); replayed, the recorded runs that ship with it. No other host is reachable from it.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'"
+    />
+    <title>need-to-know: who may read what</title>
+    <meta
+      name="description"
+      content="A retrieval system over a company's documents in which every section says who may read it. Ask as a department and watch the question pass its filter, both searches, their fusion, the rerank and the answer."
+    />
+    <meta name="theme-color" content="#080604" />
+  </head>
+  <body>
+    <noscript>
+      <p class="noscript">
+        This page draws a question's path through the retrieval system and needs JavaScript. Every figure it shows is
+        in the repository's README, with the command that produces it.
+      </p>
+    </noscript>
+    <header class="masthead">
+      <p class="kicker">need-to-know</p>
+      <h1>Ask as a department. See only what it may read.</h1>
+      <p class="lede">
+        Every section of every document names its audience. A question passes the asking role's filter inside both
+        searches, then their fusion and a rerank, before any text reaches the answer.
+      </p>
+      <p class="mode" id="mode" role="status">Looking for the local server.</p>
+    </header>
+    <main class="instrument" id="instrument" hidden>
+      <form class="ask" id="ask">
+        <label class="field">
+          <span>Role</span>
+          <select id="role" required></select>
+        </label>
+        <label class="field grow">
+          <span>Question</span>
+          <input id="question" required maxlength="4000" autocomplete="off" spellcheck="false" />
+        </label>
+        <button type="submit" id="go">Search</button>
+      </form>
+      <p class="filter" id="filter" hidden></p>
+      <section class="stages" id="stages" aria-label="The search's stages"></section>
+      <section class="excerpts" id="excerpts" aria-label="The excerpts a question would be shown"></section>
+    </main>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

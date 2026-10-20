@@ -131,6 +131,21 @@ def test_stats_are_the_builds_figures_the_same_for_every_role(client):
         1, len(UNITS), {"prose": len(UNITS)}, len(UNITS))
 
 
+def test_the_roles_answer_without_a_session_and_the_built_page_is_served_beside_the_routes(client, tmp_path):
+    # T6.2a: the page signs in by a role's name, so the names come first, from the public policy; the built page is
+    # mounted after every route, which keep answering.
+    page = tmp_path / "dist"
+    page.mkdir()
+    (page / "index.html").write_text("<!doctype html><title>the page</title>", encoding="utf-8")
+    http = TestClient(api.create(client, encode=lambda texts: np.vstack([QUESTION] * len(texts)), rerank="none",
+                                 page=page), base_url="http://127.0.0.1")
+    assert http.get("/roles").json() == {"roles": list(load_policy()["roles"])}
+    assert "the page" in http.get("/").text
+    assert http.post("/search", json=ASKED).status_code == 401  # the routes before the page's files
+    unbuilt = TestClient(api.create(client, page=tmp_path / "unbuilt"), base_url="http://127.0.0.1")
+    assert unbuilt.get("/").status_code == 404 and unbuilt.get("/roles").status_code == 200  # no page, routes still
+
+
 def test_a_request_addressed_by_another_name_is_refused(client):
     # A page elsewhere whose name resolves to this machine reaches the loopback with that name as its host.
     app = served(client).app

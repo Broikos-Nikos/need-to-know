@@ -5,3 +5,13 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+  # package-lock.json, the page's toolchain, pinned exactly as the workspace pins it.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+  # The workflows' actions, which the upload adds (T7.4); covered before they exist, as the workspace's gate asks.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

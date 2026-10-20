@@ -1,0 +1,255 @@
+/*
+ * The house style (the workspace's STYLEGUIDE.md, read off broikos.gr): warm blacks, white text, the flame kept for
+ * the one thing a screen argues about and for focus, never on a data surface, where a cool hue measures instead.
+ * Manrope and Roboto Mono are subsets of Latin and Greek: every character the corpus and the golden questions use
+ * is drawn by both, so no Greek falls back to another face.
+ */
+@font-face {
+  font-family: 'Manrope';
+  src: url('/fonts/manrope-var.woff2') format('woff2-variations');
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Roboto Mono';
+  src: url('/fonts/robotomono-var.woff2') format('woff2-variations');
+  font-weight: 100 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --ink-0: #000000;
+  --ink-1: #080604;
+  --ink-2: #141010;
+  --paper: #ffffff;
+  --dim: #9a8f88;
+  --faint: #8a7f76;
+  --flame-0: #ff8a1f;
+  --flame-1: #ff6a00;
+  --flame-2: #e63c00;
+  --measure: oklch(0.78 0.13 235);
+  --sans: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'Roboto Mono', ui-monospace, 'Cascadia Mono', monospace;
+  --fs-body: clamp(17px, 16px + 0.21vw, 20px);
+  --fs-mono: clamp(14px, 13.4px + 0.05vw, 15px);
+  --wrap: 1240px;
+  --gutter: clamp(1rem, 4vw, 3rem);
+  --ease-arrive: cubic-bezier(0.16, 1, 0.3, 1);
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+::selection {
+  background: var(--flame-1);
+  color: var(--ink-0);
+}
+
+:focus-visible {
+  outline: 2px solid var(--flame-0);
+  outline-offset: 3px;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--ink-1);
+  color: var(--paper);
+  font-family: var(--sans);
+  font-size: var(--fs-body);
+  line-height: 1.55;
+}
+
+.masthead,
+.instrument {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.masthead {
+  padding-top: clamp(2.5rem, 6vh, 4.5rem);
+  padding-bottom: 1.5rem;
+}
+
+.kicker {
+  margin: 0;
+  color: var(--dim);
+  font-family: var(--mono);
+  font-size: var(--fs-mono);
+}
+
+h1 {
+  margin: 0.4rem 0 0.8rem;
+  font-size: clamp(2rem, 1.4rem + 2.6vw, 3.6rem);
+  font-weight: 700;
+  line-height: 1.04;
+  text-wrap: balance;
+}
+
+.lede {
+  max-width: 62ch;
+  margin: 0;
+  color: var(--dim);
+}
+
+.mode {
+  margin: 1.2rem 0 0;
+  font-family: var(--mono);
+  font-size: var(--fs-mono);
+  color: var(--faint);
+}
+
+.ask {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  align-items: end;
+  padding: 1rem;
+  background: var(--ink-2);
+  border-radius: 3px;
+}
+
+.field {
+  display: grid;
+  gap: 0.3rem;
+  color: var(--dim);
+  font-size: 0.85em;
+}
+
+.grow {
+  flex: 1 1 20rem;
+}
+
+select,
+input,
+button {
+  font: inherit;
+  color: var(--paper);
+  background: var(--ink-1);
+  border: 1px solid #3a302a;
+  border-radius: 3px;
+  padding: 0.55rem 0.7rem;
+}
+
+button {
+  background: var(--flame-1);
+  color: var(--ink-0);
+  font-weight: 700;
+  border: 0;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.filter {
+  margin: 1.2rem 0;
+  color: var(--dim);
+}
+
+.stages {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1rem;
+}
+
+.stage h2,
+.excerpts h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.measure {
+  display: block;
+  color: var(--faint);
+  font-weight: 400;
+  font-size: 0.8em;
+}
+
+.hits {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-family: var(--mono);
+  font-size: var(--fs-mono);
+}
+
+.hit {
+  display: grid;
+  grid-template-columns: 2.2em 1fr auto;
+  gap: 0.5em;
+  padding: 0.15rem 0;
+  border-bottom: 1px solid var(--ink-2);
+}
+
+.rank,
+.count {
+  color: var(--faint);
+}
+
+.score {
+  color: var(--measure);
+}
+
+.count {
+  margin: 0.4rem 0 0;
+  font-size: 0.8em;
+}
+
+.excerpts {
+  margin: 2rem 0 4rem;
+}
+
+.excerpt {
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.8rem;
+  background: var(--ink-2);
+  border-radius: 3px;
+}
+
+.where,
+.labels {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: var(--fs-mono);
+  color: var(--dim);
+}
+
+.text {
+  margin: 0.5rem 0 0;
+  white-space: pre-wrap;
+}
+
+.error {
+  color: var(--flame-0);
+}
+
+.noscript {
+  max-width: var(--wrap);
+  margin: 2rem auto;
+  padding: 0 var(--gutter);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

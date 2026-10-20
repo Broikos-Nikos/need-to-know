@@ -49,6 +49,8 @@ testpaths = ["tests"]
 
 [dependency-groups]
 dev = [
-    "httpx>=0.28.1",
+    "brotli>=1.2.0",
+    "fonttools>=4.67.0",
+    "httpx2>=2.13.1",
     "pytest>=9.1.1",
 ]
