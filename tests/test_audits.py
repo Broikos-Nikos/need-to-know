@@ -8,6 +8,7 @@ import pytest
 from needtoknow.settings import repo_root
 
 FINDING = re.compile(r"\b[A-Z]{1,6}\d?-[FK]\d+\b")
+BINARY = {".woff2", ".png", ".gif", ".webp", ".jpg"}  # files that hold no text, and so cite nothing
 
 
 def git(*args: str) -> str:
@@ -22,9 +23,17 @@ def test_every_cited_finding_id_has_a_row_in_docs_audits():
     listed = set(re.findall(r"^\| `([A-Za-z0-9-]+)`", (root / "docs" / "AUDITS.md").read_text(encoding="utf-8"), re.M))
     cited: dict[str, str] = {}
     for name in git("ls-files").splitlines():
-        if name in ("docs/AUDITS.md", "uv.lock") or not (root / name).is_file():
+        # The samples are corpus documents, some in the legacy encodings their metadata names, and cite nothing.
+        if name in ("docs/AUDITS.md", "uv.lock") or name.startswith("samples/") or not (root / name).is_file():
             continue
-        for fid in FINDING.findall((root / name).read_bytes().decode("utf-8", errors="ignore")):
+        try:
+            text = (root / name).read_bytes().decode("utf-8")
+        except UnicodeDecodeError:
+            text = None
+        if text is None:  # a font's bytes read as text could cite findings at random (tick 178)
+            assert (root / name).suffix in BINARY, f"{name} is neither UTF-8 text nor a file that holds none"
+            continue
+        for fid in FINDING.findall(text):
             cited.setdefault(fid, name)
     for fid in FINDING.findall(git("log", "--format=%B")):
         cited.setdefault(fid, "the commit log")

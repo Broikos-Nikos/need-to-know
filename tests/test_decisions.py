@@ -10,6 +10,7 @@ from needtoknow.settings import repo_root
 
 DECISION = re.compile(r"[N][0-9]{1,3}(?![0-9])")
 WORD = re.compile(r"(?<![A-Za-z0-9_-])" + DECISION.pattern)
+BINARY = {".woff2", ".png", ".gif", ".webp", ".jpg"}  # files that hold no text, and so cite nothing
 
 
 def git(*args: str) -> str:
@@ -27,9 +28,17 @@ def test_every_cited_decision_has_an_entry_in_docs_decisions():
     for name in git("ls-files").splitlines():
         if name in ("docs/DECISIONS.md", "uv.lock") or name.startswith(("narrative/", "samples/")):
             continue
-        if (root / name).is_file():
-            for found in WORD.findall((root / name).read_bytes().decode("utf-8", errors="ignore")):
-                cited.setdefault(found, name)
+        if not (root / name).is_file():
+            continue
+        try:
+            text = (root / name).read_bytes().decode("utf-8")
+        except UnicodeDecodeError:
+            text = None
+        if text is None:  # a font's bytes read as text cited decisions at random (tick 178)
+            assert (root / name).suffix in BINARY, f"{name} is neither UTF-8 text nor a file that holds none"
+            continue
+        for found in WORD.findall(text):
+            cited.setdefault(found, name)
     for found in WORD.findall(git("log", "--format=%B")):
         cited.setdefault(found, "the commit log")
     missing = {decision: where for decision, where in cited.items() if decision not in listed}
