@@ -263,6 +263,25 @@ def test_a_dev_golden_question_asked_as_its_role_is_scored_beside_its_answer_and
     assert response.json()["verdict"] == {"error": "no verdict: no plan in data: run ntk corpus plan first"}
 
 
+def test_the_page_names_every_step_the_server_times_and_draws_the_stages_in_its_order(client, monkeypatch):
+    # T6.2b: the page's stage map, web/src/stages.json, names each step a trace's seconds hold, so none of them goes
+    # unshown, and gives each to one stage at most; the steps no stage owns are the view's own, shown as such.
+    from needtoknow.answer import pipeline
+    from needtoknow.settings import repo_root
+    monkeypatch.setitem(pipeline.ADAPTERS, "deepseek", echoing)
+    monkeypatch.setattr(pipeline, "warm", lambda encode=None, rerank=None: 0.0)
+    plan = json.loads((repo_root() / "web" / "src" / "stages.json").read_text(encoding="utf-8"))
+    http = served(client)
+    headers = signed(http, "sales")
+    searched = set(http.post("/search", json=ASKED, headers=headers).json()["seconds"]) - {"total"}
+    asked = set(http.post("/ask", json=ASKED, headers=headers).json()["seconds"]) - {"total"}
+    assert set(plan["seconds"]) == asked and searched < asked, (set(plan["seconds"]) ^ asked, searched - asked)
+    owned = [step for stage in plan["stages"] for step in stage["timed"]]
+    assert len(owned) == len(set(owned)) and set(owned) <= asked
+    assert {"verdict"} <= set(owned)  # the scoring timed with the rest
+    assert [stage["key"] for stage in plan["stages"]] == ["filter", *api.STAGES, "excerpts", "answer", "verdict"]
+
+
 def test_a_refusals_verdict_reads_the_same_whether_its_answer_exists_hidden_or_nowhere():
     # AC-F16: the category said E, the answer exists where the asker may not read, or J and N, nowhere; and the leak
     # flag, comparing the answer with the hidden value, would confirm a guess at it.

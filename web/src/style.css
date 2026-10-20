@@ -111,7 +111,7 @@ h1 {
   color: var(--faint);
 }
 
-.ask {
+.query {
   display: flex;
   flex-wrap: wrap;
   gap: 0.8rem;
@@ -133,7 +133,7 @@ h1 {
 }
 
 select,
-input,
+input:not([type='checkbox']),
 button {
   font: inherit;
   color: var(--paper);
@@ -141,6 +141,11 @@ button {
   border: 1px solid #3a302a;
   border-radius: 3px;
   padding: 0.55rem 0.7rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
 }
 
 button {
@@ -151,34 +156,175 @@ button {
   cursor: pointer;
 }
 
+button.second {
+  background: var(--ink-1);
+  color: var(--paper);
+  border: 1px solid #3a302a;
+}
+
 button:disabled {
   opacity: 0.6;
   cursor: progress;
 }
 
-.filter {
-  margin: 1.2rem 0;
+.check {
+  display: flex;
+  gap: 0.45rem;
+  align-items: center;
+  padding: 0.55rem 0;
+  color: var(--dim);
+  font-size: 0.85em;
+  cursor: pointer;
+}
+
+.check input {
+  width: 1.05rem;
+  height: 1.05rem;
+  margin: 0;
+  accent-color: var(--measure);
+}
+
+.note {
+  max-width: 72ch;
+  margin: 0.8rem 0 0;
+  color: var(--faint);
+  font-size: 0.85em;
+}
+
+.state {
+  min-height: 1.55em;
+  margin: 1rem 0 0.8rem;
+  font-family: var(--mono);
+  font-size: var(--fs-mono);
   color: var(--dim);
 }
 
-.stages {
+.error,
+.state.error {
+  color: var(--flame-0);
+}
+
+/* The trace: where the seconds went, then the stages in the order the server ran them. */
+.trace {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 1rem;
+  margin-bottom: 4rem;
+}
+
+.strip {
+  position: relative;
+  height: 0.6rem;
+  background: var(--ink-2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.piece {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--measure);
+  box-shadow: inset -1px 0 0 var(--ink-1);
+  transition: opacity 300ms var(--ease-arrive);
+}
+
+.piece.own {
+  background: var(--faint);
+}
+
+.piece.waiting {
+  opacity: 0;
+}
+
+.caption {
+  margin: -0.5rem 0 0;
+  font-family: var(--mono);
+  font-size: var(--fs-mono);
+  color: var(--dim);
+}
+
+.searches,
+.outcome {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
   gap: 1rem;
 }
 
-.stage h2,
-.excerpts h2 {
-  margin: 0 0 0.5rem;
-  font-size: 1rem;
-  font-weight: 700;
+.card {
+  min-width: 0;
+  padding: 0.9rem 1rem 1rem;
+  background: var(--ink-2);
+  border-radius: 3px;
+  box-shadow: inset 3px 0 0 transparent;
+  transition: box-shadow 300ms var(--ease-arrive);
 }
 
-.measure {
-  display: block;
+/* A stage still to play keeps its place, so the page does not move under the reader as the stages arrive. */
+.card.waiting {
+  visibility: hidden;
+}
+
+/* The stage playing is the one thing on the screen being argued about. */
+.card.now {
+  box-shadow: inset 3px 0 0 var(--flame-1);
+}
+
+/* The four searches share their rows, so a rank reads across the columns at one height. */
+.searches .card {
+  display: grid;
+  grid-row: span 4;
+  grid-template-rows: subgrid;
+  row-gap: 0;
+}
+
+.head {
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+}
+
+.step {
+  font-family: var(--mono);
+  font-size: var(--fs-mono);
   color: var(--faint);
-  font-weight: 400;
-  font-size: 0.8em;
+}
+
+.card h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.says {
+  margin: 0.25rem 0 0;
+  color: var(--dim);
+  font-size: 0.85em;
+}
+
+.took {
+  margin: 0.25rem 0 0;
+  font-family: var(--mono);
+  font-size: var(--fs-mono);
+  color: var(--measure);
+}
+
+.took:empty {
+  margin: 0;
+}
+
+.body {
+  margin-top: 0.7rem;
+}
+
+.reads,
+.counted {
+  margin: 0;
+}
+
+.label {
+  font-family: var(--mono);
+  font-size: var(--fs-mono);
 }
 
 .hits {
@@ -191,35 +337,62 @@ button:disabled {
 
 .hit {
   display: grid;
-  grid-template-columns: 2.2em 1fr auto;
+  grid-template-columns: 2.2em minmax(0, 1fr) auto;
   gap: 0.5em;
-  padding: 0.15rem 0;
-  border-bottom: 1px solid var(--ink-2);
+  width: 100%;
+  padding: 0.2rem 0.35rem;
+  font: inherit;
+  font-weight: 400;
+  text-align: left;
+  color: var(--paper);
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--ink-1);
+  border-radius: 0;
 }
 
-.rank,
-.count {
+.hit.same {
+  background: color-mix(in oklch, var(--measure) 22%, transparent);
+}
+
+.hit[aria-pressed='true'] {
+  box-shadow: inset 0 0 0 1px var(--measure);
+}
+
+.rank {
   color: var(--faint);
+}
+
+.doc {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .score {
   color: var(--measure);
 }
 
-.count {
-  margin: 0.4rem 0 0;
+.minor {
+  margin: 0.5rem 0 0;
+  color: var(--faint);
   font-size: 0.8em;
 }
 
-.excerpts {
-  margin: 2rem 0 4rem;
+.excerpt {
+  margin-top: 0.7rem;
+  padding: 0.7rem 0.9rem;
+  background: var(--ink-1);
+  border-radius: 3px;
+  box-shadow: inset 2px 0 0 transparent;
 }
 
-.excerpt {
-  padding: 0.8rem 1rem;
-  margin-bottom: 0.8rem;
-  background: var(--ink-2);
-  border-radius: 3px;
+.body > .excerpt:first-child {
+  margin-top: 0;
+}
+
+.excerpt.same {
+  box-shadow: inset 2px 0 0 var(--measure);
 }
 
 .where,
@@ -228,15 +401,84 @@ button:disabled {
   font-family: var(--mono);
   font-size: var(--fs-mono);
   color: var(--dim);
+  overflow-wrap: anywhere;
 }
 
-.text {
+.text,
+.said {
   margin: 0.5rem 0 0;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
-.error {
-  color: var(--flame-0);
+.said {
+  margin-top: 0;
+}
+
+.text.clamped {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  overflow: hidden;
+}
+
+.more {
+  margin: 0.35rem 0 0;
+  padding: 0;
+  font: inherit;
+  font-size: 0.8em;
+  font-weight: 400;
+  color: var(--dim);
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.tag {
+  margin: 0.4rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.8em;
+  color: var(--measure);
+}
+
+.cites {
+  margin: 0.3rem 0 0;
+  padding-left: 1.2rem;
+  font-family: var(--mono);
+  font-size: var(--fs-mono);
+  color: var(--dim);
+  overflow-wrap: anywhere;
+}
+
+.scored {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.3rem 1rem;
+  margin: 0;
+}
+
+.scored dt {
+  color: var(--dim);
+}
+
+.scored dd {
+  margin: 0;
+}
+
+/* In slow motion a stage's rows arrive in their order as its turn comes. */
+.slow .card:not(.waiting) .hits li,
+.slow .card:not(.waiting) .excerpt {
+  animation: arrive 420ms var(--ease-arrive) both;
+  animation-delay: calc(var(--i, 0) * 45ms);
+}
+
+@keyframes arrive {
+  from {
+    opacity: 0;
+    transform: translateY(0.35rem);
+  }
 }
 
 .noscript {
@@ -250,6 +492,8 @@ button:disabled {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0s !important;
   }
 }

@@ -195,7 +195,9 @@ uv run ntk ingest watch
 
 * `ntk serve` and `ntk ingest watch` run until stopped, each in a terminal of its own.
 * `npm ci` and `npm run build`, with Node 22 or later, build the page into `web/dist`, which
-  `ntk serve` serves at its own address beside its routes.
+  `ntk serve` serves at its own address beside its routes. There a role searches, or asks and
+  is answered and scored, and each stage of the trace shows with its seconds on the server;
+  slow motion plays the trace one stage at a time, and with reduced motion set nothing moves.
 * The build needs a CUDA GPU for the encoder and the Qdrant binary that
   `config/qdrant.toml` pins. `ntk qdrant start` says where to download it, the sha256
   to check and where to unpack it, and writes the server's key into `.env`.

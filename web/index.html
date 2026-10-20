@@ -17,6 +17,7 @@
       content="A retrieval system over a company's documents in which every section says who may read it. Ask as a department and watch the question pass its filter, both searches, their fusion, the rerank and the answer."
     />
     <meta name="theme-color" content="#080604" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body>
     <noscript>
@@ -35,7 +36,7 @@
       <p class="mode" id="mode" role="status">Looking for the local server.</p>
     </header>
     <main class="instrument" id="instrument" hidden>
-      <form class="ask" id="ask">
+      <form class="query" id="query">
         <label class="field">
           <span>Role</span>
           <select id="role" required></select>
@@ -44,11 +45,22 @@
           <span>Question</span>
           <input id="question" required maxlength="4000" autocomplete="off" spellcheck="false" />
         </label>
-        <button type="submit" id="go">Search</button>
+        <div class="actions">
+          <button type="submit" value="search">Search</button>
+          <button type="submit" value="ask" class="second">Ask</button>
+        </div>
+        <label class="check">
+          <input type="checkbox" id="slow" />
+          <span>Slow motion</span>
+        </label>
       </form>
-      <p class="filter" id="filter" hidden></p>
-      <section class="stages" id="stages" aria-label="The search's stages"></section>
-      <section class="excerpts" id="excerpts" aria-label="The excerpts a question would be shown"></section>
+      <p class="note">
+        Search runs the retrieval alone. Ask sends its excerpts to the model as well, and scores the answer when the
+        question is a dev golden question asked as its own role. Slow motion plays the trace one stage at a time; with
+        reduced motion set, nothing moves.
+      </p>
+      <p class="state" id="state" role="status"></p>
+      <section class="trace" id="trace" aria-label="The question’s stages"></section>
     </main>
     <script type="module" src="./src/main.ts"></script>
   </body>

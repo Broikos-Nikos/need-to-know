@@ -1,0 +1,65 @@
+{
+  "stages": [
+    {
+      "key": "filter",
+      "title": "Filter",
+      "says": "The role’s labels, which the engine applies inside both searches. Of the units they hold back, only the count leaves the server.",
+      "timed": []
+    },
+    {
+      "key": "dense",
+      "title": "Dense",
+      "says": "Cosine between the question’s vector and every vector the filter passes.",
+      "timed": ["encode"]
+    },
+    {
+      "key": "sparse",
+      "title": "Lexical",
+      "says": "BM25, its weights counted over the role’s own view of the corpus.",
+      "timed": ["weights"]
+    },
+    {
+      "key": "fused",
+      "title": "Fused",
+      "says": "Reciprocal rank fusion of both lists, in the searches’ own round trip to the engine.",
+      "timed": ["fusion", "manifest"]
+    },
+    {
+      "key": "reranked",
+      "title": "Reranked",
+      "says": "A cross encoder reads the question with each fused unit.",
+      "timed": ["rerank"]
+    },
+    {
+      "key": "excerpts",
+      "title": "Excerpts",
+      "says": "The first units joined with their neighbours: what the model is shown.",
+      "timed": ["expand"]
+    },
+    {
+      "key": "answer",
+      "title": "Answer",
+      "says": "The model’s reply, read for its answer and its citations.",
+      "timed": ["provider", "parse"]
+    },
+    {
+      "key": "verdict",
+      "title": "Verdict",
+      "says": "The registered scorer, for a dev golden question asked as its own role.",
+      "timed": ["verdict"]
+    }
+  ],
+  "seconds": {
+    "encode": "the question’s vector",
+    "weights": "its lexical weights",
+    "fusion": "both searches and their fusion",
+    "manifest": "the manifest’s check",
+    "trace": "this view’s counts and lists",
+    "rerank": "the rerank",
+    "expand": "the excerpts",
+    "provider": "the model",
+    "parse": "its reply read",
+    "verdict": "the verdict",
+    "texts": "this view’s texts"
+  }
+}

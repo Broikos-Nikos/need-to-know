@@ -22,11 +22,12 @@ answers with the same trace, the excerpts as they were sent, and the answer with
 citations; whether the cache answered, and the call's tokens and price, stay in the spend
 log, the operator's, since they would tell a role that someone asked the same (KB5-K12). A
 dev golden question asked as its own role is scored beside its answer by the registered
-scorer; `eval/protocol.toml` registers the test split for the baseline and the release
-alone, so a test question is answered here and never scored. The verdict names no category
-and, for a refusal, no leak: the category says whether a refused answer exists where the role
-may not read, E, or nowhere, J and N, and the leak flag compares the answer with the hidden
-values themselves, so either would tell a role what its refusal is worded to hide (AC-F16).
+scorer, its seconds among the stages'; `eval/protocol.toml` registers the test split for
+the baseline and the release alone, so a test question is answered here and never scored.
+The verdict names no category and, for a refusal, no leak: the category says whether a
+refused answer exists where the role may not read, E, or nowhere, J and N, and the leak
+flag compares the answer with the hidden values themselves, so either would tell a role
+what its refusal is worded to hide (AC-F16).
 
 `GET /doc/<id>` is the role's view of a document: the segments it may read, in document
 order, each with its heading path, labels, how many units it holds and its first units'
@@ -281,12 +282,14 @@ def create(client, *, policy: dict | None = None, encode=None, rerank: str | Non
         with refused():  # the lock is the GPU's, held for the search alone, not the provider's call (DR-F34)
             result = ask(client, body.question, role, policy, encode=encode, rerank=rerank, trace=trace, hold=lock)
         taken = result["seconds"]
-        served = staged(role, trace, trace["shown"], {**trace["seconds"], "expand": taken["expand"],
-                                                      "provider": taken["provider"], "parse": taken["parse"]}, began)
+        clock = time.perf_counter()
         try:
             judged = judge(body.question, role, result)
         except (GoldenError, ProtocolError, SplitError, OSError, sqlite3.Error) as error:  # the answer stands
             judged = {"error": f"no verdict: {error}"}
+        served = staged(role, trace, trace["shown"], {**trace["seconds"], "expand": taken["expand"],
+                                                      "provider": taken["provider"], "parse": taken["parse"],
+                                                      "verdict": time.perf_counter() - clock}, began)
         return {**served, "answer": {key: result.get(key) for key in ANSWERED}, "verdict": judged}
 
     built = page or repo_root() / "web" / "dist"
