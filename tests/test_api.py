@@ -97,6 +97,30 @@ def test_a_documents_view_holds_the_segments_the_role_may_read_and_nothing_of_th
     assert hidden.json()["detail"] == "no document 'LEG'" and unknown.json()["detail"] == "no document 'NOPE'"
 
 
+def test_the_change_feed_shows_a_role_only_what_it_may_read_and_nothing_of_the_rest(client):
+    # T6.1j: a scan that added only text the role may not read, a removal and an unfinished scan show as nothing,
+    # and no scan's number is served, whose gaps would count them.
+    from needtoknow.ingest.manifest import opened
+    at = {run: f"2026-10-20T10:{5 * (run - 1):02d}:00+00:00" for run in range(1, 6)}
+    with opened() as db:
+        db.executemany("INSERT INTO runs (run_id, kind, started, finished) VALUES (?, 'scan', ?, ?)",
+                       [(run, at[run], None if run == 5 else at[run]) for run in range(1, 6)])
+        db.executemany("INSERT INTO changes VALUES (?, 'DOC', 'changed', ?, ?)",
+                       [(1, len(UNITS), 0), (2, 1, 0), (3, 1, 0), (4, 0, 1), (5, 1, 0)])
+        db.executemany("INSERT INTO units VALUES (?, 'DOC', 'key', 'prose', ?, ?, ?, 0, 1, 'en', ?)",
+                       [("secret50", json.dumps(["legal"]), json.dumps(["Policy"]), "A later note.", 2),
+                        ("open2", json.dumps(["general"]), json.dumps(["Policy"]), "Shops close at six.", 3),
+                        ("sales2", json.dumps(["sales"]), json.dumps(["Policy"]), "Not yet scanned.", 5)])
+    http = served(client)
+    assert http.get("/events").status_code == 401
+    sales, legal = signed(http, "sales"), signed(http, "legal")
+    assert http.get("/events", headers=sales).json() == {"events": [
+        {"at": at[1], "documents": [{"doc_id": "DOC", "units": 2}]}, {"at": at[3], "documents": [{"doc_id": "DOC", "units": 1}]}]}
+    assert [e["documents"][0]["units"] for e in http.get("/events", headers=legal).json()["events"]] == [51, 1, 1]
+    assert http.get("/events", params={"after": at[1]}, headers=sales).json()["events"] == [
+        {"at": at[3], "documents": [{"doc_id": "DOC", "units": 1}]}]
+
+
 def test_stats_are_the_builds_figures_the_same_for_every_role(client):
     # T6.1h: what ntk stats prints, for the whole collection, behind a session like every other route.
     http = served(client)

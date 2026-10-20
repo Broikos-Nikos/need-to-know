@@ -496,3 +496,20 @@ audiences, so a role reading sections 1, 8, 10 and 12 of a document learns from 
 may read that the others exist and are someone else's. The numbers are the documents' own
 text, as the ids are their addresses, and stay; a deployment whose section counts were
 sensitive would number sections within each audience.
+
+## N66. The change feed is polled, keyed by time, and shows only what a role may read
+
+**Call.** `GET /events?after=<time>` answers a session's role with the finished scans after
+that time that added units it may read, each with the documents and how many, keyed by the
+time the scan finished. A scan that added none is left out whole, a scan's own number is
+never served, and a removal shows as nothing. The page asks it again every few seconds.
+
+**Evidence.** A scan's units are the manifest's rows of its run, with their labels; a
+removed unit leaves no row, so no role's share of a removal can be told, and none is shown.
+The scans are numbered across every audience, so a role seeing scans 120 and 123 would learn
+that two changes it may not see happened between: the time it finished stands in for the
+number. A browser's `EventSource` cannot send the session's header, so a stream would carry
+its token in the address; a poll sends it as every other route does.
+
+**Reverses if.** The manifest keeps a removed unit's labels, when a role's share of a removal
+can be shown; or the page needs changes faster than a poll brings them.

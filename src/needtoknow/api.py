@@ -34,7 +34,12 @@ text, and nothing of the others, not their count; a document it may read nothing
 refused in the words an unknown one is, so the refusal tells nothing (`specs/architecture.md`
 section 9, step 7). A document is named by its id, which says its owner and kind (N65).
 `GET /stats` answers with what the build holds, as `ntk stats` prints it: the whole
-collection's figures, the same for every role.
+collection's figures, the same for every role. `GET /events?after=<time>` is the watcher's
+change feed as the role may see it: each finished scan that added units it may read, with
+the documents and how many, keyed by the time it finished. A scan that added none of them
+is left out whole, so a change to text the role may not read shows as nothing, not even its
+time; the scans' own numbers stay in the server, whose gaps would count those changes; and a
+removal shows as nothing, a removed unit's labels having gone with it (N66).
 """
 
 from __future__ import annotations
@@ -73,6 +78,7 @@ STAGES = ("dense", "sparse", "fused", "reranked")
 # What a served answer holds; never whether the cache answered, the tokens or the price (KB5-K12).
 ANSWERED = ("status", "answer", "citations", "dropped", "error", "model", "stop_reason")
 PREVIEW = 3  # the units of a segment's text a document's outline shows
+EVENTS = 50  # the latest events a feed answers with
 # What a served verdict holds of the scorer's result: nothing that reads text the role may not read (AC-F16).
 VERDICT = ("correct", "grounded", "partial", "shown_facts")
 NO_SESSION = "no session: sign in with POST /session and send its token; a query names no role"
@@ -123,6 +129,28 @@ def outline(doc_id: str, reads: frozenset[str]) -> list[dict]:
         if len(segment["preview"]) < PREVIEW:
             segment["preview"].append(text)
     return list(segments.values())
+
+
+def events(after: str, reads: frozenset[str], limit: int = EVENTS) -> list[dict]:
+    """The watcher's finished scans after the time `after`, each as the documents where it added units a reader of
+    `reads` may read, and how many; a scan that added none is left out. The units a scan added are the manifest's rows
+    of its run, read through the documents it changed, by the index on them."""
+    found = []
+    with opened() as db:
+        runs = db.execute("SELECT run_id, finished FROM runs WHERE finished IS NOT NULL AND finished > ? "
+                          "ORDER BY finished, run_id", (after,)).fetchall()
+        for run_id, finished in runs:
+            documents = []
+            for (doc_id,) in db.execute("SELECT DISTINCT doc_id FROM changes WHERE run_id = ? ORDER BY doc_id",
+                                        (run_id,)).fetchall():
+                units = sum(count for labels, count in db.execute(
+                    "SELECT labels, COUNT(*) FROM units WHERE doc_id = ? AND run_id = ? GROUP BY labels",
+                    (doc_id, run_id)) if set(json.loads(labels)) & reads)
+                if units:
+                    documents.append({"doc_id": doc_id, "units": units})
+            if documents:
+                found.append({"at": finished, "documents": documents})
+    return found[-limit:]
 
 
 def verdict(question: str, role: str, answered: dict, items=None, ctx=None, sources=None) -> dict | None:
@@ -222,6 +250,11 @@ def create(client, *, policy: dict | None = None, encode=None, rerank: str | Non
         if not sections:  # unknown, or nothing of it the role may read: one answer for both
             raise HTTPException(404, f"no document {doc_id[:40]!r}")
         return {"doc_id": doc_id, "sections": sections}
+
+    @app.get("/events")
+    def feed(after: str = "", role: str = Depends(role_of)) -> dict:
+        with refused():
+            return {"events": events(after, readable(policy or load_policy(), role))}
 
     @app.get("/stats")
     def figures(role: str = Depends(role_of)) -> dict:

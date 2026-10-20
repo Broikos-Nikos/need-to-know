@@ -76,7 +76,10 @@ command in this repository that produces it.
   as an unknown one is; a document is named by its id, which says its owning department and
   kind, and its sections by their own numbers, whose gaps show where sections a role may not
   read stand, never their text (N65). `GET /stats` answers with the build's figures as `ntk
-  stats` prints them, the same for every role. The models
+  stats` prints them, the same for every role, and `GET /events` with the watcher's changes as
+  the role may see them: a scan shows only for the units it added that the role may read,
+  keyed by the time it finished, and a change to text the role may not read shows as nothing,
+  not even its time (N66). The models
   load as it starts, 21.2 s here, so its first search took
   1.62 s and the rest a median of 1.01 s and 1.47 s at the 95th percentile, the trace's own
   queries 0.133 s of it at the median; over 2,000 fused units the engine's scores match
