@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**246 findings, 217 closed, 29 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
+**247 findings, 217 closed, 30 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -278,7 +278,7 @@ An audit pass of ten seconds on the first screen, by someone who hires but does 
 
 ## `PF`, the performance auditor
 
-An audit pass on time, memory and disk, its page half waiting for the page. 13 findings, 11 closed.
+An audit pass on time, memory and disk, its page half waiting for the page. 14 findings, 11 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -295,6 +295,7 @@ An audit pass on time, memory and disk, its page half waiting for the page. 13 f
 | `PF-F11` | medium | fixed, tick 192 | The change feed's empty poll costs the server 0.46 to 0.74 s every five seconds for each open page, reading again every scan since the role's last visible one, and grows with each scan the role cannot see; the whole feed 1.7 to 1.9 s warm, 4.9 s cold: one grouped query on an index of units by run, and the session's place kept on the server |
 | `PF-F12` | low | fixed, tick 192 | GET /stats walks the index's folder at every load, 0.48 to 0.55 s warm and 2.7 s at the day's first load: keep the footprint of the last sync, or cache it, and say its time |
 | `PF-F13` | low | fixed, tick 192 | The replay fetches all 27 traces, 1.1 MB in their provisional form, before anything is picked: a small index for the pickers, a file per question fetched at its first replay |
+| `PF-F14` | low | open | The feed says on its origin line that the local server stopped answering, and the line is no live region, so a screen reader is never told: role status on it, the line rewritten only when its words change |
 
 ## `DE`, the design eye
 
