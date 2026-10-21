@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**231 findings, 206 closed, 25 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**231 findings, 208 closed, 23 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -228,7 +228,7 @@ An audit pass of three minutes, on whether the author ships, measures and says s
 
 ## `AC`, the access control red team
 
-An audit pass that tried to make restricted text readable by the wrong role. 19 findings, 16 closed.
+An audit pass that tried to make restricted text readable by the wrong role. 19 findings, 18 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -249,8 +249,8 @@ An audit pass that tried to make restricted text readable by the wrong role. 19 
 | `AC-F15` | low | fixed, tick 187 | ntk eval canaries over an empty data folder prints zeros and exits 0, as after a clean scan of hundreds of answers, so in CI, where the spec means it to run, it passes on nothing: say there was nothing to scan, exit 1 where a run should have left answers, and give it the page's data at P6 Measured by tests/test_canaries.py. |
 | `AC-F16` | high | fixed, tick 173 | The served verdict tells a role whether its refused answer exists: POST /ask returns the item's category, E for an answer that exists only where the asker may not read, J and N for one that exists nowhere, so customer-care asking D003 is told E beside a refusal worded like absence (section 9, step 7): a refusal's verdict says only refusal, correct and leak, the same for E, J and N, with a test that their verdicts differ in the item's id alone |
 | `AC-F17` | low | fixed, tick 173 | A role's view of a document counts the sections it may not read by their numbers: returns reads SAL_CIR_017's sections 1, 8, 10 and 12, the corpus numbering sections across audiences: record it as the documents' own text, as N65 records the ids, in N65 and the README |
-| `AC-F18` | medium | open | The document view's time counts the units a role may not read: outline reads every unit of the document before dropping the segments the role may not, so as hr the time follows the units kept back, 7.55 us each, and estimates them to within 380 at the median: read only the role's segments |
-| `AC-F19` | high | open | The change feed's time tells a role when a scan it cannot see finished: scanned reads every scan after the place before dropping those the role cannot see, so hr, every reply empty, found scan 172's finish to the second in 16 probes, against the README's not even its time (N66): read only the scans the role can see |
+| `AC-F18` | medium | fixed, tick 211 | The document view's time counts the units a role may not read: outline reads every unit of the document before dropping the segments the role may not, so as hr the time follows the units kept back, 7.55 us each, and estimates them to within 380 at the median: read only the role's segments |
+| `AC-F19` | high | fixed, tick 211 | The change feed's time tells a role when a scan it cannot see finished: scanned reads every scan after the place before dropping those the role cannot see, so hr, every reply empty, found scan 172's finish to the second in 16 probes, against the README's not even its time (N66): read only the scans the role can see |
 
 ## `RC`, the recruiter
 
