@@ -138,9 +138,10 @@ real; the cost it stood for is not. With the table units set aside from the same
 recall@1 is the same for every role, and recall@10 moves from 0.964 to 0.969, and from
 0.918 to 0.943 for admin (`bench/probe_recall.py`). The annexes stay as written.
 
-**Measured again, 2026-10-18,** after ties came to be ordered by unit id: the table units
-take 13.0 percent of the top 10 and 15.7 of the shown excerpts' units for each probe's
-narrowest reader, 18.5 and 24.6 for admin, and every recall above is as it was
+**Measured again, 2026-10-21,** after ties came to be ordered by unit id and each planted
+value of one took its unit in the singular: the table units take 13.1 percent of the top 10
+and 15.8 of the shown excerpts' units for each probe's narrowest reader, 18.8 and 24.9 for
+admin, and every recall above is as it was
 (`bench/probe_recall.py`, recorded in `docs/claims/`).
 
 **Reverses if.** Table units cost what their share stood for: recall with them set aside

@@ -38,8 +38,8 @@ command in this repository that produces it.
 * The full build, from the assembled corpus to a searchable index, runs phase by
   phase with the memory and disk each needs, 4912 s here, 3620 of them embedding on
   the GPU: `uv run python bench/full_build.py --fresh`. It holds 160
-  documents of 314,698,575 bytes, cut into 501,031 units and as many vectors, the index
-  taking 3,948,030,510 bytes of disk: `uv run ntk stats`.
+  documents of 314,698,549 bytes, cut into 501,031 units and as many vectors, the index
+  taking 3,948,042,658 bytes of disk: `uv run ntk stats`.
 * Every unit is embedded as its passage, its heading path above its text, and kept
   in a cache under that passage, so a second run, a relabel or a rebuilt index
   embeds nothing again; a passage longer than the model takes is refused, never
@@ -141,8 +141,8 @@ command in this repository that produces it.
   Asked by the narrowest role that may read each, the dev probes find a gold unit in the
   top 10 for 0.964 of the 194: 1.000 when the question is in its documents' language and
   0.915 across languages, where the first hit is right half as often, 0.500 against 0.973.
-  Table rows, the padding that makes up most units, take 13.0 percent of that top 10 and
-  15.7 percent of the excerpts' units shown, and setting them aside changes recall@1 for no
+  Table rows, the padding that makes up most units, take 13.1 percent of that top 10 and
+  15.8 percent of the excerpts' units shown, and setting them aside changes recall@1 for no
   role (N43). An upper bound, since templated questions sit near the planted text, and each
   fact sits early in a short paragraph on one topic, where a real manual buries it deeper
   (KB1-F9); and with most sections a single paragraph, nothing here tells paragraph units
