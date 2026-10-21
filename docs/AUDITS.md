@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**248 findings, 230 closed, 18 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
+**248 findings, 235 closed, 13 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -265,16 +265,16 @@ An audit pass that tried to make restricted text readable by the wrong role. 20 
 
 ## `RC`, the recruiter
 
-An audit pass of ten seconds on the first screen, by someone who hires but does not build. 7 findings, 3 closed.
+An audit pass of ten seconds on the first screen, by someone who hires but does not build. 7 findings, 7 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `RC-F1` | medium | fixed, tick 194 | The README opens with jargon, a vector database RAG project, and the plain idea comes forty words in: lead with what it does for a person |
 | `RC-F2` | medium | fixed, tick 205 | Nothing in the first screen can be seen or tried: the capture goes above everything when P6 lands |
-| `RC-F3` | medium | open | The page opens on one department's trace: at 1280 by 800 its answer sits at 3,464 px of 5,692, under four ranked lists and ten excerpts, while As every role, which shows nine departments in the first screen, is unchecked: draw the first question as every role at load |
-| `RC-F4` | low | open | The README's recording opens on the trace: sales's filter and ranked lists until 2.0 s, the nine departments from 2.0 s to 4.75 s of 16.26 s, and GitHub holds animated images for a reader whose system asks for reduced motion: start on the cards and hold them |
-| `RC-F5` | low | open | The page's lede turns to the trade's words in its second sentence, filter, both searches, fusion, rerank, and the line under it opens Replayed, as no server answers here, which reads as a fault: both in plain words |
-| `RC-F6` | low | open | 97 of the 160 documents are Greek, and neither the README's first screen nor the page's says the documents are in two languages, while the page's first answer, in English, cites a Greek heading |
+| `RC-F3` | medium | fixed, tick 231 | The page opens on one department's trace: at 1280 by 800 its answer sits at 3,464 px of 5,692, under four ranked lists and ten excerpts, while As every role, which shows nine departments in the first screen, is unchecked: draw the first question as every role at load |
+| `RC-F4` | low | fixed, tick 231 | The README's recording opens on the trace: sales's filter and ranked lists until 2.0 s, the nine departments from 2.0 s to 4.75 s of 16.26 s, and GitHub holds animated images for a reader whose system asks for reduced motion: start on the cards and hold them |
+| `RC-F5` | low | fixed, tick 231 | The page's lede turns to the trade's words in its second sentence, filter, both searches, fusion, rerank, and the line under it opens Replayed, as no server answers here, which reads as a fault: both in plain words |
+| `RC-F6` | low | fixed, tick 231 | 97 of the 160 documents are Greek, and neither the README's first screen nor the page's says the documents are in two languages, while the page's first answer, in English, cites a Greek heading |
 | `RC-F7` | low | fixed, tick 226 | On GitHub the README starts under 23 rows of files, near 1,400 px at 1280 by 800 as evalkit's under 14 rows starts at 1,038, so the About box holds the first screen's only sentence: T7.3's description opens with what the project does for a person |
 
 ## `PF`, the performance auditor
@@ -300,11 +300,11 @@ An audit pass on time, memory and disk, its page half waiting for the page. 14 f
 
 ## `DE`, the design eye
 
-An audit pass on the page's type, spacing, rhythm, colour and motion, once it was done. 5 findings, 0 closed.
+An audit pass on the page's type, spacing, rhythm, colour and motion, once it was done. 5 findings, 1 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
-| `DE-F1` | medium | open | The answer is the quietest text in its own trace: Roboto Mono 14.04 px in --dim, under excerpts of Manrope 18.69 px in white and beside a verdict at the excerpts' size, in the cards as in the trace: the answer in the body face, white, a step above the body |
+| `DE-F1` | medium | fixed, tick 231 | The answer is the quietest text in its own trace: Roboto Mono 14.04 px in --dim, under excerpts of Manrope 18.69 px in white and beside a verdict at the excerpts' size, in the cards as in the trace: the answer in the body face, white, a step above the body |
 | `DE-F2` | low | open | The excerpts are two thousand pixels of eight identical cards, the cited one told apart by a 14.95 px blue line: each closed to its header and first line, the cited one open and edged in the flame |
 | `DE-F3` | low | open | A label, the page's subject, has no form of its own: 14.04 px mono in --dim as every caption, in the filter, on each excerpt and in each card: one outlined chip everywhere |
 | `DE-F4` | low | open | Eleven type sizes, five of them within two pixels between 14.04 and 16 px, and two greys sixteen levels apart: a five step scale and one grey |
