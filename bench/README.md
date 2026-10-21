@@ -443,6 +443,22 @@ extra and the GPU.
 uv run python bench/served.py
 ```
 
+## ties.py
+
+Ties on the index's server (AC-F12): a collection the bench names, `ties_bench`, made as the
+index's own is made, holds `30000` filler units of every label and `150` units of sales that
+tie in both searches. Units of legal that would tie with them are written into it, deleted
+again, and then written in bulk, half as many as the filler, and in each state the role's
+searches are asked as the served query asks them, `3` times, which must agree. It prints
+whether the role's dense, lexical and fused lists are the ones it had alone, then whether a
+build again of the same units in the same order gives the role the same order. It needs the
+running server alone: the vectors are made here, and the index's own collection is never
+asked anything.
+
+```
+uv run python bench/ties.py
+```
+
 ## page_data.py
 
 The page's recorded data, read from the claims records rather than from a run: the
