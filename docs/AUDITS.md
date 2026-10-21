@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**248 findings, 235 closed, 13 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
+**249 findings, 235 closed, 14 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -82,7 +82,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 
 ## `DR`, the deep reviewer
 
-An audit pass on correctness, read in the logic rather than the comments. 40 findings, 39 closed.
+An audit pass on correctness, read in the logic rather than the comments. 41 findings, 39 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -126,6 +126,7 @@ An audit pass on correctness, read in the logic rather than the comments. 40 fin
 | `DR-F38` | low | fixed, tick 202 | The page keeps each role's token for its whole life: after ntk serve restarts, or drops the session past 256, every call answers 401 and the feed swallows it, until a reload; on a 401, sign in once more and retry |
 | `DR-F39` | low | fixed, tick 202 | replay() draws whichever recorded question's file arrives last: an unfetched question then a fetched one, picked quickly, leave the first drawn under the second's name; draw only for the latest request |
 | `DR-F40` | low | fixed, tick 202 | The feed route runs on the thread pool and drops the oldest place with del places[next(iter(places))], which two polls past 256 places can race into a RuntimeError or KeyError; make it async as the sign in is, or lock it |
+| `DR-F41` | medium | open | A scan committed between two reads of the served path ends the request in a 500: the document view's segments then units (IndexError), the expansion's row then segment (ValueError), in_manifest then passages_of (KeyError); read each pair in one snapshot or leave out what is gone |
 
 ## `OP`, the pipeline operator
 
