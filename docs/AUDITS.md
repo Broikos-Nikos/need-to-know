@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**206 findings, 188 closed, 18 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**206 findings, 193 closed, 13 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -132,7 +132,7 @@ An audit pass that killed the pipeline mid build and mid change. 5 findings, 5 c
 
 ## `MA`, the measurement auditor
 
-An audit pass on whether every number can be produced again. 23 findings, 18 closed.
+An audit pass on whether every number can be produced again. 23 findings, 20 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -147,10 +147,10 @@ An audit pass on whether every number can be produced again. 23 findings, 18 clo
 | `MA-F9` | low | fixed, tick 74 | docs/AUDITS.md quotes auditors' probes that the repository does not hold |
 | `MA-F10` | medium | open | The README says a planted instruction is quoted rather than followed, on the evidence of two instructions in one excerpt: say what was tried, two instructions not followed in 20 asks, and keep quoting as the mechanism Measured by bench/injection.py. |
 | `MA-F11` | low | fixed, tick 191 | N53 quotes a look's 9 ms and a cut's 368,000 objects, and no command prints either: print them from the watcher's opening line and the ingestion bench, or drop them and keep the mechanism |
-| `MA-F12` | low | open | The README calls a user with only general and a removed membership combinations of roles: name the cases the permission suite runs Measured by bench/permission_suite.py. |
+| `MA-F12` | low | fixed, tick 194 | The README calls a user with only general and a removed membership combinations of roles: name the cases the permission suite runs Measured by bench/permission_suite.py. |
 | `MA-F13` | low | fixed, tick 191 | Two before figures, the injection bench on the old prompt and the watcher beside a build, cannot be rerun from what the repository says: a worktree recipe beside the bench, and a scripted run or a named hand run for the other |
 | `MA-F14` | low | fixed, tick 117 | ntk eval check checks the Greek share and skips the exempt families without printing either, and gives no count of family items, while eval/golden/README.md and commit 3b4e77d state 16 of 35 in Greek, two exempt dev families and 29 family items: the summary prints each split's Greek count and family items, and dev's exempt families by id |
-| `MA-F15` | low | open | N59 in docs/DECISIONS.md quotes 0.556 against 0.963, another project's measurement reported by the knowledge base, with neither its source nor its sample size: say whose measurement it is and on how many questions, or keep the claim and drop the figures |
+| `MA-F15` | low | fixed, tick 194 | N59 in docs/DECISIONS.md quotes 0.556 against 0.963, another project's measurement reported by the knowledge base, with neither its source nor its sample size: say whose measurement it is and on how many questions, or keep the claim and drop the figures |
 | `MA-F16` | medium | fixed, tick 190 | 18 of 128 commit messages count the negative controls a gate failed, but the controls ran from the session's scratchpad: commit them as data (file, line broken, replacement, test that must fail) with a runner that applies, runs, restores and prints the count, and cite its output, or stop counting them Measured by uv run python bench/controls.py. |
 | `MA-F17` | medium | fixed, tick 142 | The README credits the baseline's weak categories to retrieval, but 7 of its 22 wrong answers were shown a section planting every fact they needed: T12, the test's only C miss, refused twice with its fact shown, D141 three times and D136 once, and D053's was right and scored wrong: the report counts the wrong answers shown and not shown their facts, and the README quotes both |
 | `MA-F18` | low | fixed, tick 142 | The README quotes category figures of three and four items without their count, C 0.778 on test over 3, F 0.500 on dev over 4, and the probes' 0.964 without its 194: give each quoted figure its count |
@@ -234,11 +234,11 @@ An audit pass that tried to make restricted text readable by the wrong role. 17 
 
 ## `RC`, the recruiter
 
-An audit pass of ten seconds on the first screen, by someone who hires but does not build. 2 findings, 0 closed.
+An audit pass of ten seconds on the first screen, by someone who hires but does not build. 2 findings, 1 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
-| `RC-F1` | medium | open | The README opens with jargon, a vector database RAG project, and the plain idea comes forty words in: lead with what it does for a person |
+| `RC-F1` | medium | fixed, tick 194 | The README opens with jargon, a vector database RAG project, and the plain idea comes forty words in: lead with what it does for a person |
 | `RC-F2` | medium | open | Nothing in the first screen can be seen or tried: the capture goes above everything when P6 lands |
 
 ## `PF`, the performance auditor
@@ -263,7 +263,7 @@ An audit pass on time, memory and disk, its page half waiting for the page. 13 f
 
 ## `KB1`, the plan, reviewed against a knowledge base
 
-A separate session's review of the plan against the author's research notes. 15 findings, 14 closed.
+A separate session's review of the plan against the author's research notes. 15 findings, 15 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -275,7 +275,7 @@ A separate session's review of the plan against the author's research notes. 15 
 | `KB1-F6` | medium | fixed, tick 101 | Golden set needs near misses, multi hop across two documents and answers spanning a unit boundary; score near misses like J |
 | `KB1-F7` | medium | fixed, tick 139 | Headline says synthetic; a closed book run with empty excerpts published beside it; planted values mostly non default, deliberate defaults flagged in the registry |
 | `KB1-F8` | medium | fixed, tick 138 | Corpus is mostly code generated structure while the eval is mostly prose: stats by layer, metrics by layer, cap layer C at about a third of units and raise table items |
-| `KB1-F9` | medium | open | Planted facts are too salient: a salience plan per fact recorded in the registry, and a noise pass (page headers and footers, cross references, numbering drift, typos) over layers A and B |
+| `KB1-F9` | medium | fixed, tick 194 | Planted facts are too salient: a salience plan per fact recorded in the registry, and a noise pass (page headers and footers, cross references, numbering drift, typos) over layers A and B |
 | `KB1-F10` | medium | fixed, tick 43 | Unit rules: list runs as one block, units under about 30 tokens merged into the next in the same segment and heading, audience and classification lines moved to the payload, table header repeated per row group |
 | `KB1-F11` | low | fixed, tick 115 | The KB session is not a domain expert: 10 seed questions from real public documents with no company in them (EU consumer law, the Greek regulator's consumer rules); five generated Greek samples offered to the owner for a naturalness read |
 | `KB1-F12` | low | fixed, tick 71 | N7's arithmetic is wrong: about 6 million sentence units fit as int8 in 16 GB; plan E6 on the full profile after a peak RAM measurement on the small one |
@@ -294,14 +294,14 @@ The same session's review of the evaluation protocol. 2 findings, 2 closed.
 
 ## `KB3`, the corpus at P1 exit, reviewed against a knowledge base
 
-The same session's review of the generated corpus. 5 findings, 4 closed.
+The same session's review of the generated corpus. 5 findings, 5 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `KB3-K3` | medium | fixed, tick 69 | The annex mass is 1,164 row shapes and its glossary six definitions repeated 602,893 times: named columns with a header in every table, one glossary per document, revisions dated in order; the dense intrusion rate of annex units measured at P3 |
 | `KB3-K4` | medium | fixed, tick 114 | An overlap cap stated as a share of the question still lets it carry every word that decides retrieval: items rewritten without the planted sentence in view, overlap capped on the three rarest stems, about 20 dev items with a paraphrase twin |
 | `KB3-K5` | low | fixed, tick 39 | Label shares by unit follow annex bytes, not the registered shares (general 0.0 against 0.20, hr 4.7 against 0.02): shop directories under general, annex rows budgeted per label; the coverage report prints registered and measured shares Measured by `ntk corpus coverage`. |
-| `KB3-K6` | low | open | The prose cannot compare paragraph and section units (685 of 900 sections are one paragraph): the README and any units claim say so |
+| `KB3-K6` | low | fixed, tick 194 | The prose cannot compare paragraph and section units (685 of 900 sections are one paragraph): the README and any units claim say so |
 | `KB3-K7` | low | fixed, tick 103 | Templated tells: a capital letter after the date frame in 14 sentences, one effective date for all versioned facts, and N39's stale canary count (corrected at tick 23) |
 
 ## `KB4`, the retrieval design at P3 exit, reviewed against a knowledge base
