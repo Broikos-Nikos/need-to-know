@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**221 findings, 206 closed, 15 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**224 findings, 206 closed, 18 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -215,13 +215,16 @@ An audit pass on every dependency, pin and download, and anything committed by a
 
 ## `HE`, the hiring engineer
 
-An audit pass of three minutes, on whether the author ships, measures and says so honestly. 3 findings, 3 closed.
+An audit pass of three minutes, on whether the author ships, measures and says so honestly. 6 findings, 3 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `HE-F1` | medium | fixed, tick 37 | The README says nothing is measured while the repository proves a clone rebuilds the corpus, kills recover and every block resolves: a What works today list, each item with its command |
 | `HE-F2` | medium | fixed, tick 37 | The README never says the documents are synthetic or who the writers are: one sentence on provenance where the documents first appear |
 | `HE-F3` | high | fixed, tick 37 | The README says none of the run section needs a GPU, a key or a network, but uv sync downloads the dependencies: say the rest runs without them once uv sync has fetched them |
+| `HE-F4` | medium | open | The headline numbers, 0.981 of the 35 test items answered right, no leak, 0.964 recall@10 on the dev probes, a change reaching a query in 3.7 s, sit in the README's fourteenth bullet, ninety lines under the picture: those four under the picture in a section the claims check reads |
+| `HE-F5` | low | open | The served path's bullet runs 28 lines, every route's contract a clause of one paragraph: the guarantee in a sentence, the routes as a short list, the timings their own bullet |
+| `HE-F6` | low | open | A clone sees the page only through ntk serve, which needs the index; npm run preview serves the build replaying the recording, and the README never names it |
 
 ## `AC`, the access control red team
 
