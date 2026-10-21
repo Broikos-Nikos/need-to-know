@@ -440,8 +440,8 @@ test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_whe
 then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 'node_modules/vite/bin/vite.js', 'build'], check=True, capture_output=True)"]
 [[control.change]]
 file = "web/src/main.ts"
-old = '''`Replayed, as no server answers here: recorded ${kept.recorded} at ${kept.commit}`'''
-new = '''`Replayed, as no server answers here: recorded ${kept.recorded}`'''
+old = '''`A recording of the app, made ${kept.recorded} at ${kept.commit}${tree}; `'''
+new = '''`A recording of the app, made ${kept.recorded}${tree}; `'''
 
 [[control]]
 name = "the page drawing the filter's counts otherwise"
@@ -1184,3 +1184,76 @@ old = ''' Both drive
   Playwright's Chromium, which `npm ci` does not fetch: `npx playwright install chromium`
   does, once.'''
 new = ''''''
+
+[[control]]
+name = "the page opening on one role's trace again"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 'node_modules/vite/bin/vite.js', 'build'], check=True, capture_output=True)"]
+[[control.change]]
+file = "web/src/main.ts"
+old = '''      byId<HTMLInputElement>('every').checked = true
+'''
+new = ''''''
+
+[[control]]
+name = "the answer set as the bench lines again"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 'node_modules/vite/bin/vite.js', 'build'], check=True, capture_output=True)"]
+[[control.change]]
+file = "web/src/style.css"
+old = '''.finding {'''
+new = '''.said {'''
+
+[[control]]
+name = "the excerpts as loud as the answer"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 'node_modules/vite/bin/vite.js', 'build'], check=True, capture_output=True)"]
+[[control.change]]
+file = "web/src/style.css"
+old = '''.text {
+  color: var(--dim);
+}
+
+'''
+new = ''''''
+
+[[control]]
+name = "a citation linking to the excerpt after the one it names"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 'node_modules/vite/bin/vite.js', 'build'], check=True, capture_output=True)"]
+[[control.change]]
+file = "web/src/main.ts"
+old = '''link.href = `#excerpt-${index}`'''
+new = '''link.href = `#excerpt-${index + 1}`'''
+
+[[control]]
+name = "the lede in the trade's words again"
+test = "tests/test_page.py::test_the_lede_says_in_plain_words_what_the_page_shows_and_in_which_languages"
+[[control.change]]
+file = "web/index.html"
+old = '''      <p class="lede">
+        Every section of every document, in English or in Greek, says who may read it. So one question can be answered
+        for sales and refused for legal, and neither is shown a paragraph written for the other.
+      </p>'''
+new = '''      <p class="lede">
+        Every section of every document names its audience. A question passes the asking role's filter inside both
+        searches, then their fusion and a rerank, before any text reaches the answer.
+      </p>'''
+
+[[control]]
+name = "the README silent on the documents' languages"
+test = "tests/test_page.py::test_the_lede_says_in_plain_words_what_the_page_shows_and_in_which_languages"
+[[control.change]]
+file = "README.md"
+old = '''Every section of every document, in English or in Greek, says who
+may read it'''
+new = '''Every section of every document says who
+may read it'''
+
+[[control]]
+name = "the cards held under four seconds"
+test = "tests/test_readme.py::test_the_recording_opens_on_every_department_and_holds_them_before_the_trace"
+[[control.change]]
+file = "docs/capture.json"
+old = '''"every_role_held": 5.01'''
+new = '''"every_role_held": 2.75'''

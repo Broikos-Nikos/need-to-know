@@ -128,6 +128,18 @@ def test_the_notice_without_javascript_says_where_the_figures_come_from():
         assert writer and f"uv run python {writer}" in readme, (path.relative_to(root).as_posix(), writer)
 
 
+def test_the_lede_says_in_plain_words_what_the_page_shows_and_in_which_languages():
+    # RC-F5: under a title anyone can read, the lede turned to the filter, both searches, their fusion and a rerank. RC-F6:
+    # three documents in five are Greek, the first answer cites a Greek heading, and neither first screen said so.
+    root = repo_root()
+    page = (root / "web" / "index.html").read_text(encoding="utf-8")
+    lede = " ".join(re.search(r'<p class="lede">(.*?)</p>', page, re.S)[1].split())
+    trade = [word for word in ("filter", "search", "fusion", "rerank", "vector", "retrieval", "embed") if word in lede.lower()]
+    assert not trade and "in English or in Greek" in lede, (lede, trade)
+    opening = " ".join((root / "README.md").read_text(encoding="utf-8").split(chr(10) * 2)[1].split())
+    assert "in English or in Greek" in opening, opening
+
+
 def test_a_timing_record_that_names_no_commit_or_load_is_refused(tmp_path, monkeypatch):
     # MA-F22: a record taken from a log kept the log's name and time, and the page replayed runs of no named code.
     data = page_data()

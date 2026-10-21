@@ -188,9 +188,13 @@ function excerpts(trace: Trace): HTMLElement[] {
   const cited = new Set((trace.answer?.citations ?? []).map((given) => JSON.stringify([given.doc_id, given.section])))
   return trace.excerpts.map((excerpt, index) => {
     const block = element('article', 'excerpt')
+    block.id = `excerpt-${index + 1}`
     block.dataset.units = excerpt.units.join(' ')
     block.style.setProperty('--i', String(index))
     const text = element('p', 'text clamped', excerpt.text)
+    text.dataset.text = ''
+    const where = element('p', 'where', `${index + 1}. ${excerpt.doc_id}, ${heading(excerpt.section)}`)
+    where.dataset.where = ''
     const more = element('button', 'more', 'Show all of it') as HTMLButtonElement
     more.type = 'button'
     more.setAttribute('aria-expanded', 'false')
@@ -199,8 +203,7 @@ function excerpts(trace: Trace): HTMLElement[] {
       more.setAttribute('aria-expanded', String(open))
       more.textContent = open ? 'Show less' : 'Show all of it'
     })
-    block.append(element('p', 'where', `${index + 1}. ${excerpt.doc_id}, ${heading(excerpt.section)}`),
-      element('p', 'labels', excerpt.labels.join(' + ')), text, more)
+    block.append(where, element('p', 'labels', excerpt.labels.join(' + ')), text, more)
     if (cited.has(JSON.stringify([excerpt.doc_id, excerpt.section]))) {
       block.classList.add('cited')
       block.append(element('p', 'tag', 'cited by the answer'))
@@ -212,11 +215,30 @@ function excerpts(trace: Trace): HTMLElement[] {
 function answered(trace: Trace): HTMLElement[] {
   const given = trace.answer as Answer
   const nodes: HTMLElement[] = []
+  const said = element('p', 'said', given.answer)
+  said.dataset.said = given.status  // as each card's answer is marked
   if (given.status === 'answered') {
-    nodes.push(element('p', 'said', given.answer))
+    nodes.push(said)
     if (given.citations.length) {
+      // Each citation a link to the excerpt it names, which carries its number as its id (DE-F1).
+      const at = new Map<string, number>()
+      trace.excerpts.forEach((excerpt, index) => {
+        const key = JSON.stringify([excerpt.doc_id, excerpt.section])
+        if (!at.has(key)) at.set(key, index + 1)
+      })
       const list = element('ul', 'cites')
-      list.append(...given.citations.map((cite) => element('li', '', `${cite.doc_id}, ${heading(cite.section)}`)))
+      list.append(...given.citations.map((cite) => {
+        const named = `${cite.doc_id}, ${heading(cite.section)}`
+        const index = at.get(JSON.stringify([cite.doc_id, cite.section]))
+        const item = element('li', '', index === undefined ? named : '')
+        item.dataset.cite = ''
+        if (index !== undefined) {
+          const link = element('a', '', named) as HTMLAnchorElement
+          link.href = `#excerpt-${index}`
+          item.append(link)
+        }
+        return item
+      }))
       nodes.push(element('p', 'minor', 'It cites:'), list)
     } else {
       nodes.push(element('p', 'minor', 'It cites nothing.'))
@@ -225,8 +247,7 @@ function answered(trace: Trace): HTMLElement[] {
       nodes.push(element('p', 'minor', `${given.dropped.length} of its citations named no excerpt shown and count for nothing.`))
     }
   } else if (given.status === 'not_found') {
-    nodes.push(element('p', 'said', given.answer),
-      element('p', 'minor', 'A refusal, in the same words whether the fact is missing or withheld.'))
+    nodes.push(said, element('p', 'minor', 'A refusal, in the same words whether the fact is missing or withheld.'))
   } else {
     nodes.push(element('p', 'error', `The model’s reply could not be read: ${given.error ?? given.status}.`))
   }
@@ -652,7 +673,7 @@ function drawChange(change: Change): HTMLElement {
     }
     requestAnimationFrame(frame)
   })
-  block.append(legend, plot, play, ...change.said.map((line) => element('p', 'said', line)), table(change))
+  block.append(legend, plot, play, ...change.said.map((line) => element('p', 'finding', line)), table(change))
   return block
 }
 
@@ -736,8 +757,11 @@ function fill(select: HTMLSelectElement, entries: [string, string][]) {
 // which models on its face.
 function replaying(kept: Recorded) {
   const tree = kept.clean ? '' : ', the tree holding changes'
-  byId<HTMLElement>('mode').textContent = `Replayed, as no server answers here: recorded ${kept.recorded} at ${kept.commit}` +
-    `${tree}; answers by ${kept.models.join(', ')}, retrieval by ${kept.embedder} and ${kept.reranker}.`
+  // What it is first, in plain words, then when, at which commit and with which models (RC-F5): it opened on
+  // "Replayed, as no server answers here", which read as a fault.
+  byId<HTMLElement>('mode').textContent = `A recording of the app, made ${kept.recorded} at ${kept.commit}${tree}; ` +
+    `answers by ${kept.models.join(', ')}, retrieval by ${kept.embedder} and ${kept.reranker}. No server answers ` +
+    'here, so the page replays it.'
   fill(byId<HTMLSelectElement>('role'), kept.roles.map((role) => [role, role]))
   fill(byId<HTMLSelectElement>('pick'), kept.questions.map((q) => [q.id, `${q.question} (${q.id}, ${q.role})`]))
   byId<HTMLElement>('ask-field').hidden = true
@@ -769,8 +793,10 @@ async function start() {
     recordings = await recorded<Recorded>('traces/index.json')
     if (recordings) {
       replaying(recordings)
-      // The first recorded question drawn at once, as the role that asks it, so the instrument is never empty.
+      // The first recorded question drawn at once as every role, so the first screen shows a department answered beside
+      // departments refused (RC-F3); each card's Its stages opens that role's trace, the role that asks it picked.
       byId<HTMLSelectElement>('role').value = recordings.questions[0].role
+      byId<HTMLInputElement>('every').checked = true
       byId<HTMLFormElement>('query').requestSubmit(byId<HTMLButtonElement>('replay'))
     } else {
       mode.textContent = 'No local server answers here: start one with ntk serve and open the page it serves.'

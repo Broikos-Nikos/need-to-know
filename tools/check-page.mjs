@@ -5,9 +5,14 @@
  *
  *   npm run build && npm run check:page
  *
- * 1. The provenance line says when, at which commit and with which models the recording was made.
+ * 0. At load, before any click, the first question is drawn as every role, each card with its answer or refusal as
+ *    recorded, in the first screen, an answer larger than the body and white, a refusal not (RC-F3).
+ * 1. The provenance line says what it is, a recording of the app, then when, at which commit and with which models the
+ *    recording was made (RC-F5).
  * 2. Each question, replayed as the role that asks it, draws that role's filter, each search's first rows with how
- *    many it held, and the answer as recorded, and draws no unit the role's recorded trace does not hold.
+ *    many it held, and the answer as recorded, and draws no unit the role's recorded trace does not hold. The answer
+ *    is the trace's loudest text, larger than the excerpts and the body, in the body's face and white, the excerpts
+ *    not, and each citation links to the excerpt it names (DE-F1).
  * 3. As every role, each role has its card with its answer or its refusal as recorded.
  * 4. The licence and the source are on the page's face; no request fails and the console stays quiet.
  * 5. A replay whose file comes late draws nothing over the one picked after it (DR-F39).
@@ -35,6 +40,7 @@ const SOURCE = 'https://github.com/Broikos-Nikos/need-to-know'
 const SEARCHES = ['dense', 'sparse', 'fused', 'reranked']
 const SHOWN = Number(/^const SHOWN = (\d+)$/m.exec(readFileSync(resolve(root, 'web', 'src', 'main.ts'), 'utf8'))[1])
 const STOPPED = /^const STOPPED = '([^']+)'$/m.exec(readFileSync(resolve(root, 'web', 'src', 'main.ts'), 'utf8'))[1]
+const RECORDING = 'A recording of the app'  // how the mode line opens where the page replays
 const number = (n) => n.toLocaleString('en')
 const flat = (text) => text.replace(/\s+/g, ' ').trim()
 const later = (ms) => new Promise((done) => setTimeout(done, ms))
@@ -120,6 +126,35 @@ const bounded = (page) => page.evaluate(() => {
       }
       return [name, Math.max(border, fill), 3]
     })
+})
+
+// The answer the loudest text of its trace (DE-F1): larger than the excerpts it was drawn from and than the body, in
+// the body's face and white, the excerpts not; and each citation a link to the excerpt it names.
+const loudest = (page) => page.evaluate(() => {
+  const look = (selector) => {
+    const node = document.querySelector(selector)
+    return node && getComputedStyle(node)
+  }
+  const said = look('#trace [data-stage="answer"] [data-said]')
+  const text = look('#trace [data-units] [data-text]') ?? { fontSize: '0px', color: 'none' }  // a trace can show no excerpt
+  const body = getComputedStyle(document.body)
+  if (!said) return ['no answer drawn']
+  const wrong = []
+  const size = (style) => parseFloat(style.fontSize)
+  if (!(size(said) > size(text) && size(said) > size(body))) {
+    wrong.push(`the answer at ${said.fontSize}, the excerpts at ${text.fontSize}, the body at ${body.fontSize}`)
+  }
+  if (said.fontFamily !== body.fontFamily) wrong.push(`the answer in ${said.fontFamily.split(',')[0]}`)
+  if (said.color !== 'rgb(255, 255, 255)' || text.color === said.color) {
+    wrong.push(`the answer in ${said.color}, the excerpts in ${text.color}`)
+  }
+  for (const item of document.querySelectorAll('#trace [data-cite]')) {
+    const link = item.querySelector('a')
+    const number = /^#excerpt-(\d+)$/.exec(link?.getAttribute('href') ?? '')?.[1]
+    const where = number && document.getElementById(`excerpt-${number}`)?.querySelector('[data-where]')?.textContent
+    if (where !== `${number}. ${item.textContent}`) wrong.push(`the citation ${item.textContent.slice(0, 40)} links to no excerpt it names`)
+  }
+  return wrong
 })
 
 if (!existsSync(resolve(dist, 'index.html'))) {
@@ -208,22 +243,40 @@ try {
   page.on('requestfailed', (request) => errors.push(`${request.url()} failed`))
   page.on('response', (response) => response.status() >= 400 && errors.push(`${response.url()} ${response.status()}`))
   await page.goto(replayed.url)
-  await page.waitForFunction(() => document.getElementById('mode')?.textContent?.startsWith('Replayed'), null, {
+  await page.waitForFunction((opens) => document.getElementById('mode')?.textContent?.startsWith(opens), RECORDING, {
     timeout: 30_000,
   })
 
-  // 0. Before any click, the first recorded question as the role that asks it: the instrument is never empty.
+  // 0. Before any click, the first recorded question as every role, the box checked (RC-F3): each role's card with its
+  // answer or its refusal as recorded, in the first screen, an answer the loudest text of its card and a refusal not.
   const opening = index.questions[0]
-  const shown = flat(asked[opening.id][opening.role].answer.answer)
-  const drawnFirst = await page.waitForFunction((answer) => (document.getElementById('trace')?.textContent ?? '')
-    .replace(/\s+/g, ' ').includes(answer), shown, { timeout: 10_000 }).then(() => true, () => false)
-  if (drawnFirst) ok(`at load, ${opening.id} drawn as ${opening.role}, before any click`)
-  else fail(`at load the instrument is empty: ${opening.id} as ${opening.role} is not drawn`)
+  const openingCards = index.roles.filter((role) => asked[opening.id][role])
+    .map((role) => [role, flat(asked[opening.id][role].answer.answer)])
+  const drawnFirst = await page.waitForFunction(
+    (want) => JSON.stringify([...document.querySelectorAll('#compare [data-role]')].map((card) =>
+      [card.dataset.role ?? '', (card.querySelector('[data-said]')?.textContent ?? '').replace(/\s+/g, ' ').trim()]),
+    ) === JSON.stringify(want),
+    openingCards,
+    { timeout: 10_000 },
+  ).then(() => true, () => false)
+  const atLoad = await page.evaluate(() => {
+    const look = (node) => node && { size: parseFloat(getComputedStyle(node).fontSize), colour: getComputedStyle(node).color }
+    return { every: document.getElementById('every').checked, top: Math.round(document.getElementById('compare').getBoundingClientRect().top),
+      body: look(document.body), answered: look(document.querySelector('#compare [data-said="answered"]')),
+      refused: look(document.querySelector('#compare [data-said="not_found"]')) }
+  })
+  const loud = atLoad.answered && atLoad.answered.size > atLoad.body.size && atLoad.answered.colour === 'rgb(255, 255, 255)' &&
+    (!atLoad.refused || atLoad.refused.colour !== atLoad.answered.colour)
+  if (drawnFirst && atLoad.every && atLoad.top < 900 && loud) {
+    ok(`at load, ${opening.id} drawn as every role: ${openingCards.length} cards from ${atLoad.top} px, the answers loudest`)
+  } else {
+    fail(`at load, ${opening.id} is not drawn as every role in the first screen, its answers loudest`, JSON.stringify(atLoad))
+  }
 
-  // 1. Where the recording came from.
+  // 1. Where the recording came from, what it is said first (RC-F5).
   const tree = index.clean ? '' : ', the tree holding changes'
-  const said = `Replayed, as no server answers here: recorded ${index.recorded} at ${index.commit}${tree}; answers by ` +
-    `${index.models.join(', ')}, retrieval by ${index.embedder} and ${index.reranker}.`
+  const said = `${RECORDING}, made ${index.recorded} at ${index.commit}${tree}; answers by ${index.models.join(', ')}, ` +
+    `retrieval by ${index.embedder} and ${index.reranker}. No server answers here, so the page replays it.`
   const mode = await page.textContent('#mode')
   if (mode === said) ok(`the provenance line names the recording: ${index.recorded}, ${index.commit}`)
   else fail('the provenance line is not the recording’s', `${JSON.stringify(mode)} against ${JSON.stringify(said)}`)
@@ -269,10 +322,12 @@ try {
     const foreign = drawn.filter((unit) => !(unit in trace.units))
     if (foreign.length) wrong.push(`${foreign.length} drawn units the role's trace does not hold`)
     if (!text.includes(flat(trace.answer.answer))) wrong.push('the recorded answer')
+    wrong.push(...await loudest(page))
     if (wrong.length) {
       fail(`${question.id} as ${question.role}: ${wrong.length} thing${wrong.length === 1 ? '' : 's'} drawn otherwise than recorded`, wrong.join('; '))
     } else {
-      ok(`${question.id} as ${question.role}: the filter, ${SEARCHES.length} searches' rows and counts, and the answer, as recorded`)
+      ok(`${question.id} as ${question.role}: the filter, ${SEARCHES.length} searches' rows and counts, and the answer as ` +
+        'recorded, the loudest text, each citation a link to its excerpt')
     }
   }
 
@@ -353,7 +408,9 @@ try {
     await route.continue()
   })
   await late.goto(replayed.url)
-  await late.waitForFunction(() => document.getElementById('mode')?.textContent?.startsWith('Replayed'))
+  await late.waitForFunction((opens) => document.getElementById('mode')?.textContent?.startsWith(opens), RECORDING)
+  await late.waitForSelector('#compare [data-role]')  // the cards drawn at load, then one role's trace asked for
+  await late.setChecked('#every', false)
   const wanted = flat(asked[first.id][first.role].answer.answer)
   await late.selectOption('#role', first.role)
   await late.selectOption('#pick', first.id)

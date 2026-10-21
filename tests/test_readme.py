@@ -302,3 +302,13 @@ def test_the_readme_gives_the_browser_install_where_it_gives_the_commands_that_l
     bullet = " ".join(text[:text.index("\n* ")].split())
     assert "`npm run capture`" in bullet and f"`{install}`" in bullet, bullet[:200]
     assert "one program npm does not install" not in " ".join(README.split())
+
+
+def test_the_recording_opens_on_every_department_and_holds_them_before_the_trace():
+    # RC-F4: the picture opened on sales's filter and ranked lists, the nine departments on screen from 2.0 s to 4.75 s
+    # of 16.26 s, and a reader whose GitHub holds animated images saw that first frame alone. The page now opens on the
+    # cards (RC-F3, held by tools/check-page.mjs), and the capture holds them before it opens sales's stages.
+    import json
+    made = json.loads((repo_root() / "docs" / "capture.json").read_text(encoding="utf-8"))["looked"]
+    answered = sorted(role for role, said in made["every_role"].items() if said == "answered")
+    assert made["every_role_held"] >= 4 and answered == ["admin", "sales"], made

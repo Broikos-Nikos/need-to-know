@@ -9,11 +9,13 @@
  *
  *   the form        377 to 482
  *   the state line  585
- *   the nine cards  619, three rows at 619, 883 and 1,096, as every role
- *   the trace       619 to 3,730, as one role
+ *   the nine cards  three rows, 619 to 935, 948 to 1,170 and 1,182 to 1,515, drawn at load as every role
  *
- * So the frame scrolls to 360: the form, the state line and two rows of cards, six of the nine roles, are on one
- * screen. Then slow motion plays the trace one stage at a time, each brought into view.
+ * So the picture opens on the cards, as the page does (RC-F3, RC-F4): the frame at 300 holds the question, the box
+ * checked and the first row, sales answered beside legal and logistics refused; at 940, the other two rows, admin
+ * answered among six refused. The cards are held four seconds or more before slow motion plays sales's trace one
+ * stage at a time, each brought into view, and `docs/capture.json` records how long they were held, by this tool's
+ * clock from the picture's first frame to the click on sales's card.
  *
  * Built as the workspace's other capture tools are, for the same reasons: ffmpeg is resolved before a browser starts
  * (`tools/ffmpeg.mjs`); the encoder writes a draft inside `.capture`, which git ignores, and the draft is renamed onto
@@ -37,7 +39,8 @@ const OUT = resolve(root, 'docs/need-to-know.gif')
 const WORK = resolve(root, '.capture')
 
 const SIZE = { width: 1280, height: 780 }
-const SCROLL = 360
+const SCROLLS = [300, 940]  // the question and the first row of cards, then the other two rows
+const HOLD = 2500  // each of them, in milliseconds: the cards held 4 s or more before the trace
 const CROP = 'crop=1280:720:0:0'
 const FPS = 8
 const WIDTH = 880
@@ -72,32 +75,31 @@ try {
     await page.waitForTimeout(500)
     throw new Error('CAPTURE_FAIL_AT=start, the seam the failure path is tested through')
   }
-  await page.waitForSelector('#trace [data-stage="dense"]', { timeout: 30_000 })
-  await page.evaluate((y) => window.scrollTo({ top: y, behavior: 'instant' }), SCROLL)
-  await page.waitForTimeout(400)
-  startedAt = Date.now()
-  await page.waitForTimeout(1200)
-
-  // The same question as every department: two answers, seven refusals in the same words.
-  await page.check('#every')
-  await page.waitForTimeout(500)
-  await page.click('#replay')
-  await page.waitForSelector('#compare [data-role="admin"]')
-  await page.waitForTimeout(4000)
+  // The same question as every department, as the page draws it at load: two answers, seven refusals in the same words.
+  await page.waitForSelector('#compare [data-role="admin"]', { timeout: 30_000 })
   const cards = await page.$$eval('#compare [data-role]', (all) => all.map((card) => [card.dataset.role,
     card.querySelector('[data-said]')?.dataset.said ?? '']))
+  await page.evaluate((y) => window.scrollTo({ top: y, behavior: 'instant' }), SCROLLS[0])
+  await page.waitForTimeout(800)
+  startedAt = Date.now()  // the picture opens 0.4 s before this, on the cards
+  await page.waitForTimeout(HOLD - 400)
+  await page.evaluate((y) => window.scrollTo({ top: y, behavior: 'instant' }), SCROLLS[1])
+  await page.waitForTimeout(HOLD)
 
-  // One department's answer, a stage at a time, each scrolled into view.
-  await page.uncheck('#every')
-  await page.check('#slow')
-  await page.selectOption('#role', 'sales')
-  await page.waitForTimeout(400)
-  await page.click('#replay')
+  // One department's answer, opened from its card as a visitor opens it, a stage at a time, each scrolled into view.
+  // Clicked in the page rather than through Playwright, which would first scroll the controls into view and flash the
+  // top of the page between the cards and the trace.
+  const held = (Date.now() - startedAt) / 1000 + 0.4  // the cards, from the picture's first frame to the trace
+  await page.evaluate(() => {
+    document.getElementById('slow').checked = true
+    document.querySelector('#compare [data-role="sales"] button').click()  // its one button, Its stages
+  })
   const stages = await page.$$eval('#trace [data-stage]', (all) => all.length)
   await page.waitForTimeout(stages * TURN + 2500)
   looked = {
     question: await page.$eval('#pick', (pick) => pick.value),
     every_role: Object.fromEntries(cards),
+    every_role_held: Number(held.toFixed(2)),
     stages_played: stages,
   }
 
@@ -155,4 +157,5 @@ if (failure) {
 const { size } = statSync(OUT)
 console.log(`docs/need-to-know.gif   ${(size / 1e6).toFixed(2)} MB at ${FPS} fps, ${WIDTH}px wide`)
 console.log(`${looked.question} as every role: ${Object.values(looked.every_role).filter((said) => said === 'answered').length} ` +
-  `answered of ${Object.keys(looked.every_role).length}; then ${looked.stages_played} stages played as sales`)
+  `answered of ${Object.keys(looked.every_role).length}, held ${looked.every_role_held} s by the capture's clock; then ` +
+  `${looked.stages_played} stages played as sales`)

@@ -442,8 +442,28 @@ button:disabled {
   overflow-wrap: anywhere;
 }
 
+.text {
+  color: var(--dim);
+}
+
+/* The answer, the page's result, is its loudest text, in the trace and on each card (DE-F1): it was set as a caption,
+   in the bench lines' mono and grey, under excerpts in white. */
 .said {
   margin-top: 0;
+  font-size: 1.2em;
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--paper);
+}
+
+.cites a {
+  color: inherit;
+  text-decoration-color: var(--edge);
+  text-underline-offset: 3px;
+}
+
+.cites a:hover {
+  color: var(--paper);
 }
 
 .clamped {
@@ -746,7 +766,7 @@ button:disabled {
   margin-top: 0.8rem;
 }
 
-.said {
+.finding {
   margin: 0.6rem 0 0;
   color: var(--dim);
   font-family: var(--mono);
