@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**206 findings, 184 closed, 22 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**206 findings, 187 closed, 19 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -243,7 +243,7 @@ An audit pass of ten seconds on the first screen, by someone who hires but does 
 
 ## `PF`, the performance auditor
 
-An audit pass on time, memory and disk, its page half waiting for the page. 13 findings, 7 closed.
+An audit pass on time, memory and disk, its page half waiting for the page. 13 findings, 10 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -257,9 +257,9 @@ An audit pass on time, memory and disk, its page half waiting for the page. 13 f
 | `PF-F8` | medium | fixed, tick 135 | The spend log books the models' loading as search time: each process's first question shows 28 to 35 s of search against a 0.77 s median, cached answers too, so the log's p95 of 28 s is loading, not search: load the models before the clock and record the load apart, or mark cold questions and report cold and warm apart |
 | `PF-F9` | low | open | The golden checks read the whole manifest for ten keys: the table items' check scans every unit's text, 5.2 of ntk eval check's 7.1 s, and the row draw scans once per candidate key, its test the suite's slowest at 43 s of 139: count each key's units in one pass and cache it beside the manifest under its last run id |
 | `PF-F10` | medium | open | The largest document's relabel passed the 5 s objective on one run in ten: bench/revocation.py on LOG_CAT_006 found the widened section in 5.6 s, its scan alone 3.87 s against 2.24 to 2.96 s on the other runs, and exited 1; run again it held at 3.9 s; N53's reversal condition is met: a scan that cuts only the sections a change touched, or the objective restated with ten runs and the largest deciding, and N53 amended either way |
-| `PF-F11` | medium | open | The change feed's empty poll costs the server 0.46 to 0.74 s every five seconds for each open page, reading again every scan since the role's last visible one, and grows with each scan the role cannot see; the whole feed 1.7 to 1.9 s warm, 4.9 s cold: one grouped query on an index of units by run, and the session's place kept on the server |
-| `PF-F12` | low | open | GET /stats walks the index's folder at every load, 0.48 to 0.55 s warm and 2.7 s at the day's first load: keep the footprint of the last sync, or cache it, and say its time |
-| `PF-F13` | low | open | The replay fetches all 27 traces, 1.1 MB in their provisional form, before anything is picked: a small index for the pickers, a file per question fetched at its first replay |
+| `PF-F11` | medium | fixed, tick 192 | The change feed's empty poll costs the server 0.46 to 0.74 s every five seconds for each open page, reading again every scan since the role's last visible one, and grows with each scan the role cannot see; the whole feed 1.7 to 1.9 s warm, 4.9 s cold: one grouped query on an index of units by run, and the session's place kept on the server |
+| `PF-F12` | low | fixed, tick 192 | GET /stats walks the index's folder at every load, 0.48 to 0.55 s warm and 2.7 s at the day's first load: keep the footprint of the last sync, or cache it, and say its time |
+| `PF-F13` | low | fixed, tick 192 | The replay fetches all 27 traces, 1.1 MB in their provisional form, before anything is picked: a small index for the pickers, a file per question fetched at its first replay |
 
 ## `KB1`, the plan, reviewed against a knowledge base
 
