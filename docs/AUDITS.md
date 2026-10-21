@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**238 findings, 208 closed, 30 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
+**239 findings, 209 closed, 30 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -230,7 +230,7 @@ An audit pass of three minutes, on whether the author ships, measures and says s
 
 ## `AC`, the access control red team
 
-An audit pass that tried to make restricted text readable by the wrong role. 19 findings, 18 closed.
+An audit pass that tried to make restricted text readable by the wrong role. 20 findings, 19 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -245,7 +245,7 @@ An audit pass that tried to make restricted text readable by the wrong role. 19 
 | `AC-F9` | medium | fixed, tick 94 | An instruction planted in a permitted section was never obeyed, but it turned answers to an English question Finnish in 6 of 14 calls against 0 of 4 clean: name the answer's language in the user message, quote the excerpts as documents whose instructions are not the model's, and keep the probe as a bench |
 | `AC-F10` | low | fixed, tick 94 | A role's excerpts, restricted sections included, are posted to the provider, and neither the README nor the enforcement table names it as a reader outside the role model: one row and one sentence |
 | `AC-F11` | medium | fixed, tick 134 | The answer cache shares an entry between roles shown the same text, so a reply from the cache tells one role that someone in another asked the same question, the timing channel the research notes key caches by permission set against: key by the prompt as sent and the asking role's readable label set, never by the role's name |
-| `AC-F12` | low | open | Units of exactly equal score are ordered by the engine, and in Qdrant's local mode by an unstable sort over every point's score, so hidden points move the order of a role's tied units there; how the server orders them is unmeasured: measure on the server whether units a role may not read move its tied units' order, through a collection a bench can name, and say so in N50 |
+| `AC-F12` | low | fixed, tick 214 | Units of exactly equal score are ordered by the engine, and in Qdrant's local mode by an unstable sort over every point's score, so hidden points move the order of a role's tied units there; how the server orders them is unmeasured: measure on the server whether units a role may not read move its tied units' order, through a collection a bench can name, and say so in N50 |
 | `AC-F13` | low | fixed, tick 171 | A citation names a document whose title AC-F4 hides from the role by an id that carries its owner and type, SAL_CIR_017 to returns, and the model reads the same id: show the role and the model an id that names no owner or type, mapped back for the operator, or record the exposure as decided in the README |
 | `AC-F14` | low | fixed, tick 187 | The canary scan finds a canary only in capitals with its underscores: canary_0a1b2c_legal, CANARY 0A1B2C LEGAL and a canary split across a line pass it, and a mixed-case suffix is caught only by accident: match any case and any run of spaces, underscores or dashes between its parts, upper-case the suffix, and test each shape Measured by tests/test_canaries.py. |
 | `AC-F15` | low | fixed, tick 187 | ntk eval canaries over an empty data folder prints zeros and exits 0, as after a clean scan of hundreds of answers, so in CI, where the spec means it to run, it passes on nothing: say there was nothing to scan, exit 1 where a run should have left answers, and give it the page's data at P6 Measured by tests/test_canaries.py. |
@@ -253,6 +253,7 @@ An audit pass that tried to make restricted text readable by the wrong role. 19 
 | `AC-F17` | low | fixed, tick 173 | A role's view of a document counts the sections it may not read by their numbers: returns reads SAL_CIR_017's sections 1, 8, 10 and 12, the corpus numbering sections across audiences: record it as the documents' own text, as N65 records the ids, in N65 and the README |
 | `AC-F18` | medium | fixed, tick 211 | The document view's time counts the units a role may not read: outline reads every unit of the document before dropping the segments the role may not, so as hr the time follows the units kept back, 7.55 us each, and estimates them to within 380 at the median: read only the role's segments |
 | `AC-F19` | high | fixed, tick 211 | The change feed's time tells a role when a scan it cannot see finished: scanned reads every scan after the place before dropping those the role cannot see, so hr, every reply empty, found scan 172's finish to the second in 16 probes, against the README's not even its time (N66): read only the scans the role can see |
+| `AC-F20` | medium | open | On the server a role's exactly tied units keep the index layout's order, which a bulk write of units it may not read moved once the optimizer settled, and the fusion ranks ties by it: each search's whole tie group fetched across the cut, ordered by unit id, and fused in the process, under a new protocol version |
 
 ## `RC`, the recruiter
 
