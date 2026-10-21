@@ -138,7 +138,9 @@ def test_the_builds_figures_are_measured_once_a_minute_and_say_when(client, monk
     http = served(client)
     first, second = (http.get("/stats", headers=signed(http, role)).json() for role in ("sales", "legal"))
     assert len(walks) == 1 and first == second and first["measured"].endswith("+00:00")
-    monkeypatch.setattr(api, "FIGURES", 0.0)  # a minute gone
+    # A minute gone: below zero, since this machine's monotonic clock moves in 15.6 ms steps, and a request inside one
+    # step found no time passed and kept the figures, two runs in six.
+    monkeypatch.setattr(api, "FIGURES", -1.0)
     http.get("/stats", headers=signed(http, "sales"))
     assert len(walks) == 2
 
