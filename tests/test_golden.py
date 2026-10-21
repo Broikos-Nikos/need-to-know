@@ -313,3 +313,28 @@ def test_the_writers_view_blanks_the_value_and_the_rare_words_and_names_the_stem
     view = "\n".join(G.draft_view("test", ctx))
     assert "In shops the ___ ___ is [value] ___" in view and "[rare: maximum, percent, discount;" in view
     assert "maximum discount" not in view and "F09V00" not in view  # a dev family stays out of the test's view
+
+
+def test_the_units_holding_a_key_are_read_once_a_manifest_state_and_again_after_a_scan(monkeypatch, tmp_path):
+    # PF-F9: each key's units were found by reading every unit's text, at every check and draw: seconds a key, the
+    # suite's slowest test. They are kept beside the manifest under its last run, and read again only after it moves.
+    import sqlite3
+
+    from needtoknow.ingest.manifest import manifest_path, opened
+    monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path))
+    with opened() as db:
+        db.execute("INSERT INTO files VALUES ('DOC', 'p', 1, 1, 1, 1, 'h', 'txt', 'utf-8', 'en', '[]', 1)")
+        db.execute("INSERT INTO runs (run_id, kind, started, finished) VALUES (1, 'build', 't', 't1')")
+        db.executemany("INSERT INTO units VALUES (?, 'DOC', 'k', 'table', '[\"sales\"]', '[]', ?, 0, 1, 'en', 1)",
+                       [("u1", "K-1 | a"), ("u2", "K-1 | b | K-2")])
+    reader = sqlite3.connect(f"file:{manifest_path().as_posix()}?mode=ro", uri=True)
+    scans = []
+    reader.set_trace_callback(lambda sql: scans.append(sql) if "instr(text" in sql else None)
+    first = G.Holding(reader)
+    assert [row[1] for row in first("K-1")] == ["u1", "u2"] and [row[1] for row in first("K-2")] == ["u2"]
+    first.save()
+    assert len(G.Holding(reader)("K-1")) == 2 and len(scans) == 2  # the second check reads no text
+    with opened() as db:
+        db.execute("INSERT INTO runs (run_id, kind, started, finished) VALUES (2, 'scan', 't', 't2')")
+    assert len(G.Holding(reader)("K-1")) == 2 and len(scans) == 3  # a scan since: read again
+    reader.close()

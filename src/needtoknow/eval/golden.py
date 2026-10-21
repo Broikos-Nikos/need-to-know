@@ -55,7 +55,7 @@ from needtoknow.eval.split import DELIBERATE_DEFAULTS, load_plan, quotas, split_
 from needtoknow.index import frequencies
 from needtoknow.ingest.manifest import manifest_path
 from needtoknow.policy import load_policy, readable
-from needtoknow.settings import repo_root
+from needtoknow.settings import data_dir, repo_root
 
 FAMILY = set("ABCDEFGHM")
 OWN = set("IJN")
@@ -209,6 +209,7 @@ def draw_rows(seed: int = ROW_SEED, pairs: tuple = ROW_PAIRS, attempts: int = 50
         raise GoldenError(f"no manifest at {path}: ntk ingest build makes it")
     rng = random.Random(seed)
     db = sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True)
+    holding = Holding(db)
     drawn = []
     try:
         tables: dict[tuple[str, str], list[str]] = {}  # one scan, not one a pair: each costs seconds
@@ -230,13 +231,14 @@ def draw_rows(seed: int = ROW_SEED, pairs: tuple = ROW_PAIRS, attempts: int = 50
                     continue
                 key, column = rng.choice(data)[0], rng.choice(header[1:])
                 value = cell(text, key, column)
-                if value and db.execute("SELECT COUNT(*) FROM units WHERE instr(text, ?) > 0", (key,)).fetchone()[0] == 1:
+                if value and len(holding(key)) == 1:
                     drawn.append({"label": label, "language": lang, "doc_id": doc_id, "key": key,
                                   "column": column, "value": value})
                     break
             else:
                 raise GoldenError(f"no {label} table row in {lang} had a key of its own in {attempts} draws")
     finally:
+        holding.save()
         db.close()
     return drawn
 
@@ -314,6 +316,40 @@ def twin_problems(loaded: dict[str, list[dict]], ctx: Context) -> list[str]:
     return problems
 
 
+class Holding:
+    """The units whose text holds a key, as row id, unit, document, layer and labels: found by reading every unit's
+    text, seconds a key, and kept beside the manifest under its last run, so they are read again only after a scan or
+    a build has changed them (PF-F9)."""
+
+    def __init__(self, db: sqlite3.Connection):
+        self.db = db
+        try:
+            last = db.execute("SELECT run_id, finished FROM runs ORDER BY run_id DESC LIMIT 1").fetchone()
+        except sqlite3.OperationalError:  # a manifest with no runs table, made by hand: nothing to key a cache on
+            last = None
+        self.state = [manifest_path().as_posix(), *(last or (None, None))]
+        self.path = data_dir() / "golden-keys.json"
+        try:
+            kept = json.loads(self.path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            kept = {}
+        self.keys = kept.get("keys", {}) if kept.get("state") == self.state else {}
+        self.changed = False
+
+    def __call__(self, key: str) -> list[list]:
+        if key not in self.keys:
+            self.keys[key] = [list(row) for row in self.db.execute(
+                "SELECT rowid, unit_id, doc_id, layer, labels FROM units WHERE instr(text, ?) > 0 ORDER BY rowid", (key,))]
+            self.changed = True
+        return self.keys[key]
+
+    def save(self) -> None:
+        if self.changed:
+            staged = self.path.with_suffix(".tmp")
+            staged.write_bytes(json.dumps({"state": self.state, "keys": self.keys}).encode("utf-8"))
+            staged.replace(self.path)
+
+
 def manifest_units(keys: list[str]) -> list[dict]:
     """The units whose text holds any of the keys, with document, layer, labels and text, the manifest read only."""
     path = manifest_path()
@@ -321,9 +357,13 @@ def manifest_units(keys: list[str]) -> list[dict]:
         raise GoldenError(f"no manifest at {path}: ntk ingest build makes it, and a table item is checked against it")
     db = sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True)
     try:
-        query = "SELECT doc_id, layer, labels, text FROM units WHERE " + " OR ".join(["instr(text, ?) > 0"] * len(keys))
-        return [{"doc_id": doc_id, "layer": layer, "labels": json.loads(labels), "text": text}
-                for doc_id, layer, labels, text in db.execute(query, keys)]
+        holding = Holding(db)
+        rows = sorted({row[0]: row for key in keys for row in holding(key)}.values())  # in the manifest's own order
+        holding.save()
+        texts = dict(db.execute(f"SELECT rowid, text FROM units WHERE rowid IN ({','.join('?' * len(rows))})",
+                                [row[0] for row in rows])) if rows else {}
+        return [{"doc_id": doc_id, "layer": layer, "labels": json.loads(labels), "text": texts[rowid]}
+                for rowid, _unit, doc_id, layer, labels in rows]
     finally:
         db.close()
 
