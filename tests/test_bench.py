@@ -85,6 +85,30 @@ def test_every_control_breaks_text_its_files_hold_once_and_names_a_test_there_is
         assert not test_name or f"def {test_name}(" in source, (control["name"], control["test"])
 
 
+def test_a_control_whose_test_was_skipped_or_never_collected_did_not_run(monkeypatch, tmp_path):
+    # MT-F25: the runner called a control passed whenever its test's pytest exited 0, and pytest exits 0 on a skip, so
+    # a control on a test that needs the GPU, the plan or a built index read as a gate that cannot fail where they are
+    # absent. A skip, and a test pytest never collected, is a control that did not run, with its reason.
+    import types
+    spec = importlib.util.spec_from_file_location("controls", BENCH / "controls.py")
+    controls = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(controls)
+    target = tmp_path / "gate.txt"
+    target.write_bytes(b"guarded\n")
+    control = {"name": "a guard taken away", "test": "tests/test_x.py::test_x",
+               "change": [{"file": str(target), "old": "guarded", "new": "open"}]}
+    said = {"skip": (0, "SKIPPED [1] tests/test_x.py:3: no CUDA device is visible\n1 skipped in 0.01s\n"),
+            "none": (5, "no tests ran in 0.01s\n"), "pass": (0, "1 passed in 0.01s\n"), "fail": (1, "E   assert 1 == 2\n")}
+    outcomes = {}
+    for case, (code, stdout) in said.items():
+        monkeypatch.setattr(controls, "subprocess", types.SimpleNamespace(
+            run=lambda *args, code=code, stdout=stdout, **kwargs: types.SimpleNamespace(returncode=code, stdout=stdout)))
+        outcomes[case] = controls.run(control)
+        assert target.read_bytes() == b"guarded\n"  # restored byte for byte, whatever the outcome
+    assert outcomes == {"skip": ("skipped", "no CUDA device is visible"), "none": ("skipped", "no test collected"),
+                        "pass": ("passed", ""), "fail": ("failed", "assert 1 == 2")}, outcomes
+
+
 def test_the_draws_bench_reuses_a_draw_only_at_the_same_share_and_states_each_share_with_its_count(monkeypatch,
                                                                                                    tmp_path):
     # RS-F6: a draw folder left from another share of the catalogue would be built and probed as if it were this one.

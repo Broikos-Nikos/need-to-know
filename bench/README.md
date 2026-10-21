@@ -501,8 +501,9 @@ The negative controls behind the gates, as data (MA-F16): each in `controls.toml
 it breaks, the text it replaces in one file or more, and the test that must then fail. The
 runner applies each, runs its test with the GPU hidden and no bytecode written, restores
 every file byte for byte, and prints each control's first error line, since a gate can fail
-for its fixture rather than its subject; it exits 1 on a control whose test passes, a gate
-that cannot fail, or whose text its file no longer holds once. `tests/test_bench.py` holds
+for its fixture rather than its subject, or a skip's reason; it exits 1 on a control whose
+test passes, a gate that cannot fail, on one whose text its file no longer holds once, and
+on one whose test was skipped or never collected, which did not run (MT-F25). `tests/test_bench.py` holds
 every change to text its file holds, so a control goes stale in the suite, not in silence.
 A commit message that counts controls quotes this command's last line.
 

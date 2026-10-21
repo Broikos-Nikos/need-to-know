@@ -773,3 +773,23 @@ old = '''    state.textContent = (error as Error).message
 '''
 new = '''    state.textContent = (error as Error).message
 '''
+
+[[control]]
+name = "a skipped test read as a control that passed"
+test = "tests/test_bench.py::test_a_control_whose_test_was_skipped_or_never_collected_did_not_run"
+[[control.change]]
+file = "bench/controls.py"
+old = '''        if done.returncode == 0 and skipped:  # a skip exits 0 as a pass does, and proves no more than a test not run
+            return "skipped", skipped[1]
+'''
+new = ''''''
+
+[[control]]
+name = "a test never collected read as a control that failed"
+test = "tests/test_bench.py::test_a_control_whose_test_was_skipped_or_never_collected_did_not_run"
+[[control.change]]
+file = "bench/controls.py"
+old = '''        if done.returncode == NONE_COLLECTED:
+            return "skipped", "no test collected"
+'''
+new = ''''''
