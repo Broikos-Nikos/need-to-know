@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**213 findings, 194 closed, 19 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**213 findings, 195 closed, 18 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -132,7 +132,7 @@ An audit pass that killed the pipeline mid build and mid change. 5 findings, 5 c
 
 ## `MA`, the measurement auditor
 
-An audit pass on whether every number can be produced again. 23 findings, 20 closed.
+An audit pass on whether every number can be produced again. 23 findings, 21 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -145,10 +145,10 @@ An audit pass on whether every number can be produced again. 23 findings, 20 clo
 | `MA-F7` | low | fixed, tick 74 | 7772c46 quotes 16 of 17 (94 percent) from documents_v1, which no committed command can rebuild now Measured by `bench/idf_attack.py --global-idf`. |
 | `MA-F8` | low | fixed, tick 71 | The sync's printed seconds leave out the reading that is most of a quiet sync, and its docstring's quarter of a minute has no command |
 | `MA-F9` | low | fixed, tick 74 | docs/AUDITS.md quotes auditors' probes that the repository does not hold |
-| `MA-F10` | medium | open | The README says a planted instruction is quoted rather than followed, on the evidence of two instructions in one excerpt: say what was tried, two instructions not followed in 20 asks, and keep quoting as the mechanism Measured by bench/injection.py. |
+| `MA-F10` | medium | fixed, tick 199 | The README says a planted instruction is quoted rather than followed, on the evidence of two instructions in one excerpt: say what was tried, two instructions not followed in 20 asks, and keep quoting as the mechanism Measured by bench/injection.py. |
 | `MA-F11` | low | fixed, tick 191 | N53 quotes a look's 9 ms and a cut's 368,000 objects, and no command prints either: print them from the watcher's opening line and the ingestion bench, or drop them and keep the mechanism |
 | `MA-F12` | low | fixed, tick 194 | The README calls a user with only general and a removed membership combinations of roles: name the cases the permission suite runs Measured by bench/permission_suite.py. |
-| `MA-F13` | low | fixed, tick 191 | Two before figures, the injection bench on the old prompt and the watcher beside a build, cannot be rerun from what the repository says: a worktree recipe beside the bench, and a scripted run or a named hand run for the other |
+| `MA-F13` | low | fixed, tick 199 | Two before figures, the injection bench on the old prompt and the watcher beside a build, cannot be rerun from what the repository says: a worktree recipe beside the bench, and a scripted run or a named hand run for the other |
 | `MA-F14` | low | fixed, tick 117 | ntk eval check checks the Greek share and skips the exempt families without printing either, and gives no count of family items, while eval/golden/README.md and commit 3b4e77d state 16 of 35 in Greek, two exempt dev families and 29 family items: the summary prints each split's Greek count and family items, and dev's exempt families by id |
 | `MA-F15` | low | fixed, tick 194 | N59 in docs/DECISIONS.md quotes 0.556 against 0.963, another project's measurement reported by the knowledge base, with neither its source nor its sample size: say whose measurement it is and on how many questions, or keep the claim and drop the figures |
 | `MA-F16` | medium | fixed, tick 190 | 18 of 128 commit messages count the negative controls a gate failed, but the controls ran from the session's scratchpad: commit them as data (file, line broken, replacement, test that must fail) with a runner that applies, runs, restores and prints the count, and cite its output, or stop counting them Measured by uv run python bench/controls.py. |
