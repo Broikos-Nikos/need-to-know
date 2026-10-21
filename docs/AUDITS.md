@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**248 findings, 226 closed, 22 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
+**248 findings, 230 closed, 18 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -175,7 +175,7 @@ An audit pass on whether every number can be produced again. 27 findings, 27 clo
 
 ## `MT`, the maintainer in six months
 
-An audit pass on whether a fresh clone can be rebuilt and changed safely. 31 findings, 28 closed.
+An audit pass on whether a fresh clone can be rebuilt and changed safely. 31 findings, 29 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -208,7 +208,7 @@ An audit pass on whether a fresh clone can be rebuilt and changed safely. 31 fin
 | `MT-F27` | low | fixed, tick 227 | Task ids like T6.2e and house rules cited in 100 tracked files name records the repository does not hold, and neither docs/DECISIONS.md nor docs/AUDITS.md says what they are: one sentence beside the research notes' in docs/DECISIONS.md |
 | `MT-F28` | low | open | test_the_readme_says_what_fails_and_the_claims_gate_reads_it asks for two What fails bullets, today's count, so T7.6's fix of the relabel fails it: at least one, each read by the claims check and stating a number |
 | `MT-F29` | medium | fixed, tick 225 | The counts the change feed and the document view read are made once per manifest, keyed by a trigger's name, with every statement IF NOT EXISTS: a fix to a trigger in code never reaches a manifest made before it, measured, and SCHEMA_VERSION does not cover them: a digest of the counts' SQL kept in the manifest, the counts made again when it differs |
-| `MT-F30` | low | open | The README names ffmpeg as the one program npm does not install, while npm run check:page and npm run capture launch Playwright's Chromium, which npm ci does not fetch: name npx playwright install chromium beside both |
+| `MT-F30` | low | fixed, tick 230 | The README names ffmpeg as the one program npm does not install, while npm run check:page and npm run capture launch Playwright's Chromium, which npm ci does not fetch: name npx playwright install chromium beside both |
 | `MT-F31` | low | fixed, tick 225 | The counted steps gate of the feed and the view asserts the counts equal before and after, and would pass on zero both times if a refactor reached the manifest another way: assert every count above zero |
 
 ## `SC`, the supply chain auditor
@@ -225,16 +225,16 @@ An audit pass on every dependency, pin and download, and anything committed by a
 
 ## `HE`, the hiring engineer
 
-An audit pass of three minutes, on whether the author ships, measures and says so honestly. 6 findings, 3 closed.
+An audit pass of three minutes, on whether the author ships, measures and says so honestly. 6 findings, 6 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `HE-F1` | medium | fixed, tick 37 | The README says nothing is measured while the repository proves a clone rebuilds the corpus, kills recover and every block resolves: a What works today list, each item with its command |
 | `HE-F2` | medium | fixed, tick 37 | The README never says the documents are synthetic or who the writers are: one sentence on provenance where the documents first appear |
 | `HE-F3` | high | fixed, tick 37 | The README says none of the run section needs a GPU, a key or a network, but uv sync downloads the dependencies: say the rest runs without them once uv sync has fetched them |
-| `HE-F4` | medium | open | The headline numbers, a mean score of 0.981 over the 35 test items, no leak, 0.964 recall@10 on the dev probes, a change reaching a query in 3.7 s, sit in the README's fifteenth bullet, the figure at line 119 and the picture at line 8: those four under the picture in a section the claims check reads |
-| `HE-F5` | low | open | The served path's bullet runs 28 lines, every route's contract a clause of one paragraph: the guarantee in a sentence, the routes as a short list, the timings their own bullet |
-| `HE-F6` | low | open | A clone sees the page only through ntk serve, which needs the index; npm run preview serves the build replaying the recording, and the README never names it |
+| `HE-F4` | medium | fixed, tick 230 | The headline numbers, a mean score of 0.981 over the 35 test items, no leak, 0.964 recall@10 on the dev probes, a change reaching a query in 3.7 s, sit in the README's fifteenth bullet, the figure at line 119 and the picture at line 8: those four under the picture in a section the claims check reads |
+| `HE-F5` | low | fixed, tick 230 | The served path's bullet runs 28 lines, every route's contract a clause of one paragraph: the guarantee in a sentence, the routes as a short list, the timings their own bullet |
+| `HE-F6` | low | fixed, tick 230 | A clone sees the page only through ntk serve, which needs the index; npm run preview serves the build replaying the recording, and the README never names it |
 
 ## `AC`, the access control red team
 
