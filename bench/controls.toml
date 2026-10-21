@@ -321,3 +321,23 @@ test = "tests/test_golden.py::test_the_units_holding_a_key_are_read_once_a_manif
 file = "src/needtoknow/eval/golden.py"
 old = '''        self.keys = kept.get("keys", {}) if kept.get("state") == self.state else {}'''
 new = '''        self.keys = {}'''
+
+[[control]]
+name = "the README opening on its jargon again"
+test = "tests/test_readme.py::test_the_readme_opens_with_what_it_does_for_a_person"
+[[control.change]]
+file = "README.md"
+old = '''Ask a question as a department, and get an answer built only from what that
+department may read.'''
+new = '''A vector database RAG project that answers a department only from what it may
+read.'''
+
+[[control]]
+name = "the README calling the suite's cases combinations of roles"
+test = "tests/test_readme.py::test_the_readme_names_every_case_the_permission_suite_runs_beyond_the_roles"
+[[control.change]]
+file = "README.md"
+old = '''every role, sales and hr held
+  together, general alone, and sales with returns removed, asking'''
+new = '''every role and three
+  combinations of them, asking'''

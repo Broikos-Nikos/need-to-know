@@ -344,8 +344,9 @@ of its original's terms. The twenty are drawn by a committed seed in the test's 
 shares; `ntk eval twins` draws them again. The gap between twins and originals is reported.
 
 **Evidence.** The protocol registers twenty twins, and the review that asked for them cited
-a measurement in which questions reworded away from a note found it first 0.556 of the
-time against 0.963. A twin adds an item to its family, so only an item whose families hold
+a measurement on another of the author's projects, which the knowledge base reports
+without its sample size, in which questions reworded away from a note found it first far
+less often than the questions they were reworded from. A twin adds an item to its family, so only an item whose families hold
 two may take one; no versioned or variant family has room, and the table items, absent
 facts and near misses have counts registered exactly, so none of them takes a twin.
 

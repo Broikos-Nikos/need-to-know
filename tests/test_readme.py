@@ -67,3 +67,25 @@ def test_the_readme_says_what_the_documents_are_and_what_needs_a_network():
     for sentence in re.split(r"(?<=[.;])\s+", README):
         if "network" in sentence:
             assert "uv sync" in sentence or "uv sync" in README[:README.index(sentence)].rsplit("\n\n", 1)[-1], sentence
+
+
+def test_the_readme_opens_with_what_it_does_for_a_person():
+    # RC-F1: it opened on "A vector database RAG project", the plain idea forty words in.
+    opening = README.split(chr(10) * 2)[1]
+    first = re.split(r"(?<=[.!?])\s", " ".join(opening.split()))[0]
+    jargon = [word for word in ("RAG", "vector", "embedding", "retrieval", "LLM", "rerank") if word.lower() in first.lower()]
+    assert not jargon and len(first.split()) <= 25, (first, jargon)
+
+
+def test_the_readme_names_every_case_the_permission_suite_runs_beyond_the_roles():
+    # MA-F12: it called a user with only general and a removed membership "combinations of roles".
+    from needtoknow.policy import load_policy
+    record = (repo_root() / "docs" / "claims" / "python-bench-permission_suite.py.txt").read_text(encoding="utf-8")
+    cases = re.findall(r"^  (\S.*?)\s{2,}foreign units:", record, re.M)
+    beyond = [case for case in cases if case not in load_policy()["roles"]]
+    assert len(beyond) == 3, cases
+    text = " ".join(README.split())
+    bullet = text[text.index("no unit a role may not read came back"):]
+    named = {"sales and hr": "sales and hr held together", "general alone": "general alone",
+             "sales, returns removed": "sales with returns removed"}
+    assert all(named[case] in bullet[:600] for case in beyond), beyond

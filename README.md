@@ -1,9 +1,13 @@
 # need-to-know
 
-A vector database RAG project. Retrieval over a company's document base in which
-every section of a file says who may read it, so the same question asked by
-different departments is meant to get different answers, and no department is
-meant to see a paragraph written for another.
+Ask a question as a department, and get an answer built only from what that
+department may read. Every section of every document says who may read it, so sales
+and legal asking the same question get different answers, and neither is shown a
+paragraph written for the other.
+
+Underneath it is retrieval augmented generation over a vector database: a dense and a
+lexical search, each filtered by the asking role's labels inside the engine, fused and
+reranked, then answered with citations from the excerpts the role may read.
 
 The documents are synthetic. A plan in code fixes every fact and the document and
 section it goes in; language model agents wrote the prose around those facts, kept in
@@ -47,8 +51,9 @@ command in this repository that produces it.
   from the vector cache after: `uv run python bench/freshness.py`.
 * A role's question is searched inside that role's filter, on the dense and the lexical
   side alike, and fused in the engine: no unit a role may not read came back in 5,760
-  searches, nor reached the excerpts a prompt would hold, every role and three
-  combinations of them asking up to 20 dev probes a label:
+  searches, nor reached the excerpts a prompt would hold, every role, sales and hr held
+  together, general alone, and sales with returns removed, asking up to 20 dev probes a
+  label:
   `uv run python bench/permission_suite.py`. The test suite asks the same of a small
   profile on CPU, with no GPU or server, so the build itself fails on a leak:
   `uv run pytest tests/test_permission_gate.py`. Asked three times on one build, every dev item
@@ -138,8 +143,10 @@ command in this repository that produces it.
   0.915 across languages, where the first hit is right half as often, 0.500 against 0.973.
   Table rows, the padding that makes up most units, take 13.0 percent of that top 10 and
   15.7 percent of the excerpts' units shown, and setting them aside changes recall@1 for no
-  role (N43). An upper bound, since templated questions sit near the planted text:
-  `uv run python bench/probe_recall.py`. On the test split, asked once for the baseline,
+  role (N43). An upper bound, since templated questions sit near the planted text, and each
+  fact sits early in a short paragraph on one topic, where a real manual buries it deeper
+  (KB1-F9); and with most sections a single paragraph, nothing here tells paragraph units
+  from section units (KB3-K6): `uv run python bench/probe_recall.py`. On the test split, asked once for the baseline,
   the 108 test probes find a gold unit in the top 10 for 0.944, 1.000 in their documents'
   language and 0.870 across, and every one of the 27 answerable test items, asked as its
   role, has each section it needs in the top 10:
