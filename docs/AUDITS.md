@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**206 findings, 181 closed, 25 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**206 findings, 184 closed, 22 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -22,7 +22,7 @@ An audit pass that tried to break a first run. 23 findings, 23 closed.
 | `HS-F6` | medium | fixed, tick 11 | The name gate misses spaced, hyphenated and zero width split names and skips binaries while reporting ok |
 | `HS-F7` | low | fixed, tick 12 | A model list item without an id raises KeyError |
 | `HS-F8` | low | fixed, tick 12 | A configured model missing from the price table raises KeyError even offline; validate the catalogue on load |
-| `HS-F9` | high | fixed, tick 77 | A build running while one file changes kills the watcher: its scan waits 5 s for the manifest and ends it, 'database is locked', and later changes wait for a restart |
+| `HS-F9` | high | fixed, tick 77 | A build running while one file changes kills the watcher: its scan waits 5 s for the manifest and ends it, 'database is locked', and later changes wait for a restart Measured by a hand run at bf8401e, ntk ingest build and ntk ingest watch side by side, one file edited; no script repeats it (MA-F13). |
 | `HS-F10` | medium | fixed, tick 79 | A question of a megabyte crashes the search: one SQL variable per term, 'too many SQL variables' |
 | `HS-F11` | medium | fixed, tick 79 | A stopped server or a missing GPU reaches ntk search and ntk index sync as a traceback |
 | `HS-F12` | low | fixed, tick 79 | Out of range numbers are taken: --limit -5 prints 95 results, --limit 0 nothing, --interval -1 a traceback, --interval 0 a busy loop |
@@ -132,7 +132,7 @@ An audit pass that killed the pipeline mid build and mid change. 5 findings, 5 c
 
 ## `MA`, the measurement auditor
 
-An audit pass on whether every number can be produced again. 23 findings, 16 closed.
+An audit pass on whether every number can be produced again. 23 findings, 18 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -146,9 +146,9 @@ An audit pass on whether every number can be produced again. 23 findings, 16 clo
 | `MA-F8` | low | fixed, tick 71 | The sync's printed seconds leave out the reading that is most of a quiet sync, and its docstring's quarter of a minute has no command |
 | `MA-F9` | low | fixed, tick 74 | docs/AUDITS.md quotes auditors' probes that the repository does not hold |
 | `MA-F10` | medium | open | The README says a planted instruction is quoted rather than followed, on the evidence of two instructions in one excerpt: say what was tried, two instructions not followed in 20 asks, and keep quoting as the mechanism Measured by bench/injection.py. |
-| `MA-F11` | low | open | N53 quotes a look's 9 ms and a cut's 368,000 objects, and no command prints either: print them from the watcher's opening line and the ingestion bench, or drop them and keep the mechanism |
+| `MA-F11` | low | fixed, tick 191 | N53 quotes a look's 9 ms and a cut's 368,000 objects, and no command prints either: print them from the watcher's opening line and the ingestion bench, or drop them and keep the mechanism |
 | `MA-F12` | low | open | The README calls a user with only general and a removed membership combinations of roles: name the cases the permission suite runs Measured by bench/permission_suite.py. |
-| `MA-F13` | low | open | Two before figures, the injection bench on the old prompt and the watcher beside a build, cannot be rerun from what the repository says: a worktree recipe beside the bench, and a scripted run or a named hand run for the other |
+| `MA-F13` | low | fixed, tick 191 | Two before figures, the injection bench on the old prompt and the watcher beside a build, cannot be rerun from what the repository says: a worktree recipe beside the bench, and a scripted run or a named hand run for the other |
 | `MA-F14` | low | fixed, tick 117 | ntk eval check checks the Greek share and skips the exempt families without printing either, and gives no count of family items, while eval/golden/README.md and commit 3b4e77d state 16 of 35 in Greek, two exempt dev families and 29 family items: the summary prints each split's Greek count and family items, and dev's exempt families by id |
 | `MA-F15` | low | open | N59 in docs/DECISIONS.md quotes 0.556 against 0.963, another project's measurement reported by the knowledge base, with neither its source nor its sample size: say whose measurement it is and on how many questions, or keep the claim and drop the figures |
 | `MA-F16` | medium | fixed, tick 190 | 18 of 128 commit messages count the negative controls a gate failed, but the controls ran from the session's scratchpad: commit them as data (file, line broken, replacement, test that must fail) with a runner that applies, runs, restores and prints the count, and cite its output, or stop counting them Measured by uv run python bench/controls.py. |
@@ -162,7 +162,7 @@ An audit pass on whether every number can be produced again. 23 findings, 16 clo
 
 ## `MT`, the maintainer in six months
 
-An audit pass on whether a fresh clone can be rebuilt and changed safely. 21 findings, 18 closed.
+An audit pass on whether a fresh clone can be rebuilt and changed safely. 21 findings, 19 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -182,7 +182,7 @@ An audit pass on whether a fresh clone can be rebuilt and changed safely. 21 fin
 | `MT-F14` | low | fixed, tick 155 | bench/probe_recall.py, which the README quotes and a test holds, has no section in bench/README.md, and nothing asks every bench for one: an entry with its needs, commands and saved file, and a test that each script in bench/ has a section, helpers such as watched.py named as helpers |
 | `MT-F15` | low | open | tests/test_noninterference.py patches numpy's argsort for the whole process to stand for the server's ordering of exact ties, relying on qdrant-client's local mode sorting with np.argsort, which nothing checks: give the local collection module its own stable argsort and assert that its search still sorts with np.argsort |
 | `MT-F16` | low | fixed, tick 133 | bench/filter_bench.py --questions drops a gold unit the manifest lacks without a word, so the probe counts as off topic for every case, DR-F25's shape kept by the mode added the same day, and no test reaches the mode: set such probes apart and name them from one function the filter and recall benches share, with a test |
-| `MT-F17` | low | open | tests/test_readme.py's gate parses an ntk command only when it holds lower case letters, spaces and dashes, so 5 of the 38 the README mentions, every one with a placeholder, a quoted argument or a path, ntk ask and ntk eval run among them, are skipped without a word: parse each with its placeholders filled by a value of their kind, and fail on a command it cannot read |
+| `MT-F17` | low | fixed, tick 191 | tests/test_readme.py's gate parses an ntk command only when it holds lower case letters, spaces and dashes, so 5 of the 38 the README mentions, every one with a placeholder, a quoted argument or a path, ntk ask and ntk eval run among them, are skipped without a word: parse each with its placeholders filled by a value of their kind, and fail on a command it cannot read |
 | `MT-F18` | medium | fixed, tick 159 | Pointed at a draw's data folder, as the draw's docstring invites, ntk index sync deletes the served collection: the client reaches the one server whatever NTK_DATA_DIR says, and draw 2's manifest explains 411 of the 501,031 served points, so a sync would delete the other 500,620 without asking: refuse a sync that would delete more than half of the points without --force, naming the data folder and the counts, and say in the draw's docstring that the index commands reach the served index |
 | `MT-F19` | low | fixed, tick 155 | bench/README.md has no section for probe_recall.py, which the README quotes twice and N43 once, and its baseline.py section says nothing of the ledger or the spend log it reads; nothing holds the bench README to bench/: the sections, and a test that every bench script but the watched.py helper has one |
 | `MT-F20` | low | fixed, tick 183 | The README names the server's routes and not how to call one: the sign in's body, the Authorization Bearer header and the query bodies are found only in api.py: three curl lines in the commands block, sign in, search and ask, the token passed on Measured by tests/test_api.py, the README's curl lines sent to the app. |
