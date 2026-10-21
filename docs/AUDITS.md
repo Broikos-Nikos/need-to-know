@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**246 findings, 216 closed, 30 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
+**246 findings, 217 closed, 29 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -174,7 +174,7 @@ An audit pass on whether every number can be produced again. 26 findings, 24 clo
 
 ## `MT`, the maintainer in six months
 
-An audit pass on whether a fresh clone can be rebuilt and changed safely. 31 findings, 24 closed.
+An audit pass on whether a fresh clone can be rebuilt and changed safely. 31 findings, 25 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -192,7 +192,7 @@ An audit pass on whether a fresh clone can be rebuilt and changed safely. 31 fin
 | `MT-F12` | low | fixed, tick 113 | ntk eval split writes over eval/families.json whatever it draws, though the split's salience reads narrative/ and the items were written against the registered split: refuse a differing result once items exist, behind a flag the protocol history records |
 | `MT-F13` | medium | fixed, tick 190 | Each bench saves one run per mode whatever its other arguments, and the tie tests hold timings too: the filter bench run 4 percent slower, the attack as its usage line's --role sales, and the recall bench with --selective-only each fail a tie test, the last with a KeyError, and overwrite the run a decision rests on: name each saved run by its arguments, have each test read the run its text quotes, and hold no timing or busy share |
 | `MT-F14` | low | fixed, tick 155 | bench/probe_recall.py, which the README quotes and a test holds, has no section in bench/README.md, and nothing asks every bench for one: an entry with its needs, commands and saved file, and a test that each script in bench/ has a section, helpers such as watched.py named as helpers |
-| `MT-F15` | low | open | tests/test_noninterference.py patches numpy's argsort for the whole process to stand for the server's ordering of exact ties, relying on qdrant-client's local mode sorting with np.argsort, which nothing checks: give the local collection module its own stable argsort and assert that its search still sorts with np.argsort |
+| `MT-F15` | low | fixed, tick 222 | tests/test_noninterference.py patches numpy's argsort for the whole process to stand for the server's ordering of exact ties, relying on qdrant-client's local mode sorting with np.argsort, which nothing checks: give the local collection module its own stable argsort and assert that its search still sorts with np.argsort |
 | `MT-F16` | low | fixed, tick 133 | bench/filter_bench.py --questions drops a gold unit the manifest lacks without a word, so the probe counts as off topic for every case, DR-F25's shape kept by the mode added the same day, and no test reaches the mode: set such probes apart and name them from one function the filter and recall benches share, with a test |
 | `MT-F17` | low | fixed, tick 191 | tests/test_readme.py's gate parses an ntk command only when it holds lower case letters, spaces and dashes, so 5 of the 38 the README mentions, every one with a placeholder, a quoted argument or a path, ntk ask and ntk eval run among them, are skipped without a word: parse each with its placeholders filled by a value of their kind, and fail on a command it cannot read |
 | `MT-F18` | medium | fixed, tick 159 | Pointed at a draw's data folder, as the draw's docstring invites, ntk index sync deletes the served collection: the client reaches the one server whatever NTK_DATA_DIR says, and draw 2's manifest explains 411 of the 501,031 served points, so a sync would delete the other 500,620 without asking: refuse a sync that would delete more than half of the points without --force, naming the data folder and the counts, and say in the draw's docstring that the index commands reach the served index |
