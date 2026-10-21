@@ -365,8 +365,8 @@ name = "the claims check reading the working half alone"
 test = "tests/test_readme.py::test_the_readme_says_what_fails_and_the_claims_gate_reads_it"
 [[control.change]]
 file = "bench/claims.py"
-old = '''    for heading in ("## What works today", "## What fails"):'''
-new = '''    for heading in ("## What works today",):'''
+old = '''    for heading in ("## The numbers", "## What works today", "## What fails"):'''
+new = '''    for heading in ("## The numbers", "## What works today"):'''
 
 [[control]]
 name = "the relabel's narrowing left out again"
@@ -990,4 +990,197 @@ file = "docs/DECISIONS.md"
 old = ''' Task ids like `T6.2e`, and the house rules a comment
 or a commit message names, belong to the project's working plan and log, kept beside the repository and not in it:
 the history cites them as a lab notebook cites its pages, and what they led to is here or in `docs/AUDITS.md`.'''
+new = ''''''
+
+[[control]]
+name = "the numbers under the method again"
+test = "tests/test_readme.py::test_the_numbers_come_right_under_the_picture_each_with_its_command_and_held_as_the_claims_are"
+[[control.change]]
+file = "README.md"
+old = '''## The numbers
+
+* **0.981**'''
+new = '''It is retrieval augmented generation over a vector database.
+
+## The numbers
+
+* **0.981**'''
+
+[[control]]
+name = "the claims check not reading the numbers"
+test = "tests/test_readme.py::test_the_numbers_come_right_under_the_picture_each_with_its_command_and_held_as_the_claims_are"
+[[control.change]]
+file = "bench/claims.py"
+old = '''    for heading in ("## The numbers", "## What works today", "## What fails"):'''
+new = '''    for heading in ("## What works today", "## What fails"):'''
+
+[[control]]
+name = "a headline number with no command"
+test = "tests/test_readme.py::test_the_numbers_come_right_under_the_picture_each_with_its_command_and_held_as_the_claims_are"
+[[control.change]]
+file = "README.md"
+old = '''  question: `uv run python bench/freshness.py`.
+'''
+new = '''  question.
+'''
+
+[[control]]
+name = "the served path's wall restored"
+test = "tests/test_readme.py::test_the_served_path_gives_its_guarantee_its_routes_as_a_list_and_its_timings_apart"
+[[control.change]]
+file = "README.md"
+old = '''* The local server is the index's one client on the served path, and it shows each role
+  nothing that role may not read: `uv run ntk serve` listens on the loopback alone and
+  answers only requests addressed to it there, and every call after the sign in carries
+  the session's token, never a role (N64).
+  * `POST /session` signs a role in and answers with its token; `GET /roles` names the
+    roles and asks for no session.
+  * `POST /search` answers with the search's stage trace: the role's filter and how many
+    units it passes and holds back, each search's candidates and scores, their fusion, the
+    reranker's order, the excerpts and each stage's seconds. The leak gate asks every case
+    through it too.
+  * `POST /ask` answers with the same trace, the excerpts as they were sent and the answer
+    with its citations, and asks the provider every time: an answer read back from a cache
+    comes in milliseconds, and its time would tell the asker that someone with the same
+    access asked the same before (N68). The spend log keeps the tokens and the price.
+  * Its answer to a dev golden question asked as its own role is scored by the registered
+    scorer; a test question is answered and never scored, `eval/protocol.toml` keeping the
+    test split for the baseline and the release; a refusal's verdict reads the same whether
+    its answer exists where the role may not read or nowhere, naming no category and no
+    leak (AC-F16).
+  * `GET /doc/<id>` shows the segments of a document the role may read and nothing of the
+    others, and refuses a document it may read none of as it refuses an unknown one. A
+    document is named by its id, which says its owning department and kind, and its
+    sections by their own numbers, whose gaps show where sections the role may not read
+    stand, never their text (N65).
+  * `GET /stats` answers with the build's figures as `ntk stats` prints them, the same for
+    every role.
+  * `GET /events` answers with the watcher's changes as the role may see them: a scan
+    shows only for the units it added that the role may read, keyed by the time it
+    finished, and a change to text the role may not read shows as nothing, not even its
+    time (N66).
+* The server loads the models as it starts, 33.4 s here with the processor 57 percent busy
+  with other programs, so its first search took 3.13 s and the rest a median of 1.20 s and
+  3.21 s at the 95th percentile, the trace's own queries 0.184 s of it at the median; over
+  2,000 fused units the engine's scores match reciprocal rank fusion of the two searches as
+  traced within 2.3e-09: `uv run python bench/served.py`.
+'''
+new = '''* The local server is the index's one client on the served path: `uv run ntk serve` listens
+  on the loopback alone and answers only requests addressed to it there, a role signs in
+  once, and every search sends the session's token, never a role (N64). Each search answers
+  with its stage trace: the role's filter and how many units it passes and holds back, each
+  search's own candidates and scores, their fusion, the reranker's order, the excerpts and
+  each stage's seconds, every unit in it one the role may read; the leak gate asks every
+  case through it too. `POST /ask` answers with the same trace, the excerpts as they were sent
+  and the answer with its citations, and asks the provider every time: an answer read back
+  from a cache comes in milliseconds, and its time would tell the asker that someone with the
+  same access asked the same before (N68). The spend log keeps the tokens and the price. A
+  dev golden question asked as its own role is
+  scored beside its answer by the registered scorer; a test question is answered and never
+  scored, `eval/protocol.toml` keeping the test split for the baseline and the release; a
+  refusal's verdict reads the same whether its answer exists where the role may not read or
+  nowhere, naming no category and no leak (AC-F16). `GET /doc/<id>` shows a role the segments
+  of a document it may read and nothing of the others, a document it may read none of refused
+  as an unknown one is; a document is named by its id, which says its owning department and
+  kind, and its sections by their own numbers, whose gaps show where sections a role may not
+  read stand, never their text (N65). `GET /stats` answers with the build's figures as `ntk
+  stats` prints them, the same for every role, and `GET /events` with the watcher's changes as
+  the role may see them: a scan shows only for the units it added that the role may read,
+  keyed by the time it finished, and a change to text the role may not read shows as nothing,
+  not even its time (N66). The models
+  load as it starts, 33.4 s here with the processor 57 percent busy with other programs, so
+  its first search took 3.13 s and the rest a median of 1.20 s and 3.21 s at the 95th
+  percentile, the trace's own queries 0.184 s of it at the median; over 2,000 fused units the
+  engine's scores match reciprocal rank fusion of the two searches as traced within 2.3e-09:
+  `uv run python bench/served.py`.
+'''
+
+[[control]]
+name = "the baseline's wall restored"
+test = "tests/test_readme.py::test_no_item_of_the_readme_is_a_wall"
+[[control.change]]
+file = "README.md"
+old = '''* The baseline, deepseek-flash at temperature 0, every item asked three times with the
+  cache off and scored by its mean, with no leak on either split:
+  `uv run python bench/baseline.py eval/runs/baseline`.
+  * All 35 test items 0.981, Wilson 0.869 to 0.997, the 29 family items alone 0.977; dev
+    0.970 over its 133 originals, answerable 0.960 and refusals 1.000.
+  * The lowest categories ask across languages, C, 0.778 over 3 test items and 0.857 over
+    14 dev ones, and two facts at once, F, 0.500 over 4 dev items. Of the wrong answers
+    over the repeats, 15, all on dev, were not shown a unit holding every fact they needed,
+    and 2 on test and 4 on dev were shown it and refused: T12 twice, D141 three times and
+    D136 once.
+  * With no documents the same model refused every time, 105 of 105 answers on test and
+    459 of 459 on dev, as its rules require, which shows nothing of what it knows. Asked
+    instead for its best guess from its own knowledge, it got 0.074 of the 27 answerable
+    test items and 0.043 of the 101 dev ones right, the most its training could have
+    supplied without retrieval, none of them on G's value a law contradicts, and its
+    guesses hit a deliberate default on three refusal items, T21, D105 and D142 (N61).
+  * Verdicts differ between two repeats for 0.0190 of the test items and 0.0044 of dev's,
+    and dev less test over families is -0.018, -0.069 to +0.038, a diagnostic that changes
+    nothing (N33). At this baseline 4 of the 80 dev families have room, so the best
+    experiment there can be reaches p 0.125 by the registered test: until dev grows, an
+    experiment is adopted on cost alone (N63).
+  * A question cost 0.000213 USD on test and 0.000191 on dev at the mean, and took 1.91 s
+    and 1.87 s at the median and 2.53 s and 2.32 s at the 95th percentile, each answer's
+    seconds read from the spend log line written for it on this machine.
+  * The answers and their provenance are in `eval/runs/baseline/`; three of the six runs
+    record an unclean tree, edits to code those runs never load, and the two best guess
+    runs were made later, at another commit.
+'''
+new = '''* The baseline, deepseek-flash at temperature 0, every item asked three times with the
+  cache off and scored by its mean: all 35 test items 0.981, Wilson 0.869 to 0.997, the 29
+  family items alone 0.977; dev 0.970 over its 133 originals, answerable 0.960 and refusals
+  1.000; no leak on either split. The lowest categories ask across languages, C, 0.778 over
+  3 test items and 0.857 over 14 dev ones, and two facts at once, F, 0.500 over 4 dev items.
+  Of the wrong answers over the repeats, 15, all on dev, were not shown a unit holding every
+  fact they needed, and 2 on test and 4 on dev were shown it and refused: T12 twice,
+  D141 three times and D136 once. With no documents the same model refused every time, 105 of
+  105 answers on test and 459 of 459 on dev, as its rules require, which shows nothing of
+  what it knows; asked
+  instead for its best guess from its own knowledge, it got 0.074 of the 27 answerable
+  test items and 0.043 of the 101 dev ones right, the most its training could have
+  supplied without retrieval, none of them on G's value a law contradicts, and its guesses
+  hit a deliberate default on three refusal items, T21, D105 and D142 (N61). Verdicts
+  differ between two repeats for 0.0190 of the test items and 0.0044 of dev's, and dev less
+  test over families is -0.018, -0.069 to +0.038, a diagnostic that changes nothing (N33).
+  At this baseline 4 of the 80 dev families have room, so the best experiment there can be
+  reaches p 0.125 by the registered test: until dev grows, an experiment is adopted on
+  cost alone (N63).
+  A question cost 0.000213 USD on test and 0.000191 on dev at the mean, and took 1.91 s and
+  1.87 s at the median and 2.53 s and 2.32 s at the 95th percentile, each answer's seconds
+  read from the spend log line written for it on this machine.
+  The answers and their provenance are in `eval/runs/baseline/`; three of the six runs
+  record an unclean tree, edits to code those runs never load, and the two best guess runs
+  were made later, at another commit: `uv run python bench/baseline.py eval/runs/baseline`.
+'''
+
+[[control]]
+name = "Run it silent on the preview"
+test = "tests/test_readme.py::test_the_readme_gives_the_command_that_shows_a_clone_the_page_without_an_index"
+[[control.change]]
+file = "README.md"
+old = '''* `npm run preview` serves the build on its own and hands the routes to `ntk serve`'s port:
+  with no server there, the page replays the recording as the published page does, so a
+  clone sees it without an index.
+'''
+new = ''''''
+
+[[control]]
+name = "a preview with a proxy of its own"
+test = "tests/test_readme.py::test_the_readme_gives_the_command_that_shows_a_clone_the_page_without_an_index"
+[[control.change]]
+file = "vite.config.ts"
+old = '''  server: { proxy: Object.fromEntries(ROUTES.map((route) => [route, 'http://127.0.0.1:6435'])) },'''
+new = '''  server: { proxy: Object.fromEntries(ROUTES.map((route) => [route, 'http://127.0.0.1:6435'])) },
+  preview: { proxy: {} },'''
+
+[[control]]
+name = "the browser's install unnamed again"
+test = "tests/test_readme.py::test_the_readme_gives_the_browser_install_where_it_gives_the_commands_that_launch_it"
+[[control.change]]
+file = "README.md"
+old = ''' Both drive
+  Playwright's Chromium, which `npm ci` does not fetch: `npx playwright install chromium`
+  does, once.'''
 new = ''''''

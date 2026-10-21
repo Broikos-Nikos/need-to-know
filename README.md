@@ -7,18 +7,33 @@ paragraph written for the other.
 
 ![The page, replayed: a question about how big a discount a shop advisor may give, asked as each department, sales and admin answered with the same seven percent and every other department refused in the same words; then the sales answer drawn one stage at a time, its filter, two searches, their fusion, a rerank, the excerpts and the answer with its citation](docs/need-to-know.gif)
 
-Underneath it is retrieval augmented generation over a vector database: a dense and a
-lexical search, each filtered by the asking role's labels inside the engine, fused and
-reranked, then answered with citations from the excerpts the role may read.
+## The numbers
+
+* **0.981** of the 35 test questions answered right, each asked three times by
+  deepseek-flash and scored by its mean, and no answer leaked on either split:
+  `uv run python bench/baseline.py eval/runs/baseline`.
+* **0** units a role may not read came back in 5,760 searches or reached a prompt's
+  excerpts, asked as every role and as roles combined and narrowed:
+  `uv run python bench/permission_suite.py`.
+* **0.964** of the 194 dev probes find a gold unit in the top 10, each asked by the
+  narrowest role that may read it: `uv run python bench/probe_recall.py`.
+* **3.7 s** at the median for a paragraph edited in the largest file to reach a
+  question: `uv run python bench/freshness.py`.
+
+Every accuracy figure in this README is this one corpus's; retrieval, which needs no
+language model, was measured again on two more draws of it. Each number comes with the
+command in this repository that produces it.
+
+## How it works
+
+It is retrieval augmented generation over a vector database: a dense and a lexical
+search, each filtered by the asking role's labels inside the engine, fused and reranked,
+then answered with citations from the excerpts the role may read.
 
 The documents are synthetic. A plan in code fixes every fact and the document and
 section it goes in; language model agents wrote the prose around those facts, kept in
 `narrative/`; and code adds the tables a real manual carries. The company is never
 named, real or invented: the documents call it "the Company".
-
-Every accuracy figure below is this one corpus's; retrieval, which needs no language
-model, was measured again on two more draws of it. Each number the README gives comes with the
-command in this repository that produces it.
 
 ## What works today
 
@@ -71,34 +86,41 @@ command in this repository that produces it.
   asks, each answered from the excerpt's own text, cited alone and in the question's
   language: `uv run ntk ask "<question>" --as <role>` and
   `uv run python bench/injection.py --repeats 20`.
-* The local server is the index's one client on the served path: `uv run ntk serve` listens
-  on the loopback alone and answers only requests addressed to it there, a role signs in
-  once, and every search sends the session's token, never a role (N64). Each search answers
-  with its stage trace: the role's filter and how many units it passes and holds back, each
-  search's own candidates and scores, their fusion, the reranker's order, the excerpts and
-  each stage's seconds, every unit in it one the role may read; the leak gate asks every
-  case through it too. `POST /ask` answers with the same trace, the excerpts as they were sent
-  and the answer with its citations, and asks the provider every time: an answer read back
-  from a cache comes in milliseconds, and its time would tell the asker that someone with the
-  same access asked the same before (N68). The spend log keeps the tokens and the price. A
-  dev golden question asked as its own role is
-  scored beside its answer by the registered scorer; a test question is answered and never
-  scored, `eval/protocol.toml` keeping the test split for the baseline and the release; a
-  refusal's verdict reads the same whether its answer exists where the role may not read or
-  nowhere, naming no category and no leak (AC-F16). `GET /doc/<id>` shows a role the segments
-  of a document it may read and nothing of the others, a document it may read none of refused
-  as an unknown one is; a document is named by its id, which says its owning department and
-  kind, and its sections by their own numbers, whose gaps show where sections a role may not
-  read stand, never their text (N65). `GET /stats` answers with the build's figures as `ntk
-  stats` prints them, the same for every role, and `GET /events` with the watcher's changes as
-  the role may see them: a scan shows only for the units it added that the role may read,
-  keyed by the time it finished, and a change to text the role may not read shows as nothing,
-  not even its time (N66). The models
-  load as it starts, 33.4 s here with the processor 57 percent busy with other programs, so
-  its first search took 3.13 s and the rest a median of 1.20 s and 3.21 s at the 95th
-  percentile, the trace's own queries 0.184 s of it at the median; over 2,000 fused units the
-  engine's scores match reciprocal rank fusion of the two searches as traced within 2.3e-09:
-  `uv run python bench/served.py`.
+* The local server is the index's one client on the served path, and it shows each role
+  nothing that role may not read: `uv run ntk serve` listens on the loopback alone and
+  answers only requests addressed to it there, and every call after the sign in carries
+  the session's token, never a role (N64).
+  * `POST /session` signs a role in and answers with its token; `GET /roles` names the
+    roles and asks for no session.
+  * `POST /search` answers with the search's stage trace: the role's filter and how many
+    units it passes and holds back, each search's candidates and scores, their fusion, the
+    reranker's order, the excerpts and each stage's seconds. The leak gate asks every case
+    through it too.
+  * `POST /ask` answers with the same trace, the excerpts as they were sent and the answer
+    with its citations, and asks the provider every time: an answer read back from a cache
+    comes in milliseconds, and its time would tell the asker that someone with the same
+    access asked the same before (N68). The spend log keeps the tokens and the price.
+  * Its answer to a dev golden question asked as its own role is scored by the registered
+    scorer; a test question is answered and never scored, `eval/protocol.toml` keeping the
+    test split for the baseline and the release; a refusal's verdict reads the same whether
+    its answer exists where the role may not read or nowhere, naming no category and no
+    leak (AC-F16).
+  * `GET /doc/<id>` shows the segments of a document the role may read and nothing of the
+    others, and refuses a document it may read none of as it refuses an unknown one. A
+    document is named by its id, which says its owning department and kind, and its
+    sections by their own numbers, whose gaps show where sections the role may not read
+    stand, never their text (N65).
+  * `GET /stats` answers with the build's figures as `ntk stats` prints them, the same for
+    every role.
+  * `GET /events` answers with the watcher's changes as the role may see them: a scan
+    shows only for the units it added that the role may read, keyed by the time it
+    finished, and a change to text the role may not read shows as nothing, not even its
+    time (N66).
+* The server loads the models as it starts, 33.4 s here with the processor 57 percent busy
+  with other programs, so its first search took 3.13 s and the rest a median of 1.20 s and
+  3.21 s at the 95th percentile, the trace's own queries 0.184 s of it at the median; over
+  2,000 fused units the engine's scores match reciprocal rank fusion of the two searches as
+  traced within 2.3e-09: `uv run python bench/served.py`.
 * The evaluation's fact families are split into test and dev by a seed registered before
   any question was written, with every draw that failed the balance check recorded:
   `uv run ntk eval split --check`.
@@ -116,30 +138,32 @@ command in this repository that produces it.
   `uv run ntk eval score <file> --purpose development` scores each repeat, then each item
   by its mean over them, and names the items whose verdict changed.
 * The baseline, deepseek-flash at temperature 0, every item asked three times with the
-  cache off and scored by its mean: all 35 test items 0.981, Wilson 0.869 to 0.997, the 29
-  family items alone 0.977; dev 0.970 over its 133 originals, answerable 0.960 and refusals
-  1.000; no leak on either split. The lowest categories ask across languages, C, 0.778 over
-  3 test items and 0.857 over 14 dev ones, and two facts at once, F, 0.500 over 4 dev items.
-  Of the wrong answers over the repeats, 15, all on dev, were not shown a unit holding every
-  fact they needed, and 2 on test and 4 on dev were shown it and refused: T12 twice,
-  D141 three times and D136 once. With no documents the same model refused every time, 105 of
-  105 answers on test and 459 of 459 on dev, as its rules require, which shows nothing of
-  what it knows; asked
-  instead for its best guess from its own knowledge, it got 0.074 of the 27 answerable
-  test items and 0.043 of the 101 dev ones right, the most its training could have
-  supplied without retrieval, none of them on G's value a law contradicts, and its guesses
-  hit a deliberate default on three refusal items, T21, D105 and D142 (N61). Verdicts
-  differ between two repeats for 0.0190 of the test items and 0.0044 of dev's, and dev less
-  test over families is -0.018, -0.069 to +0.038, a diagnostic that changes nothing (N33).
-  At this baseline 4 of the 80 dev families have room, so the best experiment there can be
-  reaches p 0.125 by the registered test: until dev grows, an experiment is adopted on
-  cost alone (N63).
-  A question cost 0.000213 USD on test and 0.000191 on dev at the mean, and took 1.91 s and
-  1.87 s at the median and 2.53 s and 2.32 s at the 95th percentile, each answer's seconds
-  read from the spend log line written for it on this machine.
-  The answers and their provenance are in `eval/runs/baseline/`; three of the six runs
-  record an unclean tree, edits to code those runs never load, and the two best guess runs
-  were made later, at another commit: `uv run python bench/baseline.py eval/runs/baseline`.
+  cache off and scored by its mean, with no leak on either split:
+  `uv run python bench/baseline.py eval/runs/baseline`.
+  * All 35 test items 0.981, Wilson 0.869 to 0.997, the 29 family items alone 0.977; dev
+    0.970 over its 133 originals, answerable 0.960 and refusals 1.000.
+  * The lowest categories ask across languages, C, 0.778 over 3 test items and 0.857 over
+    14 dev ones, and two facts at once, F, 0.500 over 4 dev items. Of the wrong answers
+    over the repeats, 15, all on dev, were not shown a unit holding every fact they needed,
+    and 2 on test and 4 on dev were shown it and refused: T12 twice, D141 three times and
+    D136 once.
+  * With no documents the same model refused every time, 105 of 105 answers on test and
+    459 of 459 on dev, as its rules require, which shows nothing of what it knows. Asked
+    instead for its best guess from its own knowledge, it got 0.074 of the 27 answerable
+    test items and 0.043 of the 101 dev ones right, the most its training could have
+    supplied without retrieval, none of them on G's value a law contradicts, and its
+    guesses hit a deliberate default on three refusal items, T21, D105 and D142 (N61).
+  * Verdicts differ between two repeats for 0.0190 of the test items and 0.0044 of dev's,
+    and dev less test over families is -0.018, -0.069 to +0.038, a diagnostic that changes
+    nothing (N33). At this baseline 4 of the 80 dev families have room, so the best
+    experiment there can be reaches p 0.125 by the registered test: until dev grows, an
+    experiment is adopted on cost alone (N63).
+  * A question cost 0.000213 USD on test and 0.000191 on dev at the mean, and took 1.91 s
+    and 1.87 s at the median and 2.53 s and 2.32 s at the 95th percentile, each answer's
+    seconds read from the spend log line written for it on this machine.
+  * The answers and their provenance are in `eval/runs/baseline/`; three of the six runs
+    record an unclean tree, edits to code those runs never load, and the two best guess
+    runs were made later, at another commit.
 * Retrieval is probed apart from the answers: two questions a fact, one in each language,
   made by code from each split's own facts and worded apart from the planted sentences,
   each with its gold units and the roles that may read them: `uv run ntk eval probes --check`.
@@ -256,12 +280,17 @@ uv run ntk ingest watch
   Live, it follows the change feed as the chosen role may see it, asked every five seconds.
   Served anywhere but the loopback, where no server can answer it, it replays three dev
   questions asked as every role through the app, with when, at which commit and with which
-  models they were asked: `uv run python bench/page_traces.py`. `npm run check:page` serves
-  the built page where it takes no server for its own and checks in a browser that what it
-  draws, as each question's role and as every role, is the recording's. `npm run capture`
-  makes the picture at the top of this file and needs one program npm does not install,
-  ffmpeg (`winget install Gyan.FFmpeg`, `brew install ffmpeg` or `apt install ffmpeg`), or
-  `FFMPEG` set to its full path; nothing else here needs it, and the page does not.
+  models they were asked: `uv run python bench/page_traces.py`.
+* `npm run preview` serves the build on its own and hands the routes to `ntk serve`'s port:
+  with no server there, the page replays the recording as the published page does, so a
+  clone sees it without an index.
+* `npm run check:page` serves the built page where it takes no server for its own and checks
+  in a browser that what it draws, as each question's role and as every role, is the
+  recording's. `npm run capture` makes the picture at the top of this file. Both drive
+  Playwright's Chromium, which `npm ci` does not fetch: `npx playwright install chromium`
+  does, once. The capture needs ffmpeg too, which npm does not install
+  (`winget install Gyan.FFmpeg`, `brew install ffmpeg` or `apt install ffmpeg`), or `FFMPEG`
+  set to its full path; nothing else here needs it, and the page does not.
 * The build needs a CUDA GPU for the encoder and the Qdrant binary that
   `config/qdrant.toml` pins. `ntk qdrant start` says where to download it, the sha256
   to check and where to unpack it, and writes the server's key into `.env`.

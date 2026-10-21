@@ -226,3 +226,79 @@ def test_run_it_says_the_count_of_passed_tests_is_partly_the_machines_and_the_wo
     assert "`uv run pytest -rs` lists: how many pass depends on the machine as well as the code" in run_it
     workflow = (repo_root() / ".github" / "workflows" / "pages.yml").read_text(encoding="utf-8")
     assert re.search(r"^ +- run: uv run --frozen pytest -q -rs$", workflow, re.M), "the workflow's suite lists no skips"
+
+
+def test_the_numbers_come_right_under_the_picture_each_with_its_command_and_held_as_the_claims_are():
+    # HE-F4: 0.981, no leak, 0.964 and 3.7 s sat over a hundred lines under the picture, the first of them in What works
+    # today's fifteenth bullet; the house order is claim, picture, number, method, and the claims check reads these as
+    # it reads the rest.
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("claims", repo_root() / "bench" / "claims.py")
+    claims = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(claims)
+    assert README.split(chr(10) * 2)[3] == "## The numbers", README.split(chr(10) * 2)[3][:80]
+    section = README[README.index("## The numbers"):]
+    section = section[:section.index("\n## ", 1)]
+    headline = [part for part in re.split(r"\n\* ", section)[1:] if part.strip()]
+    read = claims.bullets(README)
+    assert len(headline) == 4, headline
+    unheld = [bullet[:60] for bullet in headline
+              if not (claims.COMMAND.search(bullet) and claims.claimed(bullet) and bullet in read)]
+    assert not unheld, f"a headline number with no command, or one the claims check does not read: {unheld}"
+
+
+def readme_items() -> list[list[str]]:
+    """The README's list items, each bullet or sub bullet with the lines that continue it."""
+    items: list[list[str]] = []
+    current = None
+    for line in README.splitlines():
+        if re.match(r"( {2})*\* ", line):
+            current = [line]
+            items.append(current)
+        elif current is not None and line.startswith("  ") and line.strip():
+            current.append(line)
+        else:
+            current = None
+    return items
+
+
+def test_the_served_path_gives_its_guarantee_its_routes_as_a_list_and_its_timings_apart():
+    # HE-F5: one bullet of 28 lines carried the guarantee, every route's contract and the served bench's timings. The
+    # routes it lists are the ones the dev server hands over, which tests/test_api.py holds to the app's own.
+    config = (repo_root() / "vite.config.ts").read_text(encoding="utf-8")
+    routes = re.findall(r"'(/\w+)'", re.search(r"const ROUTES = \[(.*?)\]", config)[1])
+    text = README[README.index("* The local server is the index's one client"):]
+    bullet = text[:text.index("\n* ")]
+    listed = re.findall(r"^  \* `(?:GET|POST) (/\w+)", bullet, re.M) + re.findall(r"; `(?:GET|POST) (/\w+)", bullet)
+    assert sorted(listed) == sorted(routes), (listed, routes)
+    assert "bench/served.py" not in bullet and "bench/served.py" in text
+
+
+def test_no_item_of_the_readme_is_a_wall():
+    # HE-F5: a reader skimming a list reads the first lines of each item; the served bullet ran 28 lines and the
+    # baseline's 25, each now a lead and a list under it.
+    longest = max(readme_items(), key=len)
+    assert len(longest) <= 16, (len(longest), longest[0])
+
+
+def test_the_readme_gives_the_command_that_shows_a_clone_the_page_without_an_index():
+    # HE-F6: the README showed the page only through ntk serve, which needs the index. npm run preview serves the build,
+    # and vite's preview hands the routes on as its server does, unless told otherwise: with no server, it replays.
+    import json
+    scripts = json.loads((repo_root() / "package.json").read_text(encoding="utf-8"))["scripts"]
+    config = (repo_root() / "vite.config.ts").read_text(encoding="utf-8")
+    text = " ".join(README.split())
+    assert scripts["preview"] == "vite preview" and not re.search(r"^\s*preview\s*:", config, re.M)
+    assert "`npm run preview` serves the build on its own and hands the routes to `ntk serve`'s port" in text
+    assert "with no server there, the page replays the recording as the published page does" in text
+
+
+def test_the_readme_gives_the_browser_install_where_it_gives_the_commands_that_launch_it():
+    # MT-F30: npm run check:page and npm run capture launch Playwright's Chromium, which npm ci does not fetch; the
+    # README named ffmpeg as the one program npm does not install, where the suite's own skip named the browser's.
+    page_test = (repo_root() / "tests" / "test_page.py").read_text(encoding="utf-8")
+    install = re.search(r"no Chromium for playwright: (npx playwright install chromium) gives it", page_test)[1]
+    text = README[README.index("* `npm run check:page`"):]
+    bullet = " ".join(text[:text.index("\n* ")].split())
+    assert "`npm run capture`" in bullet and f"`{install}`" in bullet, bullet[:200]
+    assert "one program npm does not install" not in " ".join(README.split())

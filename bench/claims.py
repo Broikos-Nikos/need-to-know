@@ -10,7 +10,7 @@ which commit it ran, or by the log of an earlier run it was taken from, a log `N
 takes an hour on the GPU is recorded from its log rather than run again. `record` runs a command the README names
 the way the README names it, `uv run ntk ...` or `uv run python bench/...`, in this interpreter.
 
-`check` reads the README's "What works today" and "What fails": for each bullet that states a number, the commands it names, and each
+`check` reads the README's "The numbers", "What works today" and "What fails": for each bullet that states a number, the commands it names, and each
 number of its prose, outside its backticks, which must be a number some record of those commands prints. It names
 every number no record prints and every bullet with numbers and no record, and exits 1 on either; the test suite runs
 the same check (`tests/test_claims.py`). Not claims: identifiers (N43, RS-F6, T12, F07V04, DP041), and the
@@ -54,10 +54,10 @@ def record_path(command: str) -> Path:
 
 
 def bullets(readme: str) -> list[str]:
-    """The bullets of the README's "What works today" and "What fails", whose numbers are held alike."""
+    """The bullets of the README's "The numbers", "What works today" and "What fails", whose numbers are held alike."""
     found = []
-    for heading in ("## What works today", "## What fails"):
-        if heading == "## What fails" and heading not in readme:  # the README's own test asks for it
+    for heading in ("## The numbers", "## What works today", "## What fails"):
+        if heading != "## What works today" and heading not in readme:  # the README's own tests ask for them
             continue
         section = readme[readme.index(heading):]
         section = section[:section.index("\n## ", 1)]
@@ -195,7 +195,7 @@ def main() -> int:
         for problem in problems:
             print(problem)
         claims = sum(len(claimed(b)) for b in bullets((REPO / "README.md").read_text(encoding="utf-8")))
-        print(f"{claims} numbers in the README's What works today and What fails; {len(problems)} problems")
+        print(f"{claims} numbers in the README's The numbers, What works today and What fails; {len(problems)} problems")
         documented = check_docs()
         for problem in documented:
             print(problem)
