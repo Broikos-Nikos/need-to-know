@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**213 findings, 193 closed, 20 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**213 findings, 194 closed, 19 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -162,7 +162,7 @@ An audit pass on whether every number can be produced again. 23 findings, 20 clo
 
 ## `MT`, the maintainer in six months
 
-An audit pass on whether a fresh clone can be rebuilt and changed safely. 28 findings, 19 closed.
+An audit pass on whether a fresh clone can be rebuilt and changed safely. 28 findings, 20 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -188,7 +188,7 @@ An audit pass on whether a fresh clone can be rebuilt and changed safely. 28 fin
 | `MT-F20` | low | fixed, tick 183 | The README names the server's routes and not how to call one: the sign in's body, the Authorization Bearer header and the query bodies are found only in api.py: three curl lines in the commands block, sign in, search and ask, the token passed on Measured by tests/test_api.py, the README's curl lines sent to the app. |
 | `MT-F21` | low | fixed, tick 183 | ntk doctor says nothing of the local server: whether ntk serve can take its port, or another program or server already holds it: a serve line, the port free or held Measured by tests/test_doctor.py, the serve line's three cases. |
 | `MT-F22` | low | open | The README says the page builds with Node 22 or later; vite 8.3.4 declares ^20.19.0 // >=22.12.0, and package.json declares no engines: say Node 20.19, or 22.12 or later, and give package.json the same engines |
-| `MT-F23` | low | open | The rows a stage draws are SHOWN = 10 in web/src/main.ts and in bench/page_traces.py, by copy: raised in the page alone, a replayed trace of ten rows says the first 20 shown; the page counts the rows it drew, and the trace test holds the recorder's SHOWN to the page's |
+| `MT-F23` | low | fixed, tick 197 | The rows a stage draws are SHOWN = 10 in web/src/main.ts and in bench/page_traces.py, by copy: raised in the page alone, a replayed trace of ten rows says the first 20 shown; the page counts the rows it drew, and the trace test holds the recorder's SHOWN to the page's |
 | `MT-F24` | low | open | golden.Holding keys its cache by the manifest's path and last run, not by the query that filled it: a changed query is served the old rows, a changed column list fails as an unpacking error in manifest_units; put the query's text in the state |
 | `MT-F25` | low | open | bench/controls.py calls a control passed whenever its test's pytest exits 0, and a skipped test exits 0: a control on a test that needs the plan, the manifest or the GPU reports a gate that cannot fail where they are absent; report a skip as its own outcome, did not run, with its reason, exiting 1 |
 | `MT-F26` | low | open | The page's Trace, Answer and Scored types restate the served trace's keys, and vite.config.ts lists the server's seven routes for npm run dev, both by hand: test_api holds the served keys in Python alone, so a field renamed on the server leaves the live page reading undefined and a new route is not handed over; a test that reads both copies from the page's files and compares them with a served body's keys and the app's routes |
