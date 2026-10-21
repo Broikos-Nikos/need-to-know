@@ -203,3 +203,26 @@ def test_the_build_runs_the_projects_own_gates():
     assert scripts["build"].split(" && ") == ["tsc --noEmit", "npm run check", "vite build"], scripts["build"]
     assert {"bench/claims.py check", "bench/page_data.py --check"} <= {part.removeprefix("uv run python ")
                                                                        for part in scripts["check"].split(" && ")}
+
+
+def test_the_ties_bullet_and_n50_name_the_collection_the_move_was_measured_in():
+    # MA-F27: both gave the bulk of 15,000 written into the collection and not the 30,000 units it held, the size the
+    # optimizer's work that moved the order came with.
+    record = (repo_root() / "docs" / "claims" / "python-bench-ties.py.txt").read_text(encoding="utf-8")
+    size, labels = re.search(r"ties_bench: ([\d,]+) filler units over (\d+) labels", record).groups()
+    said = f"{size} units of all {labels} labels"
+    text = " ".join(README.split())
+    bullet = text[text.index("The order of units of exactly equal score"):]
+    decisions = " ".join((repo_root() / "docs" / "DECISIONS.md").read_text(encoding="utf-8").split())
+    amendment = decisions[decisions.index("*Amended 2026-10-21, tick 214 (AC-F12):*"):]
+    assert said in bullet[:bullet.index("bench/ties.py")], said
+    assert said in amendment[:amendment.index("bench/ties.py")], said
+
+
+def test_run_it_says_the_count_of_passed_tests_is_partly_the_machines_and_the_workflow_lists_the_skips():
+    # MA-F2: "122 tests pass" read as the code's, and a machine without the GPU, the models or the Qdrant binary counts
+    # fewer; each skip says what it needed, and the README and the workflow's suite both list them.
+    run_it = " ".join(README[README.index("## Run it"):].split())
+    assert "`uv run pytest -rs` lists: how many pass depends on the machine as well as the code" in run_it
+    workflow = (repo_root() / ".github" / "workflows" / "pages.yml").read_text(encoding="utf-8")
+    assert re.search(r"^ +- run: uv run --frozen pytest -q -rs$", workflow, re.M), "the workflow's suite lists no skips"

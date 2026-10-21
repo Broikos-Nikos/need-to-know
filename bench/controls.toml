@@ -905,6 +905,84 @@ old = '''    for form in {str(REPO), REPO.as_posix()}:
 new = ''''''
 
 [[control]]
+name = "the ties bullet without the collection the move was measured in"
+test = "tests/test_readme.py::test_the_ties_bullet_and_n50_name_the_collection_the_move_was_measured_in"
+[[control.change]]
+file = "README.md"
+old = '''  units of sales tied in both searches, among 30,000 units of all 10 labels, kept their
+'''
+new = '''  units of sales tied in both searches kept their
+'''
+
+[[control]]
+name = "N50's amendment without the collection the move was measured in"
+test = "tests/test_readme.py::test_the_ties_bullet_and_n50_name_the_collection_the_move_was_measured_in"
+[[control.change]]
+file = "docs/DECISIONS.md"
+old = '''index's is, of 30,000 units of all 10 labels: 150 units of sales tied in both searches kept
+'''
+new = '''index's is: 150 units of sales tied in both searches kept
+'''
+
+[[control]]
+name = "Run it silent on what the suite skips"
+test = "tests/test_readme.py::test_run_it_says_the_count_of_passed_tests_is_partly_the_machines_and_the_workflow_lists_the_skips"
+[[control.change]]
+file = "README.md"
+old = '''* `uv run pytest` runs the suite. A test that needs more than these commands make, a CUDA
+  GPU, the Qdrant binary, a built manifest or index, a bench's saved results, Node and
+  Chromium, or the git history, skips and says what it needed, which `uv run pytest -rs`
+  lists: how many pass depends on the machine as well as the code.
+'''
+new = ''''''
+
+[[control]]
+name = "the workflow's suite listing no skips"
+test = "tests/test_readme.py::test_run_it_says_the_count_of_passed_tests_is_partly_the_machines_and_the_workflow_lists_the_skips"
+[[control.change]]
+file = ".github/workflows/pages.yml"
+old = '''      - run: uv run --frozen pytest -q -rs
+'''
+new = '''      - run: uv run --frozen pytest -q
+'''
+
+[[control]]
+name = "a skip that says nothing"
+test = "tests/test_portable.py::test_every_skip_in_the_suite_says_what_it_needed"
+[[control.change]]
+file = "tests/test_audits.py"
+old = '''        pytest.skip("not a git checkout")'''
+new = '''        pytest.skip()'''
+
+[[control]]
+name = "a skip mark that says nothing"
+test = "tests/test_portable.py::test_every_skip_in_the_suite_says_what_it_needed"
+[[control.change]]
+file = "tests/test_audits.py"
+old = '''def test_every_cited_finding_id_has_a_row_in_docs_audits():'''
+new = '''@pytest.mark.skip
+def test_every_cited_finding_id_has_a_row_in_docs_audits():'''
+
+[[control]]
+name = "the errata dropped from the audit table"
+test = "tests/test_audits.py::test_the_errata_name_each_message_kept_wrong_and_a_later_commit_that_mends_it"
+[[control.change]]
+file = "docs/AUDITS.md"
+old = '''## Errata
+
+Commit messages stand as written. Where one says something false of its own commit, it is listed here with what is true, and the later commit that mends it.
+'''
+new = ''''''
+
+[[control]]
+name = "an erratum whose mend comes before the message it mends"
+test = "tests/test_audits.py::test_the_errata_name_each_message_kept_wrong_and_a_later_commit_that_mends_it"
+[[control.change]]
+file = "docs/AUDITS.md"
+old = '''`691a2d1` mends the test'''
+new = '''`b80c206` mends the test'''
+
+[[control]]
 name = "the decisions page silent on the task ids the history cites"
 test = "tests/test_decisions.py::test_the_decisions_page_says_what_the_task_ids_the_history_cites_are"
 [[control.change]]

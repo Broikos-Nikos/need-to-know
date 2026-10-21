@@ -184,10 +184,11 @@ command in this repository that produces it.
   of it (PF-F10): `uv run python bench/revocation.py`.
 * The order of units of exactly equal score is the engine's, set by the index's layout,
   which units a role may not read help shape. In a collection made as the index's is, 150
-  units of sales tied in both searches kept their order while 150 units of legal were
-  written and deleted again, and moved in each search and in the fusion once 15,000 more of
-  legal were written and the optimizer settled; the fusion ranks tied units by that order,
-  so their fused scores moved with it (N50): `uv run python bench/ties.py`.
+  units of sales tied in both searches, among 30,000 units of all 10 labels, kept their
+  order while 150 units of legal were written and deleted again, and moved in each search
+  and in the fusion once 15,000 more of legal were written and the optimizer settled a
+  collection of that size; the fusion ranks tied units by that order, so their fused scores
+  moved with it (N50): `uv run python bench/ties.py`.
 
 ## Run it
 
@@ -210,6 +211,10 @@ uv run pytest
 * `ntk corpus check` confirms that every planted fact sits where the plan put it.
 * `ntk corpus mutate` changes the built corpus the way real documents change, and
   journals each change with the effect it must have.
+* `uv run pytest` runs the suite. A test that needs more than these commands make, a CUDA
+  GPU, the Qdrant binary, a built manifest or index, a bench's saved results, Node and
+  Chromium, or the git history, skips and says what it needed, which `uv run pytest -rs`
+  lists: how many pass depends on the machine as well as the code.
 * `bench/` holds the scripts behind the numbers in the history, and
   `docs/AUDITS.md` lists every audit finding the history cites.
 

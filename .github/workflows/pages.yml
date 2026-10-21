@@ -8,7 +8,7 @@
 # which needs no GPU, key or network after the sync: the permission gate on a
 # small profile in Qdrant's local mode, the noninterference test, the claims and
 # every other test; those that need the GPU, the Qdrant binary or a built index
-# skip and say why.
+# skip, and `-rs` lists each with what it needed.
 #
 # `build` runs the project's own gates before vite writes anything: the type
 # check, every number in the README held to the recorded output of its command,
@@ -55,7 +55,7 @@ jobs:
       - run: uv run --frozen ntk corpus plan
       - run: uv run --frozen ntk corpus assemble
       - run: uv run --frozen ntk corpus check
-      - run: uv run --frozen pytest -q
+      - run: uv run --frozen pytest -q -rs
 
   build:
     runs-on: ubuntu-latest

@@ -249,9 +249,10 @@ storage, with a rebuild for every policy change.
 **Reverses if.** The view's frequency table cannot be kept in step with the index.
 
 *Amended 2026-10-21, tick 214 (AC-F12):* measured on the server, in a collection made as the
-index's is: 150 units of sales tied in both searches kept their order while 150 units of
-legal that would tie with them were written and deleted again, and moved, in each search and
-in the fusion, once 15,000 more of legal were written and the optimizer settled; built again
+index's is, of 30,000 units of all 10 labels: 150 units of sales tied in both searches kept
+their order while 150 units of legal that would tie with them were written and deleted
+again, and moved, in each search and in the fusion, once 15,000 more of legal were written
+and the optimizer settled a collection of that size; built again
 from the same units in the same order, they moved too (`uv run python bench/ties.py`). So
 on the server the order of exactly tied units is the index's layout, which units a role may
 not read help shape, and the fusion ranks tied units by it; asked again on one build with

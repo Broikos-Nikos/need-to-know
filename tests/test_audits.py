@@ -60,3 +60,17 @@ def test_the_page_says_where_a_findings_numbers_come_from_and_every_command_it_n
                 assert words[2:3] == ["pytest"], command
             else:
                 assert (repo_root() / words[0]).exists(), command
+
+
+def test_the_errata_name_each_message_kept_wrong_and_a_later_commit_that_mends_it():
+    # MA-F23: 17a64d9's message counts a suite its own tree fails, and the history keeps it as written; the page says
+    # so, and every commit it names is one this history holds, the mend after the message it corrects.
+    text = (repo_root() / "docs" / "AUDITS.md").read_text(encoding="utf-8")
+    assert "\n## Errata\n" in text, "docs/AUDITS.md names no message the history keeps although it is wrong"
+    pairs = re.findall(r"^\* `([0-9a-f]{7,40})` .*`([0-9a-f]{7,40})` mends", text.partition("\n## Errata\n")[2], re.M)
+    assert pairs, "the errata name no message and no commit that mends it"
+    if git("rev-parse", "--is-shallow-repository").strip() == "true":
+        pytest.skip("this clone holds only the last commits of the history")
+    for wrong, mend in pairs:
+        run = subprocess.run(["git", "merge-base", "--is-ancestor", wrong, mend], cwd=repo_root(), capture_output=True)
+        assert run.returncode == 0, f"{wrong} is not a commit of this history before {mend}"
