@@ -212,13 +212,13 @@ def draw_rows(seed: int = ROW_SEED, pairs: tuple = ROW_PAIRS, attempts: int = 50
     drawn = []
     try:
         tables: dict[tuple[str, str], list[str]] = {}  # one scan, not one a pair: each costs seconds
-        for unit_id, labels, language in db.execute("SELECT unit_id, labels, language FROM units WHERE layer = 'table' "
+        for unit_id, labels, lang in db.execute("SELECT unit_id, labels, language FROM units WHERE layer = 'table' "
                                                     "ORDER BY unit_id"):
-            tables.setdefault((labels, language), []).append(unit_id)
-        for label, language in pairs:
-            ids = tables.get((json.dumps([label]), language), [])
+            tables.setdefault((labels, lang), []).append(unit_id)
+        for label, lang in pairs:
+            ids = tables.get((json.dumps([label]), lang), [])
             if not ids:  # a corpus with no such register: named, not an IndexError (DR-F23)
-                raise GoldenError(f"no {label} table units in {language} to draw a row from")
+                raise GoldenError(f"no {label} table units in {lang} to draw a row from")
             for _ in range(attempts):
                 doc_id, text = db.execute("SELECT doc_id, text FROM units WHERE unit_id = ?",
                                           (rng.choice(ids),)).fetchone()
@@ -231,11 +231,11 @@ def draw_rows(seed: int = ROW_SEED, pairs: tuple = ROW_PAIRS, attempts: int = 50
                 key, column = rng.choice(data)[0], rng.choice(header[1:])
                 value = cell(text, key, column)
                 if value and db.execute("SELECT COUNT(*) FROM units WHERE instr(text, ?) > 0", (key,)).fetchone()[0] == 1:
-                    drawn.append({"label": label, "language": language, "doc_id": doc_id, "key": key,
+                    drawn.append({"label": label, "language": lang, "doc_id": doc_id, "key": key,
                                   "column": column, "value": value})
                     break
             else:
-                raise GoldenError(f"no {label} table row in {language} had a key of its own in {attempts} draws")
+                raise GoldenError(f"no {label} table row in {lang} had a key of its own in {attempts} draws")
     finally:
         db.close()
     return drawn

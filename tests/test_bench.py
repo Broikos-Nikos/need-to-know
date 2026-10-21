@@ -28,6 +28,23 @@ def test_every_bench_script_has_a_section_in_the_bench_readme_or_is_named_no_ben
     assert not sections - scripts, sorted(sections - scripts)  # no section for a script that is gone
 
 
+def test_no_function_rebinds_a_name_its_module_imports():
+    # Tick 189: served.py's main bound `load` to the processor's reader, a name the module imports to load the probes,
+    # so its first line raised UnboundLocalError; nothing ran the bench's main to see it. A function's own name for a
+    # thing its module imports under that name is the shape.
+    import ast
+    clashes = []
+    for path in sorted([*BENCH.glob("*.py"), *(BENCH.parent / "src").rglob("*.py")]):
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        imported = {(alias.asname or alias.name).split(".")[0] for node in tree.body
+                    if isinstance(node, (ast.Import, ast.ImportFrom)) for alias in node.names}
+        for function in (n for n in ast.walk(tree) if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))):
+            bound = {n.id for n in ast.walk(function) if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Store)}
+            bound |= {arg.arg for arg in function.args.args + function.args.kwonlyargs}
+            clashes += [f"{path.name}: {function.name} binds {name}" for name in sorted(bound & imported)]
+    assert not clashes, clashes
+
+
 def test_the_draws_bench_reuses_a_draw_only_at_the_same_share_and_states_each_share_with_its_count(monkeypatch,
                                                                                                    tmp_path):
     # RS-F6: a draw folder left from another share of the catalogue would be built and probed as if it were this one.

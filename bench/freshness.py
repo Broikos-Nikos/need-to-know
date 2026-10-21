@@ -70,8 +70,8 @@ def main() -> int:
     assert found(client, policy, role, old) and not found(client, policy, role, new), "the fact is not as planted"
     original = file.read_bytes()
     edits, undos, embedded = [], [], {"edit": [], "undoing": []}
-    load = Load()  # the other programs' load, read before anything of the bench runs (MA-F20)
-    print(load.opening(), flush=True)
+    cpu = Load()  # the other programs' load, read before anything of the bench runs (MA-F20)
+    print(cpu.opening(), flush=True)
     watched = Watched(args.interval)
     print(f"{doc_id}, {len(original) / 1e6:.1f} MB, as {role}; the watcher's catch up, a scan and a sync of every "
           f"document: {watched.start():.1f} s", flush=True)
@@ -91,7 +91,7 @@ def main() -> int:
         watched.stop()
         if file.read_bytes() != original:
             file.write_bytes(original)
-    print(load.closing(), flush=True)
+    print(cpu.closing(), flush=True)
     print(f"{doc_id}: the edited sentence reached a query in {spread(edits)}; its undoing in {spread(undos)} "
           f"(watch interval {watched.interval:g} s; objective {OBJECTIVE:g} s)")
     # A passage the vector cache holds is not embedded again, so the first edit is the one that measures the change;

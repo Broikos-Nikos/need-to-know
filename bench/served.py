@@ -56,8 +56,8 @@ def main(argv: list[str] | None = None) -> int:
     missing = lost(probes, in_manifest(sorted({unit for probe in probes for unit in probe["gold"]})))
     probes = [probe for probe in probes if probe["id"] not in missing][:args.questions]
     client = server.client()
-    load = Load()  # the other programs' load, read before the models load (MA-F20)
-    print(load.opening(), flush=True)
+    cpu = Load()  # the other programs' load, read before the models load (MA-F20)
+    print(cpu.opening(), flush=True)
     loaded = warm()
     http = TestClient(api.create(client), base_url=f"http://{api.HOST}")
     tokens = {}
@@ -86,7 +86,7 @@ def main(argv: list[str] | None = None) -> int:
           f"queries a median of {statistics.median(traced):.3f} s", flush=True)
     print(f"the fused scores against reciprocal rank fusion of the two searches as traced: {len(checked)} fused units, "
           f"the largest gap {max(checked):.1e}", flush=True)
-    print(load.closing(), flush=True)
+    print(cpu.closing(), flush=True)
     return 0
 
 
