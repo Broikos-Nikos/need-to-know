@@ -16,7 +16,7 @@ __pycache__/
 node_modules/
 dist/
 .vite/
-.capture/
+.capture
 
 .DS_Store
 *.local

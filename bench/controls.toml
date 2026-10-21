@@ -582,3 +582,13 @@ then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 
 file = "web/src/main.ts"
 old = '''      byId<HTMLFormElement>('query').requestSubmit(byId<HTMLButtonElement>('replay'))'''
 new = '''      void byId<HTMLButtonElement>('replay')'''
+
+[[control]]
+name = "the README without the page after its claim"
+test = "tests/test_readme.py::test_the_readme_shows_the_page_right_after_its_claim"
+[[control.change]]
+file = "README.md"
+old = '''![The page, replayed: a question about how big a discount a shop advisor may give, asked as each department, sales and admin answered with the same seven percent and every other department refused in the same words; then the sales answer drawn one stage at a time, its filter, two searches, their fusion, a rerank, the excerpts and the answer with its citation](docs/need-to-know.gif)
+
+'''
+new = ''''''

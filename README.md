@@ -5,6 +5,8 @@ department may read. Every section of every document says who may read it, so sa
 and legal asking the same question get different answers, and neither is shown a
 paragraph written for the other.
 
+![The page, replayed: a question about how big a discount a shop advisor may give, asked as each department, sales and admin answered with the same seven percent and every other department refused in the same words; then the sales answer drawn one stage at a time, its filter, two searches, their fusion, a rerank, the excerpts and the answer with its citation](docs/need-to-know.gif)
+
 Underneath it is retrieval augmented generation over a vector database: a dense and a
 lexical search, each filtered by the asking role's labels inside the engine, fused and
 reranked, then answered with citations from the excerpts the role may read.
@@ -14,9 +16,8 @@ section it goes in; language model agents wrote the prose around those facts, ke
 `narrative/`; and code adds the tables a real manual carries. The company is never
 named, real or invented: the documents call it "the Company".
 
-Under construction: the page and the hardening are still to come. Every accuracy
-figure below is this one corpus's; retrieval, which needs no language model, was
-measured again on two more draws of it. Each number the README gives comes with the
+Every accuracy figure below is this one corpus's; retrieval, which needs no language
+model, was measured again on two more draws of it. Each number the README gives comes with the
 command in this repository that produces it.
 
 ## What works today
@@ -245,7 +246,10 @@ uv run ntk ingest watch
   questions asked as every role through the app, with when, at which commit and with which
   models they were asked: `uv run python bench/page_traces.py`. `npm run check:page` serves
   the built page where it takes no server for its own and checks in a browser that what it
-  draws, as each question's role and as every role, is the recording's.
+  draws, as each question's role and as every role, is the recording's. `npm run capture`
+  makes the picture at the top of this file and needs one program npm does not install,
+  ffmpeg (`winget install Gyan.FFmpeg`, `brew install ffmpeg` or `apt install ffmpeg`), or
+  `FFMPEG` set to its full path; nothing else here needs it, and the page does not.
 * The build needs a CUDA GPU for the encoder and the Qdrant binary that
   `config/qdrant.toml` pins. `ntk qdrant start` says where to download it, the sha256
   to check and where to unpack it, and writes the server's key into `.env`.

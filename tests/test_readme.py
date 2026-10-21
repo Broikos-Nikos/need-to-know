@@ -136,3 +136,19 @@ def test_the_readme_gives_the_node_the_page_build_needs():
     (low, low_minor), (high, high_minor) = re.findall(r"(\d+)\.(\d+)\.0", wanted)  # ^20.19.0 || >=22.12.0
     said = f"Node {low}.{low_minor}, or {high}.{high_minor} or later"
     assert said in " ".join(README.split()), (wanted, said)
+
+
+def test_the_readme_shows_the_page_right_after_its_claim():
+    # RC-F2: nothing in the first screen could be seen or tried. The house order is claim, picture, number, method: the
+    # recording of the page follows the opening, it moves, it is the width GitHub draws it at, and it says what made it.
+    import json
+
+    from needtoknow.policy import load_policy
+    picture = re.fullmatch(r"!\[([^\]]{80,})\]\((docs/[\w.-]+\.gif)\)", README.split(chr(10) * 2)[2].strip())
+    assert picture, README.split(chr(10) * 2)[2][:120]
+    gif = (repo_root() / picture[2]).read_bytes()
+    frames = gif.count(bytes((0x21, 0xF9, 0x04)))  # a graphic control extension opens each frame
+    assert gif[:6] == b"GIF89a" and int.from_bytes(gif[6:8], "little") == 880 and frames > 20, frames
+    made = json.loads((repo_root() / "docs" / "capture.json").read_text(encoding="utf-8"))
+    assert made["ffmpeg"] and set(made["looked"]["every_role"]) == set(load_policy()["roles"])
+    assert "npm run capture" in README and "ffmpeg" in README

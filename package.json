@@ -10,7 +10,8 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "check:page": "node tools/check-page.mjs"
+    "check:page": "node tools/check-page.mjs",
+    "capture": "node tools/capture.mjs"
   },
   "devDependencies": {
     "@types/node": "^24.13.6",
