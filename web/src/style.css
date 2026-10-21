@@ -517,6 +517,20 @@ button:disabled {
   overflow-wrap: anywhere;
 }
 
+.foot {
+  padding-top: 2.5rem;
+  padding-bottom: 3rem;
+  color: var(--faint);
+  font-size: 0.85em;
+}
+
+.foot a {
+  color: var(--paper);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  overflow-wrap: anywhere;
+}
+
 .figures {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));

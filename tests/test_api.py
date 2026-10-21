@@ -501,3 +501,30 @@ def test_ntk_serve_holds_its_port_then_loads_the_models_and_listens_on_the_loopb
     assert capsys.readouterr().out == "serve: the index's server is not running: ntk qdrant start\n"
     with socket.socket() as again:
         again.bind(("127.0.0.1", port))
+
+
+def test_the_page_and_its_dev_proxy_name_what_the_server_serves(client, monkeypatch):
+    # MT-F26: the page's types and vite.config.ts's routes were hand copies of the server, held by nothing: a field
+    # renamed here failed this file alone while the live page read undefined, and a new route was not handed over.
+    import re
+
+    from fastapi.routing import APIRoute
+
+    from needtoknow.answer import pipeline
+    from needtoknow.settings import repo_root
+    monkeypatch.setitem(pipeline.ADAPTERS, "deepseek", echoing)
+    monkeypatch.setattr(pipeline, "warm", lambda encode=None, rerank=None: 0.0)
+    http = served(client)
+    body = http.post("/ask", json=ASKED, headers=signed(http, "sales")).json()
+    page = (repo_root() / "web" / "src" / "main.ts").read_text(encoding="utf-8")
+
+    def keys(name: str) -> set[str]:
+        block = page[page.index(f"type {name} = {{"):]
+        return set(re.findall(r"^  (\w+)\??:", block[:block.index("\n}")], re.M))
+
+    assert keys("Trace") - {"counts"} == set(body)  # counts: what bench/page_traces.py adds to a recorded trace
+    assert keys("Answer") == set(body["answer"])
+    config = (repo_root() / "vite.config.ts").read_text(encoding="utf-8")
+    proxied = set(re.findall(r"'(/\w+)'", re.search(r"const ROUTES = \[(.*?)\]", config)[1]))
+    routes = {"/" + route.path.strip("/").split("/")[0] for route in http.app.routes if isinstance(route, APIRoute)}
+    assert proxied == routes, (proxied, routes)

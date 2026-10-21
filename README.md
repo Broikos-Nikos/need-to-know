@@ -232,8 +232,8 @@ uv run ntk ingest watch
   curl -s -X POST http://127.0.0.1:6435/search -H "Authorization: Bearer <token>" -H "Content-Type: application/json" -d '{"question": "How many days does a customer have to return a device?"}'
   curl -s -X POST http://127.0.0.1:6435/ask -H "Authorization: Bearer <token>" -H "Content-Type: application/json" -d '{"question": "How many days does a customer have to return a device?"}'
   ```
-* `npm ci` and `npm run build`, with Node 22 or later, build the page into `web/dist`, which
-  `ntk serve` serves at its own address beside its routes. There a role searches, or asks and
+* `npm ci` and `npm run build`, with Node 20.19, or 22.12 or later, as vite asks, build the page
+  into `web/dist`, which `ntk serve` serves at its own address beside its routes. There a role searches, or asks and
   is answered and scored, or the same question goes to all nine roles side by side, and each
   stage of the trace shows with its seconds on the server;
   slow motion plays the trace one stage at a time, and with reduced motion set nothing moves.
@@ -243,7 +243,9 @@ uv run ntk ingest watch
   Live, it follows the change feed as the chosen role may see it, asked every five seconds.
   Served anywhere but the loopback, where no server can answer it, it replays three dev
   questions asked as every role through the app, with when, at which commit and with which
-  models they were asked: `uv run python bench/page_traces.py`.
+  models they were asked: `uv run python bench/page_traces.py`. `npm run check:page` serves
+  the built page where it takes no server for its own and checks in a browser that what it
+  draws, as each question's role and as every role, is the recording's.
 * The build needs a CUDA GPU for the encoder and the Qdrant binary that
   `config/qdrant.toml` pins. `ntk qdrant start` says where to download it, the sha256
   to check and where to unpack it, and writes the server's key into `.env`.

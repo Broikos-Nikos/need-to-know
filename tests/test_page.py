@@ -190,3 +190,24 @@ def test_the_recorded_traces_hold_each_roles_view_and_say_when_and_with_what():
             assert "error" not in (trace["verdict"] or {}), where
             for stage in ("dense", "sparse", "fused", "reranked"):
                 assert len(trace[stage]) == min(shown, trace["counts"][stage]), (*where, stage)
+
+
+def test_the_page_replays_its_recording_in_a_browser_where_no_server_answers():
+    # T6.4f: the tests above read the page's files, and nothing ran the page. web/check-page.mjs serves the build at an
+    # address the page does not take for its local server and checks what it draws against the recording.
+    import shutil
+    import subprocess
+    node = shutil.which("node")
+    root = repo_root()
+    if not node or not (root / "node_modules" / "playwright").is_dir():
+        pytest.skip("no node or no playwright: npm ci gives them")
+    probe = "require('fs').accessSync(require('playwright').chromium.executablePath())"
+    if subprocess.run([node, "-e", probe], cwd=root, capture_output=True).returncode:
+        pytest.skip("no Chromium for playwright: npx playwright install chromium gives it")
+    for step in (["node_modules/typescript/bin/tsc", "--noEmit"], ["node_modules/vite/bin/vite.js", "build"]):
+        built = subprocess.run([node, *step], cwd=root, capture_output=True, text=True, encoding="utf-8", errors="replace")
+        assert built.returncode == 0, (step, built.stdout[-400:], built.stderr[-400:])
+    done = subprocess.run([node, "web/check-page.mjs"], cwd=root, capture_output=True, text=True, encoding="utf-8",
+                          errors="replace")
+    said = (done.stdout + done.stderr).splitlines()
+    assert done.returncode == 0, [line for line in said if not line.startswith("  ok")][:6]

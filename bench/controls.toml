@@ -433,3 +433,56 @@ test = "tests/test_bench.py::test_the_before_recipe_runs_a_bench_its_commit_can_
 file = "bench/README.md"
 old = '''git show 11ae4b3:bench/injection.py > ../ntk-before/bench/injection.py && cp .env ../ntk-before/'''
 new = '''cp bench/injection.py ../ntk-before/bench/ && cp .env ../ntk-before/'''
+
+[[control]]
+name = "the page replaying without its provenance"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 'node_modules/vite/bin/vite.js', 'build'], check=True, capture_output=True)"]
+[[control.change]]
+file = "web/src/main.ts"
+old = '''`Replayed, as no server answers here: recorded ${kept.recorded} at ${kept.commit}`'''
+new = '''`Replayed, as no server answers here: recorded ${kept.recorded}`'''
+
+[[control]]
+name = "the page drawing the filter's counts otherwise"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 'node_modules/vite/bin/vite.js', 'build'], check=True, capture_output=True)"]
+[[control.change]]
+file = "web/src/main.ts"
+old = '''units pass the filter and ${number(holds_back)} are held back.'''
+new = '''units pass the filter and ${number(holds_back)} are held apart.'''
+
+[[control]]
+name = "the page without its licence and source"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 'node_modules/vite/bin/vite.js', 'build'], check=True, capture_output=True)"]
+[[control.change]]
+file = "web/index.html"
+old = '''<a href="https://github.com/Broikos-Nikos/need-to-know">github.com/Broikos-Nikos/need-to-know</a>, under the
+        MIT licence.'''
+new = '''the repository.'''
+
+[[control]]
+name = "the README's Node floor other than vite's"
+test = "tests/test_readme.py::test_the_readme_gives_the_node_the_page_build_needs"
+[[control.change]]
+file = "README.md"
+old = '''with Node 20.19, or 22.12 or later, as vite asks,'''
+new = '''with Node 22 or later,'''
+
+[[control]]
+name = "a field of the served trace the page's type lacks"
+test = "tests/test_api.py::test_the_page_and_its_dev_proxy_name_what_the_server_serves"
+[[control.change]]
+file = "web/src/main.ts"
+old = '''  seconds: Record<string, number>
+  answer?: Answer'''
+new = '''  answer?: Answer'''
+
+[[control]]
+name = "a route of the server the dev proxy does not hand over"
+test = "tests/test_api.py::test_the_page_and_its_dev_proxy_name_what_the_server_serves"
+[[control.change]]
+file = "vite.config.ts"
+old = '''const ROUTES = ['/session', '/roles', '/search', '/ask', '/doc', '/stats', '/events']'''
+new = '''const ROUTES = ['/session', '/roles', '/search', '/ask', '/doc', '/stats']'''

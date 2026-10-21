@@ -124,3 +124,15 @@ def test_the_readme_says_what_the_injection_bench_tried_and_how_often_it_held():
     bullet = text[text.index("Two instructions planted in a permitted excerpt"):]
     assert f"moved the answer in {moved} of {asked} asks" in bullet[:400], (moved, asked)
     assert "uv run python bench/injection.py --repeats 20" in bullet[:600]
+
+
+def test_the_readme_gives_the_node_the_page_build_needs():
+    # MT-F22: it said Node 22 or later, where vite asks for ^20.19.0 || >=22.12.0, and package.json declared nothing.
+    import json
+    package = json.loads((repo_root() / "package.json").read_text(encoding="utf-8"))
+    lock = json.loads((repo_root() / "package-lock.json").read_text(encoding="utf-8"))
+    wanted = lock["packages"]["node_modules/vite"]["engines"]["node"]
+    assert package["engines"]["node"] == wanted, (package.get("engines"), wanted)
+    (low, low_minor), (high, high_minor) = re.findall(r"(\d+)\.(\d+)\.0", wanted)  # ^20.19.0 || >=22.12.0
+    said = f"Node {low}.{low_minor}, or {high}.{high_minor} or later"
+    assert said in " ".join(README.split()), (wanted, said)
