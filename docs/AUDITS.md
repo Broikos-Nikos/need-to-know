@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**239 findings, 210 closed, 29 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
+**243 findings, 210 closed, 33 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -10,7 +10,7 @@ A finding's numbers are what its audit measured when it filed it, by that audit'
 
 ## `HS`, the hostile stranger
 
-An audit pass that tried to break a first run. 23 findings, 23 closed.
+An audit pass that tried to break a first run. 27 findings, 23 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -37,6 +37,10 @@ An audit pass that tried to break a first run. 23 findings, 23 closed.
 | `HS-F21` | low | fixed, tick 167 | The evaluation's run files are read on trust: ntk eval score scores lines of an id alone as wrong answers with exit 0 and ends in a TypeError on an answer that is a list; ntk eval run, resuming a file with a line that is not JSON, writes a fresh provenance sidecar and ends in a JSONDecodeError; --out naming a folder fails only when the first paid answer is appended: one reader of run lines, beside DR-F30's, that names a bad line by file and line, and --out checked before the sidecar and the first call |
 | `HS-F22` | low | fixed, tick 165 | ntk corpus draw on a data folder without a plan prints the missing catalogue's path as an Errno and not the command that makes it: a DrawError that names ntk corpus plan |
 | `HS-F23` | low | fixed, tick 165 | The README's commands put ntk serve, which runs until stopped, before ntk ingest watch, which does too, and nothing beside the block says so: say both run until stopped, each in its own terminal |
+| `HS-F24` | high | open | The notice for a visitor without JavaScript claims every figure the page shows is in the README; the trace's are not, 228,057 units passing the filter, 3.95 s on the server, each search's scores: say that every figure is recorded in the repository by a command its README names, and hold it |
+| `HS-F25` | medium | open | A stopped server reads as Failed to fetch, the browser's words, and the feed goes on saying it is live and that no scan has added anything, while a poll fails every 5 s: say the server stopped answering and how to start it, and let the feed say it cannot reach it |
+| `HS-F26` | low | open | A refused question leaves the last question's trace standing under its error, and nothing on the trace names the question it answers: the trace names its question and role, a refusal marks it |
+| `HS-F27` | low | open | Without JavaScript the page says Looking for the local server. for good, under the notice that it needs JavaScript: hide the mode line there |
 
 ## `RS`, the retrieval scientist
 
