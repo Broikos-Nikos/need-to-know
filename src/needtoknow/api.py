@@ -46,6 +46,11 @@ removal shows as nothing, a removed unit's labels having gone with it (N66).
 `GET /roles` names the policy's roles, which the sign in needs and the public policy file
 holds, and asks no session. When the page is built, `web/dist`, it is served at `/` beside
 the routes, so the page's calls stay on one origin.
+
+What the page asks over and over costs little: a poll of `/events` without `after` starts
+where the session's last one ended, past the scans its role cannot see, a place the server
+keeps and never serves (PF-F11); and the build's figures are kept a minute and served with
+the time they were measured (PF-F12).
 """
 
 from __future__ import annotations
@@ -57,6 +62,7 @@ from pathlib import Path
 import threading
 import time
 from contextlib import contextmanager
+from datetime import datetime, timezone
 
 from fastapi import Depends, FastAPI, HTTPException, Request
 from pydantic import BaseModel, ConfigDict
@@ -88,6 +94,7 @@ STAGES = ("dense", "sparse", "fused", "reranked")
 ANSWERED = ("status", "answer", "citations", "dropped", "error", "model", "stop_reason")
 PREVIEW = 3  # the units of a segment's text a document's outline shows
 EVENTS = 50  # the latest events a feed answers with
+FIGURES = 60.0  # seconds the build's figures are kept before they are measured again (PF-F12)
 # What a served verdict holds of the scorer's result: nothing that reads text the role may not read (AC-F16).
 VERDICT = ("correct", "grounded", "partial", "shown_facts")
 NO_SESSION = "no session: sign in with POST /session and send its token; a query names no role"
@@ -142,9 +149,17 @@ def outline(doc_id: str, reads: frozenset[str]) -> list[dict]:
 
 def events(after: str, reads: frozenset[str], limit: int = EVENTS) -> list[dict]:
     """The watcher's finished scans after the time `after`, each as the documents where it added units a reader of
-    `reads` may read, and how many; a scan that added none is left out. The units a scan added are the manifest's rows
-    of its run, read through the documents it changed, by the index on them."""
+    `reads` may read, and how many; a scan that added none is left out."""
+    return scanned(after, reads, limit)[0]
+
+
+def scanned(after: str, reads: frozenset[str], limit: int = EVENTS) -> tuple[list[dict], str]:
+    """The events after `after`, and the time the last scan read finished, shown to the role or not: the place a
+    session's next poll starts from, which the server keeps and never serves (PF-F11, N66). The units a scan added are
+    the manifest's rows of its run, read through the documents it changed, by the index of units by document and
+    run."""
     found = []
+    until = after
     with opened() as db:
         runs = db.execute("SELECT run_id, finished FROM runs WHERE finished IS NOT NULL AND finished > ? "
                           "ORDER BY finished, run_id", (after,)).fetchall()
@@ -159,7 +174,8 @@ def events(after: str, reads: frozenset[str], limit: int = EVENTS) -> list[dict]
                     documents.append({"doc_id": doc_id, "units": units})
             if documents:
                 found.append({"at": finished, "documents": documents})
-    return found[-limit:]
+            until = finished
+    return found[-limit:], until
 
 
 def verdict(question: str, role: str, answered: dict, items=None, ctx=None, sources=None) -> dict | None:
@@ -218,6 +234,7 @@ def create(client, *, policy: dict | None = None, encode=None, rerank: str | Non
     `ntk`: None reads the policy at each query and takes the configured models. `judge` scores an answer. `page`, the
     built page's folder, `web/dist` unless given, is served at `/` when it holds one."""
     sessions: dict[str, str] = {}
+    places: dict[str, str] = {}  # each session's place in the change feed, past scans its role cannot see (PF-F11)
     lock = threading.Lock()
     app = FastAPI(title="need-to-know", docs_url=None, redoc_url=None)
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=NAMES)
@@ -266,15 +283,32 @@ def create(client, *, policy: dict | None = None, encode=None, rerank: str | Non
     def roles() -> dict:
         return {"roles": list((policy or load_policy())["roles"])}
 
+    # Without `after`, a poll starts where the session's last one ended, past the scans its role cannot see, which it
+    # would otherwise read again at every poll; the place is the server's and is never served, as no scan's time
+    # the role cannot see is (N66).
     @app.get("/events")
-    def feed(after: str = "", role: str = Depends(role_of)) -> dict:
+    def feed(request: Request, after: str | None = None, role: str = Depends(role_of)) -> dict:
+        token = request.headers["authorization"].partition(" ")[2]
         with refused():
-            return {"events": events(after, readable(policy or load_policy(), role))}
+            found, until = scanned(places.get(token, "") if after is None else after,
+                                   readable(policy or load_policy(), role))
+        places[token] = max(until, places.get(token, ""))
+        while len(places) > SESSIONS:
+            del places[next(iter(places))]
+        return {"events": found}
+
+    # The figures walk the index's folder, half a second warm and seconds cold, and move only when a sync does: kept a
+    # minute, and served with the time they were measured (PF-F12).
+    kept: dict = {}
 
     @app.get("/stats")
     def figures(role: str = Depends(role_of)) -> dict:
-        with refused():
-            return {**footprint(), "vectors": vectors(client)}
+        if not kept or time.monotonic() - kept["at"] > FIGURES:
+            with refused():
+                measured = {**footprint(), "vectors": vectors(client)}
+            kept.update(at=time.monotonic(), figures=measured,
+                        measured=datetime.now(timezone.utc).isoformat(timespec="seconds"))
+        return {**kept["figures"], "measured": kept["measured"]}
 
     @app.post("/ask")
     def answer(body: Question, role: str = Depends(role_of)) -> dict:

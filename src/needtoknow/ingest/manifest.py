@@ -47,7 +47,7 @@ CREATE TABLE units (
     section_key TEXT NOT NULL, layer TEXT NOT NULL, labels TEXT NOT NULL, path TEXT NOT NULL,
     text TEXT NOT NULL, start INTEGER NOT NULL, "end" INTEGER NOT NULL, language TEXT NOT NULL, run_id INTEGER NOT NULL
 );
-CREATE INDEX units_by_doc ON units(doc_id);
+CREATE INDEX units_by_doc_run ON units(doc_id, run_id);
 CREATE TABLE runs (
     run_id INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT NOT NULL, started TEXT NOT NULL, finished TEXT,
     files INTEGER, files_read INTEGER, files_changed INTEGER, files_removed INTEGER, units_added INTEGER,
@@ -105,6 +105,12 @@ def opened(path: Path | None = None):
         # units_by_doc, 2,034 units at the median and 17,369 in the largest (PF-F5). Made once, in a manifest without it.
         if not db.execute("SELECT 1 FROM sqlite_master WHERE type = 'index' AND name = 'units_by_segment'").fetchone():
             db.execute("CREATE INDEX units_by_segment ON units(doc_id, section_key, labels, start)")
+        # A document's units by the run that added them, for the change feed: read through units_by_doc, every poll
+        # read every unit of each document a scan changed, the largest's thousands for its one changed unit (PF-F11).
+        # It takes units_by_doc's place, which its first column serves, so a scan maintains no more indexes than before.
+        if not db.execute("SELECT 1 FROM sqlite_master WHERE type = 'index' AND name = 'units_by_doc_run'").fetchone():
+            db.execute("CREATE INDEX IF NOT EXISTS units_by_doc_run ON units(doc_id, run_id)")
+            db.execute("DROP INDEX IF EXISTS units_by_doc")
         yield db
         db.commit()
     finally:

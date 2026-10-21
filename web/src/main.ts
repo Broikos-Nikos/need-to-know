@@ -52,8 +52,9 @@ type Recorded = {
   models: string[]
   roles: string[]
   questions: { id: string; role: string; lang: string; question: string }[]
-  traces: Record<string, Record<string, Trace>>
 }
+// A recorded question's traces by role, fetched when it is first replayed rather than with the page (PF-F13).
+type Asked = { question: string; traces: Record<string, Trace> }
 type Feed = { events: { at: string; documents: { doc_id: string; units: number }[] }[] }
 type Search = 'dense' | 'sparse' | 'fused' | 'reranked'
 type Stage = { key: string; title: string; says: string; timed: string[] }
@@ -73,8 +74,9 @@ let timers: number[] = []
 let pinned: string | null = null
 let summary = ''
 let recordings: Recorded | null = null
+const asked: Record<string, Record<string, Trace>> = {}
 let feedTimer = 0
-let feedAfter = ''
+let feedStarted = false
 let feedRole = ''
 
 const NBSP = String.fromCharCode(160) // a figure and its unit stay on one line
@@ -397,10 +399,19 @@ function cards(): HTMLElement {
 }
 
 // Replayed, a recorded trace is drawn as a live one is: the same stages, the same slow motion, the same cards.
-function replay(event: SubmitEvent) {
+async function replay(event: SubmitEvent) {
   event.preventDefault()
-  const by = recordings?.traces[byId<HTMLSelectElement>('pick').value]
-  if (!recordings || !by) return
+  const question = byId<HTMLSelectElement>('pick').value
+  if (!recordings) return
+  if (!asked[question]) {
+    const file = await recorded<Asked>(`traces/${question}.json`)
+    if (!file) {
+      byId<HTMLElement>('state').textContent = 'The recording of that question could not be read.'
+      return
+    }
+    asked[question] = file.traces
+  }
+  const by = asked[question]
   if (byId<HTMLInputElement>('every').checked) {
     const grid = cards()
     for (const role of recordings.roles) if (by[role]) grid.append(roleCard(role, by[role]))
@@ -483,6 +494,7 @@ type Figures = {
   disk: { index: number; manifest: number; vector_cache: number }
   command?: string
   recorded?: string
+  measured?: string // live, when the server last measured them
 }
 
 const TITLES: Record<string, (change: Change) => string> = {
@@ -624,13 +636,15 @@ async function follow(role: string) {
   const list = byId<HTMLOListElement>('events')
   if (role !== feedRole) {
     feedRole = role
-    feedAfter = ''
+    feedStarted = false
     list.replaceChildren()
   }
   try {
     if (!document.hidden) {
-      const feed = await call<Feed>(`events?after=${encodeURIComponent(feedAfter)}`, {}, role)
+      // The whole feed once, from the beginning; after that the server's own place for this session (PF-F11).
+      const feed = await call<Feed>(feedStarted ? 'events' : 'events?after=', {}, role)
       if (role !== feedRole) return
+      feedStarted = true
       if (feed.events.length) list.querySelector('.none')?.remove()
       for (const event of feed.events) {
         // A full build's scan adds to every document: name the first few, and count the rest.
@@ -640,7 +654,6 @@ async function follow(role: string) {
           where.push(`and ${number(rest.length)} more documents, ${number(rest.reduce((n, d) => n + d.units, 0))} units`)
         }
         list.prepend(element('li', '', `${event.at.replace('T', ' ')}: ${where.join('; ')}`))
-        feedAfter = event.at
       }
       while (list.children.length > SHOWN) list.lastElementChild?.remove()
       if (!list.children.length) list.append(element('li', 'none', 'No scan has added anything this role may read.'))
@@ -696,7 +709,7 @@ async function start() {
   })
   link(byId<HTMLElement>('trace'))
   if (!roles) {
-    recordings = await recorded<Recorded>('traces.json')
+    recordings = await recorded<Recorded>('traces/index.json')
     if (recordings) {
       replaying(recordings)
     } else {
@@ -705,7 +718,9 @@ async function start() {
     return
   }
   // Live, the build's figures come from the server, the same for every role, through the first role's session.
-  call<Figures>('stats', {}, roles[0]).then((live) => drawFigures(live, 'live, from the local server')).catch(() => {})
+  call<Figures>('stats', {}, roles[0])
+    .then((live) => drawFigures(live, `live, from the local server, measured ${live.measured?.replace('T', ' ') ?? ''}`))
+    .catch(() => {})
   const picker = byId<HTMLSelectElement>('role')
   fill(picker, roles.map((role) => [role, role]))
   mode.textContent = 'Live: the local server, each question through the chosen role’s session.'

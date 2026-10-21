@@ -2,7 +2,7 @@
 asks them live, trimmed to what the page draws, and written with when, at which commit and with which models they were
 asked, for the page to replay where no server answers (house rule 10).
 
-    uv run python bench/page_traces.py         asks each question as each role, writes web/public/recorded/traces.json
+    uv run python bench/page_traces.py         asks each question as each role, writes web/public/recorded/traces/
 
 Each role signs in and asks through `POST /ask`, which asks the provider every time (N68): three questions and nine
 roles are 27 calls, run outside the provider's peak hours. A trace keeps every stage's first ten candidates, the page's
@@ -20,7 +20,9 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-OUT = REPO / "web" / "public" / "recorded" / "traces.json"
+# An index of the questions, the roles and the provenance, which the page's pickers read at once, and a file per
+# question, fetched when it is first replayed (PF-F13).
+OUT = REPO / "web" / "public" / "recorded" / "traces"
 QUESTIONS = ("D002", "D074", "D001")  # sales' discount in English and in Greek, and legal's call recordings
 SHOWN = 10  # the rows the page draws of each stage
 STAGES = ("dense", "sparse", "fused", "reranked")
@@ -78,14 +80,18 @@ def main() -> int:
     http = TestClient(api.create(server.client()), base_url=f"http://{api.HOST}")
     traces = record(http, policy, items)
     models = sorted({trace["answer"]["model"] for by in traces.values() for trace in by.values() if trace["answer"]["model"]})
-    out = {**provenance(), "models": models, "roles": list(policy["roles"]),
-           "questions": [{"id": qid, "role": item["role"], "lang": item["lang"], "question": item["question"]}
-                         for qid, item in items.items()],
-           "traces": traces}
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_bytes((json.dumps(out, ensure_ascii=False, separators=(",", ":")) + "\n").encode("utf-8"))
-    print(f"{OUT.relative_to(REPO).as_posix()}: {len(items)} questions as {len(policy['roles'])} roles, "
-          f"{OUT.stat().st_size:,} bytes, at {out['commit']}{'' if out['clean'] else ' with changes'}, {', '.join(models)}")
+    index = {**provenance(), "models": models, "roles": list(policy["roles"]),
+             "questions": [{"id": qid, "role": item["role"], "lang": item["lang"], "question": item["question"]}
+                           for qid, item in items.items()]}
+    OUT.mkdir(parents=True, exist_ok=True)
+    for old in OUT.glob("*.json"):  # a question no longer recorded leaves no file behind
+        old.unlink()
+    files = {"index.json": index, **{f"{qid}.json": {"question": qid, "traces": by_role} for qid, by_role in traces.items()}}
+    for name, data in files.items():
+        (OUT / name).write_bytes((json.dumps(data, ensure_ascii=False, separators=(",", ":")) + "\n").encode("utf-8"))
+    sizes = ", ".join(f"{name} {(OUT / name).stat().st_size:,} bytes" for name in files)
+    print(f"{OUT.relative_to(REPO).as_posix()}: {len(items)} questions as {len(policy['roles'])} roles at "
+          f"{index['commit']}{'' if index['clean'] else ' with changes'}, {', '.join(models)}; {sizes}")
     return 0
 
 

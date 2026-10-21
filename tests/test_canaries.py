@@ -117,11 +117,13 @@ def test_the_scan_reads_each_recorded_page_trace_for_the_role_it_was_asked_as(mo
     # The page's recorded traces are what a stranger reads: each is read for its own role, a canary split by a line
     # break within one of its texts too.
     monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path))
-    page = tmp_path / "traces.json"
+    page = tmp_path / "traces"
+    page.mkdir()
     split = "CANARY_00000F_" + chr(10) + "LEGAL"
-    traces = {"D1": {"legal": {"answer": {"answer": "legal may read CANARY_00000F_LEGAL"}},
-                     "sales": {"excerpts": [{"text": f"and sales may not: {split}"}]}}}
-    page.write_text(json.dumps({"traces": traces}), encoding="utf-8")
+    traces = {"legal": {"answer": {"answer": "legal may read CANARY_00000F_LEGAL"}},
+              "sales": {"excerpts": [{"text": f"and sales may not: {split}"}]}}
+    (page / "index.json").write_text(json.dumps({"questions": [{"id": "D1"}]}), encoding="utf-8")
+    (page / "D1.json").write_text(json.dumps({"question": "D1", "traces": traces}), encoding="utf-8")
     monkeypatch.setattr(canaries, "PAGE", page)
     assert main(["eval", "canaries"]) == 1
     out = capsys.readouterr().out

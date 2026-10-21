@@ -518,6 +518,10 @@ can be shown; or the page needs changes faster than a poll brings them.
 *Amended 2026-10-21, tick 185 (MA-F21):* until this tick nothing polled the feed, and this entry said
 the page did; the page now does, at the interval it names.
 
+*Amended 2026-10-21, tick 192 (PF-F11):* a poll without `after` starts where the session's last one ended,
+past the scans its role cannot see, so it reads only scans newer than any it has read; the
+server keeps that place and never serves it, as it serves no time of a scan the role cannot see.
+
 ## N67. The page sets every word in faces that draw Greek, and finds its server by an open route
 
 **Call.** The page is set in Manrope and Roboto Mono, subsets of Latin and Greek, and not in

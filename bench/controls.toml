@@ -209,8 +209,8 @@ name = "the page's traces left unscanned"
 test = "tests/test_canaries.py::test_the_scan_reads_each_recorded_page_trace_for_the_role_it_was_asked_as"
 [[control.change]]
 file = "src/needtoknow/canaries.py"
-old = '''    if page.is_file():'''
-new = '''    if False:'''
+old = '''    for path in sorted(page.glob("*.json")) if page.is_dir() else []:'''
+new = '''    for path in []:'''
 
 [[control]]
 name = "a trace scanned as one escaped dump"
@@ -288,3 +288,28 @@ test = "tests/test_readme.py::test_every_ntk_command_the_readme_gives_parses"
 file = "README.md"
 old = '''ntk ask "<question>" --as <role>'''
 new = '''ntk ask "<query>" --as <role>'''
+
+[[control]]
+name = "a feed poll starting from the beginning again"
+test = "tests/test_api.py::test_a_poll_starts_where_the_sessions_last_one_ended_and_that_place_is_never_served"
+[[control.change]]
+file = "src/needtoknow/api.py"
+old = '''            found, until = scanned(places.get(token, "") if after is None else after,'''
+new = '''            found, until = scanned("" if after is None else after,'''
+
+[[control]]
+name = "the build's figures walked at every load"
+test = "tests/test_api.py::test_the_builds_figures_are_measured_once_a_minute_and_say_when"
+[[control.change]]
+file = "src/needtoknow/api.py"
+old = '''        if not kept or time.monotonic() - kept["at"] > FIGURES:'''
+new = '''        if True:'''
+
+[[control]]
+name = "an old manifest left without the index by document and run"
+test = "tests/test_manifest.py::test_units_are_found_by_document_and_run_through_one_index_in_old_manifests_too"
+[[control.change]]
+file = "src/needtoknow/ingest/manifest.py"
+old = '''            db.execute("CREATE INDEX IF NOT EXISTS units_by_doc_run ON units(doc_id, run_id)")
+            db.execute("DROP INDEX IF EXISTS units_by_doc")'''
+new = '''            pass'''

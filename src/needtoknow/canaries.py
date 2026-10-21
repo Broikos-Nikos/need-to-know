@@ -30,7 +30,7 @@ from needtoknow.policy import PolicyError, load_labels, load_policy, readable
 from needtoknow.settings import repo_root
 
 PATTERN = re.compile(r"canary[\s_-]+[0-9a-f]{6}[\s_-]+([a-z]+)", re.IGNORECASE)
-PAGE = repo_root() / "web" / "public" / "recorded" / "traces.json"
+PAGE = repo_root() / "web" / "public" / "recorded" / "traces"  # a file per recorded question, beside their index
 
 
 class ScanError(RuntimeError):
@@ -90,14 +90,16 @@ def scan(spend: Path, answers: Path, policy: dict | None = None, page: Path | No
         report["unnamed"] += 1
         report["leaks"] += [f"cached answer {key[:16]}, no role: {c}" for c in found(entries[key], frozenset(), names)]
     page = page or PAGE
-    if page.is_file():
-        for question, by_role in json.loads(page.read_text(encoding="utf-8"))["traces"].items():
-            for role, trace in by_role.items():
-                try:
-                    reads = readable(policy, role)
-                except PolicyError:
-                    reads = frozenset()
-                report["traces"] += 1
-                report["leaks"] += [f"page trace {question}, {role}: {c}" for text in strings(trace)
-                                    for c in found(text, reads, names)]
+    for path in sorted(page.glob("*.json")) if page.is_dir() else []:
+        if path.name == "index.json":  # the questions and the provenance, no trace
+            continue
+        recorded = json.loads(path.read_text(encoding="utf-8"))
+        for role, trace in recorded["traces"].items():
+            try:
+                reads = readable(policy, role)
+            except PolicyError:
+                reads = frozenset()
+            report["traces"] += 1
+            report["leaks"] += [f"page trace {recorded['question']}, {role}: {c}" for text in strings(trace)
+                                for c in found(text, reads, names)]
     return report

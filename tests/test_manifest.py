@@ -87,6 +87,25 @@ def test_identical_units_in_one_section_keep_distinct_ids(corpus, tmp_path):
     assert len(set(ids)) == 2 and ids[1] == ids[0] + "#1"
 
 
+def test_units_are_found_by_document_and_run_through_one_index_in_old_manifests_too(corpus):
+    # PF-F11: the change feed read every unit of a changed document to count the few its run added; units are now
+    # indexed by document and run, an index that takes units_by_doc's place in a manifest made before it.
+    def indexes() -> set[str]:
+        with opened() as db:
+            return {name for (name,) in db.execute("SELECT name FROM sqlite_master WHERE type = 'index' AND "
+                                                   "tbl_name = 'units' AND name NOT LIKE 'sqlite_%'")}
+    assert indexes() == {"units_by_doc_run", "units_by_segment"}
+    with opened() as db:  # a manifest as it was before the index
+        db.execute("DROP INDEX units_by_doc_run")
+        db.execute("CREATE INDEX units_by_doc ON units(doc_id)")
+    assert indexes() == {"units_by_doc_run", "units_by_segment"}
+    with opened() as db:
+        plan = " ".join(str(row) for row in db.execute(
+            "EXPLAIN QUERY PLAN SELECT labels, COUNT(*) FROM units WHERE doc_id = ? AND run_id = ? GROUP BY labels",
+            ("DOC", 1)))
+    assert "units_by_doc_run (doc_id=? AND run_id=?)" in plan, plan
+
+
 def test_a_manifest_of_another_schema_version_is_refused(corpus):
     build()
     db = sqlite3.connect(manifest_path())

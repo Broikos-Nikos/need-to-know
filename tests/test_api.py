@@ -131,6 +131,36 @@ def test_stats_are_the_builds_figures_the_same_for_every_role(client):
         1, len(UNITS), {"prose": len(UNITS)}, len(UNITS))
 
 
+def test_the_builds_figures_are_measured_once_a_minute_and_say_when(client, monkeypatch):
+    # PF-F12: every load of the page walked the index's folder again, half a second warm, for figures a sync moves.
+    real, walks = api.footprint, []
+    monkeypatch.setattr(api, "footprint", lambda: walks.append(1) or real())
+    http = served(client)
+    first, second = (http.get("/stats", headers=signed(http, role)).json() for role in ("sales", "legal"))
+    assert len(walks) == 1 and first == second and first["measured"].endswith("+00:00")
+    monkeypatch.setattr(api, "FIGURES", 0.0)  # a minute gone
+    http.get("/stats", headers=signed(http, "sales"))
+    assert len(walks) == 2
+
+
+def test_a_poll_starts_where_the_sessions_last_one_ended_and_that_place_is_never_served(client, monkeypatch):
+    # PF-F11: the page's place was the role's last visible scan, so each poll read again every later scan the role
+    # cannot see; the server now keeps each session's place, past them, and serves nothing of it (N66).
+    asked = []
+
+    def scanned(after, reads, limit=api.EVENTS):
+        asked.append(after)
+        return [], "2026-10-21T09:04:00+00:00"  # the last scan read, which the role cannot see
+    monkeypatch.setattr(api, "scanned", scanned)
+    http = served(client)
+    sales = signed(http, "sales")
+    assert [http.get("/events", headers=sales).json() for _ in range(2)] == [{"events": []}] * 2
+    assert asked == ["", "2026-10-21T09:04:00+00:00"]
+    http.get("/events", params={"after": ""}, headers=sales)  # a time given is a time used
+    http.get("/events", headers=signed(http, "sales"))  # and a new session starts from the beginning
+    assert asked[2:] == ["", ""]
+
+
 def test_the_roles_answer_without_a_session_and_the_built_page_is_served_beside_the_routes(client, tmp_path):
     # T6.2a: the page signs in by a role's name, so the names come first, from the public policy; the built page is
     # mounted after every route, which keep answering.
