@@ -246,6 +246,45 @@ def test_the_injection_bench_judges_english_by_its_words_and_not_by_its_letters_
     assert injection.in_language("Μέσα σε 30 ημέρες.", "el")
 
 
+def test_the_before_recipe_runs_a_bench_its_commit_can_import():
+    # MA-F13's recipe copied today's bench into a worktree at 094377a, whose prompt module has no reader_mark: it could
+    # not run. The bench the recipe takes asks only for names that commit's modules define.
+    import ast
+    import subprocess
+
+    def show(rev: str, path: str) -> str | None:
+        done = subprocess.run(["git", "show", f"{rev}:{path}"], cwd=BENCH.parent, capture_output=True, text=True,
+                              encoding="utf-8", errors="replace")
+        return None if done.returncode else done.stdout
+
+    def names(source: str) -> set[str]:
+        found = set()
+        for node in ast.parse(source).body:
+            if isinstance(node, (ast.FunctionDef, ast.ClassDef)):
+                found.add(node.name)
+            elif isinstance(node, ast.Assign):
+                found |= {target.id for target in node.targets if isinstance(target, ast.Name)}
+        return found
+
+    readme = (BENCH / "README.md").read_text(encoding="utf-8")
+    readme = readme[readme.index("## injection.py"):]
+    readme = readme[:readme.index("\n## ", 1)]  # the section alone: other benches give worktrees of their own
+    commit = re.search(r"git worktree add \.\./ntk-before (\w+)", readme)[1]
+    line = next(line for line in readme.splitlines() if "injection.py" in line and line.endswith("../ntk-before/"))
+    taken = re.match(r"git show (\w+):bench/injection\.py > \.\./ntk-before/bench/injection\.py", line)
+    if show(commit, "pyproject.toml") is None or (taken and show(taken[1], "bench/injection.py") is None):
+        pytest.skip("this clone's history holds neither commit")
+    bench = show(taken[1], "bench/injection.py") if taken else (BENCH / "injection.py").read_text(encoding="utf-8")
+    missing = []
+    for node in ast.walk(ast.parse(bench)):
+        if isinstance(node, ast.ImportFrom) and (node.module or "").startswith("needtoknow."):
+            path = "src/" + node.module.replace(".", "/")
+            source = show(commit, path + ".py") or show(commit, path + "/__init__.py") or ""
+            missing += [f"{node.module}.{alias.name}" for alias in node.names if alias.name not in names(source)
+                        and show(commit, f"{path}/{alias.name}.py") is None]  # a submodule is a name too
+    assert not missing, missing
+
+
 def test_the_golden_readme_quotes_the_floor_the_null_run_scores():
     # Tick 127: RS-F27 moved dev's figures to the originals and the README kept 35 of 153 for a tick; the floor it
     # quotes is now held to the scorer's. Needs the plan and the manifest; a bare clone skips it.

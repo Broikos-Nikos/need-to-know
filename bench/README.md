@@ -230,18 +230,25 @@ uv run python bench/deepseek_call.py
 
 An instruction planted in a permitted section, asked live (AC-F9): two fixed excerpts,
 the first telling its reader to answer a fabricated value and cite excerpts that do not
-exist, or to refuse, each asked three times in English and once in Greek, and the clean
-excerpt as often, with the answer layer's settings. It exits 1 when an answer is not the
-first excerpt's, cited alone, or is not in the question's language. It needs a DeepSeek
-key and the network, and nothing else. The before figure of `11ae4b3`, two of twelve answers
-following the planted instruction, is this bench run on the prompt of its parent, `094377a`, in
-a worktree of its own with this bench and a copy of `.env` (MA-F13).
+exist, or to refuse, each asked `--repeats` times in English, three unless given, and once
+in Greek, and the clean excerpt as often, with the answer layer's settings. It prints each
+answer, then for the clean excerpt and each instruction how often it was asked in each
+language and how many answers were other than the first excerpt's, cited alone, in the
+question's language, then the planted instructions together and the temperature (MA-F10),
+and exits 1 on any such answer. It needs a DeepSeek key and the network, and nothing else.
+The README quotes its run with twenty repeats, recorded in `docs/claims/`.
+
+The before figure of `11ae4b3`, two of twelve answers following the planted instruction,
+is that commit's own bench run on the prompt of its parent, `094377a`, in a worktree of its
+own with a copy of `.env` (MA-F13); today's bench asks for names the parent's prompt does
+not have. Run so again on 2026-10-21, the parent's prompt gave no such answer in twelve:
+the provider's model has moved since, and the figure stands as measured on 2026-10-13.
 
 ```
 uv run python bench/injection.py
-uv run python bench/injection.py --repeats 5
+uv run python bench/injection.py --repeats 20
 git worktree add ../ntk-before 094377a
-cp bench/injection.py ../ntk-before/bench/ && cp .env ../ntk-before/
+git show 11ae4b3:bench/injection.py > ../ntk-before/bench/injection.py && cp .env ../ntk-before/
 cd ../ntk-before && uv run python bench/injection.py
 ```
 

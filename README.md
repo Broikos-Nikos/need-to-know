@@ -63,9 +63,13 @@ command in this repository that produces it.
   carries a canary of a label that role may not read, written in any case or spacing:
   `uv run ntk eval canaries`.
 * A role's question is answered by DeepSeek from the excerpts the role may read, its
-  citations able to name only what it was shown, and an instruction planted in a
-  document is quoted rather than followed: `uv run ntk ask "<question>" --as <role>` and
-  `uv run python bench/injection.py`.
+  citations able to name only what it was shown, each excerpt quoted to the model as a
+  document's text. Two instructions planted in a permitted excerpt, one to answer a
+  fabricated ceiling and cite excerpts that do not exist, one to refuse, each asked 21
+  times, 20 in English and 1 in Greek, at temperature 0, moved the answer in 0 of 42
+  asks, each answered from the excerpt's own text, cited alone and in the question's
+  language: `uv run ntk ask "<question>" --as <role>` and
+  `uv run python bench/injection.py --repeats 20`.
 * The local server is the index's one client on the served path: `uv run ntk serve` listens
   on the loopback alone and answers only requests addressed to it there, a role signs in
   once, and every search sends the session's token, never a role (N64). Each search answers

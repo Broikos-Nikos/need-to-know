@@ -416,3 +416,20 @@ test = "tests/test_corpus_plan.py::test_no_value_of_one_stands_before_a_plural_u
 file = "narrative/LEG_POL_013.txt"
 old = '''Call recordings are kept for 1 year and then deleted.'''
 new = '''Call recordings are kept for 1 years and then deleted.'''
+
+[[control]]
+name = "the README saying a planted instruction is quoted without how often it held"
+test = "tests/test_readme.py::test_the_readme_says_what_the_injection_bench_tried_and_how_often_it_held"
+[[control.change]]
+file = "README.md"
+old = '''at temperature 0, moved the answer in 0 of 42
+  asks,'''
+new = '''at temperature 0, were quoted rather than followed,'''
+
+[[control]]
+name = "the before recipe copying today's bench into its parent"
+test = "tests/test_bench.py::test_the_before_recipe_runs_a_bench_its_commit_can_import"
+[[control.change]]
+file = "bench/README.md"
+old = '''git show 11ae4b3:bench/injection.py > ../ntk-before/bench/injection.py && cp .env ../ntk-before/'''
+new = '''cp bench/injection.py ../ntk-before/bench/ && cp .env ../ntk-before/'''

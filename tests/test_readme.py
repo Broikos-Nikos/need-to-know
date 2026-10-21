@@ -113,3 +113,14 @@ def test_the_readme_gives_the_relabel_it_fails_in_both_directions():
     bullet = text[text.index("A relabel of the largest document"):]
     bullet = bullet[:bullet.index("bench/revocation.py")]
     assert pairs and all(f"{median} s at the median and {largest} s at most" in bullet for median, largest in pairs), pairs
+
+
+def test_the_readme_says_what_the_injection_bench_tried_and_how_often_it_held():
+    # MA-F10: the README said a planted instruction is quoted rather than followed, on two instructions in one excerpt
+    # and no count; it now gives the recorded run's asks under a planted instruction and how many moved the answer.
+    record = (repo_root() / "docs" / "claims" / "python-bench-injection.py-repeats-20.txt").read_text(encoding="utf-8")
+    asked, moved = re.search(r"the planted instructions: (\d+) asked, (\d+) answered otherwise", record).groups()
+    text = " ".join(README.split())
+    bullet = text[text.index("Two instructions planted in a permitted excerpt"):]
+    assert f"moved the answer in {moved} of {asked} asks" in bullet[:400], (moved, asked)
+    assert "uv run python bench/injection.py --repeats 20" in bullet[:600]
