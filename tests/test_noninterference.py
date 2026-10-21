@@ -13,18 +13,22 @@ same in all three builds. The count of units the filter holds back is the one fi
 design (N64).
 
 Local mode scores every point, those the filter leaves out too, and orders them with numpy's quicksort, so units of
-exactly equal score come out in an order the hidden points' scores move. The server's filtered exact search scores
-only the points the filter passes, in the order they sit in storage; the test sorts stably to stand for that.
+exactly equal score come out in an order the hidden points' scores move. The server orders exact ties by its index's
+layout, which units a role may not read help shape: `bench/ties.py` found a role's tied units moved once a bulk of
+them was written and the optimizer settled (AC-F12, N50). So the test sorts stably, in Qdrant's local collection
+module alone and checked to be used there (MT-F15), and what it holds, it holds for units whose score no other shares.
 """
 
 import json
 import random
+import types
 from collections import defaultdict
 from dataclasses import replace
 
 import numpy as np
 import pytest
 from qdrant_client import QdrantClient
+from qdrant_client.local import local_collection
 from test_embed_cache import Gpu, fake_tokenize
 
 from needtoknow import lexical
@@ -133,14 +137,31 @@ def whole(monkeypatch, root, questions: list[str]) -> list[list[float]]:
         return [frequencies.weights(db, lexical.query(q)[0], sets) for q in questions]
 
 
+class StableNumpy(types.ModuleType):
+    """numpy as Qdrant's local collection module sees it, its argsort stable and counted: the patch reaches that module
+    alone, where it patched numpy for the whole process, and a count of none would show the module sorts some other
+    way now, the patch standing for nothing (MT-F15)."""
+
+    def __init__(self):
+        super().__init__("numpy")
+        self.sorted = 0
+
+    def __getattr__(self, name: str):
+        return getattr(np, name)
+
+    def argsort(self, a, axis=-1, kind=None, order=None):
+        self.sorted += 1
+        return np.argsort(a, axis, "stable", order)
+
+
 def test_a_roles_results_do_not_move_when_only_text_it_may_not_read_changes(monkeypatch, tmp_path):
     monkeypatch.setattr(model, "tokenize", fake_tokenize)
     monkeypatch.setattr(model, "states", Gpu().states)
     config = model.load_config()  # the stand in counts a token a character, so a paragraph passes 512 of them
     monkeypatch.setattr(model, "load_config", lambda: {**config, "max_length": 1 << 20})
     monkeypatch.setattr(rerank, "cross_scores", overlap)
-    argsort = np.argsort
-    monkeypatch.setattr(np, "argsort", lambda a, axis=-1, kind=None, order=None: argsort(a, axis, "stable", order))
+    stable = StableNumpy()
+    monkeypatch.setattr(local_collection, "np", stable)
     monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path / "plan"))
     units = cut()
     probes = [probe["question"] for probe in load_probes("dev")[::15]]
@@ -169,3 +190,4 @@ def test_a_roles_results_do_not_move_when_only_text_it_may_not_read_changes(monk
                 assert x == y, (role, change, question, [part for part in x if x[part] != y[part]])
         checked.append(role)
     assert len(checked) == len(policy["roles"]) - 1, checked
+    assert stable.sorted > 0, "Qdrant's local collection no longer sorts with numpy's argsort: the stable sort stands for nothing"

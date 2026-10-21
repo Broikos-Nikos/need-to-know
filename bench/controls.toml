@@ -803,3 +803,21 @@ old = '''        self.state = [manifest_path().as_posix(), *(last or (None, None
 '''
 new = '''        self.state = [manifest_path().as_posix(), *(last or (None, None))]
 '''
+
+[[control]]
+name = "the noninterference test's ties left to numpy's quicksort"
+test = "tests/test_noninterference.py::test_a_roles_results_do_not_move_when_only_text_it_may_not_read_changes"
+[[control.change]]
+file = "tests/test_noninterference.py"
+old = '''    monkeypatch.setattr(local_collection, "np", stable)
+'''
+new = ''''''
+
+[[control]]
+name = "the local collection's sorts never counted"
+test = "tests/test_noninterference.py::test_a_roles_results_do_not_move_when_only_text_it_may_not_read_changes"
+[[control.change]]
+file = "tests/test_noninterference.py"
+old = '''        self.sorted += 1
+'''
+new = ''''''
