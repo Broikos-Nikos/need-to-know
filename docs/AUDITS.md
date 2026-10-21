@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**218 findings, 197 closed, 21 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**218 findings, 202 closed, 16 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -78,7 +78,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 
 ## `DR`, the deep reviewer
 
-An audit pass on correctness, read in the logic rather than the comments. 40 findings, 34 closed.
+An audit pass on correctness, read in the logic rather than the comments. 40 findings, 39 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -117,11 +117,11 @@ An audit pass on correctness, read in the logic rather than the comments. 40 fin
 | `DR-F33` | low | fixed, tick 169 | lines.append mends before it appends and cannot tell a stopped write from one in flight: the spend log has three writers and no lock, so two questions ending together could cut one line: mend and append under an operating system lock beside the file, waited on briefly |
 | `DR-F34` | low | fixed, tick 169 | The served answer holds the GPU's lock through the provider's network call, so every search waits behind it with the GPU idle: hold the lock for the search and the excerpts only |
 | `DR-F35` | medium | fixed, tick 174 | tests/test_watch.py's touch test expects a touch to move the folder's fingerprint of path, size and mtime, which holds only when the clock ticked since the edit just before it: it failed once in the full suite at tick 171 and once in four runs alone, two scan reports expected and one made, the machine's clock and load setting the result (the brief's class): set the touched file's mtime past the edit's with os.utime, and ask whether two same size edits within one tick can slip past the fingerprint and the scan's shortcut alike |
-| `DR-F36` | medium | open | The change feed keys a session's place by the finish time of the last run its poll read, to the second, and asks for finished > place: a run that finishes in the same second as that one is never shown, and two pairs of runs in this manifest share a second; keep the place as the run, finished > ? OR (finished = ? AND run_id > ?), with a test of two runs in one second |
-| `DR-F37` | low | open | footprint.folder_bytes stats each file after listing it, and a segment file Qdrant removes between the two ends GET /stats in a 500 and ntk stats in a traceback: 12 of 682 walks beside a writer; count a file gone as none |
-| `DR-F38` | low | open | The page keeps each role's token for its whole life: after ntk serve restarts, or drops the session past 256, every call answers 401 and the feed swallows it, until a reload; on a 401, sign in once more and retry |
-| `DR-F39` | low | open | replay() draws whichever recorded question's file arrives last: an unfetched question then a fetched one, picked quickly, leave the first drawn under the second's name; draw only for the latest request |
-| `DR-F40` | low | open | The feed route runs on the thread pool and drops the oldest place with del places[next(iter(places))], which two polls past 256 places can race into a RuntimeError or KeyError; make it async as the sign in is, or lock it |
+| `DR-F36` | medium | fixed, tick 202 | The change feed keys a session's place by the finish time of the last run its poll read, to the second, and asks for finished > place: a run that finishes in the same second as that one is never shown, and two pairs of runs in this manifest share a second; keep the place as the run, finished > ? OR (finished = ? AND run_id > ?), with a test of two runs in one second |
+| `DR-F37` | low | fixed, tick 202 | footprint.folder_bytes stats each file after listing it, and a segment file Qdrant removes between the two ends GET /stats in a 500 and ntk stats in a traceback: 12 of 682 walks beside a writer; count a file gone as none |
+| `DR-F38` | low | fixed, tick 202 | The page keeps each role's token for its whole life: after ntk serve restarts, or drops the session past 256, every call answers 401 and the feed swallows it, until a reload; on a 401, sign in once more and retry |
+| `DR-F39` | low | fixed, tick 202 | replay() draws whichever recorded question's file arrives last: an unfetched question then a fetched one, picked quickly, leave the first drawn under the second's name; draw only for the latest request |
+| `DR-F40` | low | fixed, tick 202 | The feed route runs on the thread pool and drops the oldest place with del places[next(iter(places))], which two polls past 256 places can race into a RuntimeError or KeyError; make it async as the sign in is, or lock it |
 
 ## `OP`, the pipeline operator
 
