@@ -12,11 +12,21 @@ from needtoknow.settings import repo_root
 README = (repo_root() / "README.md").read_text(encoding="utf-8")
 
 
+MADE = {"web/dist": "npm run build"}  # a path a README command makes, and the command
+
+
 def test_every_path_the_readme_names_exists():
+    # T7.2's preflight: the test asked the working tree, where an earlier build had left web/dist, and a fresh clone,
+    # the runner's among them, has none until npm run build. A path the README names is one the repository tracks, or
+    # one a command the README gives makes.
+    import subprocess
     named = set(re.findall(r"`((?:[\w.-]+/)+[\w.-]*|\.env\.example)`", README))
     assert named, "no path found: the pattern no longer matches the README"
-    missing = sorted(p for p in named if not (repo_root() / p).exists())
+    tracked = subprocess.run(["git", "ls-files"], cwd=repo_root(), capture_output=True, text=True, check=True).stdout.split()
+    held = set(tracked) | {"/".join(path.split("/")[:n]) + "/" for path in tracked for n in range(1, path.count("/") + 1)}
+    missing = sorted(p for p in named if p not in held and p.rstrip("/") not in held and p.rstrip("/") not in MADE)
     assert not missing, missing
+    assert all(command in README for path, command in MADE.items() if path in {p.rstrip("/") for p in named}), MADE
 
 
 # A placeholder the README writes, and a value of its kind (MT-F17).

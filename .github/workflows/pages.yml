@@ -50,7 +50,12 @@ jobs:
       # pins a tool it installs.
       - run: python -m pip install --disable-pip-version-check "uv==0.12.0"
       - run: uv sync --frozen
-      - run: uv run pytest -q
+      # The README's own order, the commands it gives a reader run where a reader would: the corpus built from the
+      # plan and the narrative, and every planted fact checked where the plan put it, before the suite.
+      - run: uv run --frozen ntk corpus plan
+      - run: uv run --frozen ntk corpus assemble
+      - run: uv run --frozen ntk corpus check
+      - run: uv run --frozen pytest -q
 
   build:
     runs-on: ubuntu-latest

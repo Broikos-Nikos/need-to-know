@@ -821,3 +821,13 @@ file = "tests/test_noninterference.py"
 old = '''        self.sorted += 1
 '''
 new = ''''''
+
+[[control]]
+name = "a path the README names that only a build makes, read as missing"
+test = "tests/test_readme.py::test_every_path_the_readme_names_exists"
+[[control.change]]
+file = "tests/test_readme.py"
+old = '''    missing = sorted(p for p in named if p not in held and p.rstrip("/") not in held and p.rstrip("/") not in MADE)
+'''
+new = '''    missing = sorted(p for p in named if p not in held and p.rstrip("/") not in held)
+'''
