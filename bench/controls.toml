@@ -694,3 +694,29 @@ old = '''INSERT INTO added SELECT j.value, u.run_id, u.doc_id, u.labels, COUNT(*
     WHERE NOT EXISTS (SELECT 1 FROM added) GROUP BY j.value, u.run_id, u.doc_id, u.labels;
 '''
 new = ''''''
+
+[[control]]
+name = "the notice putting every figure in the README again"
+test = "tests/test_page.py::test_the_notice_without_javascript_says_where_the_figures_come_from"
+[[control.change]]
+file = "web/index.html"
+old = '''recorded in the repository by a command its README names.'''
+new = '''in the repository's README, with the command that produces it.'''
+
+[[control]]
+name = "a recording whose bench the README no longer names"
+test = "tests/test_page.py::test_the_notice_without_javascript_says_where_the_figures_come_from"
+[[control.change]]
+file = "README.md"
+old = '''models they were asked: `uv run python bench/page_traces.py`.'''
+new = '''models they were asked.'''
+
+[[control]]
+name = "the mode line looking for a server without JavaScript"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 'node_modules/vite/bin/vite.js', 'build'], check=True, capture_output=True)"]
+[[control.change]]
+file = "web/index.html"
+old = '''    <noscript><style>#mode { display: none; }</style></noscript>
+'''
+new = ''''''

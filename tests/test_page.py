@@ -107,6 +107,27 @@ def test_the_pages_recorded_data_is_what_the_records_print():
         assert change["commit"] and change["before"] is not None and change["during"] is not None, change["bench"]
 
 
+def test_the_notice_without_javascript_says_where_the_figures_come_from():
+    # HS-F24: the notice said every figure the page shows is in the repository's README, and the trace's are not: the
+    # units its filter passes, its seconds and its searches' scores are recorded in the repository by a bench the README
+    # names. Every recording the page ships is written by bench/page_data.py or by bench/page_traces.py, the README
+    # gives both, and the notice says that much and no more.
+    root = repo_root()
+    page = (root / "web" / "index.html").read_text(encoding="utf-8")
+    notice = " ".join(re.search(r"<noscript>\s*<p[^>]*>(.*?)</p>", page, re.S)[1].split())
+    assert notice.endswith("Every figure it shows is recorded in the repository by a command its README names."), notice
+    readme = " ".join((root / "README.md").read_text(encoding="utf-8").split())
+    spec = importlib.util.spec_from_file_location("page_traces", root / "bench" / "page_traces.py")
+    traces = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(traces)
+    recorded = root / "web" / "public" / "recorded"
+    writers = {name: "bench/page_data.py" for name in page_data().built()}
+    for path in sorted(recorded.rglob("*.json")):
+        writer = writers.get(path.relative_to(recorded).as_posix(),
+                             "bench/page_traces.py" if path.parent == traces.OUT else None)
+        assert writer and f"uv run python {writer}" in readme, (path.relative_to(root).as_posix(), writer)
+
+
 def test_a_timing_record_that_names_no_commit_or_load_is_refused(tmp_path, monkeypatch):
     # MA-F22: a record taken from a log kept the log's name and time, and the page replayed runs of no named code.
     data = page_data()

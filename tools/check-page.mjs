@@ -13,6 +13,8 @@
  * 5. A replay whose file comes late draws nothing over the one picked after it (DR-F39).
  * 6. Live, against a stand in for `ntk serve` on the loopback that forgets its sessions as a restart does, the page
  *    signs in again and asks again (DR-F38).
+ * 7. With JavaScript off, the notice says where the figures come from and no line says a server is being looked for
+ *    (HS-F24, HS-F27).
  *
  * Static checks of the same files, the trace's labels and the rows the recorder keeps, are in tests/test_page.py; this
  * is the one that runs the page.
@@ -370,6 +372,21 @@ try {
       `${live.seen.refused - before.refused} refused, ${again} sign ins after`)
   }
   await signed.close()
+
+  // 7. With JavaScript off: the notice says where the figures come from, and no line says a server is being looked for
+  // (HS-F24, HS-F27).
+  const bare = await browser.newContext({ viewport: { width: 1280, height: 900 }, javaScriptEnabled: false })
+  const still = await bare.newPage()
+  await still.goto(replayed.url)
+  const notice = flat(await still.locator('.noscript').innerText().catch(() => ''))
+  const looking = await still.locator('#mode').isVisible()
+  if (notice.endsWith('recorded in the repository by a command its README names.') && !looking) {
+    ok('without JavaScript, the notice says where the figures come from, and no line claims a search')
+  } else {
+    fail('without JavaScript, the page says what it cannot do', `notice ${JSON.stringify(notice.slice(-80))}; ` +
+      `the mode line ${looking ? 'shown' : 'hidden'}`)
+  }
+  await bare.close()
 } finally {
   await browser.close()
   replayed.stop()
