@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**206 findings, 177 closed, 29 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**206 findings, 179 closed, 27 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -132,7 +132,7 @@ An audit pass that killed the pipeline mid build and mid change. 5 findings, 5 c
 
 ## `MA`, the measurement auditor
 
-An audit pass on whether every number can be produced again. 23 findings, 13 closed.
+An audit pass on whether every number can be produced again. 23 findings, 15 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -155,9 +155,9 @@ An audit pass on whether every number can be produced again. 23 findings, 13 clo
 | `MA-F17` | medium | fixed, tick 142 | The README credits the baseline's weak categories to retrieval, but 7 of its 22 wrong answers were shown a section planting every fact they needed: T12, the test's only C miss, refused twice with its fact shown, D141 three times and D136 once, and D053's was right and scored wrong: the report counts the wrong answers shown and not shown their facts, and the README quotes both |
 | `MA-F18` | low | fixed, tick 142 | The README quotes category figures of three and four items without their count, C 0.778 on test over 3, F 0.500 on dev over 4, and the probes' 0.964 without its 194: give each quoted figure its count |
 | `MA-F19` | medium | fixed, tick 161 | The registered protocol, its version 8 history, N63 and fdbd498's commit message quote the probe arm's misses in 5 families, printed only by a scratch script of tick 148's audit, and N63 7 items with room, printed by nothing (MA-F1's class): bench/probe_recall.py --report prints the probe arm's reach from the saved run, bench/baseline.py the items with room, and the protocol and N63 name the commands |
-| `MA-F20` | medium | open | The README's timings are not what their commands print today: freshness 4.1 s and 4.3 s against 3.2 and 3.5, the served first search 2.91 s and median 1.13 s against 1.62 and 1.01, the models 31.8 s against 21.2, the processor 52 to 61 percent busy with other programs; no record states the load it ran under, and the first edit embeds one unit only on a cache that never held it Measured by bench/freshness.py and bench/served.py. |
+| `MA-F20` | medium | fixed, tick 189 | The README's timings are not what their commands print today: freshness 4.1 s and 4.3 s against 3.2 and 3.5, the served first search 2.91 s and median 1.13 s against 1.62 and 1.01, the models 31.8 s against 21.2, the processor 52 to 61 percent busy with other programs; no record states the load it ran under, and the first edit embeds one unit only on a cache that never held it Measured by bench/freshness.py and bench/served.py. |
 | `MA-F21` | medium | fixed, tick 185 | N66 says the page asks the change feed again every few seconds, and the page never calls /events: poll it in live mode at a stated interval, or say a client does |
-| `MA-F22` | medium | open | The page's replayed runs name no commit: a record taken from a log keeps the log's name and time, so the change replay cannot say which watcher ran; benches print the commit, records and the page carry it |
+| `MA-F22` | medium | fixed, tick 189 | The page's replayed runs name no commit: a record taken from a log keeps the log's name and time, so the change replay cannot say which watcher ran; benches print the commit, records and the page carry it |
 | `MA-F23` | low | open | 17a64d9's message counts 603 passed, 7 skipped, a count of the working tree before the fonts were staged; at that commit the decisions test fails: rewrite it before the upload, or say so |
 
 ## `MT`, the maintainer in six months
