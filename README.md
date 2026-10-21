@@ -182,6 +182,12 @@ command in this repository that produces it.
   back, it left that reader in 4.5 s at the median and 5.2 s at most, with the processor
   12 percent busy with other programs before them, the scan of that one file taking most
   of it (PF-F10): `uv run python bench/revocation.py`.
+* The order of units of exactly equal score is the engine's, set by the index's layout,
+  which units a role may not read help shape. In a collection made as the index's is, 150
+  units of sales tied in both searches kept their order while 150 units of legal were
+  written and deleted again, and moved in each search and in the fusion once 15,000 more of
+  legal were written and the optimizer settled; the fusion ranks tied units by that order,
+  so their fused scores moved with it (N50): `uv run python bench/ties.py`.
 
 ## Run it
 

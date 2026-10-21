@@ -1,0 +1,10 @@
+command: uv run python bench/ties.py
+recorded 2026-10-21 19:45, run at 621794a
+---
+ties_bench: 30,000 filler units over 10 labels; 150 units of sales tied in both searches, and 150 of legal that would tie with them; a limit of 100, 3 calls a state
+alone: 100 of the 150 tied units in the dense list and 100 in the lexical, every call alike; the fused scores 0.013602941 to 0.03028233
+150 of legal written after: dense the same, lexical the same, fused the same
+those 150 deleted again: dense the same, lexical the same, fused the same
+15,000 more of legal written after, the optimizer left to settle: dense MOVED, lexical MOVED, fused MOVED
+built again, the same units in the same order: dense MOVED, lexical MOVED, fused MOVED
+in one build, the role's tied units as it had them alone in 2 of 3 states; built again from the same units, its order moved; 48 s
