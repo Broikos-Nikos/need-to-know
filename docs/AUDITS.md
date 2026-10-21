@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**247 findings, 223 closed, 24 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
+**248 findings, 223 closed, 25 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -141,7 +141,7 @@ An audit pass that killed the pipeline mid build and mid change. 5 findings, 5 c
 
 ## `MA`, the measurement auditor
 
-An audit pass on whether every number can be produced again. 26 findings, 24 closed.
+An audit pass on whether every number can be produced again. 27 findings, 24 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -171,6 +171,7 @@ An audit pass on whether every number can be produced again. 26 findings, 24 clo
 | `MA-F24` | medium | fixed, tick 206 | The decisions' and the bench README's figures are held by no gate: 79 of the 246 numbers in docs/DECISIONS.md's prose and 7 of the 56 in bench/README.md's are printed by no record in docs/claims; T6.4 asked for this gate and its split left it out: the claims check over each decision and bench section, every number a record's or a parameter in backticks, the 86 sorted |
 | `MA-F25` | low | fixed, tick 206 | The README says the live page asks the change feed every five seconds, FEED = 5000 in main.ts, and nothing reads one against the other: a test that finds FEED's seconds in the page bullet |
 | `MA-F26` | low | fixed, tick 206 | The bench README states that the before recipe, run again on 2026-10-21, gave no such answer in twelve: a scratch worktree's run with no record; run it to a log and record it with claims.py --log, or drop the count |
+| `MA-F27` | low | open | The README's What fails bullet on ties and N50's amendment leave out the 30,000 filler units the move was measured among, the condition that decided it: at 3,000 a bulk of 1,500 moved nothing: name the 30,000 beside the 15,000 |
 
 ## `MT`, the maintainer in six months
 
