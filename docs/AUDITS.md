@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**239 findings, 209 closed, 30 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
+**239 findings, 210 closed, 29 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -205,14 +205,14 @@ An audit pass on whether a fresh clone can be rebuilt and changed safely. 28 fin
 
 ## `SC`, the supply chain auditor
 
-An audit pass on every dependency, pin and download, and anything committed by accident. 5 findings, 3 closed.
+An audit pass on every dependency, pin and download, and anything committed by accident. 5 findings, 4 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `SC-F1` | medium | fixed, tick 33 | No advisory check reads uv.lock: the workspace gate selects projects by package-lock.json; pip-audit found no known vulnerabilities once, by hand, and cannot reach torch 2.14.1+cu130 |
 | `SC-F2` | low | fixed, tick 33 | qdrant-client is a runtime dependency that no module imports before P3: say so beside the line, or move it to the dev group |
 | `SC-F3` | low | fixed, tick 33 | The pinned model and Qdrant binary have no command that fetches them: the doctor prints the exact commands with the revision and digest |
-| `SC-F4` | medium | open | The advisories gate audits the Python lock as the machine it runs on sees it: pip-audit evaluates each exported requirement's marker, so here it audits 61 of the 81 locked packages and skips 20 marked for Linux or emscripten, and the gate's line names none of them: strip the markers, and give the count audited of the lock's |
+| `SC-F4` | medium | fixed, tick 215 | The advisories gate audits the Python lock as the machine it runs on sees it: pip-audit evaluates each exported requirement's marker, so here it audits 61 of the 81 locked packages and skips 20 marked for Linux or emscripten, and the gate's line names none of them: strip the markers, and give the count audited of the lock's |
 | `SC-F5` | low | open | A committed record carries the author's absolute checkout path: docs/claims/python-bench-draws.py.txt keeps Qdrant local mode's warnings with the full path of the module that raised them: the record writer puts the repository's root as a dot, and a test holds every tracked text file free of the checkout's path |
 
 ## `HE`, the hiring engineer
