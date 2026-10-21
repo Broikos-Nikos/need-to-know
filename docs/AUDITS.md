@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**231 findings, 208 closed, 23 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**236 findings, 208 closed, 28 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -285,6 +285,18 @@ An audit pass on time, memory and disk, its page half waiting for the page. 13 f
 | `PF-F11` | medium | fixed, tick 192 | The change feed's empty poll costs the server 0.46 to 0.74 s every five seconds for each open page, reading again every scan since the role's last visible one, and grows with each scan the role cannot see; the whole feed 1.7 to 1.9 s warm, 4.9 s cold: one grouped query on an index of units by run, and the session's place kept on the server |
 | `PF-F12` | low | fixed, tick 192 | GET /stats walks the index's folder at every load, 0.48 to 0.55 s warm and 2.7 s at the day's first load: keep the footprint of the last sync, or cache it, and say its time |
 | `PF-F13` | low | fixed, tick 192 | The replay fetches all 27 traces, 1.1 MB in their provisional form, before anything is picked: a small index for the pickers, a file per question fetched at its first replay |
+
+## `DE`, the design eye
+
+An audit pass on the page's type, spacing, rhythm, colour and motion, once it was done. 5 findings, 0 closed.
+
+| id | severity | status | finding |
+|---|---|---|---|
+| `DE-F1` | medium | open | The answer is the quietest text in its own trace: Roboto Mono 14.04 px in --dim, under excerpts of Manrope 18.69 px in white and beside a verdict at the excerpts' size, in the cards as in the trace: the answer in the body face, white, a step above the body |
+| `DE-F2` | low | open | The excerpts are two thousand pixels of eight identical cards, the cited one told apart by a 14.95 px blue line: each closed to its header and first line, the cited one open and edged in the flame |
+| `DE-F3` | low | open | A label, the page's subject, has no form of its own: 14.04 px mono in --dim as every caption, in the filter, on each excerpt and in each card: one outlined chip everywhere |
+| `DE-F4` | low | open | Eleven type sizes, five of them within two pixels between 14.04 and 16 px, and two greys sixteen levels apart: a five step scale and one grey |
+| `DE-F5` | low | open | The build's tiles print bytes as ten digit integers at 24 px bold, so the index's size beside the cache's is not seen: GB or MB to three figures, the exact bytes beneath |
 
 ## `KB1`, the plan, reviewed against a knowledge base
 
