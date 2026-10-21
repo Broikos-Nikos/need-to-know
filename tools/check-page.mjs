@@ -397,7 +397,7 @@ try {
   const bare = await browser.newContext({ viewport: { width: 1280, height: 900 }, javaScriptEnabled: false })
   const still = await bare.newPage()
   await still.goto(replayed.url)
-  const notice = flat(await still.locator('.noscript').innerText().catch(() => ''))
+  const notice = flat(await still.locator('[data-notice]').innerText().catch(() => ''))
   const looking = await still.locator('#mode').isVisible()
   if (notice.endsWith('recorded in the repository by a command its README names.') && !looking) {
     ok('without JavaScript, the notice says where the figures come from, and no line claims a search')
