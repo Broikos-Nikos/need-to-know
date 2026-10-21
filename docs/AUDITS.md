@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**247 findings, 220 closed, 27 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
+**247 findings, 221 closed, 26 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -264,7 +264,7 @@ An audit pass that tried to make restricted text readable by the wrong role. 20 
 
 ## `RC`, the recruiter
 
-An audit pass of ten seconds on the first screen, by someone who hires but does not build. 7 findings, 2 closed.
+An audit pass of ten seconds on the first screen, by someone who hires but does not build. 7 findings, 3 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -274,7 +274,7 @@ An audit pass of ten seconds on the first screen, by someone who hires but does 
 | `RC-F4` | low | open | The README's recording opens on the trace: sales's filter and ranked lists until 2.0 s, the nine departments from 2.0 s to 4.75 s of 16.26 s, and GitHub holds animated images for a reader whose system asks for reduced motion: start on the cards and hold them |
 | `RC-F5` | low | open | The page's lede turns to the trade's words in its second sentence, filter, both searches, fusion, rerank, and the line under it opens Replayed, as no server answers here, which reads as a fault: both in plain words |
 | `RC-F6` | low | open | 97 of the 160 documents are Greek, and neither the README's first screen nor the page's says the documents are in two languages, while the page's first answer, in English, cites a Greek heading |
-| `RC-F7` | low | open | On GitHub the README starts under 23 rows of files, near 1,400 px at 1280 by 800 as evalkit's under 14 rows starts at 1,038, so the About box holds the first screen's only sentence: T7.3's description opens with what the project does for a person |
+| `RC-F7` | low | fixed, tick 226 | On GitHub the README starts under 23 rows of files, near 1,400 px at 1280 by 800 as evalkit's under 14 rows starts at 1,038, so the About box holds the first screen's only sentence: T7.3's description opens with what the project does for a person |
 
 ## `PF`, the performance auditor
 
