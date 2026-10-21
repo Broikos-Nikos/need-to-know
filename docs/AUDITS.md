@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**221 findings, 203 closed, 18 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**221 findings, 206 closed, 15 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -137,7 +137,7 @@ An audit pass that killed the pipeline mid build and mid change. 5 findings, 5 c
 
 ## `MA`, the measurement auditor
 
-An audit pass on whether every number can be produced again. 26 findings, 21 closed.
+An audit pass on whether every number can be produced again. 26 findings, 24 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -164,9 +164,9 @@ An audit pass on whether every number can be produced again. 26 findings, 21 clo
 | `MA-F21` | medium | fixed, tick 185 | N66 says the page asks the change feed again every few seconds, and the page never calls /events: poll it in live mode at a stated interval, or say a client does |
 | `MA-F22` | medium | fixed, tick 189 | The page's replayed runs name no commit: a record taken from a log keeps the log's name and time, so the change replay cannot say which watcher ran; benches print the commit, records and the page carry it |
 | `MA-F23` | low | open | 17a64d9's message counts 603 passed, 7 skipped, a count of the working tree before the fonts were staged; at that commit the decisions test fails: rewrite it before the upload, or say so |
-| `MA-F24` | medium | open | The decisions' and the bench README's figures are held by no gate: 79 of the 246 numbers in docs/DECISIONS.md's prose and 7 of the 56 in bench/README.md's are printed by no record in docs/claims; T6.4 asked for this gate and its split left it out: the claims check over each decision and bench section, every number a record's or a parameter in backticks, the 86 sorted |
-| `MA-F25` | low | open | The README says the live page asks the change feed every five seconds, FEED = 5000 in main.ts, and nothing reads one against the other: a test that finds FEED's seconds in the page bullet |
-| `MA-F26` | low | open | The bench README states that the before recipe, run again on 2026-10-21, gave no such answer in twelve: a scratch worktree's run with no record; run it to a log and record it with claims.py --log, or drop the count |
+| `MA-F24` | medium | fixed, tick 206 | The decisions' and the bench README's figures are held by no gate: 79 of the 246 numbers in docs/DECISIONS.md's prose and 7 of the 56 in bench/README.md's are printed by no record in docs/claims; T6.4 asked for this gate and its split left it out: the claims check over each decision and bench section, every number a record's or a parameter in backticks, the 86 sorted |
+| `MA-F25` | low | fixed, tick 206 | The README says the live page asks the change feed every five seconds, FEED = 5000 in main.ts, and nothing reads one against the other: a test that finds FEED's seconds in the page bullet |
+| `MA-F26` | low | fixed, tick 206 | The bench README states that the before recipe, run again on 2026-10-21, gave no such answer in twelve: a scratch worktree's run with no record; run it to a log and record it with claims.py --log, or drop the count |
 
 ## `MT`, the maintainer in six months
 
