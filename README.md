@@ -173,9 +173,10 @@ command in this repository that produces it.
   matched pair cannot tell from how words sit in the role's own text:
   `uv run python bench/idf_attack.py` and `uv run python bench/idf_attack.py --global-idf`.
 * A relabel of the largest document misses its 5 s objective: the widened section reached
-  its new reader in 5.3 s at the median and 6.0 s at most over five runs, with the
-  processor 12 percent busy with other programs before them, the scan of that one file
-  taking most of it (PF-F10): `uv run python bench/revocation.py`.
+  its new reader in 5.3 s at the median and 6.0 s at most over five runs, and narrowed
+  back, it left that reader in 4.5 s at the median and 5.2 s at most, with the processor
+  12 percent busy with other programs before them, the scan of that one file taking most
+  of it (PF-F10): `uv run python bench/revocation.py`.
 
 ## Run it
 

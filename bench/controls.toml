@@ -367,3 +367,12 @@ test = "tests/test_readme.py::test_the_readme_says_what_fails_and_the_claims_gat
 file = "bench/claims.py"
 old = '''    for heading in ("## What works today", "## What fails"):'''
 new = '''    for heading in ("## What works today",):'''
+
+[[control]]
+name = "the relabel's narrowing left out again"
+test = "tests/test_readme.py::test_the_readme_gives_the_relabel_it_fails_in_both_directions"
+[[control.change]]
+file = "README.md"
+old = '''over five runs, and narrowed
+  back, it left that reader in 4.5 s at the median and 5.2 s at most, with the processor'''
+new = '''over five runs, with the processor'''
