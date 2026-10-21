@@ -338,3 +338,24 @@ def test_the_units_holding_a_key_are_read_once_a_manifest_state_and_again_after_
         db.execute("INSERT INTO runs (run_id, kind, started, finished) VALUES (2, 'scan', 't', 't2')")
     assert len(G.Holding(reader)("K-1")) == 2 and len(scans) == 3  # a scan since: read again
     reader.close()
+
+
+def test_the_units_holding_a_key_are_read_again_when_the_query_that_found_them_changes(monkeypatch, tmp_path):
+    # MT-F24: the kept rows were keyed by the manifest and its last run alone, so a changed query was served the old
+    # query's rows, and a changed column list failed as an unpacking error far from its cause.
+    import sqlite3
+
+    from needtoknow.ingest.manifest import manifest_path, opened
+    monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path))
+    with opened() as db:
+        db.execute("INSERT INTO files VALUES ('DOC', 'p', 1, 1, 1, 1, 'h', 'txt', 'utf-8', 'en', '[]', 1)")
+        db.execute("INSERT INTO runs (run_id, kind, started, finished) VALUES (1, 'build', 't', 't1')")
+        db.executemany("INSERT INTO units VALUES (?, 'DOC', 'k', 'table', '[\"sales\"]', '[]', ?, 0, 1, 'en', 1)",
+                       [("u1", "K-1 | a"), ("u2", "K-1 | b")])
+    reader = sqlite3.connect(f"file:{manifest_path().as_posix()}?mode=ro", uri=True)
+    kept = G.Holding(reader)
+    assert [row[1] for row in kept("K-1")] == ["u1", "u2"]
+    kept.save()
+    monkeypatch.setattr(G.Holding, "QUERY", G.Holding.QUERY.replace("ORDER BY rowid", "ORDER BY rowid DESC"))
+    assert [row[1] for row in G.Holding(reader)("K-1")] == ["u2", "u1"]  # the new query's rows, not the kept ones
+    reader.close()

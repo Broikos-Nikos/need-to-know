@@ -318,8 +318,11 @@ def twin_problems(loaded: dict[str, list[dict]], ctx: Context) -> list[str]:
 
 class Holding:
     """The units whose text holds a key, as row id, unit, document, layer and labels: found by reading every unit's
-    text, seconds a key, and kept beside the manifest under its last run, so they are read again only after a scan or
-    a build has changed them (PF-F9)."""
+    text, seconds a key, and kept beside the manifest under its last run and the query that read them, so they are
+    read again after a scan or a build has changed them (PF-F9), or the query has (MT-F24): a cache keyed by the
+    manifest alone served a changed query the old query's rows."""
+
+    QUERY = "SELECT rowid, unit_id, doc_id, layer, labels FROM units WHERE instr(text, ?) > 0 ORDER BY rowid"
 
     def __init__(self, db: sqlite3.Connection):
         self.db = db
@@ -327,7 +330,7 @@ class Holding:
             last = db.execute("SELECT run_id, finished FROM runs ORDER BY run_id DESC LIMIT 1").fetchone()
         except sqlite3.OperationalError:  # a manifest with no runs table, made by hand: nothing to key a cache on
             last = None
-        self.state = [manifest_path().as_posix(), *(last or (None, None))]
+        self.state = [manifest_path().as_posix(), *(last or (None, None)), self.QUERY]
         self.path = data_dir() / "golden-keys.json"
         try:
             kept = json.loads(self.path.read_text(encoding="utf-8"))
@@ -338,8 +341,7 @@ class Holding:
 
     def __call__(self, key: str) -> list[list]:
         if key not in self.keys:
-            self.keys[key] = [list(row) for row in self.db.execute(
-                "SELECT rowid, unit_id, doc_id, layer, labels FROM units WHERE instr(text, ?) > 0 ORDER BY rowid", (key,))]
+            self.keys[key] = [list(row) for row in self.db.execute(self.QUERY, (key,))]
             self.changed = True
         return self.keys[key]
 

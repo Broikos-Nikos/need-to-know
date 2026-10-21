@@ -793,3 +793,13 @@ old = '''        if done.returncode == NONE_COLLECTED:
             return "skipped", "no test collected"
 '''
 new = ''''''
+
+[[control]]
+name = "the golden key cache keyed by the manifest alone"
+test = "tests/test_golden.py::test_the_units_holding_a_key_are_read_again_when_the_query_that_found_them_changes"
+[[control.change]]
+file = "src/needtoknow/eval/golden.py"
+old = '''        self.state = [manifest_path().as_posix(), *(last or (None, None)), self.QUERY]
+'''
+new = '''        self.state = [manifest_path().as_posix(), *(last or (None, None))]
+'''
