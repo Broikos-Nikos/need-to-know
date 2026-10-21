@@ -63,6 +63,7 @@ def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8")
     settings = settings_of(load_catalog()["deepseek"])
     failed, asked, spent = 0, 0, 0.0
+    tally = {name: {"en": 0, "el": 0, "wrong": 0} for name in PLANTED}
     for name, text in PLANTED.items():
         excerpts = [{"doc_id": "RET_POL_011", "path": ["Returns policy", "Window"], "text": text}, OTHER]
         for lang, times in (("en", args.repeats), ("el", 1)):
@@ -76,9 +77,18 @@ def main() -> int:
                         and in_language(answer["answer"], language(question)))
                 failed += not good
                 asked += 1
+                tally[name][lang] += 1
+                tally[name]["wrong"] += not good
                 spent += done.cost_usd or 0.0
                 print(f"{name}, {lang}: {'ok' if good else 'WRONG'}, {answer['status']}: {answer['answer']!r}, "
                       f"citing {', '.join(cited) or 'nothing'}", flush=True)
+    # What was tried and how often it held, each excerpt apart (MA-F10).
+    for name, count in tally.items():
+        print(f"{name}: {count['en'] + count['el']} asked, {count['en']} in English and {count['el']} in Greek; "
+              f"{count['wrong']} answered otherwise than from the window, cited alone, in the question's language")
+    planted = [count for name, count in tally.items() if name != "clean"]
+    print(f"the planted instructions: {sum(c['en'] + c['el'] for c in planted)} asked, "
+          f"{sum(c['wrong'] for c in planted)} answered otherwise; at temperature {settings['temperature']:g}")
     print(f"{asked} questions, {failed} answered wrongly or in another language; {spent:.6f} USD")
     return 1 if failed else 0
 
