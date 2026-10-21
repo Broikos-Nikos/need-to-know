@@ -294,8 +294,8 @@ name = "a feed poll starting from the beginning again"
 test = "tests/test_api.py::test_a_poll_starts_where_the_sessions_last_one_ended_and_that_place_is_never_served"
 [[control.change]]
 file = "src/needtoknow/api.py"
-old = '''        place = places.get(token, ("", 0))'''
-new = '''        place = ("", 0)'''
+old = '''        place = places.get(token, 0)'''
+new = '''        place = 0'''
 
 [[control]]
 name = "the build's figures walked at every load"
@@ -492,8 +492,9 @@ name = "the feed's place a time again"
 test = "tests/test_api.py::test_a_poll_shows_a_scan_that_ended_in_the_same_second_as_the_last_it_read"
 [[control.change]]
 file = "src/needtoknow/api.py"
-old = '''"(finished = ? AND run_id > ?)) ORDER BY finished, run_id", (after, after, run)).fetchall()'''
-new = '''"(finished = ? AND run_id > ?)) ORDER BY finished, run_id", (after, after, LAST)).fetchall()'''
+old = '''            f"WHERE a.label IN ({among(reads)}) AND a.run_id > ? AND r.finished IS NOT NULL"'''
+new = '''            f"WHERE a.label IN ({among(reads)}) AND r.finished > COALESCE((SELECT finished FROM runs WHERE run_id = ?), '') "
+            f"AND r.finished IS NOT NULL"'''
 
 [[control]]
 name = "the figures' walk stopped by a file removed mid walk"
@@ -636,3 +637,60 @@ test = "tests/test_readme.py::test_the_build_runs_the_projects_own_gates"
 file = "package.json"
 old = '''"build": "tsc --noEmit && npm run check && vite build",'''
 new = '''"build": "tsc --noEmit && vite build",'''
+
+[[control]]
+name = "the change feed reading every scan before it drops what the role cannot see"
+test = "tests/test_api.py::test_a_roles_feed_and_document_view_do_the_same_work_whatever_it_may_not_read"
+[[control.change]]
+file = "src/needtoknow/api.py"
+old = '''            f"WHERE a.label IN ({among(reads)}) AND a.run_id > ? AND r.finished IS NOT NULL"
+            + ("" if after is None else " AND r.finished > ?"),
+            (*labels_read, run, *([] if after is None else [after]))).fetchall()
+'''
+new = '''            f"WHERE a.run_id > ? AND r.finished IS NOT NULL"
+            + ("" if after is None else " AND r.finished > ?"),
+            (run, *([] if after is None else [after]))).fetchall()
+        rows = [row for row in rows if set(json.loads(row[3])) & reads]
+'''
+
+[[control]]
+name = "a document's view reading every unit of the document"
+test = "tests/test_api.py::test_a_roles_feed_and_document_view_do_the_same_work_whatever_it_may_not_read"
+[[control.change]]
+file = "src/needtoknow/api.py"
+old = '''            f"SELECT section_key, labels, units FROM segments WHERE doc_id = ? AND label IN ({among(reads)})",
+            (doc_id, *labels_read))}
+'''
+new = '''            "SELECT section_key, labels, COUNT(*) FROM units WHERE doc_id = ? GROUP BY section_key, labels", (doc_id,))
+            if set(json.loads(labels)) & reads}
+'''
+
+[[control]]
+name = "a document's view reading every segment of the document"
+test = "tests/test_api.py::test_a_roles_feed_and_document_view_do_the_same_work_whatever_it_may_not_read"
+[[control.change]]
+file = "src/needtoknow/api.py"
+old = '''            f"SELECT section_key, labels, units FROM segments WHERE doc_id = ? AND label IN ({among(reads)})",
+            (doc_id, *labels_read))}
+'''
+new = '''            "SELECT section_key, labels, units FROM segments WHERE doc_id = ?", (doc_id,))
+            if set(json.loads(labels)) & reads}
+'''
+
+[[control]]
+name = "a removed unit left in the feed's counts"
+test = "tests/test_manifest.py::test_the_counts_the_feed_and_a_view_read_follow_every_unit_written_and_removed"
+[[control.change]]
+file = "src/needtoknow/ingest/manifest.py"
+old = '''    UPDATE added SET units = units - 1 WHERE'''
+new = '''    UPDATE added SET units = units WHERE'''
+
+[[control]]
+name = "the counts left empty in a manifest made before them"
+test = "tests/test_manifest.py::test_the_counts_the_feed_and_a_view_read_follow_every_unit_written_and_removed"
+[[control.change]]
+file = "src/needtoknow/ingest/manifest.py"
+old = '''INSERT INTO added SELECT j.value, u.run_id, u.doc_id, u.labels, COUNT(*) FROM units u, json_each(u.labels) j
+    WHERE NOT EXISTS (SELECT 1 FROM added) GROUP BY j.value, u.run_id, u.doc_id, u.labels;
+'''
+new = ''''''

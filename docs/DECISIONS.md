@@ -575,6 +575,15 @@ the page did; the page now does, at the interval it names.
 past the scans its role cannot see, so it reads only scans newer than any it has read; the
 server keeps that place and never serves it, as it serves no time of a scan the role cannot see.
 
+*Amended 2026-10-21, tick 211 (AC-F19, AC-F18):* the feed served no such time, and its own work told
+it: it read every scan after the place and dropped those the role cannot see only after, so a
+role asking from a time a hidden scan followed waited longer, and found the scan's second by
+halving the time. The units a scan adds are now counted under each of their labels as they are
+written, and a poll reads the counts of its role's labels alone, a scan's id its place; a
+document's view reads its role's segments the same way. A test counts both routes' work in
+SQLite's instructions over two manifests that differ in what the role may not read, and
+finds it equal.
+
 ## N67. The page sets every word in faces that draw Greek, and finds its server by an open route
 
 *Decided 2026-10-21, at tick 177.*

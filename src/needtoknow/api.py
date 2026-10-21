@@ -34,23 +34,27 @@ role what its refusal is worded to hide (AC-F16).
 order, each with its heading path, labels, how many units it holds and its first units'
 text, and nothing of the others, not their count; a document it may read nothing of is
 refused in the words an unknown one is, so the refusal tells nothing (`specs/architecture.md`
-section 9, step 7). A document is named by its id, which says its owner and kind (N65).
+section 9, step 7). Nor does its time: the view reads the segments kept under the role's labels
+and their first units alone, the same work whatever the others hold (AC-F18). A document is
+named by its id, which says its owner and kind (N65).
 `GET /stats` answers with what the build holds, as `ntk stats` prints it: the whole
 collection's figures, the same for every role. `GET /events?after=<time>` is the watcher's
 change feed as the role may see it: each finished scan that added units it may read, with
 the documents and how many, keyed by the time it finished. A scan that added none of them
 is left out whole, so a change to text the role may not read shows as nothing, not even its
 time; the scans' own numbers stay in the server, whose gaps would count those changes; and a
-removal shows as nothing, a removed unit's labels having gone with it (N66).
+removal shows as nothing, a removed unit's labels having gone with it (N66). The feed reads
+the rows its role's labels keep and no others, so its time says nothing of such a scan either
+(AC-F19).
 
 `GET /roles` names the policy's roles, which the sign in needs and the public policy file
 holds, and asks no session. When the page is built, `web/dist`, it is served at `/` beside
 the routes, so the page's calls stay on one origin.
 
 What the page asks over and over costs little: a poll of `/events` without `after` starts
-where the session's last one ended, past the scans its role cannot see, a place the server
-keeps and never serves (PF-F11); and the build's figures are kept a minute and served with
-the time they were measured (PF-F12).
+after the last scan the session was shown, a place the server keeps and never serves
+(PF-F11); and the build's figures are kept a minute and served with the time they were
+measured (PF-F12).
 """
 
 from __future__ import annotations
@@ -129,26 +133,29 @@ def described(unit_ids: list[str]) -> dict[str, dict]:
     return found
 
 
+def among(reads: frozenset[str]) -> str:
+    """The placeholders of a reader's labels, for the rows kept under them."""
+    return ",".join("?" * len(reads))
+
+
 def outline(doc_id: str, reads: frozenset[str]) -> list[dict]:
     """The document's segments a reader of `reads` may read, from the manifest, in document order: each one's key,
     heading path, labels, units and first units' text. A segment holds one label set, so it is read whole or not at
-    all, by the rule the index's filter applies: any of its labels read."""
+    all, by the rule the index's filter applies: any of its labels read. The segments are found under the reader's
+    labels and the units read are their first ones, so the view does no work for a segment the reader may not read,
+    whatever it holds (AC-F18)."""
+    labels_read = sorted(reads)
+    shown = []
     with opened() as db:
-        rows = db.execute("SELECT section_key, labels, path, text FROM units WHERE doc_id = ? ORDER BY start, unit_id",
-                          (doc_id,)).fetchall()
-    segments: dict[tuple[str, str], dict] = {}
-    for key, labels, path, text in rows:
-        if not set(json.loads(labels)) & reads:
-            continue
-        segment = segments.setdefault((key, labels), {"key": key, "section": " > ".join(json.loads(path)),
-                                                      "labels": json.loads(labels), "units": 0, "preview": []})
-        segment["units"] += 1
-        if len(segment["preview"]) < PREVIEW:
-            segment["preview"].append(text)
-    return list(segments.values())
-
-
-LAST = 2**63 - 1  # past any run's id: a place at a time alone holds every run that finished in that second
+        found = {(key, labels): units for key, labels, units in db.execute(
+            f"SELECT section_key, labels, units FROM segments WHERE doc_id = ? AND label IN ({among(reads)})",
+            (doc_id, *labels_read))}
+        for (key, labels), units in found.items():
+            first = db.execute(f"SELECT start, unit_id, path, text FROM units WHERE doc_id = ? AND section_key = ? AND "
+                               f"labels = ? ORDER BY start, unit_id LIMIT {PREVIEW}", (doc_id, key, labels)).fetchall()
+            shown.append((first[0][:2], {"key": key, "section": " > ".join(json.loads(first[0][2])),
+                                         "labels": json.loads(labels), "units": units, "preview": [row[3] for row in first]}))
+    return [segment for _, segment in sorted(shown, key=lambda pair: pair[0])]
 
 
 def events(after: str, reads: frozenset[str], limit: int = EVENTS) -> list[dict]:
@@ -157,31 +164,28 @@ def events(after: str, reads: frozenset[str], limit: int = EVENTS) -> list[dict]
     return scanned(after, reads, limit)[0]
 
 
-def scanned(after: str, reads: frozenset[str], limit: int = EVENTS,
-            run: int = LAST) -> tuple[list[dict], tuple[str, int]]:
-    """The events past the place `after` and `run`, a run's finish and its id, and the place of the last scan read,
-    shown to the role or not: where a session's next poll starts, which the server keeps and never serves (PF-F11,
-    N66). A finish is to the second, and two scans can end in one, so the place is the run, not its time (DR-F36). The
-    units a scan added are the manifest's rows of its run, read through the documents it changed, by the index of units
-    by document and run."""
-    found = []
-    until = (after, run)
+def scanned(after: str | None, reads: frozenset[str], limit: int = EVENTS, run: int = 0) -> tuple[list[dict], int]:
+    """The events after the scan `run`, and after the time `after` when one is given, and the last scan they show:
+    where a session's next poll starts, which the server keeps and never serves (PF-F11, N66). The units a scan added
+    are counted under each of their labels as they are written, so a poll reads the rows of the reader's labels alone
+    and never a scan it cannot see, not even its time (AC-F19). Scans run one at a time, so their ids keep the order
+    they finished in, and two that end in one second are two places, not one (DR-F36)."""
+    labels_read = sorted(reads)
     with opened() as db:
-        runs = db.execute("SELECT run_id, finished FROM runs WHERE finished IS NOT NULL AND (finished > ? OR "
-                          "(finished = ? AND run_id > ?)) ORDER BY finished, run_id", (after, after, run)).fetchall()
-        for run_id, finished in runs:
-            documents = []
-            for (doc_id,) in db.execute("SELECT DISTINCT doc_id FROM changes WHERE run_id = ? ORDER BY doc_id",
-                                        (run_id,)).fetchall():
-                units = sum(count for labels, count in db.execute(
-                    "SELECT labels, COUNT(*) FROM units WHERE doc_id = ? AND run_id = ? GROUP BY labels",
-                    (doc_id, run_id)) if set(json.loads(labels)) & reads)
-                if units:
-                    documents.append({"doc_id": doc_id, "units": units})
-            if documents:
-                found.append({"at": finished, "documents": documents})
-            until = (finished, run_id)
-    return found[-limit:], until
+        rows = db.execute(
+            f"SELECT a.run_id, r.finished, a.doc_id, a.labels, a.units FROM added a JOIN runs r ON r.run_id = a.run_id "
+            f"WHERE a.label IN ({among(reads)}) AND a.run_id > ? AND r.finished IS NOT NULL"
+            + ("" if after is None else " AND r.finished > ?"),
+            (*labels_read, run, *([] if after is None else [after]))).fetchall()
+    # A label set the reader reads under two of its labels is one count, read twice.
+    counted = {(run_id, finished, doc_id, labels): units for run_id, finished, doc_id, labels, units in rows}
+    scans: dict[int, dict] = {}
+    for (run_id, finished, doc_id, _), units in sorted(counted.items()):
+        documents = scans.setdefault(run_id, {"at": finished, "documents": {}})["documents"]
+        documents[doc_id] = documents.get(doc_id, 0) + units
+    found = [{"at": scan["at"], "documents": [{"doc_id": doc, "units": n} for doc, n in scan["documents"].items()]}
+             for _, scan in sorted(scans.items())]
+    return found[-limit:], max(scans, default=run)
 
 
 def keep_latest(table: OrderedDict, key: str, value, limit: int = SESSIONS) -> None:
@@ -249,7 +253,7 @@ def create(client, *, policy: dict | None = None, encode=None, rerank: str | Non
     `ntk`: None reads the policy at each query and takes the configured models. `judge` scores an answer. `page`, the
     built page's folder, `web/dist` unless given, is served at `/` when it holds one."""
     sessions: OrderedDict[str, str] = OrderedDict()
-    places: OrderedDict[str, tuple[str, int]] = OrderedDict()  # each session's place in the change feed (PF-F11)
+    places: OrderedDict[str, int] = OrderedDict()  # each session's place in the change feed, a scan's id (PF-F11)
     lock = threading.Lock()
     app = FastAPI(title="need-to-know", docs_url=None, redoc_url=None)
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=NAMES)
@@ -296,16 +300,15 @@ def create(client, *, policy: dict | None = None, encode=None, rerank: str | Non
     def roles() -> dict:
         return {"roles": list((policy or load_policy())["roles"])}
 
-    # Without `after`, a poll starts where the session's last one ended, past the scans its role cannot see, which it
-    # would otherwise read again at every poll; the place is the server's and is never served, as no scan's time
-    # the role cannot see is (N66).
+    # Without `after`, a poll starts after the last scan the session was shown; the place is the server's and is never
+    # served (N66).
     @app.get("/events")
     def feed(request: Request, after: str | None = None, role: str = Depends(role_of)) -> dict:
         token = request.headers["authorization"].partition(" ")[2]
-        place = places.get(token, ("", 0))
+        place = places.get(token, 0)
         reads = readable(policy or load_policy(), role)
         with refused():
-            found, until = scanned(after, reads) if after is not None else scanned(place[0], reads, run=place[1])
+            found, until = scanned(after, reads) if after is not None else scanned(None, reads, run=place)
         keep_latest(places, token, max(until, place))
         return {"events": found}
 

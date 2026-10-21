@@ -79,6 +79,36 @@ def test_a_deleted_file_takes_its_units_with_it(corpus):
     assert summary["units_total"] == first["units_total"] - gone
 
 
+def test_the_counts_the_feed_and_a_view_read_follow_every_unit_written_and_removed(corpus):
+    # AC-F18, AC-F19: the change feed and a document's view read counts kept under each label as the units are written,
+    # so neither reads a unit of a label its role does not read. After a build, an edit and a deleted file, and in a
+    # manifest made before the counts, they are what the units themselves give; and no update moves a unit out of them.
+    base, docs = corpus
+
+    def kept_and_recounted() -> tuple[list, list]:
+        with opened() as db:
+            kept = [sorted(db.execute(f"SELECT * FROM {table}")) for table in ("added", "segments")]
+            recounted = [sorted(db.execute(f"SELECT {columns}, COUNT(*) FROM units u, json_each(u.labels) j GROUP BY "
+                                           f"{columns}")) for columns in ("j.value, u.run_id, u.doc_id, u.labels",
+                                                                          "u.doc_id, j.value, u.section_key, u.labels")]
+        return kept, recounted
+    build()
+    target = base / "full" / f"{docs[0]['id']}.txt"
+    target.write_bytes(target.read_bytes().replace(b"notes the outcome", b"logs the outcome", 1))
+    for path in (base / "full").glob(f"{docs[5]['id']}.*"):
+        path.unlink()
+    assert build()["units_removed"] > 1
+    kept, recounted = kept_and_recounted()
+    assert kept == recounted and all(kept), kept
+    with opened() as db:  # a manifest as it was before the counts
+        db.executescript("DROP TRIGGER unit_kept; DROP TRIGGER unit_written; DROP TRIGGER unit_removed; "
+                         "DROP TABLE added; DROP TABLE segments;")
+    kept, recounted = kept_and_recounted()
+    assert kept == recounted and all(kept), kept
+    with opened() as db, pytest.raises(sqlite3.IntegrityError, match="a change is a new unit"):
+        db.execute("UPDATE units SET labels = '[\"general\"]' WHERE rowid = 1")
+
+
 def test_identical_units_in_one_section_keep_distinct_ids(corpus, tmp_path):
     from needtoknow.ingest.manifest import unique_ids
     from needtoknow.ingest.units import make_unit

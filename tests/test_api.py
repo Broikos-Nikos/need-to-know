@@ -147,20 +147,74 @@ def test_the_builds_figures_are_measured_once_a_minute_and_say_when(client, monk
 
 def test_a_poll_starts_where_the_sessions_last_one_ended_and_that_place_is_never_served(client, monkeypatch):
     # PF-F11: the page's place was the role's last visible scan, so each poll read again every later scan the role
-    # cannot see; the server now keeps each session's place, past them, and serves nothing of it (N66).
+    # cannot see; the server keeps each session's place, the last scan it was shown, and serves nothing of it (N66).
+    # Since AC-F19 a poll reads no scan the role cannot see, so the place passes none.
     asked = []
 
-    def scanned(after, reads, limit=api.EVENTS, run=api.LAST):
+    def scanned(after, reads, limit=api.EVENTS, run=0):
         asked.append((after, run))
-        return [], ("2026-10-21T09:04:00+00:00", 7)  # the last scan read, which the role cannot see
+        return [], 7  # the last scan shown
     monkeypatch.setattr(api, "scanned", scanned)
     http = served(client)
     sales = signed(http, "sales")
     assert [http.get("/events", headers=sales).json() for _ in range(2)] == [{"events": []}] * 2
-    assert asked == [("", 0), ("2026-10-21T09:04:00+00:00", 7)]
-    http.get("/events", params={"after": ""}, headers=sales)  # a time given is a time used, every run of its second
+    assert asked == [(None, 0), (None, 7)]
+    http.get("/events", params={"after": ""}, headers=sales)  # a time given is a time used, every scan after it
     http.get("/events", headers=signed(http, "sales"))  # and a new session starts from the beginning
-    assert asked[2:] == [("", api.LAST), ("", 0)]
+    assert asked[2:] == [("", 0), (None, 0)]
+
+
+def steps(monkeypatch, call) -> int:
+    """The SQLite instructions `call` runs in the manifest through the server's routes, counted on every connection they
+    open: a measure of their work that no machine's speed or load moves."""
+    from contextlib import contextmanager
+    real, counted = api.opened, [0]
+
+    @contextmanager
+    def counting(*args, **kwargs):
+        with real(*args, **kwargs) as db:
+            db.set_progress_handler(lambda: counted.__setitem__(0, counted[0] + 1), 1)
+            yield db
+    monkeypatch.setattr(api, "opened", counting)
+    try:
+        call()
+    finally:
+        monkeypatch.setattr(api, "opened", real)
+    return counted[0]
+
+
+def test_a_roles_feed_and_document_view_do_the_same_work_whatever_it_may_not_read(client, monkeypatch):
+    # AC-F19, AC-F18: the feed read every scan after its place, and the view every unit of the document, before
+    # dropping what the role may not read, so the feed's time told a role the second a scan it cannot see finished,
+    # and the view's how many units of a document are kept from it. Counted in SQLite's instructions, a role's polls
+    # and its view of a document do the same work before and after a scan it cannot see, which adds to a segment it
+    # may not read and writes another.
+    from needtoknow.ingest.manifest import opened
+    http = served(client)
+    asked = ({}, {"after": "2026-10-21T10:01:00+00:00"})  # a poll from its place, and one from a time a scan follows
+
+    def work() -> tuple:
+        sessions = [signed(http, "sales") for _ in range(3)]
+        replies = [http.get("/events", params=params, headers=sessions[n]).json() for n, params in enumerate(asked)]
+        replies.append(http.get("/doc/DOC", headers=sessions[2]).json())
+        return tuple(steps(monkeypatch, lambda n=n, p=params: http.get("/events", params=p, headers=sessions[n]))
+                     for n, params in enumerate(asked)) + (
+            steps(monkeypatch, lambda: http.get("/doc/DOC", headers=sessions[2])),), replies
+
+    with opened() as db:  # a scan sales may read
+        db.execute("INSERT INTO runs (run_id, kind, started, finished) VALUES (2, 'scan', ?, ?)",
+                   ("2026-10-21T10:00:00+00:00", "2026-10-21T10:00:00+00:00"))
+        db.execute("INSERT INTO units VALUES ('opened', 'DOC', 'key', 'prose', ?, ?, 'Shops open at ten.', 7, 8, 'en', 2)",
+                   (json.dumps(["general"]), json.dumps(["Policy"])))
+    before, shown = work()
+    with opened() as db:  # a scan sales cannot see: two units in the segment legal alone reads, one in a new one
+        db.execute("INSERT INTO runs (run_id, kind, started, finished) VALUES (3, 'scan', ?, ?)",
+                   ("2026-10-21T10:05:00+00:00", "2026-10-21T10:05:00+00:00"))
+        db.executemany("INSERT INTO units VALUES (?, 'DOC', ?, 'prose', ?, ?, ?, ?, ?, 'en', 3)",
+                       [(f"counsel{n}", key, json.dumps(["legal"]), json.dumps([section]), f"Counsel's note {n}.", 20 + n,
+                         21 + n) for n, (key, section) in enumerate([("key", "Policy")] * 2 + [("annex", "Annex")])])
+    after, replies = work()
+    assert replies == shown and after == before, (before, after)
 
 
 def test_a_poll_shows_a_scan_that_ended_in_the_same_second_as_the_last_it_read(client):
