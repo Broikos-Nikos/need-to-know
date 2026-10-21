@@ -873,3 +873,23 @@ old = '''      <p class="origin" id="feed-origin" role="status"></p>
 '''
 new = '''      <p class="origin" id="feed-origin"></p>
 '''
+
+[[control]]
+name = "the About box opening in other words than the README's"
+test = "tests/test_readme.py::test_the_about_box_opens_with_the_readmes_first_sentence_and_carries_numbers_it_holds"
+[[control.change]]
+file = "docs/PUBLISH.md"
+old = '''> Ask a question as a department, and get an answer built only from what that department may read. In 5,760
+'''
+new = '''> A vector database RAG project where each department gets an answer built only from what it may read. In 5,760
+'''
+
+[[control]]
+name = "a number in the About box that no claim of the README holds"
+test = "tests/test_readme.py::test_the_about_box_opens_with_the_readmes_first_sentence_and_carries_numbers_it_holds"
+[[control.change]]
+file = "docs/PUBLISH.md"
+old = '''> searches no role was shown a unit it may not read, and the 35 test questions scored 0.981. Retrieval over a vector
+'''
+new = '''> searches no role was shown a unit it may not read, and the 35 test questions scored 0.991. Retrieval over a vector
+'''

@@ -79,6 +79,21 @@ def test_the_readme_says_what_the_documents_are_and_what_needs_a_network():
             assert "uv sync" in sentence or "uv sync" in README[:README.index(sentence)].rsplit("\n\n", 1)[-1], sentence
 
 
+def test_the_about_box_opens_with_the_readmes_first_sentence_and_carries_numbers_it_holds():
+    # RC-F7: on GitHub the README starts under the list of files, so the About box holds the first screen's only
+    # sentence. docs/PUBLISH.md's description opens with the README's own first sentence, fits GitHub's 350
+    # characters, and every number in it is one the README's claims, which the claims check holds, state; ten topics.
+    publish = (repo_root() / "docs" / "PUBLISH.md").read_text(encoding="utf-8")
+    description = " ".join(line[2:].strip() for line in publish.splitlines() if line.startswith("> "))
+    first = re.split(r"(?<=[.!?])\s", " ".join(README.split(chr(10) * 2)[1].split()))[0]
+    assert description.startswith(first + " ") and len(description) <= 350, (first, len(description))
+    claims = " ".join(README[README.index("## What works today"):README.index("## Run it")].split())
+    numbers = re.findall(r"\d[\d,]*(?:\.\d+)?", description)
+    assert numbers and all(re.search(rf"(?<![\d.,]){re.escape(n)}(?![\d])", claims) for n in numbers), numbers
+    topics = re.search(r"\*\*Topics\*\*.*?```\n(.*?)```", publish, re.S)[1].split()
+    assert len(topics) == len(set(topics)) == 10 and all(re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", t) for t in topics), topics
+
+
 def test_the_readme_opens_with_what_it_does_for_a_person():
     # RC-F1: it opened on "A vector database RAG project", the plain idea forty words in.
     opening = README.split(chr(10) * 2)[1]
