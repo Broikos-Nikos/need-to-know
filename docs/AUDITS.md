@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**248 findings, 223 closed, 25 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
+**248 findings, 226 closed, 22 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -141,12 +141,12 @@ An audit pass that killed the pipeline mid build and mid change. 5 findings, 5 c
 
 ## `MA`, the measurement auditor
 
-An audit pass on whether every number can be produced again. 27 findings, 24 closed.
+An audit pass on whether every number can be produced again. 27 findings, 27 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `MA-F1` | medium | fixed, tick 25 | Two commit messages carry numbers that no command in the repository produces (5547561: 24, 15, 9, 1; fbd9532: one file changed, 42 writes): commit the probes as a bench script, before numbers runnable on the parent commit, and only numbers a committed command prints go into commit messages Measured by `bench/operator_probes.py` and `bench/crash_points.py`. |
-| `MA-F2` | low | open | 'N tests pass' counts this machine: 135 passed as built, 129 passed and 6 skipped without the GPU and the Qdrant binary; give passed and skipped and say which tests need what Measured by `uv run pytest`, with and without the GPU. |
+| `MA-F2` | low | fixed, tick 229 | 'N tests pass' counts this machine: 135 passed as built, 129 passed and 6 skipped without the GPU and the Qdrant binary; give passed and skipped and say which tests need what Measured by `uv run pytest`, with and without the GPU. |
 | `MA-F3` | low | fixed, tick 71 | The doctor's 15 GB floor has no measurement behind it (the data directory holds 415 MB): measure the full build's peak disk use and set the floor from it Measured by `bench/full_build.py --fresh`. |
 | `MA-F4` | low | fixed, tick 39 | 35974c7 states the plan's 22 percent as what hr's filter sends (measured about 5 percent), and labels.toml promises an `ntk corpus verify` that does not exist: the coverage report prints planned and measured shares and the comment names it |
 | `MA-F5` | low | fixed, tick 26 | Finding ids in commits and code resolve to no document in the repository (D20): docs/AUDITS.md lists every cited id, and a gate fails on any it lacks |
@@ -167,11 +167,11 @@ An audit pass on whether every number can be produced again. 27 findings, 24 clo
 | `MA-F20` | medium | fixed, tick 189 | The README's timings are not what their commands print today: freshness 4.1 s and 4.3 s against 3.2 and 3.5, the served first search 2.91 s and median 1.13 s against 1.62 and 1.01, the models 31.8 s against 21.2, the processor 52 to 61 percent busy with other programs; no record states the load it ran under, and the first edit embeds one unit only on a cache that never held it Measured by bench/freshness.py and bench/served.py. |
 | `MA-F21` | medium | fixed, tick 185 | N66 says the page asks the change feed again every few seconds, and the page never calls /events: poll it in live mode at a stated interval, or say a client does |
 | `MA-F22` | medium | fixed, tick 189 | The page's replayed runs name no commit: a record taken from a log keeps the log's name and time, so the change replay cannot say which watcher ran; benches print the commit, records and the page carry it |
-| `MA-F23` | low | open | 17a64d9's message counts 603 passed, 7 skipped, a count of the working tree before the fonts were staged; at that commit the decisions test fails: rewrite it before the upload, or say so Measured by `uv run pytest tests/test_decisions.py` in a checkout of 17a64d9, where it fails. |
+| `MA-F23` | low | fixed, tick 229 | 17a64d9's message counts 603 passed, 7 skipped, a count of the working tree before the fonts were staged; at that commit the decisions test fails: rewrite it before the upload, or say so Measured by `uv run pytest tests/test_decisions.py` in a checkout of 17a64d9, where it fails. |
 | `MA-F24` | medium | fixed, tick 206 | The decisions' and the bench README's figures are held by no gate: 79 of the 246 numbers in docs/DECISIONS.md's prose and 7 of the 56 in bench/README.md's are printed by no record in docs/claims; T6.4 asked for this gate and its split left it out: the claims check over each decision and bench section, every number a record's or a parameter in backticks, the 86 sorted |
 | `MA-F25` | low | fixed, tick 206 | The README says the live page asks the change feed every five seconds, FEED = 5000 in main.ts, and nothing reads one against the other: a test that finds FEED's seconds in the page bullet |
 | `MA-F26` | low | fixed, tick 206 | The bench README states that the before recipe, run again on 2026-10-21, gave no such answer in twelve: a scratch worktree's run with no record; run it to a log and record it with claims.py --log, or drop the count |
-| `MA-F27` | low | open | The README's What fails bullet on ties and N50's amendment leave out the 30,000 filler units the move was measured among, the condition that decided it: at 3,000 a bulk of 1,500 moved nothing: name the 30,000 beside the 15,000 |
+| `MA-F27` | low | fixed, tick 229 | The README's What fails bullet on ties and N50's amendment leave out the 30,000 filler units the move was measured among, the condition that decided it: at 3,000 a bulk of 1,500 moved nothing: name the 30,000 beside the 15,000 |
 
 ## `MT`, the maintainer in six months
 
