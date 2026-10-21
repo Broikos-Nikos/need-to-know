@@ -64,6 +64,7 @@ def test_the_scan_reads_whole_lines_and_says_when_it_cannot_read_the_cache(monke
     # DR-F30: a last line a stopped write cut ended the scan in a traceback, and so did a cache it could not read,
     # which must clear nothing.
     monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path))
+    monkeypatch.setattr(canaries, "PAGE", tmp_path / "no-page.json")
     (tmp_path / "logs").mkdir()
     (tmp_path / "llm-cache").mkdir()
     answer_cache(tmp_path / "llm-cache" / "answers.db", [("e" * 64, "CANARY_00000E_HR", "")])
@@ -78,6 +79,7 @@ def test_the_scan_reads_whole_lines_and_says_when_it_cannot_read_the_cache(monke
 
 def test_ntk_eval_canaries_exits_1_on_a_leak_and_0_on_none(monkeypatch, tmp_path, capsys):
     monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path))
+    monkeypatch.setattr(canaries, "PAGE", tmp_path / "no-page.json")
     (tmp_path / "logs").mkdir()
     (tmp_path / "llm-cache").mkdir()
     answer_cache(tmp_path / "llm-cache" / "answers.db", [("e" * 64, "CANARY_00000E_HR", "")])
@@ -88,3 +90,40 @@ def test_ntk_eval_canaries_exits_1_on_a_leak_and_0_on_none(monkeypatch, tmp_path
     spend.write_text(json.dumps({"role": "sales", "prompt": "e" * 16}) + "\n", encoding="utf-8")
     assert main(["eval", "canaries"]) == 1
     assert "leak: cached answer eeeeeeeeeeeeeeee, sales: CANARY_00000E_HR" in capsys.readouterr().out
+
+
+def test_a_canary_is_found_in_any_case_and_with_any_separator():
+    # AC-F14: lower case, spaces, dashes, a line break and mixed case each passed the scan; a model that repeats a
+    # canary need not keep its form.
+    names = canaries.suffixes()
+    shapes = ["CANARY_0A1B2C_LEGAL", "canary_0a1b2c_legal", "CANARY 0A1B2C LEGAL", "CANARY_0A1B2C_" + chr(10) + "LEGAL",
+              "Canary-0a1B2c-Legal", "CANARY__0A1B2C - LEGAL"]
+    for shape in shapes:
+        assert canaries.found(f"the reply: {shape}.", frozenset({"general", "sales"}), names) == [shape], shape
+        assert canaries.found(f"the reply: {shape}.", frozenset({"legal"}), names) == [], shape
+    assert canaries.found("canary_0a1b2c_customercare", frozenset({"customer-care"}), names) == []
+
+
+def test_a_scan_of_nothing_says_so_and_fails(monkeypatch, tmp_path, capsys):
+    # AC-F15: with no spend log, no cache and no recorded page, the scan printed zeros and exited 0, as after a clean
+    # scan of hundreds of answers.
+    monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path))
+    monkeypatch.setattr(canaries, "PAGE", tmp_path / "no-page.json")
+    assert main(["eval", "canaries"]) == 1
+    assert "eval canaries: nothing to scan" in capsys.readouterr().out
+
+
+def test_the_scan_reads_each_recorded_page_trace_for_the_role_it_was_asked_as(monkeypatch, tmp_path, capsys):
+    # The page's recorded traces are what a stranger reads: each is read for its own role, a canary split by a line
+    # break within one of its texts too.
+    monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path))
+    page = tmp_path / "traces.json"
+    split = "CANARY_00000F_" + chr(10) + "LEGAL"
+    traces = {"D1": {"legal": {"answer": {"answer": "legal may read CANARY_00000F_LEGAL"}},
+                     "sales": {"excerpts": [{"text": f"and sales may not: {split}"}]}}}
+    page.write_text(json.dumps({"traces": traces}), encoding="utf-8")
+    monkeypatch.setattr(canaries, "PAGE", page)
+    assert main(["eval", "canaries"]) == 1
+    out = capsys.readouterr().out
+    assert "leak: page trace D1, sales: CANARY_00000F_ LEGAL" + chr(10) in out and "page trace D1, legal" not in out
+    assert "2 recorded page traces" in out

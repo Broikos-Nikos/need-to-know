@@ -6,10 +6,16 @@ section's label in capitals without its dash (`needtoknow.corpus.plan`). A canar
 string search finds one in any text and says whose it was, with no plan or index at hand; a suffix no label has
 counts as a label the reader may not read. A canary of a label the producing role may not read is a leak.
 
+A canary is found in any case and with any run of spaces, underscores, dashes or line breaks between its three
+parts, its suffix upper-cased before it names a label, since a model that repeats one may not keep its form
+(AC-F14).
+
 `scan` reads what answering leaves in the data folder: every line of the spend log, which names its role and holds
 numbers and hashes only, and, through each line's prompt key, the answer and the reasoning the cache holds for it,
 read for the role of every line that names it, since roles shown the same text share an entry (AC-F11). An entry no
-line names has no role to read it for, so any canary in it counts. The built page's data joins it at P6.
+line names has no role to read it for, so any canary in it counts. It reads the page's recorded traces too
+(`bench/page_traces.py`), every text in each read for the role it was asked as. A scan that found nothing to read
+says so, and clears nothing (AC-F15).
 """
 
 from __future__ import annotations
@@ -21,8 +27,10 @@ from pathlib import Path
 
 from needtoknow import lines
 from needtoknow.policy import PolicyError, load_labels, load_policy, readable
+from needtoknow.settings import repo_root
 
-PATTERN = re.compile(r"CANARY_[0-9A-F]{6}_([A-Z]+)")
+PATTERN = re.compile(r"canary[\s_-]+[0-9a-f]{6}[\s_-]+([a-z]+)", re.IGNORECASE)
+PAGE = repo_root() / "web" / "public" / "recorded" / "traces.json"
 
 
 class ScanError(RuntimeError):
@@ -36,15 +44,23 @@ def suffixes(labels: dict | None = None) -> dict[str, str]:
 
 def found(text: str, reads: frozenset[str], names: dict[str, str]) -> list[str]:
     """The canaries in a text whose label the reader may not read."""
-    return [match.group(0) for match in PATTERN.finditer(text) if names.get(match.group(1)) not in reads]
+    return [match.group(0) for match in PATTERN.finditer(text) if names.get(match.group(1).upper()) not in reads]
 
 
-def scan(spend: Path, answers: Path, policy: dict | None = None) -> dict:
+def strings(value) -> list[str]:
+    """Every string a JSON value holds, each whole, so a canary a line break splits is read as it was written."""
+    if isinstance(value, str):
+        return [value]
+    items = value.values() if isinstance(value, dict) else value if isinstance(value, list) else []
+    return [text for item in items for text in strings(item)]
+
+
+def scan(spend: Path, answers: Path, policy: dict | None = None, page: Path | None = None) -> dict:
     """The spend log's lines and the cached answers they name, each searched for the canaries its role may not
-    read; every cached answer no line names, for any canary."""
+    read; every cached answer no line names, for any canary; and the page's recorded traces, each for its role."""
     policy = policy or load_policy()
     names = suffixes()
-    report = {"lines": 0, "answers": 0, "unnamed": 0, "leaks": []}
+    report = {"lines": 0, "answers": 0, "unnamed": 0, "traces": 0, "leaks": []}
     entries = {}
     if answers.is_file():
         db = sqlite3.connect(f"file:{answers.as_posix()}?mode=ro", uri=True)
@@ -73,4 +89,15 @@ def scan(spend: Path, answers: Path, policy: dict | None = None) -> dict:
     for key in sorted(set(entries) - named):
         report["unnamed"] += 1
         report["leaks"] += [f"cached answer {key[:16]}, no role: {c}" for c in found(entries[key], frozenset(), names)]
+    page = page or PAGE
+    if page.is_file():
+        for question, by_role in json.loads(page.read_text(encoding="utf-8"))["traces"].items():
+            for role, trace in by_role.items():
+                try:
+                    reads = readable(policy, role)
+                except PolicyError:
+                    reads = frozenset()
+                report["traces"] += 1
+                report["leaks"] += [f"page trace {question}, {role}: {c}" for text in strings(trace)
+                                    for c in found(text, reads, names)]
     return report

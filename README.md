@@ -53,7 +53,8 @@ command in this repository that produces it.
   `uv run pytest tests/test_permission_gate.py`. Asked three times on one build, every dev item
   is shown the same excerpts, ties in the fused list and the reranker ordered by unit id:
   `uv run python bench/repeatability.py`. No answer the cache holds, read for each role
-  the spend log names, carries a canary of a label that role may not read:
+  the spend log names, and no trace the page replays, read for the role it was asked as,
+  carries a canary of a label that role may not read, written in any case or spacing:
   `uv run ntk eval canaries`.
 * A role's question is answered by DeepSeek from the excerpts the role may read, its
   citations able to name only what it was shown, and an instruction planted in a

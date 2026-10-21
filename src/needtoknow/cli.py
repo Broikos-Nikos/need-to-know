@@ -454,8 +454,8 @@ def cmd_eval_run(args: argparse.Namespace, out) -> int:
 
 
 def cmd_eval_canaries(out) -> int:
-    """Every spend log line and every answer the cache holds, searched for canaries of labels the asking role may
-    not read (T5.4e); exits 1 on any."""
+    """Every spend log line, every answer the cache holds and every recorded page trace, searched for canaries of
+    labels the asking role may not read (T5.4e); exits 1 on any, and on a scan that found nothing to read (AC-F15)."""
     from needtoknow.answer.cache import cache_path
     from needtoknow.answer.pipeline import spend_path
     from needtoknow.canaries import ScanError, scan
@@ -466,10 +466,14 @@ def cmd_eval_canaries(out) -> int:
         print(f"eval canaries: {error}", file=out, flush=True)
         return 1
     for leak in report["leaks"]:
-        print(f"leak: {leak}", file=out)
+        print(f"leak: {' '.join(leak.split())}", file=out)  # one line each, a canary a line break split too
     print(f"{report['lines']} spend log lines, {report['answers']} cached answers read through them, "
-          f"{report['unnamed']} cached answers no line names; canaries of a label the role may not read: "
-          f"{len(report['leaks'])}", file=out, flush=True)
+          f"{report['unnamed']} cached answers no line names, {report['traces']} recorded page traces; canaries of a "
+          f"label the role may not read: {len(report['leaks'])}", file=out, flush=True)
+    if not (report["lines"] or report["unnamed"] or report["traces"]):  # a scan of nothing clears nothing (AC-F15)
+        print("eval canaries: nothing to scan, no spend log line, no cached answer and no recorded page trace; a "
+              "run that asked anything leaves them", file=out, flush=True)
+        return 1
     return 1 if report["leaks"] else 0
 
 
