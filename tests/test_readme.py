@@ -160,3 +160,21 @@ def test_the_readme_gives_the_change_feed_the_poll_the_page_makes():
     seconds = int(re.search(r"^const FEED = (\d+)", page, re.M)[1]) // 1000
     said = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 10: "ten"}.get(seconds, str(seconds))
     assert f"asked every {said} seconds" in " ".join(README.split()), seconds
+
+
+def test_the_readme_gives_the_python_the_project_pins():
+    # P6's exit: the README's one number outside its claims and its tests, Python 3.12, held to the pins it restates.
+    pinned = (repo_root() / ".python-version").read_text(encoding="utf-8").strip()
+    project = (repo_root() / "pyproject.toml").read_text(encoding="utf-8")
+    requires = re.search(r'^requires-python = ">=([\d.]+)', project, re.M)[1]
+    assert pinned == requires and f"You need Python {pinned} and" in README, (pinned, requires)
+
+
+def test_the_build_runs_the_projects_own_gates():
+    # P6's exit, the workspace's first condition of a project done enough to leave: npm run build passes and runs the
+    # project's own gates, the claims check and the page data check, as the other projects' builds run theirs.
+    import json
+    scripts = json.loads((repo_root() / "package.json").read_text(encoding="utf-8"))["scripts"]
+    assert scripts["build"].split(" && ") == ["tsc --noEmit", "npm run check", "vite build"], scripts["build"]
+    assert {"bench/claims.py check", "bench/page_data.py --check"} <= {part.removeprefix("uv run python ")
+                                                                       for part in scripts["check"].split(" && ")}

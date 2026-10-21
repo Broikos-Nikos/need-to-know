@@ -234,7 +234,8 @@ uv run ntk ingest watch
   curl -s -X POST http://127.0.0.1:6435/ask -H "Authorization: Bearer <token>" -H "Content-Type: application/json" -d '{"question": "How many days does a customer have to return a device?"}'
   ```
 * `npm ci` and `npm run build`, with Node 20.19, or 22.12 or later, as vite asks, build the page
-  into `web/dist`, which `ntk serve` serves at its own address beside its routes. There a role searches, or asks and
+  into `web/dist`, which `ntk serve` serves at its own address beside its routes, once
+  `npm run check` has passed: the claims check and the page data check, run through uv. There a role searches, or asks and
   is answered and scored, or the same question goes to all nine roles side by side, and each
   stage of the trace shows with its seconds on the server;
   slow motion plays the trace one stage at a time, and with reduced motion set nothing moves.

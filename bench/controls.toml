@@ -620,3 +620,19 @@ test = "tests/test_readme.py::test_the_readme_gives_the_change_feed_the_poll_the
 file = "web/src/main.ts"
 old = '''const FEED = 5000'''
 new = '''const FEED = 4000'''
+
+[[control]]
+name = "the README's Python other than the pin"
+test = "tests/test_readme.py::test_the_readme_gives_the_python_the_project_pins"
+[[control.change]]
+file = "README.md"
+old = '''You need Python 3.12 and'''
+new = '''You need Python 3.11 and'''
+
+[[control]]
+name = "a build that skips the project's gates"
+test = "tests/test_readme.py::test_the_build_runs_the_projects_own_gates"
+[[control.change]]
+file = "package.json"
+old = '''"build": "tsc --noEmit && npm run check && vite build",'''
+new = '''"build": "tsc --noEmit && vite build",'''

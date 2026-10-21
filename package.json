@@ -7,11 +7,12 @@
   "description": "The instrument page: a role's question through its filter, both searches, their fusion, the rerank, the excerpts and the answer, live against the local server or replayed from committed runs.",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && npm run check && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "check:page": "node tools/check-page.mjs",
-    "capture": "node tools/capture.mjs"
+    "capture": "node tools/capture.mjs",
+    "check": "uv run python bench/claims.py check && uv run python bench/page_data.py --check"
   },
   "devDependencies": {
     "@types/node": "^24.13.6",
