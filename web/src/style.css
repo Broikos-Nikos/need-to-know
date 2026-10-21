@@ -133,6 +133,17 @@ h1 {
   flex: 1 1 20rem;
 }
 
+/* A select is as wide as its longest option; a field may shrink below that, and its control fills it. */
+.field {
+  min-width: 0;
+}
+
+.grow select,
+.grow input {
+  width: 100%;
+  min-width: 0;
+}
+
 select,
 input:not([type='checkbox']),
 button {
@@ -597,7 +608,7 @@ button:disabled {
   background: var(--paper);
 }
 
-.key.goal {
+.key.line {
   width: 1px;
   height: 0.9rem;
   border-radius: 0;
@@ -747,6 +758,25 @@ button:disabled {
 code {
   font-family: var(--mono);
   font-size: 0.9em;
+}
+
+.events {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--mono);
+  font-size: var(--fs-mono);
+  color: var(--dim);
+}
+
+.events li {
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--grid);
+  overflow-wrap: anywhere;
+}
+
+.events .none {
+  color: var(--faint);
 }
 
 /* On a phone the figures sit two to a row, smaller, so the build fits a screen and the largest still fits its tile. */

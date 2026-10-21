@@ -116,3 +116,20 @@ def test_a_record_line_the_page_cannot_read_is_an_error(tmp_path, monkeypatch):
     path.write_bytes(path.read_bytes() + b"  run 6, the widening: scan at 1.04 s took 2.54 s (1 read)" + bytes([10]))  # never seen
     with pytest.raises(data.RecordError, match="none of its forms"):
         data.built()
+
+
+def test_a_recorded_trace_keeps_the_rows_the_page_draws_and_the_text_they_name(monkeypatch):
+    # T6.2c: a stage's rows past the page's first ones, and the text of units nothing drawn names, stay out of the
+    # recording; how many rows each stage held stays in it.
+    spec = importlib.util.spec_from_file_location("page_traces", repo_root() / "bench" / "page_traces.py")
+    recorder = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(recorder)
+    monkeypatch.setattr(recorder, "SHOWN", 1)
+    trace = {stage: [{"unit_id": unit, "rank": rank, "score": 1 / rank} for rank, unit in enumerate("abcd", 1)]
+             for stage in recorder.STAGES}
+    trace.update(role="sales", excerpts=[{"units": ["c"], "labels": ["sales"], "text": "c"}],
+                 units={unit: {"doc_id": "DOC", "section": "", "labels": ["sales"], "text": unit} for unit in "abcd"})
+    kept = recorder.trimmed(trace)
+    assert kept["counts"] == dict.fromkeys(recorder.STAGES, 4)
+    assert all([hit["unit_id"] for hit in kept[stage]] == ["a"] for stage in recorder.STAGES)
+    assert set(kept["units"]) == {"a", "c"}  # the first row, and the excerpt

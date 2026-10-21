@@ -39,7 +39,22 @@ type Trace = {
   seconds: Record<string, number>
   answer?: Answer
   verdict?: Scored | { error: string } | null
+  counts?: Record<string, number> // a recorded trace keeps each stage's first rows and how many it held
 }
+// What bench/page_traces.py recorded: each question asked as each role through the app, with when, at which commit
+// and with which models, which the page shows on its face when it replays them (house rule 10).
+type Recorded = {
+  recorded: string
+  commit: string
+  clean: boolean
+  embedder: string
+  reranker: string
+  models: string[]
+  roles: string[]
+  questions: { id: string; role: string; lang: string; question: string }[]
+  traces: Record<string, Record<string, Trace>>
+}
+type Feed = { events: { at: string; documents: { doc_id: string; units: number }[] }[] }
 type Search = 'dense' | 'sparse' | 'fused' | 'reranked'
 type Stage = { key: string; title: string; says: string; timed: string[] }
 
@@ -50,11 +65,17 @@ const STEPS: Record<string, string> = plan.seconds
 const SEARCHES: Search[] = ['dense', 'sparse', 'fused', 'reranked']
 const SHOWN = 10
 const TURN = 1200 // each stage's turn in slow motion, in milliseconds
+const FEED = 5000 // how often the page asks the change feed again, in milliseconds, while it is visible (N66)
+const LOOPBACK = ['127.0.0.1', 'localhost']
 const tokens = new Map<string, string>()
 const still = window.matchMedia('(prefers-reduced-motion: reduce)')
 let timers: number[] = []
 let pinned: string | null = null
 let summary = ''
+let recordings: Recorded | null = null
+let feedTimer = 0
+let feedAfter = ''
+let feedRole = ''
 
 const NBSP = String.fromCharCode(160) // a figure and its unit stay on one line
 const byId = <T extends HTMLElement>(id: string) => document.getElementById(id) as T
@@ -70,8 +91,10 @@ function element(tag: string, className = '', text = ''): HTMLElement {
   return node
 }
 
-// The roles answer without a session where the server runs; a static host has no such route (N67).
+// The roles answer without a session where the server runs; a static host has no such route (N67). The server answers
+// only requests addressed to the loopback's names, so a page served anywhere else asks nothing and replays.
 async function served(): Promise<string[] | null> {
+  if (!LOOPBACK.includes(location.hostname)) return null
   try {
     const response = await fetch('roles')
     return response.ok ? ((await response.json()) as { roles: string[] }).roles : null
@@ -125,7 +148,8 @@ function hits(trace: Trace, key: Search): HTMLElement[] {
     item.append(row)
     list.append(item)
   })
-  const count = all.length > SHOWN ? `${number(all.length)} in all, the first ${SHOWN} shown.` : `${number(all.length)} in all.`
+  const held = trace.counts?.[key] ?? all.length
+  const count = held > SHOWN ? `${number(held)} in all, the first ${SHOWN} shown.` : `${number(held)} in all.`
   return [list, element('p', 'minor', count)]
 }
 
@@ -333,6 +357,17 @@ function link(root: HTMLElement) {
   })
 }
 
+// Replayed, a recorded trace is drawn as a live one is: the same stages, the same slow motion.
+function replay(event: SubmitEvent) {
+  event.preventDefault()
+  const role = byId<HTMLSelectElement>('role').value
+  const trace = recordings?.traces[byId<HTMLSelectElement>('pick').value]?.[role]
+  if (!trace) return
+  summary = `Replayed as ${role}, as the app answered it when recorded.`
+  draw(trace)
+  play(byId<HTMLInputElement>('slow').checked)
+}
+
 async function run(event: SubmitEvent) {
   event.preventDefault()
   const asking = (event.submitter as HTMLButtonElement | null)?.value === 'ask'
@@ -424,7 +459,7 @@ function drawChange(change: Change): HTMLElement {
   block.append(element('h3', '', title), element('p', 'origin', `${change.recorded}: ${change.command}`))
   const legend = element('ul', 'legend')
   for (const [className, text] of [['scan', 'the watcher’s scan'], ['sync', 'its sync into the index'],
-    ['seen', 'a query first sees the change'], ['goal', `the ${change.objective} s objective`]]) {
+    ['seen', 'a query first sees the change'], ['line', `the ${change.objective} s objective`]]) {
     const item = element('li')
     item.append(element('span', `key ${className}`), document.createTextNode(text))
     legend.append(item)
@@ -512,6 +547,71 @@ function table(change: Change): HTMLElement {
   return details
 }
 
+// The change feed as the chosen role may see it, asked again every few seconds while the page is visible (N66): each
+// finished scan that added units the role may read, newest first. A poll for a role no longer chosen draws nothing.
+async function follow(role: string) {
+  window.clearTimeout(feedTimer)
+  const list = byId<HTMLOListElement>('events')
+  if (role !== feedRole) {
+    feedRole = role
+    feedAfter = ''
+    list.replaceChildren()
+  }
+  try {
+    if (!document.hidden) {
+      const feed = await call<Feed>(`events?after=${encodeURIComponent(feedAfter)}`, {}, role)
+      if (role !== feedRole) return
+      if (feed.events.length) list.querySelector('.none')?.remove()
+      for (const event of feed.events) {
+        // A full build's scan adds to every document: name the first few, and count the rest.
+        const where = event.documents.slice(0, 3).map((d) => `${d.doc_id}, ${number(d.units)} unit${d.units === 1 ? '' : 's'}`)
+        const rest = event.documents.slice(3)
+        if (rest.length) {
+          where.push(`and ${number(rest.length)} more documents, ${number(rest.reduce((n, d) => n + d.units, 0))} units`)
+        }
+        list.prepend(element('li', '', `${event.at.replace('T', ' ')}: ${where.join('; ')}`))
+        feedAfter = event.at
+      }
+      while (list.children.length > SHOWN) list.lastElementChild?.remove()
+      if (!list.children.length) list.append(element('li', 'none', 'No scan has added anything this role may read.'))
+      byId<HTMLElement>('feed-origin').textContent = `live, as ${role} may see them, asked every ${FEED / 1000} s`
+      byId<HTMLElement>('feed').hidden = false
+    }
+  } catch {
+    // the next poll asks again
+  }
+  if (role === feedRole) feedTimer = window.setTimeout(() => void follow(feedRole), FEED)
+}
+
+function fill(select: HTMLSelectElement, entries: [string, string][]) {
+  select.replaceChildren(...entries.map(([value, text]) => {
+    const option = document.createElement('option')
+    option.value = value
+    option.textContent = text
+    return option
+  }))
+}
+
+// Where no server answers, the page replays what bench/page_traces.py recorded, with when, at which commit and with
+// which models on its face.
+function replaying(kept: Recorded) {
+  const tree = kept.clean ? '' : ', the tree holding changes'
+  byId<HTMLElement>('mode').textContent = `Replayed, as no server answers here: recorded ${kept.recorded} at ${kept.commit}` +
+    `${tree}; answers by ${kept.models.join(', ')}, retrieval by ${kept.embedder} and ${kept.reranker}.`
+  fill(byId<HTMLSelectElement>('role'), kept.roles.map((role) => [role, role]))
+  fill(byId<HTMLSelectElement>('pick'), kept.questions.map((q) => [q.id, `${q.question} (${q.id}, ${q.role})`]))
+  byId<HTMLElement>('ask-field').hidden = true
+  byId<HTMLInputElement>('question').disabled = true
+  byId<HTMLElement>('pick-field').hidden = false
+  for (const button of document.querySelectorAll<HTMLElement>('#query .live')) button.hidden = true
+  byId<HTMLElement>('replay').hidden = false
+  byId<HTMLElement>('note').textContent = 'Each recorded question was asked as every role through the app, and the page ' +
+    'replays what it answered each one: pick a role and a question. Slow motion plays the trace one stage at a time; ' +
+    'with reduced motion set, nothing moves.'
+  byId<HTMLElement>('instrument').hidden = false
+  byId<HTMLFormElement>('query').addEventListener('submit', replay)
+}
+
 async function start() {
   const mode = byId<HTMLParagraphElement>('mode')
   const [roles, changes, figures] = await Promise.all([served(), recorded<{ changes: Change[] }>('changes.json'),
@@ -521,25 +621,28 @@ async function start() {
     byId<HTMLElement>('changes').hidden = false
   }
   if (figures) drawFigures(figures, `${figures.recorded}: ${figures.command}`)
+  byId<HTMLInputElement>('slow').addEventListener('change', (event) => {
+    if (byId<HTMLElement>('trace').childElementCount) play((event.target as HTMLInputElement).checked)
+  })
+  link(byId<HTMLElement>('trace'))
   if (!roles) {
-    mode.textContent = 'No local server answers here: start one with ntk serve and open the page it serves.'
+    recordings = await recorded<Recorded>('traces.json')
+    if (recordings) {
+      replaying(recordings)
+    } else {
+      mode.textContent = 'No local server answers here: start one with ntk serve and open the page it serves.'
+    }
     return
   }
   // Live, the build's figures come from the server, the same for every role, through the first role's session.
   call<Figures>('stats', {}, roles[0]).then((live) => drawFigures(live, 'live, from the local server')).catch(() => {})
   const picker = byId<HTMLSelectElement>('role')
-  picker.replaceChildren(...roles.map((role) => {
-    const option = document.createElement('option')
-    option.value = option.textContent = role
-    return option
-  }))
+  fill(picker, roles.map((role) => [role, role]))
   mode.textContent = 'Live: the local server, each question through the chosen role’s session.'
   byId<HTMLElement>('instrument').hidden = false
   byId<HTMLFormElement>('query').addEventListener('submit', run)
-  byId<HTMLInputElement>('slow').addEventListener('change', (event) => {
-    if (byId<HTMLElement>('trace').childElementCount) play((event.target as HTMLInputElement).checked)
-  })
-  link(byId<HTMLElement>('trace'))
+  picker.addEventListener('change', () => void follow(picker.value))
+  void follow(picker.value)
 }
 
 void start()

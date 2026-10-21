@@ -502,7 +502,8 @@ sensitive would number sections within each audience.
 **Call.** `GET /events?after=<time>` answers a session's role with the finished scans after
 that time that added units it may read, each with the documents and how many, keyed by the
 time the scan finished. A scan that added none is left out whole, a scan's own number is
-never served, and a removal shows as nothing. The page asks it again every few seconds.
+never served, and a removal shows as nothing. The page asks it again every five seconds while
+it is visible, as the role chosen in it.
 
 **Evidence.** A scan's units are the manifest's rows of its run, with their labels; a
 removed unit leaves no row, so no role's share of a removal can be told, and none is shown.
@@ -513,6 +514,9 @@ its token in the address; a poll sends it as every other route does.
 
 **Reverses if.** The manifest keeps a removed unit's labels, when a role's share of a removal
 can be shown; or the page needs changes faster than a poll brings them.
+
+*Amended 2026-10-21, tick 185 (MA-F21):* until this tick nothing polled the feed, and this entry said
+the page did; the page now does, at the interval it names.
 
 ## N67. The page sets every word in faces that draw Greek, and finds its server by an open route
 

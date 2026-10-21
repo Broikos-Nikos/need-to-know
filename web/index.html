@@ -41,20 +41,25 @@
           <span>Role</span>
           <select id="role" required></select>
         </label>
-        <label class="field grow">
+        <label class="field grow" id="ask-field">
           <span>Question</span>
           <input id="question" required maxlength="4000" autocomplete="off" spellcheck="false" />
         </label>
+        <label class="field grow" id="pick-field" hidden>
+          <span>Recorded question</span>
+          <select id="pick"></select>
+        </label>
         <div class="actions">
-          <button type="submit" value="search">Search</button>
-          <button type="submit" value="ask" class="second">Ask</button>
+          <button type="submit" value="search" class="live">Search</button>
+          <button type="submit" value="ask" class="second live">Ask</button>
+          <button type="submit" value="replay" id="replay" hidden>Replay</button>
         </div>
         <label class="check">
           <input type="checkbox" id="slow" />
           <span>Slow motion</span>
         </label>
       </form>
-      <p class="note">
+      <p class="note" id="note">
         Search runs the retrieval alone. Ask sends its excerpts to the model as well, and scores the answer when the
         question is a dev golden question asked as its own role. Slow motion plays the trace one stage at a time; with
         reduced motion set, nothing moves.
@@ -62,6 +67,11 @@
       <p class="state" id="state" role="status"></p>
       <section class="trace" id="trace" aria-label="The question’s stages"></section>
     </main>
+    <section class="panel" id="feed" aria-labelledby="feed-title" hidden>
+      <h2 id="feed-title">Changes as they land</h2>
+      <p class="origin" id="feed-origin"></p>
+      <ol class="events" id="events"></ol>
+    </section>
     <section class="panel" id="scale" aria-labelledby="scale-title" hidden>
       <h2 id="scale-title">The build</h2>
       <p class="origin" id="scale-origin"></p>

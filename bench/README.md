@@ -440,3 +440,20 @@ past its objective:
 uv run python bench/claims.py record "uv run python bench/revocation.py" --log revocation-t182.log
 uv run python bench/page_data.py
 ```
+
+## page_traces.py
+
+The page's recorded questions: three dev golden questions, sales' discount in English and in
+Greek and legal's call recordings, each asked as every role through the app's own routes, a
+sign in per role, the way the page asks live, and written to
+`web/public/recorded/traces.json` with when, at which commit and with which models, for the
+page to replay where no server answers. Each trace keeps every stage's first ten rows, how
+many the stage held, and the text of the units its rows and excerpts name: nothing a role
+may not read, as the served trace holds nothing of it. `POST /ask` asks the provider every
+time (N68), so a recording is 27 calls, made outside the provider's peak hours; it needs the
+index on the running server, the `embed` extra, the GPU and the provider's key.
+`tests/test_page.py` holds the file to every role's labels.
+
+```
+uv run python bench/page_traces.py
+```

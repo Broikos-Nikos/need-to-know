@@ -330,6 +330,34 @@ def test_the_readmes_calls_to_the_server_answer_as_it_says(client, monkeypatch):
         token = token or response.json()["token"]
 
 
+def test_the_recorder_asks_as_every_role_and_keeps_only_the_rows_the_page_draws(client, monkeypatch):
+    # T6.2c: bench/page_traces.py asks through the app's routes as each role; a recorded trace keeps each stage's first
+    # rows, how many the stage held, and the text of the units its rows and excerpts name, every one its role may read.
+    import importlib.util
+
+    from needtoknow.answer import pipeline
+    from needtoknow.settings import repo_root
+    spec = importlib.util.spec_from_file_location("page_traces", repo_root() / "bench" / "page_traces.py")
+    recorder = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(recorder)
+    monkeypatch.setitem(pipeline.ADAPTERS, "deepseek", echoing)
+    monkeypatch.setattr(pipeline, "warm", lambda encode=None, rerank=None: 0.0)
+    monkeypatch.setattr(recorder, "SHOWN", 1)  # the fixture's lists are two units long at most
+    policy = load_policy()
+    traces = recorder.record(served(client), policy, {"Q1": {"question": ASKED["question"]}})["Q1"]
+    assert list(traces) == list(policy["roles"])
+    widest = max(traces.values(), key=lambda trace: trace["counts"]["dense"])
+    assert widest["counts"]["dense"] > len(widest["dense"]) == 1  # trimmed, and the count says by how much
+    for role, trace in traces.items():
+        reads = readable(policy, role)
+        rows = {hit["unit_id"] for stage in api.STAGES for hit in trace[stage]}
+        named = rows | {unit for excerpt in trace["excerpts"] for unit in excerpt["units"]}
+        assert set(trace["units"]) <= named, role
+        assert all(set(unit["labels"]) & reads for unit in trace["units"].values()), role
+        assert all(set(excerpt["labels"]) & reads for excerpt in trace["excerpts"]), role
+        assert all(LABELS[unit] & reads for unit in named), role
+
+
 def test_a_refusals_verdict_reads_the_same_whether_its_answer_exists_hidden_or_nowhere():
     # AC-F16: the category said E, the answer exists where the asker may not read, or J and N, nowhere; and the leak
     # flag, comparing the answer with the hidden value, would confirm a guess at it.

@@ -211,6 +211,10 @@ uv run ntk ingest watch
   Below it the build's figures, live or as `ntk stats` recorded them, and the change benches'
   recorded runs, each scan and sync of each change, replayed at the speed they ran:
   `uv run python bench/page_data.py`.
+  Live, it follows the change feed as the chosen role may see it, asked every five seconds.
+  Served anywhere but the loopback, where no server can answer it, it replays three dev
+  questions asked as every role through the app, with when, at which commit and with which
+  models they were asked: `uv run python bench/page_traces.py`.
 * The build needs a CUDA GPU for the encoder and the Qdrant binary that
   `config/qdrant.toml` pins. `ntk qdrant start` says where to download it, the sha256
   to check and where to unpack it, and writes the server's key into `.env`.
