@@ -24,7 +24,7 @@ def test_every_bench_script_has_a_section_in_the_bench_readme_or_is_named_no_ben
     helpers = set(re.findall(r"`(\w+\.py)` is no bench", text))
     sections = set(re.findall(r"^## (\S+\.py)$", text, re.MULTILINE))
     scripts = {path.name for path in BENCH.glob("*.py")}
-    assert helpers == {"watched.py"} and not scripts - helpers - sections, sorted(scripts - helpers - sections)
+    assert helpers == {"watched.py", "machine.py"} and not scripts - helpers - sections, sorted(scripts - helpers - sections)
     assert not sections - scripts, sorted(sections - scripts)  # no section for a script that is gone
 
 

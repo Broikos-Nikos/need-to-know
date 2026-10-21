@@ -7,6 +7,8 @@ corpus, and no GPU, key or network; `deepseek_call.py` and `injection.py` need a
 DeepSeek key and the network, and nothing else; the others need the GPU, the running index server or both, as
 each section says.
 `watched.py` is no bench: the change benches import it to run the watcher and read its lines.
+`machine.py` is no bench: the timing benches import it to print the commit they ran at and the
+processor's load before and over their runs, every program's counted (MA-F20, MA-F22).
 
 ## operator_probes.py
 

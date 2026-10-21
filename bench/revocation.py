@@ -25,6 +25,7 @@ import json
 import sys
 import time
 
+from machine import Load
 from watched import OBJECTIVE, Watched, past, spread, until
 
 from needtoknow.corpus.mutate import corpus_files, encoded, read
@@ -78,6 +79,8 @@ def main() -> int:
     assert not sees(), f"{reader} already sees {doc_id}'s section"
     original = file.read_bytes()
     grants, revokes = [], []
+    load = Load()  # the other programs' load, read before anything of the bench runs (MA-F20)
+    print(load.opening(), flush=True)
     watched = Watched(args.interval)
     print(f"{doc_id}, as {reader}; the watcher's catch up, a scan and a sync of every document: {watched.start():.1f} s",
           flush=True)
@@ -96,6 +99,7 @@ def main() -> int:
         watched.stop()
         if file.read_bytes() != original:
             file.write_bytes(original)
+    print(load.closing(), flush=True)
     print(f"{doc_id}: {label} widened to {label} and {added}, then narrowed back; as {reader}: the section found after "
           f"the edit, {spread(grants)}; gone after the narrowing, {spread(revokes)} (watch interval "
           f"{watched.interval:g} s; objective {OBJECTIVE:g} s)")
