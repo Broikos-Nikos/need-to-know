@@ -36,7 +36,7 @@ SECTION 5  Delivery times, part 2
 Audience: Logistics
 Classification: Internal
 
-Routes are planned by region, and each region has a standard delivery time that customers see before they confirm an order. Standard delivery to Western Macedonia takes 1 working days. Parcels for that region are consolidated into the afternoon run wherever the carrier allows it, because consolidated runs reduce the number of vehicle movements on the road. Consolidation never changes the time promised to the customer, and the team checks that the promise still holds before the run leaves the yard.
+Routes are planned by region, and each region has a standard delivery time that customers see before they confirm an order. Standard delivery to Western Macedonia takes 1 working day. Parcels for that region are consolidated into the afternoon run wherever the carrier allows it, because consolidated runs reduce the number of vehicle movements on the road. Consolidation never changes the time promised to the customer, and the team checks that the promise still holds before the run leaves the yard.
 
 Exceptions to the standard times, such as a delivery to an island or to a remote address, are shown in the catalogue as separate entries and are never applied to the standard region. The team confirms each exception with the carrier and records the agreed time in the order notes. Customers in these areas are told about the longer window at checkout, so that the time is not a surprise after payment. Changes to the regional times are approved by the logistics manager and published with an effective date.
 

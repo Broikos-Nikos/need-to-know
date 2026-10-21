@@ -258,7 +258,16 @@ def variants(spec, w):
     return [(en, el, "", "") for en, el in spec]
 
 
+# The unit after a value of one, for each unit a template writes after {v} where a value can be one: "1 years" and
+# "1 εργάσιμες ημέρες" were in the corpus, the first in legal's own question as the page replays it.
+SINGULAR = {"working days": "working day", "hours": "hour", "years": "year", "days": "day", "euros": "euro",
+            "εργάσιμες ημέρες": "εργάσιμη ημέρα", "ωρών": "ώρας", "έτη": "έτος", "ημέρες": "ημέρα"}
+
+
 def render(template: str, x: str, y: str, value: str) -> str:
+    if value == "1":
+        for many, one in SINGULAR.items():
+            template = template.replace("{v} " + many, "{v} " + one)
     out = template.replace("{X}", x[:1].upper() + x[1:]).replace("{x}", x).replace("{y}", y).replace("{v}", value)
     return out[:1].upper() + out[1:]
 

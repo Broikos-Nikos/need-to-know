@@ -392,3 +392,27 @@ test = "tests/test_page.py::test_the_recorded_traces_hold_each_roles_view_and_sa
 file = "web/public/recorded/traces/D074.json"
 old = '''"d99be9cd1fabf0437e6e45e21b751195":{"doc_id":"CUS_CIR_004","section":"ΕΝΟΤΗΤΑ 5  Διατήρηση δεδομένων","labels":["legal"]'''
 new = '''"d99be9cd1fabf0437e6e45e21b751195":{"doc_id":"CUS_CIR_004","section":"ΕΝΟΤΗΤΑ 5  Διατήρηση δεδομένων","labels":["hr"]'''
+
+[[control]]
+name = "the plan writing a value of one with a plural unit"
+test = "tests/test_corpus_plan.py::test_a_value_of_one_takes_its_unit_in_the_singular"
+[[control.change]]
+file = "src/needtoknow/corpus/plan.py"
+old = '''    if value == "1":'''
+new = '''    if value == "one":'''
+
+[[control]]
+name = "an update from one leaving the singular unit"
+test = "tests/test_corpus_mutate.py::test_a_unit_agrees_with_the_value_an_update_leaves"
+[[control.change]]
+file = "src/needtoknow/corpus/mutate.py"
+old = '''    forms = SINGULAR.items() if new == "1" else [(one, many) for many, one in SINGULAR.items()] if old == "1" else []'''
+new = '''    forms = []'''
+
+[[control]]
+name = "a narrative sentence with one and a plural unit again"
+test = "tests/test_corpus_plan.py::test_no_value_of_one_stands_before_a_plural_unit_in_the_narrative"
+[[control.change]]
+file = "narrative/LEG_POL_013.txt"
+old = '''Call recordings are kept for 1 year and then deleted.'''
+new = '''Call recordings are kept for 1 years and then deleted.'''

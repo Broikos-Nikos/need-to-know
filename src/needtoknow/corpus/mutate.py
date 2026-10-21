@@ -27,7 +27,7 @@ from pathlib import Path
 
 from needtoknow import lines
 from needtoknow.corpus import exclusive, json_bytes, read_plan
-from needtoknow.corpus.plan import LABEL_EL, LABEL_EN, MIXES
+from needtoknow.corpus.plan import LABEL_EL, LABEL_EN, MIXES, SINGULAR
 from needtoknow.settings import data_dir
 
 KINDS = ["value_update", "insert_paragraph", "relabel", "rename", "re_encode",
@@ -70,8 +70,19 @@ def as_written(text: str, fmt: str) -> str:
 
 
 def replace_value(sentence: str, old: str, new: str) -> str:
-    """The value as a whole token, so the 1 in "P1" or "C1" is never mistaken for it."""
-    return re.sub(rf"(?<![\w.,]){re.escape(old)}(?![\w.,])", new, sentence, count=1)
+    """The value as a whole token, so the 1 in "P1" or "C1" is never mistaken for it, and the unit after it agreeing
+    with the new value, as the plan writes it: 1 hour, 2 hours."""
+    found = re.search(rf"(?<![\w.,]){re.escape(old)}(?![\w.,])", sentence)
+    if not found:
+        return sentence
+    rest = sentence[found.end():]
+    forms = SINGULAR.items() if new == "1" else [(one, many) for many, one in SINGULAR.items()] if old == "1" else []
+    for before, after in forms:
+        agreed = re.sub(rf"^ {re.escape(before)}(?!\w)", " " + after, rest, count=1)
+        if agreed != rest:
+            rest = agreed
+            break
+    return sentence[:found.start()] + new + rest
 
 
 def paragraphs(text: str, fmt: str) -> list[str]:

@@ -4,6 +4,13 @@ import random
 import re
 
 from needtoknow.corpus.plan import SEED, lower_first, make_catalogue, make_facts, world
+from needtoknow.settings import repo_root
+
+# A value of one before a plural unit, a word between allowed ("1 working days"), in both languages: the units are
+# any a value can stand before, whether or not a template writes them today.
+PLURALS = ("days", "hours", "minutes", "months", "weeks", "years", "euros", "kilograms", "ημέρες", "ημερών", "ώρες",
+           "ωρών", "λεπτά", "λεπτών", "μήνες", "μηνών", "εβδομάδες", "εβδομάδων", "έτη", "ετών", "χρόνια", "χρόνων", "κιλά")
+ONE_BEFORE_PLURAL = re.compile(rf"(?<![\d.,])1 (?:\w+ )?(?:{'|'.join(PLURALS)})(?!\w)")
 
 
 def plan():
@@ -64,3 +71,20 @@ def test_a_superseded_value_differs_from_the_one_that_replaced_it():
     assert old
     for f in old:
         assert f["values"] != by_id[f["superseded_by"]]["values"], f["id"]
+
+
+def test_a_value_of_one_takes_its_unit_in_the_singular():
+    # "Call recordings are kept for 1 years" was in legal's own question as the page replays it, and "1 εργάσιμες
+    # ημέρες" in five documents' delivery sections: a planted value of one takes the singular, in both languages.
+    facts, _ = plan()
+    ones = {f["id"]: f for f in facts if f["values"][0] == "1"}
+    assert ones and not [f[lang] for f in facts for lang in ("en", "el") if ONE_BEFORE_PLURAL.search(f[lang])]
+    assert ones["F35V00"]["en"] == "Call recordings are kept for 1 year and then deleted."
+    assert ones["F22R00"]["el"].endswith("διαρκεί 1 εργάσιμη ημέρα.")
+
+
+def test_no_value_of_one_stands_before_a_plural_unit_in_the_narrative():
+    # The narrative is the committed source of the corpus, so the rule holds in a clone that has built nothing.
+    texts = {path.name: path.read_text(encoding="utf-8") for path in sorted((repo_root() / "narrative").glob("*.txt"))}
+    found = [(name, m.group(0)) for name, text in texts.items() for m in ONE_BEFORE_PLURAL.finditer(text)]
+    assert texts and not found, found

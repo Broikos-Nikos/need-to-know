@@ -65,9 +65,16 @@ def test_a_value_update_changes_the_value_and_nothing_else(corpus):
 
 
 def test_a_value_is_replaced_as_a_whole_token_never_inside_a_code():
-    sentence = "Tickets of priority P1 receive a first response within 1 hours."
+    sentence = "Tickets of priority P1 receive a first response within 1 hour."
     assert mutate.replace_value(sentence, "1", "2") == "Tickets of priority P1 receive a first response within 2 hours."
     assert mutate.replace_value("Courier C1 picks up 1 pallet.", "1", "3") == "Courier C1 picks up 3 pallet."
+
+
+def test_a_unit_agrees_with_the_value_an_update_leaves():
+    # The plan writes a value of one with the singular; an update from one must not leave "2 working day" behind.
+    assert (mutate.replace_value("Η τυπική παράδοση διαρκεί 1 εργάσιμη ημέρα.", "1", "2")
+            == "Η τυπική παράδοση διαρκεί 2 εργάσιμες ημέρες.")
+    assert mutate.replace_value("Up to 3 days a week.", "3", "4") == "Up to 4 days a week."
 
 
 def test_a_relabel_touches_only_the_audience(corpus):

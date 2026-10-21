@@ -42,6 +42,6 @@ SECTION 6  Data retention
 Audience: Legal
 Classification: Internal
 
-Call recordings are retained for the purpose of settling complaints and resolving disputes, and the retention rules are set out in the data protection schedule. Call recordings are kept for 1 years and then deleted. The schedule is reviewed by the legal team each time the processing purpose changes, and any change is communicated to the team leaders before it takes effect.
+Call recordings are retained for the purpose of settling complaints and resolving disputes, and the retention rules are set out in the data protection schedule. Call recordings are kept for 1 year and then deleted. The schedule is reviewed by the legal team each time the processing purpose changes, and any change is communicated to the team leaders before it takes effect.
 
 Access to recordings is limited to the legal team and to the quality team, and each access is logged with the reason. A recording that is needed beyond the normal period, for example for an open dispute, is marked for extended retention with the case reference. The legal team confirms the end of the extension, and the recording is then deleted in the normal way. The confirmation is recorded in the case file together with the date of deletion.
