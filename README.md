@@ -196,6 +196,14 @@ uv run ntk ingest watch
 ```
 
 * `ntk serve` and `ntk ingest watch` run until stopped, each in a terminal of its own.
+* With `ntk serve` running, a role signs in once, and each search or question carries the
+  token the sign in answered with, never a role. From a POSIX shell:
+
+  ```
+  curl -s -X POST http://127.0.0.1:6435/session -H "Content-Type: application/json" -d '{"role": "returns"}'
+  curl -s -X POST http://127.0.0.1:6435/search -H "Authorization: Bearer <token>" -H "Content-Type: application/json" -d '{"question": "How many days does a customer have to return a device?"}'
+  curl -s -X POST http://127.0.0.1:6435/ask -H "Authorization: Bearer <token>" -H "Content-Type: application/json" -d '{"question": "How many days does a customer have to return a device?"}'
+  ```
 * `npm ci` and `npm run build`, with Node 22 or later, build the page into `web/dist`, which
   `ntk serve` serves at its own address beside its routes. There a role searches, or asks and
   is answered and scored, and each stage of the trace shows with its seconds on the server;

@@ -8,8 +8,10 @@ present, and the test suite checks that they work.
 
 from __future__ import annotations
 
+import json
 import math
 import shutil
+import socket
 import sys
 import tomllib
 import urllib.request
@@ -22,6 +24,7 @@ from needtoknow.providers.catalog import load_catalog
 from needtoknow.settings import data_dir, repo_root, setting
 
 GREEK = "Ελληνικά"
+LOCAL = urllib.request.build_opener(urllib.request.ProxyHandler({}))  # the loopback, never through a proxy
 
 
 def min_free_gb() -> int:
@@ -119,10 +122,34 @@ def check_deepseek(context: dict) -> tuple[bool, str]:
     return passed, "; ".join(lines)
 
 
+def port_held(host: str, port: int) -> bool:
+    """Whether a program listens on the port."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
+        probe.settimeout(0.5)
+        return probe.connect_ex((host, port)) == 0
+
+
+def check_serve(context: dict) -> tuple[bool, str]:
+    """Whether `ntk serve` can listen on its port, or answers there already. A port another program holds is the one
+    failure, since the server would not start (MT-F21)."""
+    from needtoknow.api import HOST, PORT
+
+    if not context.get("held", port_held)(HOST, PORT):
+        return True, f"{HOST}:{PORT} free, where ntk serve listens"
+    try:
+        with context.get("local", LOCAL.open)(urllib.request.Request(f"http://{HOST}:{PORT}/roles"), timeout=3) as answer:
+            roles = json.loads(answer.read().decode("utf-8")).get("roles")
+    except Exception:
+        roles = None
+    if isinstance(roles, list):
+        return True, f"ntk serve answers on {HOST}:{PORT}, {len(roles)} roles"
+    return False, f"{HOST}:{PORT} is held by another program, so ntk serve cannot listen there until it is freed"
+
+
 CHECKS = [
     ("python", check_python), ("console", check_console), ("data", check_data), ("config", check_config),
     ("keys", check_keys), ("qdrant", check_qdrant), ("gpu", check_gpu), ("model", check_model),
-    ("deepseek", check_deepseek),
+    ("deepseek", check_deepseek), ("serve", check_serve),
 ]
 
 

@@ -85,3 +85,38 @@ def test_the_summary_says_the_server_is_stopped_when_every_check_passes(monkeypa
     doctor.run(offline=True, out=out)
     assert out.getvalue().splitlines()[-1] == ("doctor: 1 of 1 ok; the index's server is stopped, so nothing can be "
                                                "searched until ntk qdrant start")
+
+
+class Answer(io.BytesIO):
+    """A reply as urlopen's opener returns one, a context manager over its body."""
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+
+def test_the_serve_line_says_whether_ntk_serve_can_take_its_port():
+    # MT-F21: the doctor said nothing of the local server's port: free, answered by ntk serve, or held by another
+    # program, which is the one case the server cannot start in.
+    from needtoknow.api import HOST, PORT
+
+    def refused(request, timeout):
+        raise OSError("not a server that speaks HTTP")
+    assert doctor.check_serve({"held": lambda host, port: False}) == (True, f"{HOST}:{PORT} free, where ntk serve listens")
+    ours = {"held": lambda host, port: True, "local": lambda request, timeout: Answer(b'{"roles": ["sales", "legal"]}')}
+    assert doctor.check_serve(ours) == (True, f"ntk serve answers on {HOST}:{PORT}, 2 roles")
+    other = doctor.check_serve({"held": lambda host, port: True, "local": refused})
+    assert other == (False, f"{HOST}:{PORT} is held by another program, so ntk serve cannot listen there until it is freed")
+    assert ("serve", doctor.check_serve) in doctor.CHECKS
+
+
+def test_a_port_a_program_listens_on_reads_as_held_and_a_closed_one_as_free():
+    import socket
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as listener:
+        listener.bind(("127.0.0.1", 0))
+        listener.listen()
+        port = listener.getsockname()[1]
+        assert doctor.port_held("127.0.0.1", port)
+    assert not doctor.port_held("127.0.0.1", port)

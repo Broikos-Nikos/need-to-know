@@ -303,6 +303,33 @@ def test_the_page_names_every_step_the_server_times_and_draws_the_stages_in_its_
     assert [stage["key"] for stage in plan["stages"]] == ["filter", *api.STAGES, "excerpts", "answer", "verdict"]
 
 
+def test_the_readmes_calls_to_the_server_answer_as_it_says(client, monkeypatch):
+    # MT-F20: the README named the routes and not how to call one; each curl line it gives is sent here to the app as
+    # written, the token the sign in answers with in place of <token>.
+    import shlex
+
+    from needtoknow.answer import pipeline
+    from needtoknow.settings import repo_root
+    monkeypatch.setitem(pipeline.ADAPTERS, "deepseek", echoing)
+    monkeypatch.setattr(pipeline, "warm", lambda encode=None, rerank=None: 0.0)
+    lines = [line.strip() for line in (repo_root() / "README.md").read_text(encoding="utf-8").splitlines()
+             if line.strip().startswith("curl ")]
+    assert [shlex.split(line)[shlex.split(line).index("-X") + 2].rsplit("/", 1)[-1] for line in lines] == [
+        "session", "search", "ask"]
+    http = served(client)
+    token = None
+    for line in lines:
+        words = shlex.split(line)
+        url = next(word for word in words if word.startswith(f"http://{api.HOST}:{api.PORT}/"))
+        headers = dict(words[i + 1].split(": ", 1) for i, word in enumerate(words) if word == "-H")
+        if token:
+            headers = {name: value.replace("<token>", token) for name, value in headers.items()}
+        response = http.request(words[words.index("-X") + 1], url.removeprefix(f"http://{api.HOST}:{api.PORT}"),
+                                headers=headers, content=words[words.index("-d") + 1])
+        assert response.status_code == 200, (line[:60], response.text[:200])
+        token = token or response.json()["token"]
+
+
 def test_a_refusals_verdict_reads_the_same_whether_its_answer_exists_hidden_or_nowhere():
     # AC-F16: the category said E, the answer exists where the asker may not read, or J and N, nowhere; and the leak
     # flag, comparing the answer with the hidden value, would confirm a guess at it.
