@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**247 findings, 221 closed, 26 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
+**247 findings, 223 closed, 24 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -174,7 +174,7 @@ An audit pass on whether every number can be produced again. 26 findings, 24 clo
 
 ## `MT`, the maintainer in six months
 
-An audit pass on whether a fresh clone can be rebuilt and changed safely. 31 findings, 27 closed.
+An audit pass on whether a fresh clone can be rebuilt and changed safely. 31 findings, 28 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -204,7 +204,7 @@ An audit pass on whether a fresh clone can be rebuilt and changed safely. 31 fin
 | `MT-F24` | low | fixed, tick 221 | golden.Holding keys its cache by the manifest's path and last run, not by the query that filled it: a changed query is served the old rows, a changed column list fails as an unpacking error in manifest_units; put the query's text in the state |
 | `MT-F25` | low | fixed, tick 219 | bench/controls.py calls a control passed whenever its test's pytest exits 0, and a skipped test exits 0: a control on a test that needs the plan, the manifest or the GPU reports a gate that cannot fail where they are absent; report a skip as its own outcome, did not run, with its reason, exiting 1 |
 | `MT-F26` | low | fixed, tick 201 | The page's Trace, Answer and Scored types restate the served trace's keys, and vite.config.ts lists the server's seven routes for npm run dev, both by hand: test_api holds the served keys in Python alone, so a field renamed on the server leaves the live page reading undefined and a new route is not handed over; a test that reads both copies from the page's files and compares them with a served body's keys and the app's routes |
-| `MT-F27` | low | open | Task ids like T6.2e and house rules cited in 100 tracked files name records the repository does not hold, and neither docs/DECISIONS.md nor docs/AUDITS.md says what they are: one sentence beside the research notes' in docs/DECISIONS.md |
+| `MT-F27` | low | fixed, tick 227 | Task ids like T6.2e and house rules cited in 100 tracked files name records the repository does not hold, and neither docs/DECISIONS.md nor docs/AUDITS.md says what they are: one sentence beside the research notes' in docs/DECISIONS.md |
 | `MT-F28` | low | open | test_the_readme_says_what_fails_and_the_claims_gate_reads_it asks for two What fails bullets, today's count, so T7.6's fix of the relabel fails it: at least one, each read by the claims check and stating a number |
 | `MT-F29` | medium | fixed, tick 225 | The counts the change feed and the document view read are made once per manifest, keyed by a trigger's name, with every statement IF NOT EXISTS: a fix to a trigger in code never reaches a manifest made before it, measured, and SCHEMA_VERSION does not cover them: a digest of the counts' SQL kept in the manifest, the counts made again when it differs |
 | `MT-F30` | low | open | The README names ffmpeg as the one program npm does not install, while npm run check:page and npm run capture launch Playwright's Chromium, which npm ci does not fetch: name npx playwright install chromium beside both |
@@ -212,7 +212,7 @@ An audit pass on whether a fresh clone can be rebuilt and changed safely. 31 fin
 
 ## `SC`, the supply chain auditor
 
-An audit pass on every dependency, pin and download, and anything committed by accident. 5 findings, 4 closed.
+An audit pass on every dependency, pin and download, and anything committed by accident. 5 findings, 5 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -220,7 +220,7 @@ An audit pass on every dependency, pin and download, and anything committed by a
 | `SC-F2` | low | fixed, tick 33 | qdrant-client is a runtime dependency that no module imports before P3: say so beside the line, or move it to the dev group |
 | `SC-F3` | low | fixed, tick 33 | The pinned model and Qdrant binary have no command that fetches them: the doctor prints the exact commands with the revision and digest |
 | `SC-F4` | medium | fixed, tick 215 | The advisories gate audits the Python lock as the machine it runs on sees it: pip-audit evaluates each exported requirement's marker, so here it audits 61 of the 81 locked packages and skips 20 marked for Linux or emscripten, and the gate's line names none of them: strip the markers, and give the count audited of the lock's |
-| `SC-F5` | low | open | A committed record carries the author's absolute checkout path: docs/claims/python-bench-draws.py.txt keeps Qdrant local mode's warnings with the full path of the module that raised them: the record writer puts the repository's root as a dot, and a test holds every tracked text file free of the checkout's path |
+| `SC-F5` | low | fixed, tick 227 | A committed record carries the author's absolute checkout path: docs/claims/python-bench-draws.py.txt keeps Qdrant local mode's warnings with the full path of the module that raised them: the record writer puts the repository's root as a dot, and a test holds every tracked text file free of the checkout's path |
 
 ## `HE`, the hiring engineer
 
