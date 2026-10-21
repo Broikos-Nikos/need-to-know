@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**221 findings, 202 closed, 19 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**221 findings, 203 closed, 18 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -249,12 +249,12 @@ An audit pass that tried to make restricted text readable by the wrong role. 17 
 
 ## `RC`, the recruiter
 
-An audit pass of ten seconds on the first screen, by someone who hires but does not build. 2 findings, 1 closed.
+An audit pass of ten seconds on the first screen, by someone who hires but does not build. 2 findings, 2 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `RC-F1` | medium | fixed, tick 194 | The README opens with jargon, a vector database RAG project, and the plain idea comes forty words in: lead with what it does for a person |
-| `RC-F2` | medium | open | Nothing in the first screen can be seen or tried: the capture goes above everything when P6 lands |
+| `RC-F2` | medium | fixed, tick 205 | Nothing in the first screen can be seen or tried: the capture goes above everything when P6 lands |
 
 ## `PF`, the performance auditor
 
