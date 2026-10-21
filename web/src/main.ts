@@ -461,6 +461,10 @@ type Change = {
   bench: string
   command: string
   recorded: string
+  commit: string
+  clean: boolean
+  before: number | null
+  during: number | null
   doc_id: string
   size: string | null
   reader: string
@@ -518,7 +522,11 @@ function drawFigures(figures: Figures, origin: string) {
 function drawChange(change: Change): HTMLElement {
   const block = element('article', 'change')
   const title = (TITLES[change.bench] ?? ((c: Change) => c.doc_id))(change)
-  block.append(element('h3', '', title), element('p', 'origin', `${change.recorded}: ${change.command}`))
+  // When, at which commit and under what load the runs were timed (MA-F20, MA-F22), and the command that timed them.
+  const busy = (share: number | null) => (share === null ? 'its load unknown' : `${share} percent busy`)
+  const ran = `at ${change.commit}${change.clean ? '' : ', the tree holding changes'}`
+  const load = `the processor ${busy(change.before)} before the runs and ${busy(change.during)} over them`
+  block.append(element('h3', '', title), element('p', 'origin', `${change.recorded}, ${ran}; ${load}: ${change.command}`))
   const legend = element('ul', 'legend')
   for (const [className, text] of [['scan', 'the watcher’s scan'], ['sync', 'its sync into the index'],
     ['seen', 'a query first sees the change'], ['line', `the ${change.objective} s objective`]]) {

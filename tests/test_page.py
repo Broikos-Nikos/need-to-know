@@ -103,6 +103,22 @@ def test_the_pages_recorded_data_is_what_the_records_print():
         counted = {int(n) for line in change["said"] for n in re.findall(r"over (\d+) runs", line)}
         assert len(counted) == 1 and len(change["runs"]) == 2 * counted.pop(), change["bench"]
         assert {run["change"] for run in change["runs"]} == set(change["kinds"]), change["bench"]
+        # MA-F20, MA-F22: a timing names the commit it ran at and the load it ran under
+        assert change["commit"] and change["before"] is not None and change["during"] is not None, change["bench"]
+
+
+def test_a_timing_record_that_names_no_commit_or_load_is_refused(tmp_path, monkeypatch):
+    # MA-F22: a record taken from a log kept the log's name and time, and the page replayed runs of no named code.
+    data = page_data()
+    for name in [record for record, _ in data.BENCHES.values()] + [data.STATS]:
+        (tmp_path / name).write_bytes((data.RECORDS / name).read_bytes())
+    monkeypatch.setattr(data, "RECORDS", tmp_path)
+    path = tmp_path / data.BENCHES["freshness"][0]
+    head, sep, body = path.read_bytes().decode("utf-8").partition(chr(10) + "---" + chr(10))
+    kept = [line for line in body.split(chr(10)) if not line.startswith("at ")]
+    path.write_bytes((head + sep + chr(10).join(kept)).encode("utf-8"))
+    with pytest.raises(data.RecordError, match="no commit and no load"):
+        data.built()
 
 
 def test_a_record_line_the_page_cannot_read_is_an_error(tmp_path, monkeypatch):

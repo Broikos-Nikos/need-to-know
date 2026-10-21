@@ -40,10 +40,11 @@ command in this repository that produces it.
   in a cache under that passage, so a second run, a relabel or a rebuilt index
   embeds nothing again; a passage longer than the model takes is refused, never
   cut: `ntk embed`.
-* One paragraph edited in the largest file, 8.8 MB, is embedded again as one unit of
-  the 501,031 and reaches a question through `ntk ingest watch` in 3.2 s at the median
-  and 3.5 s at most over five edits; its undoing takes 3.1 s and 3.2 s and embeds
-  nothing, the vector cache holding the old passage: `uv run python bench/freshness.py`.
+* One paragraph edited in the largest file, 8.8 MB, reaches a question through
+  `ntk ingest watch` in 3.7 s at the median and 3.8 s at most over five edits, and its
+  undoing in 3.6 s and 3.7 s, with the processor 24 percent busy with other programs before
+  the runs; the edit is embedded again as one unit of the 501,031 the first time, and read
+  from the vector cache after: `uv run python bench/freshness.py`.
 * A role's question is searched inside that role's filter, on the dense and the lexical
   side alike, and fused in the engine: no unit a role may not read came back in 5,760
   searches, nor reached the excerpts a prompt would hold, every role and three
@@ -83,10 +84,10 @@ command in this repository that produces it.
   the role may see them: a scan shows only for the units it added that the role may read,
   keyed by the time it finished, and a change to text the role may not read shows as nothing,
   not even its time (N66). The models
-  load as it starts, 21.2 s here, so its first search took
-  1.62 s and the rest a median of 1.01 s and 1.47 s at the 95th percentile, the trace's own
-  queries 0.133 s of it at the median; over 2,000 fused units the engine's scores match
-  reciprocal rank fusion of the two searches as traced within 2.3e-09:
+  load as it starts, 33.4 s here with the processor 57 percent busy with other programs, so
+  its first search took 3.13 s and the rest a median of 1.20 s and 3.21 s at the 95th
+  percentile, the trace's own queries 0.184 s of it at the median; over 2,000 fused units the
+  engine's scores match reciprocal rank fusion of the two searches as traced within 2.3e-09:
   `uv run python bench/served.py`.
 * The evaluation's fact families are split into test and dev by a seed registered before
   any question was written, with every draw that failed the balance check recorded:

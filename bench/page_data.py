@@ -26,6 +26,10 @@ BENCHES = {"freshness": ("python-bench-freshness.py.txt", ("edit", "undoing")),
            "revocation": ("python-bench-revocation.py.txt", ("widening", "narrowing"))}
 STATS = "ntk-stats.txt"
 
+# What the bench ran under, its first line and its last (bench/machine.py; MA-F20, MA-F22).
+MACHINE = re.compile(r"at (?P<commit>[0-9a-f]+)(?P<dirty>, the tree holding changes)?; the processor "
+                     r"(?:(?P<before>\d+) percent busy|unknown) in the [\d.]+ s before the runs")
+DURING = re.compile(r"the processor (?:(?P<during>\d+) percent busy|unknown) over the runs, the bench's own work included")
 OPENING = re.compile(r"(?P<doc>[A-Z]+_[A-Z]+_\d+), (?:(?P<size>[\d.]+ MB), )?as (?P<reader>[a-z-]+); the watcher's catch "
                      r"up, a scan and a sync of every document: (?P<catch_up>[\d.]+) s")
 RUN = re.compile(r"run (?P<run>\d+), the (?P<change>[a-z]+): (?P<events>.*?);? ?seen at (?P<seen>[\d.]+) s")
@@ -59,13 +63,17 @@ def change(bench: str) -> dict:
     change, when a query saw it, and the lines it closed with."""
     name, kinds = BENCHES[bench]
     head, lines = split(name)
-    opened = OPENING.fullmatch(lines[0].strip())
+    machine = MACHINE.fullmatch(lines[0].strip())
+    if not machine:
+        raise RecordError(f"{name}: its first line says no commit and no load: {lines[0][:80]!r}")
+    opened = OPENING.fullmatch(lines[1].strip()) if len(lines) > 1 else None
     if not opened:
-        raise RecordError(f"{name}: its first line is no watcher's opening: {lines[0][:80]!r}")
-    runs, said = [], []
-    for line in lines[1:]:
+        raise RecordError(f"{name}: its second line is no watcher's opening: {lines[1][:80] if len(lines) > 1 else ''!r}")
+    runs, said, during = [], [], None
+    for line in lines[2:]:
         stripped = line.strip()
         ran = RUN.fullmatch(stripped)
+        closing = DURING.fullmatch(stripped)
         if ran:
             events = [part for part in ran["events"].split("; ") if part]
             read = [EVENT.fullmatch(part) for part in events]
@@ -75,6 +83,8 @@ def change(bench: str) -> dict:
                          "events": [{"kind": e["kind"], "at": float(e["at"]), "took": float(e["took"]),
                                      "parts": {k: float(v) for k, v in PART.findall(e["detail"])} if e["kind"] == "sync"
                                      else {}, "detail": e["detail"]} for e in read]})
+        elif closing:
+            during = int(closing["during"]) if closing["during"] else None
         elif stripped.startswith(f"{opened['doc']}: ") or stripped.startswith("past the "):
             said.append(stripped)
         else:
@@ -82,7 +92,9 @@ def change(bench: str) -> dict:
     settings = next((SETTINGS.search(line) for line in said if SETTINGS.search(line)), None)
     if settings is None or not runs:
         raise RecordError(f"{name}: no runs, or no closing line with the watch interval and the objective")
-    return {"bench": bench, **head, "doc_id": opened["doc"], "size": opened["size"], "reader": opened["reader"],
+    before = int(machine["before"]) if machine["before"] else None
+    return {"bench": bench, **head, "commit": machine["commit"], "clean": not machine["dirty"], "before": before,
+            "during": during, "doc_id": opened["doc"], "size": opened["size"], "reader": opened["reader"],
             "catch_up": float(opened["catch_up"]), "interval": float(settings["interval"]),
             "objective": float(settings["objective"]), "kinds": list(kinds), "runs": runs, "said": said}
 

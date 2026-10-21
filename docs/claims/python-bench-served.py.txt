@@ -1,7 +1,9 @@
 command: uv run python bench/served.py
-recorded 2026-10-18 23:37, run at 9e22fde
+recorded 2026-10-21 10:58 from the log served-t189.log, written 2026-10-21 10:57
 ---
-the models loaded in 21.2 s; 20 dev probes searched through the server as their selective readers, 2 sessions: the first in 1.62 s, then a median of 1.01 s and a 95th percentile of 1.47 s; the trace's own queries a median of 0.133 s
+at df556b5; the processor 57 percent busy in the 3 s before the runs
+
+
+the models loaded in 33.4 s; 20 dev probes searched through the server as their selective readers, 2 sessions: the first in 3.13 s, then a median of 1.20 s and a 95th percentile of 3.21 s; the trace's own queries a median of 0.184 s
 the fused scores against reciprocal rank fusion of the two searches as traced: 2000 fused units, the largest gap 2.3e-09
-
-
+the processor 67 percent busy over the runs, the bench's own work included
