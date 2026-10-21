@@ -193,7 +193,7 @@ def test_the_recorded_traces_hold_each_roles_view_and_say_when_and_with_what():
 
 
 def test_the_page_replays_its_recording_in_a_browser_where_no_server_answers():
-    # T6.4f: the tests above read the page's files, and nothing ran the page. web/check-page.mjs serves the build at an
+    # T6.4f: the tests above read the page's files, and nothing ran the page. tools/check-page.mjs serves the build at an
     # address the page does not take for its local server and checks what it draws against the recording.
     import shutil
     import subprocess
@@ -207,7 +207,7 @@ def test_the_page_replays_its_recording_in_a_browser_where_no_server_answers():
     for step in (["node_modules/typescript/bin/tsc", "--noEmit"], ["node_modules/vite/bin/vite.js", "build"]):
         built = subprocess.run([node, *step], cwd=root, capture_output=True, text=True, encoding="utf-8", errors="replace")
         assert built.returncode == 0, (step, built.stdout[-400:], built.stderr[-400:])
-    done = subprocess.run([node, "web/check-page.mjs"], cwd=root, capture_output=True, text=True, encoding="utf-8",
+    done = subprocess.run([node, "tools/check-page.mjs"], cwd=root, capture_output=True, text=True, encoding="utf-8",
                           errors="replace")
     said = (done.stdout + done.stderr).splitlines()
     assert done.returncode == 0, [line for line in said if not line.startswith("  ok")][:6]

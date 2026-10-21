@@ -87,10 +87,19 @@ const secs = (value: number) => `${value >= 1 ? value.toFixed(2) : value.toFixed
 const signed = (value: number, places: number) => value.toFixed(places).replace('-', '−')
 const heading = (section: string) => section || '(no heading)'
 
+// The language of a run of text by its letters: the documents, the questions and the answers are Greek or English,
+// and a screen reader reads Greek marked English with an English voice.
+function tongue(text: string): string {
+  const letters = text.match(/\p{L}/gu) ?? []
+  const greek = letters.filter((letter) => /\p{Script=Greek}/u.test(letter)).length
+  return greek * 2 > letters.length ? 'el' : 'en'
+}
+
 function element(tag: string, className = '', text = ''): HTMLElement {
   const node = document.createElement(tag)
   if (className) node.className = className
   if (text) node.textContent = text
+  if (text && tongue(text) === 'el') node.lang = 'el'
   return node
 }
 
@@ -142,6 +151,7 @@ function hits(trace: Trace, key: Search): HTMLElement[] {
   const all = trace[key]
   if (!all.length) return [element('p', 'minor', 'No candidates.')]
   const list = element('ol', 'hits')
+  list.dataset.hits = key  // the browser check selects on data attributes, never on a class
   all.slice(0, SHOWN).forEach((hit, index) => {
     const unit = trace.units[hit.unit_id]
     const row = element('button', 'hit') as HTMLButtonElement
@@ -371,6 +381,7 @@ function link(root: HTMLElement) {
 // and the verdict where the question is the role's own; a card opens its role's whole trace below the cards.
 function roleCard(role: string, trace: Trace): HTMLElement {
   const card = element('article', 'role-card')
+  card.dataset.role = role
   const { labels, passes } = trace.filter
   card.append(element('h3', '', role), element('p', 'minor', `reads ${labels.join(', ')}; ${number(passes)} units pass`))
   const first = trace.reranked.slice(0, 3).map((hit) => trace.units[hit.unit_id]?.doc_id ?? '?')
@@ -378,7 +389,9 @@ function roleCard(role: string, trace: Trace): HTMLElement {
   const told = trace.answer
   if (told) {
     const text = told.status === 'invalid' ? `The reply could not be read: ${told.error ?? ''}` : told.answer
-    card.append(element('p', `said clamped${told.status === 'not_found' ? ' refused' : ''}`, text))
+    const said = element('p', `said clamped${told.status === 'not_found' ? ' refused' : ''}`, text)
+    said.dataset.said = told.status
+    card.append(said)
   }
   const verdict = trace.verdict
   if (verdict && !('error' in verdict)) {
@@ -682,6 +695,7 @@ function fill(select: HTMLSelectElement, entries: [string, string][]) {
     const option = document.createElement('option')
     option.value = value
     option.textContent = text
+    if (tongue(text) === 'el') option.lang = 'el'
     return option
   }))
 }
@@ -723,6 +737,9 @@ async function start() {
     recordings = await recorded<Recorded>('traces/index.json')
     if (recordings) {
       replaying(recordings)
+      // The first recorded question drawn at once, as the role that asks it, so the instrument is never empty.
+      byId<HTMLSelectElement>('role').value = recordings.questions[0].role
+      byId<HTMLFormElement>('query').requestSubmit(byId<HTMLButtonElement>('replay'))
     } else {
       mode.textContent = 'No local server answers here: start one with ntk serve and open the page it serves.'
     }

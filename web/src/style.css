@@ -27,6 +27,7 @@
   --paper: #ffffff;
   --dim: #9a8f88;
   --faint: #8a7f76;
+  --edge: #73675f; /* a control's border, 3:1 or more against the form's ground (WCAG 1.4.11) */
   --flame-0: #ff8a1f;
   --flame-1: #ff6a00;
   --flame-2: #e63c00;
@@ -150,7 +151,7 @@ button {
   font: inherit;
   color: var(--paper);
   background: var(--ink-1);
-  border: 1px solid #3a302a;
+  border: 1px solid var(--edge);
   border-radius: 3px;
   padding: 0.55rem 0.7rem;
 }
@@ -171,7 +172,7 @@ button {
 button.second {
   background: var(--ink-1);
   color: var(--paper);
-  border: 1px solid #3a302a;
+  border: 1px solid var(--edge);
 }
 
 button:disabled {
@@ -262,6 +263,23 @@ button:disabled {
   gap: 1rem;
 }
 
+/* Four searches across, two by two, or one above another: never three and one left alone in a row of its own. */
+.searches {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 60rem) {
+  .searches {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 36rem) {
+  .searches {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .card {
   min-width: 0;
   padding: 0.9rem 1rem 1rem;
@@ -343,6 +361,7 @@ button:disabled {
   list-style: none;
   margin: 0;
   padding: 0;
+  border: 1px solid var(--edge); /* the rows are one control's states: the list draws their boundary */
   font-family: var(--mono);
   font-size: var(--fs-mono);
 }
@@ -436,16 +455,14 @@ button:disabled {
 }
 
 .more {
-  margin: 0.35rem 0 0;
-  padding: 0;
+  margin: 0.45rem 0 0;
+  padding: 0.15rem 0.5rem;
   font: inherit;
   font-size: 0.8em;
   font-weight: 400;
   color: var(--dim);
   background: none;
-  border: 0;
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
+  border: 1px solid var(--edge);
 }
 
 .tag {

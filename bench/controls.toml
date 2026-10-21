@@ -528,3 +528,57 @@ then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 
 file = "web/src/main.ts"
 old = '''    if (turn !== replays) return'''
 new = '''    if (turn < 0) return'''
+
+[[control]]
+name = "the page's Greek text declared English"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 'node_modules/vite/bin/vite.js', 'build'], check=True, capture_output=True)"]
+[[control.change]]
+file = "web/src/main.ts"
+old = '''  if (text && tongue(text) === 'el') node.lang = 'el''''
+new = '''  if (text && tongue(text) === 'xx') node.lang = 'el''''
+
+[[control]]
+name = "the Greek question's option declared English"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 'node_modules/vite/bin/vite.js', 'build'], check=True, capture_output=True)"]
+[[control.change]]
+file = "web/src/main.ts"
+old = '''    if (tongue(text) === 'el') option.lang = 'el''''
+new = '''    if (tongue(text) === 'xx') option.lang = 'el''''
+
+[[control]]
+name = "the controls' borders below 3:1 again"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 'node_modules/vite/bin/vite.js', 'build'], check=True, capture_output=True)"]
+[[control.change]]
+file = "web/src/style.css"
+old = '''  --edge: #73675f;'''
+new = '''  --edge: #3a302a;'''
+
+[[control]]
+name = "the search rows without the frame their list draws"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 'node_modules/vite/bin/vite.js', 'build'], check=True, capture_output=True)"]
+[[control.change]]
+file = "web/src/style.css"
+old = '''  border: 1px solid var(--edge); /* the rows are one control's states: the list draws their boundary */'''
+new = '''  border: 0; /* the rows are one control's states: the list draws their boundary */'''
+
+[[control]]
+name = "the four searches three and one again"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 'node_modules/vite/bin/vite.js', 'build'], check=True, capture_output=True)"]
+[[control.change]]
+file = "web/src/style.css"
+old = '''  grid-template-columns: repeat(4, minmax(0, 1fr));'''
+new = '''  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));'''
+
+[[control]]
+name = "the instrument empty until a click"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 'node_modules/vite/bin/vite.js', 'build'], check=True, capture_output=True)"]
+[[control.change]]
+file = "web/src/main.ts"
+old = '''      byId<HTMLFormElement>('query').requestSubmit(byId<HTMLButtonElement>('replay'))'''
+new = '''      void byId<HTMLButtonElement>('replay')'''
