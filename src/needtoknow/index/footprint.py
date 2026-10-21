@@ -5,6 +5,7 @@ cache; and the collection's vectors, counted by the index's server. `ntk stats` 
 
 from __future__ import annotations
 
+import os
 import sqlite3
 from pathlib import Path
 
@@ -16,8 +17,17 @@ class NoBuild(RuntimeError):
 
 
 def folder_bytes(path: Path) -> int:
-    """The bytes of every file under a folder, none when it is not there."""
-    return sum(file.stat().st_size for file in path.rglob("*") if file.is_file()) if path.is_dir() else 0
+    """The bytes of every file under a folder, none when it is not there. The index's server writes and removes its
+    segment files as it optimizes after a sync, so a file listed and gone before its size is read counts as none: it
+    ended GET /stats in a 500 and ntk stats in a traceback (DR-F37). A folder gone mid walk, os.walk passes over."""
+    total = 0
+    for folder, _, files in os.walk(path):
+        for name in files:
+            try:
+                total += os.stat(os.path.join(folder, name)).st_size
+            except FileNotFoundError:
+                pass
+    return total
 
 
 def footprint() -> dict:

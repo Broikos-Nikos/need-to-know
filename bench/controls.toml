@@ -294,8 +294,8 @@ name = "a feed poll starting from the beginning again"
 test = "tests/test_api.py::test_a_poll_starts_where_the_sessions_last_one_ended_and_that_place_is_never_served"
 [[control.change]]
 file = "src/needtoknow/api.py"
-old = '''            found, until = scanned(places.get(token, "") if after is None else after,'''
-new = '''            found, until = scanned("" if after is None else after,'''
+old = '''        place = places.get(token, ("", 0))'''
+new = '''        place = ("", 0)'''
 
 [[control]]
 name = "the build's figures walked at every load"
@@ -486,3 +486,45 @@ test = "tests/test_api.py::test_the_page_and_its_dev_proxy_name_what_the_server_
 file = "vite.config.ts"
 old = '''const ROUTES = ['/session', '/roles', '/search', '/ask', '/doc', '/stats', '/events']'''
 new = '''const ROUTES = ['/session', '/roles', '/search', '/ask', '/doc', '/stats']'''
+
+[[control]]
+name = "the feed's place a time again"
+test = "tests/test_api.py::test_a_poll_shows_a_scan_that_ended_in_the_same_second_as_the_last_it_read"
+[[control.change]]
+file = "src/needtoknow/api.py"
+old = '''"(finished = ? AND run_id > ?)) ORDER BY finished, run_id", (after, after, run)).fetchall()'''
+new = '''"(finished = ? AND run_id > ?)) ORDER BY finished, run_id", (after, after, LAST)).fetchall()'''
+
+[[control]]
+name = "the figures' walk stopped by a file removed mid walk"
+test = "tests/test_api.py::test_the_figures_count_a_file_removed_mid_walk_as_none"
+[[control.change]]
+file = "src/needtoknow/index/footprint.py"
+old = '''            except FileNotFoundError:'''
+new = '''            except PermissionError:'''
+
+[[control]]
+name = "the oldest place dropped by iterating the table"
+test = "tests/test_api.py::test_a_full_table_drops_its_oldest_without_iterating"
+[[control.change]]
+file = "src/needtoknow/api.py"
+old = '''        table.popitem(last=False)'''
+new = '''        del table[next(iter(table))]'''
+
+[[control]]
+name = "the page keeping a session the server forgot"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 'node_modules/vite/bin/vite.js', 'build'], check=True, capture_output=True)"]
+[[control.change]]
+file = "web/src/main.ts"
+old = '''  if (response.status === 401 && role && again) {'''
+new = '''  if (response.status === 401 && role && again && path === 'never') {'''
+
+[[control]]
+name = "a replay drawing the file that came last"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 'node_modules/vite/bin/vite.js', 'build'], check=True, capture_output=True)"]
+[[control.change]]
+file = "web/src/main.ts"
+old = '''    if (turn !== replays) return'''
+new = '''    if (turn < 0) return'''

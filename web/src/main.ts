@@ -75,6 +75,7 @@ let pinned: string | null = null
 let summary = ''
 let recordings: Recorded | null = null
 const asked: Record<string, Record<string, Trace>> = {}
+let replays = 0 // the replays asked for, so one whose file comes after a later one's draws nothing
 let feedTimer = 0
 let feedStarted = false
 let feedRole = ''
@@ -105,11 +106,16 @@ async function served(): Promise<string[] | null> {
   }
 }
 
-async function call<T>(path: string, init: RequestInit = {}, role?: string): Promise<T> {
+async function call<T>(path: string, init: RequestInit = {}, role?: string, again = true): Promise<T> {
   const headers = new Headers(init.headers)
   headers.set('Content-Type', 'application/json')
   if (role) headers.set('Authorization', `Bearer ${await token(role)}`)
   const response = await fetch(path, { ...init, headers })
+  // A session the server no longer holds, after it restarted or dropped its oldest: sign in once more, ask again.
+  if (response.status === 401 && role && again) {
+    tokens.delete(role)
+    return call<T>(path, init, role, false)
+  }
   const body = await response.json()
   if (!response.ok) throw new Error(typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail))
   return body as T
@@ -405,13 +411,16 @@ async function replay(event: SubmitEvent) {
   event.preventDefault()
   const question = byId<HTMLSelectElement>('pick').value
   if (!recordings) return
+  const turn = ++replays
   if (!asked[question]) {
     const file = await recorded<Asked>(`traces/${question}.json`)
+    if (file) asked[question] = file.traces
+    // A later replay asked for while this file came draws instead, so the page shows the question last picked.
+    if (turn !== replays) return
     if (!file) {
       byId<HTMLElement>('state').textContent = 'The recording of that question could not be read.'
       return
     }
-    asked[question] = file.traces
   }
   const by = asked[question]
   if (byId<HTMLInputElement>('every').checked) {

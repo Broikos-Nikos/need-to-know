@@ -148,17 +148,64 @@ def test_a_poll_starts_where_the_sessions_last_one_ended_and_that_place_is_never
     # cannot see; the server now keeps each session's place, past them, and serves nothing of it (N66).
     asked = []
 
-    def scanned(after, reads, limit=api.EVENTS):
-        asked.append(after)
-        return [], "2026-10-21T09:04:00+00:00"  # the last scan read, which the role cannot see
+    def scanned(after, reads, limit=api.EVENTS, run=api.LAST):
+        asked.append((after, run))
+        return [], ("2026-10-21T09:04:00+00:00", 7)  # the last scan read, which the role cannot see
     monkeypatch.setattr(api, "scanned", scanned)
     http = served(client)
     sales = signed(http, "sales")
     assert [http.get("/events", headers=sales).json() for _ in range(2)] == [{"events": []}] * 2
-    assert asked == ["", "2026-10-21T09:04:00+00:00"]
-    http.get("/events", params={"after": ""}, headers=sales)  # a time given is a time used
+    assert asked == [("", 0), ("2026-10-21T09:04:00+00:00", 7)]
+    http.get("/events", params={"after": ""}, headers=sales)  # a time given is a time used, every run of its second
     http.get("/events", headers=signed(http, "sales"))  # and a new session starts from the beginning
-    assert asked[2:] == ["", ""]
+    assert asked[2:] == [("", api.LAST), ("", 0)]
+
+
+def test_a_poll_shows_a_scan_that_ended_in_the_same_second_as_the_last_it_read(client):
+    # DR-F36: the place was the last run's finish, to the second, and a poll asked for later ones, so a scan that
+    # ended in the same second as that run was never shown; two pairs of runs in the author's manifest share a second.
+    from needtoknow.ingest.manifest import opened
+    second = "2026-10-21T10:00:00+00:00"
+
+    def scan(run: int, unit: str) -> None:
+        with opened() as db:
+            db.execute("INSERT INTO runs (run_id, kind, started, finished) VALUES (?, 'scan', ?, ?)", (run, second, second))
+            db.execute("INSERT INTO changes VALUES (?, 'DOC', 'changed', 1, 0)", (run,))
+            db.execute("INSERT INTO units VALUES (?, 'DOC', 'key', 'prose', ?, ?, ?, 0, 1, 'en', ?)",
+                       (unit, json.dumps(["general"]), json.dumps(["Policy"]), f"Note {unit}.", run))
+    http = served(client)
+    sales = signed(http, "sales")
+    scan(101, "first")
+    assert http.get("/events", headers=sales).json()["events"][-1]["at"] == second
+    scan(102, "second")
+    assert http.get("/events", headers=sales).json()["events"] == [{"at": second, "documents": [{"doc_id": "DOC", "units": 1}]}]
+    assert http.get("/events", headers=sales).json()["events"] == []
+
+
+def test_the_figures_count_a_file_removed_mid_walk_as_none(tmp_path, monkeypatch):
+    # DR-F37: the index's server removes segment files as it optimizes, and a file listed and gone before its size was
+    # read ended GET /stats in a 500 and ntk stats in a traceback.
+    import os
+
+    from needtoknow.index import footprint
+    (tmp_path / "kept.bin").write_bytes(b"12345")
+    monkeypatch.setattr(os, "walk", lambda path: iter([(str(tmp_path), [], ["kept.bin", "gone.bin"])]))
+    assert footprint.folder_bytes(tmp_path) == 5
+
+
+def test_a_full_table_drops_its_oldest_without_iterating():
+    # DR-F40: the feed, a plain route on the thread pool, dropped its oldest place with del table[next(iter(table))],
+    # where two polls dropping at once could meet mid iteration; popitem is one call, and a place moved is the newest.
+    from collections import OrderedDict
+
+    class Watched(OrderedDict):
+        def __iter__(self):
+            raise AssertionError("the table was iterated")
+    table = Watched()
+    for n in range(5):
+        api.keep_latest(table, f"t{n}", n, limit=3)
+    api.keep_latest(table, "t2", 9, limit=3)
+    assert list(OrderedDict.items(table)) == [("t3", 3), ("t4", 4), ("t2", 9)]
 
 
 def test_the_roles_answer_without_a_session_and_the_built_page_is_served_beside_the_routes(client, tmp_path):

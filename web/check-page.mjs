@@ -10,6 +10,9 @@
  *    many it held, and the answer as recorded, and draws no unit the role's recorded trace does not hold.
  * 3. As every role, each role has its card with its answer or its refusal as recorded.
  * 4. The licence and the source are on the page's face; no request fails and the console stays quiet.
+ * 5. A replay whose file comes late draws nothing over the one picked after it (DR-F39).
+ * 6. Live, against a stand in for `ntk serve` on the loopback that forgets its sessions as a restart does, the page
+ *    signs in again and asks again (DR-F38).
  *
  * Static checks of the same files, the trace's labels and the rows the recorder keeps, are in tests/test_page.py; this
  * is the one that runs the page.
@@ -24,7 +27,6 @@ import { chromium } from 'playwright'
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const dist = resolve(root, 'web', 'dist')
 const traces = resolve(root, 'web', 'public', 'recorded', 'traces')
-const HOST = '127.0.0.2'
 const BASE = '/need-to-know/'
 const SOURCE = 'https://github.com/Broikos-Nikos/need-to-know'
 const SEARCHES = ['dense', 'sparse', 'fused', 'reranked']
@@ -40,6 +42,7 @@ const TYPES = {
 const SHOWN = Number(/^const SHOWN = (\d+)$/m.exec(readFileSync(resolve(root, 'web', 'src', 'main.ts'), 'utf8'))[1])
 const number = (n) => n.toLocaleString('en')
 const flat = (text) => text.replace(/\s+/g, ' ').trim()
+const later = (ms) => new Promise((done) => setTimeout(done, ms))
 
 let failed = 0
 const fail = (what, detail) => {
@@ -65,23 +68,71 @@ const asked = Object.fromEntries(
   index.questions.map((q) => [q.id, JSON.parse(readFileSync(resolve(traces, `${q.id}.json`), 'utf8')).traces]),
 )
 
-// The built files, under a path of their own as a published page has one; nothing else answers.
-const server = createServer((request, response) => {
-  const path = decodeURIComponent(new URL(request.url, 'http://page').pathname)
-  let file = path.startsWith(BASE) ? resolve(dist, `.${path.slice(BASE.length - 1)}`) : ''
-  if (file && existsSync(file) && statSync(file).isDirectory()) file = resolve(file, 'index.html')
-  if (!file || !(file === dist || file.startsWith(dist + sep)) || !existsSync(file)) {
-    response.writeHead(404)
-    response.end()
-    return
-  }
-  response.writeHead(200, { 'Content-Type': TYPES[extname(file)] ?? 'application/octet-stream' })
-  createReadStream(file).pipe(response)
-})
-await new Promise((done) => server.listen(0, HOST, done))
-const url = `http://${HOST}:${server.address().port}${BASE}`
+// The built files under `base`, after whatever `routes` answers first; nothing else answers.
+async function serve(host, base, routes = async () => false) {
+  const server = createServer(async (request, response) => {
+    const path = decodeURIComponent(new URL(request.url, 'http://page').pathname)
+    if (await routes(request, response, path)) return
+    let file = path.startsWith(base) ? resolve(dist, `.${path.slice(base.length - 1)}`) : ''
+    if (file && existsSync(file) && statSync(file).isDirectory()) file = resolve(file, 'index.html')
+    if (!file || !(file === dist || file.startsWith(dist + sep)) || !existsSync(file)) {
+      response.writeHead(404)
+      response.end()
+      return
+    }
+    response.writeHead(200, { 'Content-Type': TYPES[extname(file)] ?? 'application/octet-stream' })
+    createReadStream(file).pipe(response)
+  })
+  await new Promise((done) => server.listen(0, host, done))
+  return { server, url: `http://${host}:${server.address().port}${base}` }
+}
 
+// A stand in for `ntk serve`: its routes, a recorded trace for a search, and sessions it can forget as a restart does.
+async function standIn() {
+  const figures = JSON.parse(readFileSync(resolve(root, 'web', 'public', 'recorded', 'scale.json'), 'utf8'))
+  const traced = asked[index.questions[0].id]
+  const held = new Map()
+  const seen = { signins: 0, refused: 0 }
+  const send = (response, status, body) => {
+    response.writeHead(status, { 'Content-Type': 'application/json' })
+    response.end(JSON.stringify(body))
+  }
+  const body = async (request) => {
+    let text = ''
+    for await (const chunk of request) text += chunk
+    return JSON.parse(text || '{}')
+  }
+  const { server, url } = await serve('127.0.0.1', '/', async (request, response, path) => {
+    if (path === '/roles') return send(response, 200, { roles: index.roles }) ?? true
+    if (path === '/session') {
+      const { role } = await body(request)
+      seen.signins++
+      const token = `token-${seen.signins}`
+      held.set(token, role)
+      return send(response, 200, { token, role }) ?? true
+    }
+    if (!['/search', '/ask', '/events', '/stats'].includes(path)) return false
+    const role = held.get((request.headers.authorization ?? '').replace(/^Bearer /, ''))
+    if (!role) {
+      seen.refused++
+      return send(response, 401, { detail: 'no session: sign in with POST /session and send its token' }) ?? true
+    }
+    if (path === '/events') return send(response, 200, { events: [] }) ?? true
+    if (path === '/stats') return send(response, 200, { ...figures, measured: '2026-10-21T10:00:00+00:00' }) ?? true
+    const { answer, verdict, counts, ...trace } = traced[role]  // a search's trace holds no answer and every row
+    return send(response, 200, trace) ?? true
+  })
+  return { server, url, seen, restart: () => held.clear() }
+}
+
+const replayed = await serve('127.0.0.2', BASE)
+const live = await standIn()
 const browser = await chromium.launch()
+const opened = async (url) => {
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' })
+  await page.goto(url)
+  return page
+}
 try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' })
   const errors = []
@@ -89,7 +140,7 @@ try {
   page.on('pageerror', (error) => errors.push(String(error)))
   page.on('requestfailed', (request) => errors.push(`${request.url()} failed`))
   page.on('response', (response) => response.status() >= 400 && errors.push(`${response.url()} ${response.status()}`))
-  await page.goto(url)
+  await page.goto(replayed.url)
   await page.waitForFunction(() => document.getElementById('mode')?.textContent?.startsWith('Replayed'), null, {
     timeout: 30_000,
   })
@@ -143,8 +194,11 @@ try {
     const foreign = drawn.filter((unit) => !(unit in trace.units))
     if (foreign.length) wrong.push(`${foreign.length} drawn units the role's trace does not hold`)
     if (!text.includes(flat(trace.answer.answer))) wrong.push('the recorded answer')
-    if (wrong.length) fail(`${question.id} as ${question.role}: ${wrong.length} thing${wrong.length === 1 ? '' : 's'} drawn otherwise than recorded`, wrong.join('; '))
-    else ok(`${question.id} as ${question.role}: the filter, ${SEARCHES.length} searches' rows and counts, and the answer, as recorded`)
+    if (wrong.length) {
+      fail(`${question.id} as ${question.role}: ${wrong.length} thing${wrong.length === 1 ? '' : 's'} drawn otherwise than recorded`, wrong.join('; '))
+    } else {
+      ok(`${question.id} as ${question.role}: the filter, ${SEARCHES.length} searches' rows and counts, and the answer, as recorded`)
+    }
   }
 
   // 3. Each question as every role.
@@ -176,13 +230,61 @@ try {
   else fail('the page does not name its licence and source', JSON.stringify(foot))
   if (errors.length) fail(`${errors.length} console errors or failed requests`, errors.slice(0, 5).join('; '))
   else ok('no console error and no failed request')
+
+  // 5. A replay whose file comes late, then one already fetched: the page shows the one picked last.
+  const [first, slow] = index.questions
+  const late = await browser.newPage({ viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' })
+  await late.route(`**/traces/${slow.id}.json`, async (route) => {
+    await later(800)
+    await route.continue()
+  })
+  await late.goto(replayed.url)
+  await late.waitForFunction(() => document.getElementById('mode')?.textContent?.startsWith('Replayed'))
+  const wanted = flat(asked[first.id][first.role].answer.answer)
+  await late.selectOption('#role', first.role)
+  await late.selectOption('#pick', first.id)
+  await late.click('#replay')
+  await late.waitForFunction((answer) => (document.getElementById('trace')?.textContent ?? '').replace(/\s+/g, ' ')
+    .includes(answer), wanted)
+  await late.selectOption('#pick', slow.id)
+  await late.click('#replay')
+  await late.selectOption('#pick', first.id)
+  await late.click('#replay')
+  await later(1600)  // past the held file
+  if (flat(await late.textContent('#trace')).includes(wanted)) ok(`${slow.id}'s file held back, then ${first.id}: ${first.id} stays drawn`)
+  else fail(`${slow.id}'s file, coming after ${first.id} was picked again, drew over it`)
+  await late.close()
+
+  // 6. Live, the stand in forgets every session after the page loads, as a restarted server does.
+  const signed = await opened(live.url)
+  await signed.waitForFunction(() => document.getElementById('mode')?.textContent?.startsWith('Live'), null, { timeout: 10_000 })
+  await signed.waitForFunction(() => document.getElementById('feed')?.hidden === false, null, { timeout: 10_000 })
+  live.restart()
+  const before = { ...live.seen }
+  await signed.setChecked('#slow', false)
+  await signed.selectOption('#role', index.roles[0])
+  await signed.fill('#question', 'How long are call recordings kept?')
+  await signed.click('button[value="search"]')
+  await signed.waitForFunction((role) => document.getElementById('state')?.textContent === `Searched as ${role}.`, index.roles[0], {
+    timeout: 10_000,
+  }).catch(() => {})
+  const state = await signed.textContent('#state')
+  const again = live.seen.signins - before.signins
+  if (state === `Searched as ${index.roles[0]}.` && live.seen.refused > before.refused && again >= 1) {
+    ok(`live, a session the server forgot: refused once, signed in again, and the search drawn`)
+  } else {
+    fail('live, the page did not sign in again after its session was forgotten', `${JSON.stringify(state)}; ` +
+      `${live.seen.refused - before.refused} refused, ${again} sign ins after`)
+  }
+  await signed.close()
 } finally {
   await browser.close()
-  server.close()
+  replayed.server.close()
+  live.server.close()
 }
 
 if (failed > 0) {
-  console.error(`\npage: ${failed} checks failed; a recording can be right and the page that replays it wrong`)
+  console.error(`\npage: ${failed} check${failed === 1 ? '' : 's'} failed; a recording can be right and the page that replays it wrong`)
   process.exit(1)
 }
-console.log('page: replayed where no server answers, every figure drawn is the recording’s')
+console.log('page: replayed where no server answers, every figure drawn is the recording’s, and live it signs in again')

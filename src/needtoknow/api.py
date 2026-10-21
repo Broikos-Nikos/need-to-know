@@ -61,6 +61,7 @@ import sqlite3
 from pathlib import Path
 import threading
 import time
+from collections import OrderedDict
 from contextlib import contextmanager
 from datetime import datetime, timezone
 
@@ -147,22 +148,27 @@ def outline(doc_id: str, reads: frozenset[str]) -> list[dict]:
     return list(segments.values())
 
 
+LAST = 2**63 - 1  # past any run's id: a place at a time alone holds every run that finished in that second
+
+
 def events(after: str, reads: frozenset[str], limit: int = EVENTS) -> list[dict]:
     """The watcher's finished scans after the time `after`, each as the documents where it added units a reader of
     `reads` may read, and how many; a scan that added none is left out."""
     return scanned(after, reads, limit)[0]
 
 
-def scanned(after: str, reads: frozenset[str], limit: int = EVENTS) -> tuple[list[dict], str]:
-    """The events after `after`, and the time the last scan read finished, shown to the role or not: the place a
-    session's next poll starts from, which the server keeps and never serves (PF-F11, N66). The units a scan added are
-    the manifest's rows of its run, read through the documents it changed, by the index of units by document and
-    run."""
+def scanned(after: str, reads: frozenset[str], limit: int = EVENTS,
+            run: int = LAST) -> tuple[list[dict], tuple[str, int]]:
+    """The events past the place `after` and `run`, a run's finish and its id, and the place of the last scan read,
+    shown to the role or not: where a session's next poll starts, which the server keeps and never serves (PF-F11,
+    N66). A finish is to the second, and two scans can end in one, so the place is the run, not its time (DR-F36). The
+    units a scan added are the manifest's rows of its run, read through the documents it changed, by the index of units
+    by document and run."""
     found = []
-    until = after
+    until = (after, run)
     with opened() as db:
-        runs = db.execute("SELECT run_id, finished FROM runs WHERE finished IS NOT NULL AND finished > ? "
-                          "ORDER BY finished, run_id", (after,)).fetchall()
+        runs = db.execute("SELECT run_id, finished FROM runs WHERE finished IS NOT NULL AND (finished > ? OR "
+                          "(finished = ? AND run_id > ?)) ORDER BY finished, run_id", (after, after, run)).fetchall()
         for run_id, finished in runs:
             documents = []
             for (doc_id,) in db.execute("SELECT DISTINCT doc_id FROM changes WHERE run_id = ? ORDER BY doc_id",
@@ -174,8 +180,17 @@ def scanned(after: str, reads: frozenset[str], limit: int = EVENTS) -> tuple[lis
                     documents.append({"doc_id": doc_id, "units": units})
             if documents:
                 found.append({"at": finished, "documents": documents})
-            until = finished
+            until = (finished, run_id)
     return found[-limit:], until
+
+
+def keep_latest(table: OrderedDict, key: str, value, limit: int = SESSIONS) -> None:
+    """A value under its key, moved last, and the oldest dropped past the limit without iterating the table: a plain
+    route runs on the thread pool, and two polls dropping at once met mid iteration (DR-F40); popitem is one call."""
+    table.pop(key, None)
+    table[key] = value
+    while len(table) > limit:
+        table.popitem(last=False)
 
 
 def verdict(question: str, role: str, answered: dict, items=None, ctx=None, sources=None) -> dict | None:
@@ -233,8 +248,8 @@ def create(client, *, policy: dict | None = None, encode=None, rerank: str | Non
     """The server's app over the index's client. `policy`, `encode` and `rerank` reach the search as they would from
     `ntk`: None reads the policy at each query and takes the configured models. `judge` scores an answer. `page`, the
     built page's folder, `web/dist` unless given, is served at `/` when it holds one."""
-    sessions: dict[str, str] = {}
-    places: dict[str, str] = {}  # each session's place in the change feed, past scans its role cannot see (PF-F11)
+    sessions: OrderedDict[str, str] = OrderedDict()
+    places: OrderedDict[str, tuple[str, int]] = OrderedDict()  # each session's place in the change feed (PF-F11)
     lock = threading.Lock()
     app = FastAPI(title="need-to-know", docs_url=None, redoc_url=None)
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=NAMES)
@@ -254,9 +269,7 @@ def create(client, *, policy: dict | None = None, encode=None, rerank: str | Non
         except PolicyError as error:
             raise HTTPException(400, str(error)) from None
         token = secrets.token_urlsafe(32)
-        sessions[token] = body.role
-        while len(sessions) > SESSIONS:
-            del sessions[next(iter(sessions))]
+        keep_latest(sessions, token, body.role)
         return {"token": token, "role": body.role}
 
     # Each dependency is a default, not an annotation: the module's annotations are strings, which cannot name a
@@ -289,12 +302,11 @@ def create(client, *, policy: dict | None = None, encode=None, rerank: str | Non
     @app.get("/events")
     def feed(request: Request, after: str | None = None, role: str = Depends(role_of)) -> dict:
         token = request.headers["authorization"].partition(" ")[2]
+        place = places.get(token, ("", 0))
+        reads = readable(policy or load_policy(), role)
         with refused():
-            found, until = scanned(places.get(token, "") if after is None else after,
-                                   readable(policy or load_policy(), role))
-        places[token] = max(until, places.get(token, ""))
-        while len(places) > SESSIONS:
-            del places[next(iter(places))]
+            found, until = scanned(after, reads) if after is not None else scanned(place[0], reads, run=place[1])
+        keep_latest(places, token, max(until, place))
         return {"events": found}
 
     # The figures walk the index's folder, half a second warm and seconds cold, and move only when a sync does: kept a
