@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**206 findings, 179 closed, 27 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**206 findings, 181 closed, 25 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -132,7 +132,7 @@ An audit pass that killed the pipeline mid build and mid change. 5 findings, 5 c
 
 ## `MA`, the measurement auditor
 
-An audit pass on whether every number can be produced again. 23 findings, 15 closed.
+An audit pass on whether every number can be produced again. 23 findings, 16 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -151,7 +151,7 @@ An audit pass on whether every number can be produced again. 23 findings, 15 clo
 | `MA-F13` | low | open | Two before figures, the injection bench on the old prompt and the watcher beside a build, cannot be rerun from what the repository says: a worktree recipe beside the bench, and a scripted run or a named hand run for the other |
 | `MA-F14` | low | fixed, tick 117 | ntk eval check checks the Greek share and skips the exempt families without printing either, and gives no count of family items, while eval/golden/README.md and commit 3b4e77d state 16 of 35 in Greek, two exempt dev families and 29 family items: the summary prints each split's Greek count and family items, and dev's exempt families by id |
 | `MA-F15` | low | open | N59 in docs/DECISIONS.md quotes 0.556 against 0.963, another project's measurement reported by the knowledge base, with neither its source nor its sample size: say whose measurement it is and on how many questions, or keep the claim and drop the figures |
-| `MA-F16` | medium | open | 18 of 128 commit messages count the negative controls a gate failed, but the controls ran from the session's scratchpad: commit them as data (file, line broken, replacement, test that must fail) with a runner that applies, runs, restores and prints the count, and cite its output, or stop counting them |
+| `MA-F16` | medium | fixed, tick 190 | 18 of 128 commit messages count the negative controls a gate failed, but the controls ran from the session's scratchpad: commit them as data (file, line broken, replacement, test that must fail) with a runner that applies, runs, restores and prints the count, and cite its output, or stop counting them Measured by uv run python bench/controls.py. |
 | `MA-F17` | medium | fixed, tick 142 | The README credits the baseline's weak categories to retrieval, but 7 of its 22 wrong answers were shown a section planting every fact they needed: T12, the test's only C miss, refused twice with its fact shown, D141 three times and D136 once, and D053's was right and scored wrong: the report counts the wrong answers shown and not shown their facts, and the README quotes both |
 | `MA-F18` | low | fixed, tick 142 | The README quotes category figures of three and four items without their count, C 0.778 on test over 3, F 0.500 on dev over 4, and the probes' 0.964 without its 194: give each quoted figure its count |
 | `MA-F19` | medium | fixed, tick 161 | The registered protocol, its version 8 history, N63 and fdbd498's commit message quote the probe arm's misses in 5 families, printed only by a scratch script of tick 148's audit, and N63 7 items with room, printed by nothing (MA-F1's class): bench/probe_recall.py --report prints the probe arm's reach from the saved run, bench/baseline.py the items with room, and the protocol and N63 name the commands |
@@ -162,7 +162,7 @@ An audit pass on whether every number can be produced again. 23 findings, 15 clo
 
 ## `MT`, the maintainer in six months
 
-An audit pass on whether a fresh clone can be rebuilt and changed safely. 21 findings, 17 closed.
+An audit pass on whether a fresh clone can be rebuilt and changed safely. 21 findings, 18 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -178,7 +178,7 @@ An audit pass on whether a fresh clone can be rebuilt and changed safely. 21 fin
 | `MT-F10` | medium | fixed, tick 117 | The README never mentions the golden items, ntk eval check and what it needs, ntk eval draft, or that the protocol changes only by a dated entry; two docstrings still say protocol version 4; nothing tells whoever edits prompt.py's rules to rerun bench/injection.py |
 | `MT-F11` | medium | fixed, tick 113 | The dev set rests on two checks no command repeats: the table rows' seeded draw and each absent fact's and near miss's search of the corpus prose ran from the session's scratchpad; a regenerated narrative could answer one in passing, as it already mentions a courier C3: each J and N item names its probe words and ntk eval check confirms none is held, the row draw a committed command |
 | `MT-F12` | low | fixed, tick 113 | ntk eval split writes over eval/families.json whatever it draws, though the split's salience reads narrative/ and the items were written against the registered split: refuse a differing result once items exist, behind a flag the protocol history records |
-| `MT-F13` | medium | open | Each bench saves one run per mode whatever its other arguments, and the tie tests hold timings too: the filter bench run 4 percent slower, the attack as its usage line's --role sales, and the recall bench with --selective-only each fail a tie test, the last with a KeyError, and overwrite the run a decision rests on: name each saved run by its arguments, have each test read the run its text quotes, and hold no timing or busy share |
+| `MT-F13` | medium | fixed, tick 190 | Each bench saves one run per mode whatever its other arguments, and the tie tests hold timings too: the filter bench run 4 percent slower, the attack as its usage line's --role sales, and the recall bench with --selective-only each fail a tie test, the last with a KeyError, and overwrite the run a decision rests on: name each saved run by its arguments, have each test read the run its text quotes, and hold no timing or busy share |
 | `MT-F14` | low | fixed, tick 155 | bench/probe_recall.py, which the README quotes and a test holds, has no section in bench/README.md, and nothing asks every bench for one: an entry with its needs, commands and saved file, and a test that each script in bench/ has a section, helpers such as watched.py named as helpers |
 | `MT-F15` | low | open | tests/test_noninterference.py patches numpy's argsort for the whole process to stand for the server's ordering of exact ties, relying on qdrant-client's local mode sorting with np.argsort, which nothing checks: give the local collection module its own stable argsort and assert that its search still sorts with np.argsort |
 | `MT-F16` | low | fixed, tick 133 | bench/filter_bench.py --questions drops a gold unit the manifest lacks without a word, so the probe counts as off topic for every case, DR-F25's shape kept by the mode added the same day, and no test reaches the mode: set such probes apart and name them from one function the filter and recall benches share, with a test |
