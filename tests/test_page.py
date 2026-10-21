@@ -149,3 +149,44 @@ def test_a_recorded_trace_keeps_the_rows_the_page_draws_and_the_text_they_name(m
     assert kept["counts"] == dict.fromkeys(recorder.STAGES, 4)
     assert all([hit["unit_id"] for hit in kept[stage]] == ["a"] for stage in recorder.STAGES)
     assert set(kept["units"]) == {"a", "c"}  # the first row, and the excerpt
+
+
+def test_the_recorder_keeps_the_rows_the_page_draws():
+    # MT-F23: both were ten by copy; raised in the page alone, a replayed trace of ten rows said "the first 20 shown".
+    spec = importlib.util.spec_from_file_location("page_traces", repo_root() / "bench" / "page_traces.py")
+    recorder = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(recorder)
+    page = (repo_root() / "web" / "src" / "main.ts").read_text(encoding="utf-8")
+    assert re.search(r"^const SHOWN = (\d+)$", page, re.M)[1] == str(recorder.SHOWN)
+
+
+def test_the_recorded_traces_hold_each_roles_view_and_say_when_and_with_what():
+    # T6.2c: what the page replays where no server answers: each recorded question asked as every role, with when, at
+    # which commit and with which models; every unit and excerpt in a trace one its role may read, a verdict for the
+    # question's own role alone, and no stage holding more rows than the page draws.
+    from needtoknow.policy import load_policy, readable
+    folder = repo_root() / "web" / "public" / "recorded" / "traces"
+    index = json.loads((folder / "index.json").read_text(encoding="utf-8"))
+    assert {"recorded", "commit", "clean", "models", "embedder", "reranker"} <= set(index) and index["models"]
+    policy = load_policy()
+    assert index["roles"] == list(policy["roles"])
+    dev = {json.loads(line)["id"] for line in (repo_root() / "eval" / "golden" / "dev.jsonl").read_text(
+        encoding="utf-8").splitlines() if line.strip()}
+    asked = [question["id"] for question in index["questions"]]
+    assert asked and set(asked) <= dev  # never the test split
+    assert sorted(path.name for path in folder.glob("*.json")) == sorted(["index.json", *(f"{q}.json" for q in asked)])
+    shown = int(re.search(r"^const SHOWN = (\d+)$", (repo_root() / "web" / "src" / "main.ts").read_text(
+        encoding="utf-8"), re.M)[1])
+    for question in index["questions"]:
+        kept = json.loads((folder / f"{question['id']}.json").read_text(encoding="utf-8"))
+        assert kept["question"] == question["id"] and set(kept["traces"]) == set(policy["roles"]), question["id"]
+        for role, trace in kept["traces"].items():
+            where = (question["id"], role)
+            reads = readable(policy, role)
+            assert trace["role"] == role and trace["answer"]["status"], where
+            assert all(set(unit["labels"]) & reads for unit in trace["units"].values()), where
+            assert all(set(excerpt["labels"]) & reads for excerpt in trace["excerpts"]), where
+            assert (trace["verdict"] is not None) == (role == question["role"]), where
+            assert "error" not in (trace["verdict"] or {}), where
+            for stage in ("dense", "sparse", "fused", "reranked"):
+                assert len(trace[stage]) == min(shown, trace["counts"][stage]), (*where, stage)

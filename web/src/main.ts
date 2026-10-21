@@ -150,8 +150,10 @@ function hits(trace: Trace, key: Search): HTMLElement[] {
     item.append(row)
     list.append(item)
   })
+  // The rows drawn, not SHOWN: a recorded trace holds the rows bench/page_traces.py kept, which a test holds to SHOWN.
+  const drawn = Math.min(SHOWN, all.length)
   const held = trace.counts?.[key] ?? all.length
-  const count = held > SHOWN ? `${number(held)} in all, the first ${SHOWN} shown.` : `${number(held)} in all.`
+  const count = held > drawn ? `${number(held)} in all, the first ${drawn} shown.` : `${number(held)} in all.`
   return [list, element('p', 'minor', count)]
 }
 

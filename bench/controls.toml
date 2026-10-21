@@ -376,3 +376,19 @@ file = "README.md"
 old = '''over five runs, and narrowed
   back, it left that reader in 4.5 s at the median and 5.2 s at most, with the processor'''
 new = '''over five runs, with the processor'''
+
+[[control]]
+name = "the recorder keeping more rows than the page draws"
+test = "tests/test_page.py::test_the_recorder_keeps_the_rows_the_page_draws"
+[[control.change]]
+file = "bench/page_traces.py"
+old = '''SHOWN = 10  # the rows the page draws of each stage'''
+new = '''SHOWN = 20  # the rows the page draws of each stage'''
+
+[[control]]
+name = "a recorded trace holding a unit its role may not read"
+test = "tests/test_page.py::test_the_recorded_traces_hold_each_roles_view_and_say_when_and_with_what"
+[[control.change]]
+file = "web/public/recorded/traces/D074.json"
+old = '''"d99be9cd1fabf0437e6e45e21b751195":{"doc_id":"CUS_CIR_004","section":"ΕΝΟΤΗΤΑ 5  Διατήρηση δεδομένων","labels":["legal"]'''
+new = '''"d99be9cd1fabf0437e6e45e21b751195":{"doc_id":"CUS_CIR_004","section":"ΕΝΟΤΗΤΑ 5  Διατήρηση δεδομένων","labels":["hr"]'''
