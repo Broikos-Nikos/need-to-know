@@ -132,11 +132,12 @@ gap remains, which a matched pair cannot tell from how the words sit in the role
 text; that the view reads no hidden text is held by `tests/test_noninterference.py`
 instead. It needs the manifest and the index on the running server, and writes its
 counts to NTK_DATA_DIR/bench/idf_attack_view.json or idf_attack_whole.json, to which
-`tests/test_bench.py` holds N50.
+`tests/test_bench.py` holds N50; its default roles are N50's three, and a run with any other
+argument is saved to a file its arguments name, beside those, never over them (MT-F13).
 
 ```
-uv run python bench/idf_attack.py --role sales,hr,returns
-uv run python bench/idf_attack.py --role sales,hr,returns --global-idf
+uv run python bench/idf_attack.py
+uv run python bench/idf_attack.py --global-idf
 ```
 
 ## rerank_latency.py
@@ -165,8 +166,11 @@ and its server included, since the medians move with it. It needs the manifest, 
 on the running server, and writes its numbers to NTK_DATA_DIR/bench/filter_bench.json,
 which `--report` prints again. With `--questions dev` its probes are the committed dev
 probes' questions instead of units' first 30 words, and its numbers go to
-filter_bench_questions.json. N51, N43 and the commit "Search exactly under every role's
-filter" quote it, and `tests/test_bench.py` holds the decisions to both saved runs.
+filter_bench_questions.json; a run with another `--per-label`, `--seed` or `--efs` is saved
+to a file those name, and `--report` with them reads it (MT-F13). N51, N43 and the commit
+"Search exactly under every role's filter" quote it, and `tests/test_bench.py` holds the
+decisions to both saved runs, but not to a timing or the machine's busy share, which no
+run gives again.
 
 ```
 uv run python bench/filter_bench.py
@@ -400,8 +404,8 @@ apart and named. `--report` prints, from the saved run, the probe arm's reach: t
 outside the top 10, the families they sit in, and the best p (N63). It asks the protocol
 first, dev for development and test for the
 baseline, saves its rows to NTK_DATA_DIR/bench/probe_recall_<split>.json, which a test
-holds the README and N43 to, and needs the manifest, the index on the running server, the
-`embed` extra and the GPU.
+holds the README and N43 to, `--selective-only` to a file of its own (MT-F13), and needs the
+manifest, the index on the running server, the `embed` extra and the GPU.
 
 ```
 uv run python bench/probe_recall.py
@@ -458,4 +462,20 @@ index on the running server, the `embed` extra, the GPU and the provider's key.
 
 ```
 uv run python bench/page_traces.py
+```
+
+## controls.py
+
+The negative controls behind the gates, as data (MA-F16): each in `controls.toml` names what
+it breaks, the text it replaces in one file or more, and the test that must then fail. The
+runner applies each, runs its test with the GPU hidden and no bytecode written, restores
+every file byte for byte, and prints each control's first error line, since a gate can fail
+for its fixture rather than its subject; it exits 1 on a control whose test passes, a gate
+that cannot fail, or whose text its file no longer holds once. `tests/test_bench.py` holds
+every change to text its file holds, so a control goes stale in the suite, not in silence.
+A commit message that counts controls quotes this command's last line.
+
+```
+uv run python bench/controls.py
+uv run python bench/controls.py canary
 ```

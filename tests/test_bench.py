@@ -45,6 +45,46 @@ def test_no_function_rebinds_a_name_its_module_imports():
     assert not clashes, clashes
 
 
+def test_a_saved_run_is_named_by_every_argument_given_away_from_its_default():
+    # MT-F13: the filter bench saved one file per mode whatever its --per-label, --seed or --efs, the recall bench
+    # whatever --selective-only, the attack whatever --role, so any other run replaced the one a decision quotes.
+    import argparse
+    import sys
+    sys.path.insert(0, str(BENCH))
+    import machine
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--seed", type=int, default=38)
+    parser.add_argument("--efs", default="64,128")
+    parser.add_argument("--selective-only", action="store_true")
+    parser.add_argument("--report", action="store_true")
+    keys = ("seed", "efs", "selective_only")
+    assert machine.named("filter_bench", parser, parser.parse_args([]), keys) == "filter_bench.json"
+    assert machine.named("filter_bench", parser, parser.parse_args(["--report"]), keys) == "filter_bench.json"
+    assert machine.named("filter_bench", parser, parser.parse_args(["--seed", "7", "--efs", "64,256"]),
+                         keys) == "filter_bench_seed-7_efs-64+256.json"
+    assert machine.named("probe_recall_dev", parser, parser.parse_args(["--selective-only"]),
+                         keys) == "probe_recall_dev_selective-only.json"
+
+
+def test_every_control_breaks_text_its_files_hold_once_and_names_a_test_there_is():
+    # MA-F16: the controls ran from the session's scratchpad, so their count in a commit message could not be run
+    # again; now each is data, and the suite holds each change to text its file holds once, in order, and each control
+    # to a test that exists, so a control goes stale here, not silently. bench/controls.py runs them.
+    import tomllib
+    controls = tomllib.loads((BENCH / "controls.toml").read_text(encoding="utf-8"))["control"]
+    assert len({control["name"] for control in controls}) == len(controls) > 0
+    for control in controls:
+        texts = {}
+        for change in control["change"]:
+            path = BENCH.parent / change["file"]
+            text = texts.setdefault(path, path.read_bytes().decode("utf-8"))
+            assert text.count(change["old"]) == 1, (control["name"], change["file"], text.count(change["old"]))
+            texts[path] = text.replace(change["old"], change["new"])
+        test_file, _, test_name = control["test"].partition("::")
+        source = (BENCH.parent / test_file).read_text(encoding="utf-8")
+        assert not test_name or f"def {test_name}(" in source, (control["name"], control["test"])
+
+
 def test_the_draws_bench_reuses_a_draw_only_at_the_same_share_and_states_each_share_with_its_count(monkeypatch,
                                                                                                    tmp_path):
     # RS-F6: a draw folder left from another share of the catalogue would be built and probed as if it were this one.
@@ -329,7 +369,9 @@ def test_the_recall_bench_says_what_the_table_units_take_and_what_recall_is_with
 
 def test_n51_and_n43_quote_the_filter_benchs_saved_runs():
     # Tick 129, RS-F16: the decisions quote the filter bench on units' first 30 words and on the dev probes'
-    # questions; each figure from its saved numbers is held to them. A machine without both runs skips.
+    # questions; each figure from its saved numbers is held to them, but no timing and no busy share, which a run
+    # with the same arguments does not give again and the decision states with its date (MT-F13). A machine without
+    # both runs skips.
     import json
 
     from needtoknow.settings import data_dir, repo_root
@@ -359,35 +401,25 @@ def test_n51_and_n43_quote_the_filter_benchs_saved_runs():
                     return ef
             return None
 
-        def median(case: str) -> str:
-            took = sorted(r["seconds"] for r in rows if r["case"] == case and r["split"] == "test" and r["ef"] is None)
-            return f"{took[len(took) // 2] * 1000:.0f}"
-
         roles = [c for c, r in cases.items() if not r["bench_only"]]
         graph = {c: mean([r for r in rows if r["case"] == c and r["ef"] == 512 and r["split"] == "dev"]) for c in cases}
-        medians = sorted(int(median(c)) for c in roles if c != "admin")
-        busy = sorted(int(f"{cases[c]['busy']:.0%}"[:-1]) for c in roles)
         prose = [r for r in results if r["kind"] in ("prose", "question") and r["class"] == "in domain"
                  and r["ef"] is None]
         assert all(r["tie_aware"] == 1.0 for r in results if r["ef"] is None)
         assert sum(r["foreign"] for r in results) == 0
         return {"first": {c: first(c) for c in cases}, "graph": graph, "roles": roles, "searches": len(results),
                 "range": f"{min(graph[c] for c in roles):.3f} to {max(graph[c] for c in roles):.3f}",
-                "median": f"{medians[0]} to {medians[-1]} ms a search and {median('admin')} for admin",
-                "busy": f"{busy[0]} to {busy[-1]} percent busy",
                 "annex": f"{100 * mean(prose, 'tables') / 10:.1f} percent"}
 
     units, questions = (figures(results) for results in runs)
     n51, n43 = section("N51"), section("N43")
     assert len(questions["roles"]) == 9 and not any(questions["first"][c] for c in questions["roles"])
-    for phrase in (f"ran from {units['range']}", f"median of {units['median']}", f"machine {units['busy']}",
-                   f"ran from {questions['range']} over the nine roles",
+    for phrase in (f"ran from {units['range']}", f"ran from {questions['range']} over the nine roles",
                    f"admin's fell from {units['graph']['admin']:.3f} to {questions['graph']['admin']:.3f}",
                    f"hr alone still reached it at ef {questions['first']['hr alone']}",
                    f"which reached it at ef {units['first']['outside counsel']} on unit prefixes, ended at "
                    f"{questions['graph']['outside counsel']:.3f}",
-                   f"in {questions['searches']:,} searches", f"median of {questions['median']}",
-                   f"the machine {questions['busy']}"):
+                   f"in {questions['searches']:,} searches"):
         assert phrase in n51, phrase
     assert questions["first"]["outside counsel"] is None
     for phrase in (f"first 30 words: {units['annex']}", f"questions: {questions['annex']}"):

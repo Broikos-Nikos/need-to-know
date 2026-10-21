@@ -32,6 +32,8 @@ import time
 from ctypes import wintypes
 from pathlib import Path
 
+import machine
+
 from needtoknow.index import server
 from needtoknow.index.collection import COLLECTION
 from needtoknow.settings import data_dir
@@ -130,13 +132,6 @@ def serving(questions: int, config: dict) -> int:
     return 0
 
 
-def system_times() -> tuple[float, float]:
-    """The machine's idle seconds and its busy plus idle seconds, summed over every thread, since boot."""
-    idle, kernel, user = wintypes.FILETIME(), wintypes.FILETIME(), wintypes.FILETIME()
-    ctypes.WinDLL("kernel32").GetSystemTimes(ctypes.byref(idle), ctypes.byref(kernel), ctypes.byref(user))
-    return filetime(idle), filetime(kernel) + filetime(user)  # kernel time includes idle time
-
-
 def size_of(folder: Path) -> int:
     total = 0
     for root, _dirs, files in os.walk(folder):
@@ -169,18 +164,18 @@ class DiskPeak:
 def phase(name: str, run, data: Path, pid: int | None = None) -> dict:
     """Time one phase. run() returns the peaks the phase's own process read of itself as it ended; or, given a pid,
     the phase is that process's work meanwhile: its CPU seconds then, and its peak so far."""
-    idle0, all0 = system_times()
+    began_load = machine.counters()
     cpu0 = pid_peaks(pid)[1] if pid else 0.0
     disk = DiskPeak(data)
     began = time.perf_counter()
     own = run()
     seconds = time.perf_counter() - began
     peak_disk = disk.stop()
-    idle1, all1 = system_times()
+    share = machine.busy(began_load, machine.counters())
     memory, cpu = pid_peaks(pid) if pid else (own["peak_working_set"], own["cpu_seconds"])
     cpu -= cpu0
     row = {"phase": name, "seconds": seconds, "cpu_seconds": cpu, "peak_working_set": memory,
-           "machine_busy": 1 - (idle1 - idle0) / (all1 - all0), "peak_data_dir": peak_disk}
+           "machine_busy": None if share is None else share / 100, "peak_data_dir": peak_disk}
     print(f"{name}: {seconds:.0f} s; cpu {cpu:.0f} s; peak working set {memory / GB:.2f} GB; machine busy "
           f"{row['machine_busy']:.0%}; data directory at most {peak_disk / GB:.2f} GB", flush=True)
     return row

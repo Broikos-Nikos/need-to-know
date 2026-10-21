@@ -1,0 +1,274 @@
+# The negative controls behind the gates (MA-F16): each breaks what its gate guards and names the test that must
+# fail. bench/controls.py applies each change in order, runs the test, restores every file byte for byte and says
+# how many failed as they must; tests/test_bench.py holds each change to text its file holds once.
+
+[[control]]
+name = "the page mounted before the routes"
+test = "tests/test_api.py::test_the_roles_answer_without_a_session_and_the_built_page_is_served_beside_the_routes"
+[[control.change]]
+file = "src/needtoknow/api.py"
+old = '''    built = page or repo_root() / "web" / "dist"
+    if (built / "index.html").is_file():  # mounted last, so every route above answers before the page's files
+        app.mount("/", StaticFiles(directory=built, html=True), name="page")
+'''
+new = ''''''
+[[control.change]]
+file = "src/needtoknow/api.py"
+old = '''    def role_of(request: Request) -> str:'''
+new = '''    built = page or repo_root() / "web" / "dist"
+    if (built / "index.html").is_file():  # mounted last, so every route above answers before the page's files
+        app.mount("/", StaticFiles(directory=built, html=True), name="page")
+    def role_of(request: Request) -> str:'''
+
+[[control]]
+name = "the roles behind a session"
+test = "tests/test_api.py::test_the_roles_answer_without_a_session_and_the_built_page_is_served_beside_the_routes"
+[[control.change]]
+file = "src/needtoknow/api.py"
+old = '''    def roles() -> dict:'''
+new = '''    def roles(role: str = Depends(role_of)) -> dict:'''
+
+[[control]]
+name = "a step the server times left out of the page's map"
+test = "tests/test_api.py::test_the_page_names_every_step_the_server_times_and_draws_the_stages_in_its_order"
+[[control.change]]
+file = "web/src/stages.json"
+old = '''    "manifest": "the manifest’s check",
+'''
+new = ''''''
+
+[[control]]
+name = "the verdict untimed"
+test = "tests/test_api.py::test_the_page_names_every_step_the_server_times_and_draws_the_stages_in_its_order"
+[[control.change]]
+file = "src/needtoknow/api.py"
+old = ''',
+                                                      "verdict": time.perf_counter() - clock}'''
+new = '''}'''
+
+[[control]]
+name = "one step given to two stages"
+test = "tests/test_api.py::test_the_page_names_every_step_the_server_times_and_draws_the_stages_in_its_order"
+[[control.change]]
+file = "web/src/stages.json"
+old = '''"timed": ["rerank"]'''
+new = '''"timed": ["rerank", "fusion"]'''
+
+[[control]]
+name = "text written as markup"
+test = "tests/test_page.py::test_the_page_writes_text_and_never_markup"
+[[control.change]]
+file = "web/src/main.ts"
+old = '''  if (text) node.textContent = text'''
+new = '''  if (text) node.innerHTML = text'''
+
+[[control]]
+name = "a character of the page Roboto Mono does not draw"
+test = "tests/test_page.py::test_the_page_fonts_draw_every_character_the_corpus_and_the_page_use"
+[[control.change]]
+file = "web/index.html"
+old = '''<span>Slow motion</span>'''
+new = '''<span>Slow motion →</span>'''
+
+[[control]]
+name = "rows still held back under reduced motion"
+test = "tests/test_page.py::test_nothing_moves_or_waits_to_appear_when_the_reader_asks_for_less_motion"
+[[control.change]]
+file = "web/src/style.css"
+old = '''    animation-delay: 0s !important;
+'''
+new = ''''''
+
+[[control]]
+name = "the decisions test reading the fonts as text"
+test = "tests/test_decisions.py"
+[[control.change]]
+file = "tests/test_decisions.py"
+old = '''        try:
+            text = (root / name).read_bytes().decode("utf-8")
+        except UnicodeDecodeError:
+            text = None
+        if text is None:  # a font's bytes read as text cited decisions at random (tick 178)
+            assert (root / name).suffix in BINARY, f"{name} is neither UTF-8 text nor a file that holds none"
+            continue
+'''
+new = '''        text = (root / name).read_bytes().decode("utf-8", errors="ignore")
+'''
+
+[[control]]
+name = "the served path reading the cache"
+test = "tests/test_api.py::test_a_question_asked_again_takes_a_calls_time_so_it_tells_no_one_who_asked_before"
+[[control.change]]
+file = "src/needtoknow/api.py"
+old = '''hold=lock,
+                         use_cache=False)'''
+new = '''hold=lock)'''
+
+[[control]]
+name = "the page's data edited by hand"
+test = "tests/test_page.py::test_the_pages_recorded_data_is_what_the_records_print"
+[[control.change]]
+file = "web/public/recorded/scale.json"
+old = '''"documents": 160,'''
+new = '''"documents": 161,'''
+
+[[control]]
+name = "a figure the converter derives and no record prints"
+test = "tests/test_page.py::test_the_pages_recorded_data_is_what_the_records_print"
+then = ["bench/page_data.py"]
+keeps = ["web/public/recorded/changes.json", "web/public/recorded/scale.json"]
+[[control.change]]
+file = "bench/page_data.py"
+old = '''"vectors": number("vectors"), "collection": found["collection"],'''
+new = '''"vectors": number("vectors"), "collection": found["collection"], "megabytes": round(number("bytes") / 1e6, 1),'''
+
+[[control]]
+name = "an unreadable line skipped in silence"
+test = "tests/test_page.py::test_a_record_line_the_page_cannot_read_is_an_error"
+[[control.change]]
+file = "bench/page_data.py"
+old = '''            raise RecordError(f"{name}: a line none of its forms reads: {stripped[:80]!r}")'''
+new = '''            continue'''
+
+[[control]]
+name = "the README's sign in with another body"
+test = "tests/test_api.py::test_the_readmes_calls_to_the_server_answer_as_it_says"
+[[control.change]]
+file = "README.md"
+old = '''-d '{"role": "returns"}''''
+new = '''-d '{"name": "returns"}''''
+
+[[control]]
+name = "the README's search without its token"
+test = "tests/test_api.py::test_the_readmes_calls_to_the_server_answer_as_it_says"
+[[control.change]]
+file = "README.md"
+old = '''/search -H "Authorization: Bearer <token>" '''
+new = '''/search '''
+
+[[control]]
+name = "the doctor without its serve line"
+test = "tests/test_doctor.py::test_the_serve_line_says_whether_ntk_serve_can_take_its_port"
+[[control.change]]
+file = "src/needtoknow/doctor.py"
+old = '''    ("deepseek", check_deepseek), ("serve", check_serve),'''
+new = '''    ("deepseek", check_deepseek),'''
+
+[[control]]
+name = "a port another program holds read as fine"
+test = "tests/test_doctor.py::test_the_serve_line_says_whether_ntk_serve_can_take_its_port"
+[[control.change]]
+file = "src/needtoknow/doctor.py"
+old = '''    return False, f"{HOST}:{PORT} is held by another program'''
+new = '''    return True, f"{HOST}:{PORT} is held by another program'''
+
+[[control]]
+name = "every unit's text kept in a recorded trace"
+test = "tests/test_page.py::test_a_recorded_trace_keeps_the_rows_the_page_draws_and_the_text_they_name"
+[[control.change]]
+file = "bench/page_traces.py"
+old = ''' for unit, described in trace["units"].items() if unit in named}}'''
+new = ''' for unit, described in trace["units"].items()}}'''
+
+[[control]]
+name = "every row kept in a recorded trace"
+test = "tests/test_page.py::test_a_recorded_trace_keeps_the_rows_the_page_draws_and_the_text_they_name"
+[[control.change]]
+file = "bench/page_traces.py"
+old = '''    kept = {stage: trace[stage][:SHOWN] for stage in STAGES}'''
+new = '''    kept = {stage: trace[stage] for stage in STAGES}'''
+
+[[control]]
+name = "the recorder asking no question"
+test = "tests/test_api.py::test_the_recorder_asks_as_every_role_and_keeps_only_the_rows_the_page_draws"
+[[control.change]]
+file = "bench/page_traces.py"
+old = '''        for qid, item in items.items():
+            response'''
+new = '''        for qid, item in list(items.items())[:0]:
+            response'''
+
+[[control]]
+name = "the canary pattern of capitals and underscores alone"
+test = "tests/test_canaries.py::test_a_canary_is_found_in_any_case_and_with_any_separator"
+[[control.change]]
+file = "src/needtoknow/canaries.py"
+old = '''PATTERN = re.compile(r"canary[\s_-]+[0-9a-f]{6}[\s_-]+([a-z]+)", re.IGNORECASE)'''
+new = '''PATTERN = re.compile(r"CANARY_[0-9A-F]{6}_([A-Z]+)")'''
+
+[[control]]
+name = "a canary scan of nothing passing"
+test = "tests/test_canaries.py::test_a_scan_of_nothing_says_so_and_fails"
+[[control.change]]
+file = "src/needtoknow/cli.py"
+old = '''    if not (report["lines"] or report["unnamed"] or report["traces"]):'''
+new = '''    if False:'''
+
+[[control]]
+name = "the page's traces left unscanned"
+test = "tests/test_canaries.py::test_the_scan_reads_each_recorded_page_trace_for_the_role_it_was_asked_as"
+[[control.change]]
+file = "src/needtoknow/canaries.py"
+old = '''    if page.is_file():'''
+new = '''    if False:'''
+
+[[control]]
+name = "a trace scanned as one escaped dump"
+test = "tests/test_canaries.py::test_the_scan_reads_each_recorded_page_trace_for_the_role_it_was_asked_as"
+[[control.change]]
+file = "src/needtoknow/canaries.py"
+old = '''for text in strings(trace)'''
+new = '''for text in [json.dumps(trace)]'''
+
+[[control]]
+name = "a bench function rebinding an import"
+test = "tests/test_bench.py::test_no_function_rebinds_a_name_its_module_imports"
+[[control.change]]
+file = "bench/served.py"
+old = '''    cpu = Load()  # the other programs' load'''
+new = '''    load = Load()  # the other programs' load'''
+[[control.change]]
+file = "bench/served.py"
+old = '''    print(cpu.opening(), flush=True)'''
+new = '''    print(load.opening(), flush=True)'''
+[[control.change]]
+file = "bench/served.py"
+old = '''    print(cpu.closing(), flush=True)'''
+new = '''    print(load.closing(), flush=True)'''
+
+[[control]]
+name = "a timing record with no commit or load read as before"
+test = "tests/test_page.py::test_a_timing_record_that_names_no_commit_or_load_is_refused"
+[[control.change]]
+file = "bench/page_data.py"
+old = '''    if not machine:
+        raise RecordError(f"{name}: its first line says no commit and no load: {lines[0][:80]!r}")'''
+new = '''    if not machine:
+        lines = ["at 0000000; the processor unknown in the 3 s before the runs", *lines]
+        machine = MACHINE.fullmatch(lines[0])'''
+
+[[control]]
+name = "the converter dropping the load"
+test = "tests/test_page.py::test_the_pages_recorded_data_is_what_the_records_print"
+then = ["bench/page_data.py"]
+keeps = ["web/public/recorded/changes.json", "web/public/recorded/scale.json"]
+[[control.change]]
+file = "bench/page_data.py"
+old = '''    before = int(machine["before"]) if machine["before"] else None'''
+new = '''    before = None'''
+
+[[control]]
+name = "the README's freshness figures of tick 149"
+test = "tests/test_claims.py"
+[[control.change]]
+file = "README.md"
+old = '''`ntk ingest watch` in 3.7 s at the median and 3.8 s at most over five edits'''
+new = '''`ntk ingest watch` in 3.2 s at the median and 3.5 s at most over five edits'''
+
+[[control]]
+name = "a saved run named whatever its arguments"
+test = "tests/test_bench.py::test_a_saved_run_is_named_by_every_argument_given_away_from_its_default"
+[[control.change]]
+file = "bench/machine.py"
+old = '''        if value != parser.get_default(key):'''
+new = '''        if False:'''

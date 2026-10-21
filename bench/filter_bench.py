@@ -44,7 +44,7 @@ from collections import defaultdict
 
 import numpy as np
 
-from full_build import system_times
+import machine
 
 from needtoknow.embed import cache, model
 from needtoknow.index import search as retrieval
@@ -66,11 +66,14 @@ def main() -> int:
     parser.add_argument("--questions", choices=("dev",),
                         help="ask the dev probes' questions instead of units' first words (RS-F16)")
     parser.add_argument("--report", action="store_true",
-                        help="print the last run's report again, from filter_bench.json, without searching")
+                        help="print the last run's report again, from the run these arguments saved, without searching")
     args = parser.parse_args()
     sys.stdout.reconfigure(encoding="utf-8")
-    out = data_dir() / "bench" / ("filter_bench_questions.json" if args.questions else "filter_bench.json")
+    stem = "filter_bench_questions" if args.questions else "filter_bench"
+    out = data_dir() / "bench" / machine.named(stem, parser, args, ("per_label", "seed", "efs"))
     if args.report:
+        if not out.is_file():
+            raise SystemExit(f"no run saved under these arguments, {out.name}: run the bench with them first")
         results = json.loads(out.read_bytes())
         report(results, sorted({r["ef"] for r in results if r["ef"] is not None}) + [None])
         return 0
@@ -134,7 +137,7 @@ def main() -> int:
     index_of = {unit: n for n, unit in enumerate(ids)}
     results = []
     for case, reads, bench_only in cases:
-        idle0, all0, first = *system_times(), len(results)
+        began_load, first = machine.counters(), len(results)
         allowed = torch.tensor([bool(unit_labels & reads) for unit_labels in labels], device="cuda")
         for n, ((unit, kind), query) in enumerate(zip(probes, queries)):
             q = torch.from_numpy(query).to("cuda")
@@ -162,9 +165,9 @@ def main() -> int:
                         "foreign": sum(1 for u in found if not labels[index_of[u]] & reads),
                         "tables": sum(1 for u in found if layer[index_of[u]] == "table"), "tenth": tenth_exact,
                         "seconds": seconds})
-        idle1, all1 = system_times()
+        share = machine.busy(began_load, machine.counters())
         for row in results[first:]:
-            row["busy"] = 1 - (idle1 - idle0) / (all1 - all0)
+            row["busy"] = None if share is None else share / 100
         print(f"  {case}: done, {time.perf_counter() - began:.0f} s, machine busy {results[-1]['busy']:.0%}", flush=True)
 
     out.parent.mkdir(parents=True, exist_ok=True)

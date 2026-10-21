@@ -35,6 +35,8 @@ import sqlite3
 import sys
 from collections import defaultdict
 
+from machine import named
+
 from needtoknow import lexical
 from needtoknow.index import server
 from needtoknow.index.search import search
@@ -47,7 +49,8 @@ from needtoknow.settings import data_dir
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    parser.add_argument("--role", default="sales", help="a role, or several joined by commas, pooled at the end")
+    parser.add_argument("--role", default="sales,hr,returns",
+                        help="a role, or several joined by commas, pooled at the end; N50's three by default")
     parser.add_argument("--pairs", type=int, default=60)
     parser.add_argument("--seed", type=int, default=60)
     parser.add_argument("--sides", default="dense,sparse", help="the searches to run; sparse alone shows the weights")
@@ -69,7 +72,8 @@ def main() -> int:
         for name in NAMES:
             lower, kept = (sum(c[name][i] for c in counts.values()) for i in (0, 1))
             print(f"pooled over {', '.join(counts)}, {name}: both units ranked in {kept}, {share(lower, kept)}")
-    out = data_dir() / "bench" / f"idf_attack_{'whole' if args.global_idf else 'view'}.json"
+    out = data_dir() / "bench" / named(f"idf_attack_{'whole' if args.global_idf else 'view'}", parser, args,
+                                       ("role", "pairs", "seed", "sides"))
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_bytes((json.dumps({"sides": args.sides, "pairs": args.pairs, "seed": args.seed, "roles": counts},
                                 indent=1) + "\n").encode("utf-8"))

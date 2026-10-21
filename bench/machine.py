@@ -41,6 +41,18 @@ def counters() -> tuple[int, int] | None:
     return fields[3] + fields[4], sum(fields)  # idle and waiting on the disk, of all
 
 
+def named(stem: str, parser, args, keys: tuple[str, ...]) -> str:
+    """A saved run's file name: its stem, then each of `keys` given away from its default, so a run with other
+    arguments is saved beside the run a decision quotes, never over it (MT-F13)."""
+    parts = []
+    for key in keys:
+        value = getattr(args, key)
+        if value != parser.get_default(key):
+            flag = key.replace("_", "-")
+            parts.append(flag if value is True else f"{flag}-{str(value).replace(',', '+')}")
+    return "_".join([stem, *parts]) + ".json"
+
+
 def busy(began: tuple[int, int] | None, ended: tuple[int, int] | None) -> float | None:
     """The percent of the processor's time between two readings that was not idle."""
     if began is None or ended is None or ended[1] <= began[1]:

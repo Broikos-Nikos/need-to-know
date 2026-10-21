@@ -36,6 +36,8 @@ import sys
 import time
 from collections import defaultdict
 
+from machine import named
+
 from needtoknow.eval.probes import load, lost
 from needtoknow.eval.protocol import check_use
 from needtoknow.ingest.manifest import manifest_path
@@ -136,9 +138,12 @@ def reach_of(probes: list[dict], selective: list[dict]) -> dict:
             "with_room": sum(mean < 1 for mean in means), "p": reach(means)}
 
 
-def report(split: str) -> int:
-    """The probe arm's reach, read from the run probe_recall saved for the split."""
-    saved = json.loads((data_dir() / "bench" / f"probe_recall_{split}.json").read_text(encoding="utf-8"))
+def report(split: str, name: str) -> int:
+    """The probe arm's reach, read from the run probe_recall saved for the split under these arguments."""
+    path = data_dir() / "bench" / name
+    if not path.is_file():
+        raise SystemExit(f"no run saved under these arguments, {name}: run the bench with them first")
+    saved = json.loads(path.read_text(encoding="utf-8"))
     probes = load(split)
     if len(saved["selective"]) != len(probes) and not all("id" in row for row in saved["selective"]):
         raise SystemExit(f"the saved run has {len(saved['selective'])} rows for {len(probes)} probes and names none: "
@@ -158,8 +163,9 @@ def main(argv: list[str] | None = None) -> int:
                         help="print the probe arm's reach from the saved run instead of searching (MA-F19)")
     args = parser.parse_args(argv)
     check_use(args.split, "development" if args.split == "dev" else "baseline")
+    saved_name = named(f"probe_recall_{args.split}", parser, args, ("selective_only",))
     if args.report:
-        return report(args.split)
+        return report(args.split, saved_name)
     from needtoknow.index import server
     from needtoknow.index.expand import excerpts
     from needtoknow.index.search import search
@@ -211,7 +217,7 @@ def main(argv: list[str] | None = None) -> int:
     searches = sum(len(rows) for rows in per_role.values()) + n
     print(f"{searches} searches in {time.perf_counter() - began:.0f} s", flush=True)
     db.close()
-    out = data_dir() / "bench" / f"probe_recall_{args.split}.json"
+    out = data_dir() / "bench" / saved_name
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_bytes((json.dumps({"selective": selective, "per_role": per_role, "items": items}) + "\n").encode("utf-8"))
     return 0
