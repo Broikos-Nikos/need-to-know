@@ -592,3 +592,31 @@ old = '''![The page, replayed: a question about how big a discount a shop adviso
 
 '''
 new = ''''''
+
+[[control]]
+name = "a decision that does not say when it was decided"
+test = "tests/test_claims.py::test_the_decisions_and_the_bench_readme_say_where_each_number_comes_from"
+[[control.change]]
+file = "docs/DECISIONS.md"
+old = '''## N7. Units are paragraphs; the sentence variant is an experiment
+
+*Decided 2026-10-12.*
+'''
+new = '''## N7. Units are paragraphs; the sentence variant is an experiment
+'''
+
+[[control]]
+name = "a bench's parameter written as a measurement"
+test = "tests/test_claims.py::test_the_decisions_and_the_bench_readme_say_where_each_number_comes_from"
+[[control.change]]
+file = "bench/README.md"
+old = '''scratch copy of `24` documents'''
+new = '''scratch copy of 24 documents'''
+
+[[control]]
+name = "the page's poll other than the README's"
+test = "tests/test_readme.py::test_the_readme_gives_the_change_feed_the_poll_the_page_makes"
+[[control.change]]
+file = "web/src/main.ts"
+old = '''const FEED = 5000'''
+new = '''const FEED = 4000'''

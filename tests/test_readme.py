@@ -152,3 +152,11 @@ def test_the_readme_shows_the_page_right_after_its_claim():
     made = json.loads((repo_root() / "docs" / "capture.json").read_text(encoding="utf-8"))
     assert made["ffmpeg"] and set(made["looked"]["every_role"]) == set(load_policy()["roles"])
     assert "npm run capture" in README and "ffmpeg" in README
+
+
+def test_the_readme_gives_the_change_feed_the_poll_the_page_makes():
+    # MA-F25: the README said the page asks the feed every five seconds, FEED = 5000 in main.ts, held by nothing.
+    page = (repo_root() / "web" / "src" / "main.ts").read_text(encoding="utf-8")
+    seconds = int(re.search(r"^const FEED = (\d+)", page, re.M)[1]) // 1000
+    said = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 10: "ten"}.get(seconds, str(seconds))
+    assert f"asked every {said} seconds" in " ".join(README.split()), seconds

@@ -16,6 +16,10 @@ every number no record prints and every bullet with numbers and no record, and e
 the same check (`tests/test_claims.py`). Not claims: identifiers (N43, RS-F6, T12, F07V04, DP041), and the
 parameters of a measure, the 10 of a top 10, the 1 of recall@1, the 20 of up to 20 a label. A thousands separator
 reads as nothing, on both sides.
+
+It reads `docs/DECISIONS.md` and the bench README too (MA-F24): each decision opens on the date it was decided, its
+numbers what was measured then; each bench section's numbers are printed by a record of a command it names, written
+in backticks as a parameter, or in a paragraph that says when they were measured.
 """
 
 from __future__ import annotations
@@ -94,6 +98,52 @@ def check(readme: str, records: Path = RECORDS) -> list[str]:
     return problems
 
 
+# The public decisions and the bench README, held as the README is (MA-F24). A decision opens on when it was decided,
+# its numbers what was measured then, as the page's header says; a later measurement in it says its own date, or names
+# the command whose record prints it. A bench's section, which has no date, names the commands whose records print its
+# numbers, or says when they were measured. A parameter is written in backticks, as the README writes one.
+DOCS = {"docs/DECISIONS.md": r"\n(?=## N\d+\. )", "bench/README.md": r"\n(?=## )"}
+DECIDED = re.compile(r"^\*Decided \d{4}-\d{2}-\d{2}(?:, at tick \d+)?\.\*$", re.M)
+WHEN = re.compile(r"`[0-9a-f]{7}`|\btick \d+|\b\d{4}-\d{2}-\d{2}\b")
+MONTHS = "January|February|March|April|May|June|July|August|September|October|November|December"
+NAMED = re.compile(r"\b(?:versions?|sections?|numbers?|ticks?|runs?|seed|phase|items?|exits?(?: with)?)\s+\d+"
+                   r"(?:(?:,| and| or| to)\s+\d+)*\b"
+                   r"|\b[A-Z]{1,6}\d?-[FK]\d+\b|\b[A-Z]+_[A-Z]+_\d+\b|\b\d{4}-\d{2}-\d{2}\b|\b\d{1,2} (?:" + MONTHS + r") \d{4}\b")
+DOC_COMMAND = re.compile(r"`((?:uv run )?(?:ntk |python bench/|bench/)[^`]*)`")
+
+
+def doc_command(text: str) -> str:
+    """A command as a document names it, `bench/x.py --flag` among the forms, as the README would."""
+    text = " ".join(text.split())
+    return command_of("python " + text if text.startswith("bench/") else text)
+
+
+def check_docs(records: Path = RECORDS, root: Path = REPO) -> list[str]:
+    """Every number of the decisions and the bench README that no record of a command its section names prints, outside
+    a decision dated as decided and a paragraph that says when it was measured, and every decision with no date."""
+    problems = []
+    for name, splitter in DOCS.items():
+        for section in re.split(splitter, (root / name).read_text(encoding="utf-8"))[1:]:
+            head = section.splitlines()[0][3:60]
+            if name.endswith("DECISIONS.md"):
+                if not DECIDED.search(section):
+                    problems.append(f"{name}, {head}: no line says when it was decided")
+                continue  # its numbers are the decision's, measured then, as the page's header says
+            commands = sorted({doc_command(found) for found in DOC_COMMAND.findall(section)})
+            texts = [(records / record_path(command).name).read_text(encoding="utf-8").partition("\n---\n")[2]
+                     for command in commands if (records / record_path(command).name).is_file()]
+            seen = set().union(*(printed(text) for text in texts)) if texts else set()
+            for paragraph in section.split("\n\n")[1:]:
+                if WHEN.search(paragraph):
+                    continue
+                quoted = re.sub(r'"[^"]*"', " ", paragraph)  # a quotation's numbers are what it quotes
+                missing = [n for n in claimed(NAMED.sub(" ", quoted)) if normal(n) not in seen]
+                if missing:
+                    problems.append(f"{name}, {head}: no record of {', '.join(commands) or 'a command it names'} prints "
+                                    f"{', '.join(missing)}, and nothing says when it was measured")
+    return problems
+
+
 def run(command: str) -> str:
     """A README command run the way it names it, from the repository, its output and errors together."""
     words = shlex.split(command_of(command))[2:]  # after "uv run"
@@ -133,7 +183,11 @@ def main() -> int:
             print(problem)
         claims = sum(len(claimed(b)) for b in bullets((REPO / "README.md").read_text(encoding="utf-8")))
         print(f"{claims} numbers in the README's What works today and What fails; {len(problems)} problems")
-        return 1 if problems else 0
+        documented = check_docs()
+        for problem in documented:
+            print(problem)
+        print(f"the decisions and the bench README: {len(documented)} problems")
+        return 1 if problems or documented else 0
     if not args.command:
         raise SystemExit("record: name the command, as the README names it")
     log = None

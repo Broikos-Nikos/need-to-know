@@ -3,14 +3,17 @@
 Code comments, docstrings and commit messages cite decisions like `N51`. These are the
 ones cited in this repository, each as the project made it: what it decided, on what
 evidence, and what would reverse it. The project's working record holds every decision
-in full, with the sessions around them; this page is its public part. A decision's
-numbers are what was measured when it was made, and where a command in this repository
-measures the same thing, the entry names it. Citations like `03-retrieval-rag/10` name
+in full, with the sessions around them; this page is its public part. Each entry opens
+on when it was decided, and its numbers are what was measured then; a later measurement
+in it says its own date, and where a command in this repository measures the same thing,
+the entry names it. `bench/claims.py check` fails on an entry that does not say when. Citations like `03-retrieval-rag/10` name
 chapters of the author's research notes, which are not published.
 
 `tests/test_decisions.py` fails if the repository cites a decision this page lacks.
 
 ## N7. Units are paragraphs; the sentence variant is an experiment
+
+*Decided 2026-10-12.*
 
 **Call.** A unit is a paragraph, split at sentence ends past 256 tokens, never packed
 across paragraphs, so an insertion does not shift every unit after it, and never across
@@ -34,6 +37,8 @@ worse.
 
 ## N13. deepseek-flash is the model under test, behind one small interface
 
+*Decided 2026-10-12.*
+
 **Call.** One provider is evaluated, DeepSeek's `deepseek-flash`, the model the project is
 tuned for. The answer layer reaches it through `complete`, which sends `thinking` as a top
 level field of the request, disabled unless asked or configured otherwise. Model ids and
@@ -56,6 +61,8 @@ adapters get keys and runs.
 
 ## N23. No company is named; the documents say "the Company"
 
+*Decided 2026-10-12.*
+
 **Call.** The generated documents call their author "the Company", "η Εταιρεία" in
 Greek, the defined term real policies use, so no name exists to leak. The repository,
 its history and its page name no company, real or invented; department names, internal
@@ -66,6 +73,8 @@ every commit message and the built page before every push.
 **Reverses if.** The author asks for a named company.
 
 ## N31. The filter gate measures every role's filter as it is sent
+
+*Decided 2026-10-12, at tick 6.*
 
 **Call.** `policy.readable()` is the one source of a role's labels, for the query path
 and the bench alike. The gate is every role's filter exactly as sent, with in domain and
@@ -80,6 +89,8 @@ questions were the ones filtered search lost (`03-retrieval-rag/11` section 7).
 **Reverses if.** A role is defined without `general`.
 
 ## N33. The split's balance is checked as it is built, and no test score moves it
+
+*Decided 2026-10-12, at tick 9.*
 
 **Call.** The baseline reports dev less test over fact families, with its interval, as a
 diagnostic that changes nothing. The split is balanced when it is built, on properties
@@ -101,6 +112,8 @@ version.
 
 ## N39. The corpus: one plan in code, prose by language models, annexes by code
 
+*Decided 2026-10-12.*
+
 **Call.** A plan in code, `needtoknow.corpus.plan` at a fixed seed, fixes 164 facts in
 103 families, each one exact sentence in English and in Greek, and a catalogue of 160
 documents, 97 of them Greek, with 900 sections. Language model agents wrote the prose of
@@ -117,6 +130,8 @@ so the evaluation's protocol makes the family the unit.
 with its catalogue.
 
 ## N43. The corpus is revised in code before the parsers, and no prose is bought
+
+*Decided 2026-10-12, at tick 23.*
 
 **Call.** Every table has named columns and a header; each document has one glossary,
 each term once; revisions are dated in order up to a version date; annex rows are
@@ -154,6 +169,8 @@ eval/runs/baseline`).
 
 ## N44. The audits page is written from the finding queue, never by hand
 
+*Decided 2026-10-12, at tick 26.*
+
 **Call.** `docs/AUDITS.md` is generated from the project's finding queue, and a check
 holds every row to that queue and every finding id the history cites to a row, so the
 page cannot drift from what was found and fixed.
@@ -161,6 +178,8 @@ page cannot drift from what was found and fixed.
 **Reverses if.** The queue moves into the repository, and the page with it.
 
 ## N45. The writers' narrative is committed
+
+*Decided 2026-10-12, at tick 31.*
 
 **Call.** `narrative/`, the prose the writers produced, 160 files and 1.7 MB, is
 committed: it is the one source of the corpus that code cannot make again, and the
@@ -170,6 +189,8 @@ corpus rebuilt from it is byte identical. The generated corpus is not committed.
 to a release asset whose sha256 sits in config.
 
 ## N47. Sentences are split by explicit rules, not Punkt
+
+*Decided 2026-10-12, at tick 42.*
 
 **Call.** `needtoknow.ingest.sentences`: a sentence ends at ".", "?", "!", and at ";"
 after a Greek letter or as U+037E, with a space after and a capital or digit to start
@@ -184,6 +205,8 @@ cannot be trusted arrives.
 
 ## N48. The watcher polls a fingerprint instead of listening for filesystem events
 
+*Decided 2026-10-12, at tick 47.*
+
 **Call.** `ntk ingest watch` reads every file's path, size and modification time each
 interval, waits one quiet interval after they move, then runs the scan, which decides
 what changed.
@@ -195,6 +218,8 @@ bursts that need debouncing anyway; a look is one stat of each of the corpus's f
 time.
 
 ## N50. Lexical weights are counted over the asking role's view
+
+*Decided 2026-10-12, at tick 63.*
 
 **Call.** The sparse index stores each passage's BM25 term frequencies without Qdrant's
 IDF modifier. The sync keeps every term's document frequency per label set, and a
@@ -222,6 +247,8 @@ storage, with a rebuild for every policy change.
 **Reverses if.** The view's frequency table cannot be kept in step with the index.
 
 ## N51. Every role's dense search is exact
+
+*Decided 2026-10-12, at tick 69.*
 
 **Call.** The dense search scores every vector the role's filter passes, in float32;
 Qdrant ignores quantization on that path. Naming an `ef` asks for the graph instead, for
@@ -255,6 +282,8 @@ hold 0.97 with, and the lists merged.
 
 ## N53. The watcher looks every half second, and a scan pauses the collector
 
+*Decided 2026-10-12, at tick 73.*
+
 **Call.** `ntk ingest watch` looks every 0.5 s; a scan runs with Python's cyclic
 collector paused and under a lock it waits for; the watcher loads the encoder when it
 starts.
@@ -283,6 +312,8 @@ that changed.
 
 ## N56. The split's family is every fact that shares a planted section
 
+*Decided 2026-10-13, at tick 99.*
+
 **Call.** The evaluation's unit is the fact family as `eval/protocol.toml` version 4
 defines it: a family of the plan's registry, its versions and regional variants, joined
 to every fact planted in a section beside one of them, transitively. The plan's 103
@@ -301,6 +332,8 @@ with 40.
 **Reverses if.** The corpus is planned again with one fact to a section.
 
 ## N57. The golden categories and their counts, fixed before any item
+
+*Decided 2026-10-13, at tick 101.*
 
 **Call.** `eval/protocol.toml` version 5 counts every item before one is written. The test
 holds 35: family items that ask each of the 31 test families once, 6 in the asker's own
@@ -323,6 +356,8 @@ version, dated, before any item is scored.
 
 ## N58. A dev family that no rule lets an item ask carries no item
 
+*Decided 2026-10-13, at tick 106.*
+
 **Call.** `eval/protocol.toml` version 6 exempts from the dev items a family whose every
 fact is a deliberate default under the general label; every other dev family carries two
 or three items. Two families are exempt: a yearly badge renewal and a yearly code of
@@ -337,6 +372,8 @@ of each.
 role.
 
 ## N59. Twenty dev items get a paraphrase twin, drawn by a seed
+
+*Decided 2026-10-13, at tick 114.*
 
 **Call.** Twenty dev items each get a twin: the same question for the same role, in the
 same language, with the same expectation, worded away from the original. A twin shares no
@@ -354,6 +391,8 @@ facts and near misses have counts registered exactly, so none of them takes a tw
 **Reverses if.** A family is allowed a fourth item, or the registered number changes.
 
 ## N60. The smallest visible effect is a simulation's, at a stated discordance
+
+*Decided 2026-10-13, at tick 122.*
 
 **Call.** `eval/protocol.toml` version 7 records the smallest effect the dev units can show
 as 0.12, at an assumed discordance of 0.2 per item, the share of items a change flips, and
@@ -374,6 +413,8 @@ so 0.2 stays as the assumption, the side that asks a larger effect.
 assumption, or the dev units change.
 
 ## N61. The closed book control asks for the model's best guess
+
+*Decided 2026-10-13, at tick 145.*
 
 **Call.** The control KB1-F7 asks for, the questions with no documents, is asked under
 `prompt.GUESS`, rules that want the model's best guess from its own knowledge in the
@@ -397,6 +438,8 @@ change.
 
 ## N62. Each draw is built in a data folder of its own and searched in Qdrant's local mode
 
+*Decided 2026-10-13, at tick 146.*
+
 **Call.** `ntk corpus draw` makes each draw a data folder of its own, and `bench/draws.py`
 builds it there and indexes it in Qdrant's local mode, in the bench's own memory, at one
 document in four of the catalogue.
@@ -414,6 +457,8 @@ exact path is needed to rule local mode out as the cause, or a draw must be sear
 through the filtered graph.
 
 ## N63. Until dev can show a gain, an experiment is adopted on cost alone
+
+*Decided 2026-10-18, at tick 157.*
 
 **Call.** Protocol version 8 states beside every decision its reach, the best p any
 candidate could get against the incumbent's dev units (`stats.reach`), and registers that
@@ -443,6 +488,8 @@ twins, which are no units; and the probe arm's 5 families came from an audit's s
 work (MA-F19). Both now come from the commands named.
 
 ## N64. The server takes the role at sign in, and its trace shows each search's own scores
+
+*Decided 2026-10-18, at tick 163.*
 
 **Call.** `ntk serve` listens on 127.0.0.1 alone and answers only requests addressed to that
 name or to localhost. A role signs in once, `POST /session`, a role of the policy taken on
@@ -475,6 +522,8 @@ through an identity provider, which replaces the sign in and keeps the rest.
 
 ## N65. A document is shown by its id, which names its owner and its kind
 
+*Decided 2026-10-19, at tick 171.*
+
 **Call.** Citations, excerpts, the served trace and a document's view name a document by its
 id, as `SAL_CIR_017`: the owning department's code, the kind of document and a number. A
 role that may read any part of a document learns those three, even where the document's
@@ -501,6 +550,8 @@ sensitive would number sections within each audience.
 
 ## N66. The change feed is polled, keyed by time, and shows only what a role may read
 
+*Decided 2026-10-20, at tick 175.*
+
 **Call.** `GET /events?after=<time>` answers a session's role with the finished scans after
 that time that added units it may read, each with the documents and how many, keyed by the
 time the scan finished. A scan that added none is left out whole, a scan's own number is
@@ -526,6 +577,8 @@ server keeps that place and never serves it, as it serves no time of a scan the 
 
 ## N67. The page sets every word in faces that draw Greek, and finds its server by an open route
 
+*Decided 2026-10-21, at tick 177.*
+
 **Call.** The page is set in Manrope and Roboto Mono, subsets of Latin and Greek, and not in
 the house's display face, Teko, which draws no Greek. It is live when the address that
 serves it answers `GET /roles`, the one route that asks no session, as `ntk serve` does
@@ -542,6 +595,8 @@ answers 200 live and 404 on a static host, and brings the role names the sign in
 house, or the page needs to find a server it is not served by.
 
 ## N68. The served path asks the provider every time
+
+*Decided 2026-10-21, at tick 181.*
 
 **Call.** `POST /ask` reads and keeps no cached answer. The answer cache stays for `ntk ask`,
 the operator's.

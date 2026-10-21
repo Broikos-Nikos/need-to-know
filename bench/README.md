@@ -12,8 +12,8 @@ processor's load before and over their runs, every program's counted (MA-F20, MA
 
 ## operator_probes.py
 
-The pipeline operator's probes on a scratch copy of 24 documents from the plan: a build
-killed after 15 of them, 9 files deleted behind the pipeline's back, a change whose
+The pipeline operator's probes on a scratch copy of `24` documents from the plan: a build
+killed after `15` of them, `9` files deleted behind the pipeline's back, a change whose
 journal line fails, and two assemblies compared. It needs only `ntk corpus plan`; where
 the writers' narrative exists it is used, and otherwise a synthetic one gives the same
 counts.
@@ -67,7 +67,7 @@ change's syncs embedded again out of the collection's points. It makes the edit 
 undoing five times, `--runs` to change that, and prints each change's median, largest
 and count, since one run is one draw of the watcher's poll, the scan and the machine's
 load; the first edit is the one that embeds, since the vector cache then holds both
-passages. It exits 1 when any run passes the objective, 5 s, and leaves the corpus as it
+passages. It exits 1 when any run passes the objective, `5 s`, and leaves the corpus as it
 found it. It needs the corpus, the manifest, the vector cache, the `embed` extra and the
 index on the running server.
 
@@ -109,7 +109,7 @@ find the section, and how long until it can no longer, each with its scan and sy
 default it takes the largest document that qualifies, LOG_CAT_006, since a change costs a
 scan of its whole file; `--doc` names another. It widens and narrows five times,
 `--runs` to change that, and prints each change's median, largest and count; it exits 1
-when any run passes the objective, 5 s. It needs the corpus, the manifest, the vector cache, the `embed` extra and the index on the
+when any run passes the objective, `5 s`. It needs the corpus, the manifest, the vector cache, the `embed` extra and the index on the
 running server, and leaves the corpus as it found it. Commits "Let the watcher carry
 every change into the index" and "Bring the largest document's change under 5 s" quote
 it.
@@ -158,14 +158,14 @@ uv run python bench/rerank_latency.py
 Whether the engine's filtered dense search finds what an exact scan finds, for every
 role's filter as sent and two bench only views, in both filter forms: probes drawn from
 every label's prose and tables, split dev and test, in domain and off topic apart;
-Qdrant's graph at ef 64 to 512 and the exact path the search takes, each against an
+Qdrant's graph at ef `64` to `512` and the exact path the search takes, each against an
 exact float32 top 10 computed on the GPU outside the engine, by a tie aware overlap@10;
 units a case may not read counted, and the share of table units in a prose probe's top
 10; beside each case's medians, the share of the machine busy while it ran, this bench
 and its server included, since the medians move with it. It needs the manifest, the vector cache, the `embed` extra, a CUDA GPU and the index
 on the running server, and writes its numbers to NTK_DATA_DIR/bench/filter_bench.json,
 which `--report` prints again. With `--questions dev` its probes are the committed dev
-probes' questions instead of units' first 30 words, and its numbers go to
+probes' questions instead of units' first `30` words, and its numbers go to
 filter_bench_questions.json; a run with another `--per-label`, `--seed` or `--efs` is saved
 to a file those name, and `--report` with them reads it (MT-F13). N51, N43 and the commit
 "Search exactly under every role's filter" quote it, and `tests/test_bench.py` holds the
@@ -204,7 +204,7 @@ seconds, those peaks, the share of the machine busy meanwhile, and the data dire
 largest size, sampled every second; then the manifest's bytes by column. `--serving N`
 restarts Qdrant on the built index instead and prints its memory once loaded and after N
 questions as admin. It needs the assembled corpus, the `embed` extra, the GPU and the
-server's binary, and takes about 80 minutes on this machine. `config/build.toml` records the
+server's binary, and takes over an hour on this machine. `config/build.toml` records the
 disk peak the doctor's floor comes from.
 
 ```
@@ -239,10 +239,11 @@ and exits 1 on any such answer. It needs a DeepSeek key and the network, and not
 The README quotes its run with twenty repeats, recorded in `docs/claims/`.
 
 The before figure of `11ae4b3`, two of twelve answers following the planted instruction,
-is that commit's own bench run on the prompt of its parent, `094377a`, in a worktree of its
-own with a copy of `.env` (MA-F13); today's bench asks for names the parent's prompt does
-not have. Run so again on 2026-10-21, the parent's prompt gave no such answer in twelve:
-the provider's model has moved since, and the figure stands as measured on 2026-10-13.
+is that commit's own bench run on the prompt of its parent, `094377a`, in a worktree of
+its own with a copy of `.env` (MA-F13); today's bench asks for names the parent's prompt
+does not have. Run so again on 2026-10-21, the parent's prompt gave no answer that
+followed the instruction: the provider's model has moved since, and the figure stands as
+measured on 2026-10-13.
 
 ```
 uv run python bench/injection.py
@@ -335,8 +336,8 @@ uv run python bench/null_runs.py --split test --no-search
 ## power.py
 
 The smallest effect the registered test sees on the dev units, by simulation: for each
-assumed discordance, the smallest true effect the sign flip test over units adopts in 80
-percent of seeded trials. The protocol records the figure at a discordance of 0.2. It needs
+assumed discordance, the smallest true effect the sign flip test over units adopts in `80`
+percent of seeded trials. The protocol records the figure at a discordance of `0.2`. It needs
 only the repository.
 
 ```
@@ -348,16 +349,16 @@ uv run python bench/power.py
 The permission suite at retrieval level (`specs/evaluation.md` section 6, items 1 to 3):
 up to 20 of the committed dev probes a label, their questions, asked as every role the
 policy defines, a user holding two roles, a user with only `general`, and sales with a
-membership removed from the policy in memory; each three ways 100 deep, the dense search
+membership removed from the policy in memory; each three ways `100` deep, the dense search
 alone, the sparse alone and their fusion, which is the reranker's input, and once as
 `ask` asks, reranked, the excerpts it would put in the prompt checked unit by unit and the
 prompt searched for canaries. Any unit a case may not read, and any canary of a label it
 may not read, is counted, and the suite exits 1 on one; for the cases that may read a
 probe's gold units, how often one comes back in the fused top 10 and top 100 and in the
 excerpts. A probe whose gold unit the manifest lacks is set apart and named.
-`--prefixes` asks units' first 30 words instead, half prose and half tables, as at tick
+`--prefixes` asks units' first `30` words instead, half prose and half tables, as at tick
 75. It needs the manifest, the vector cache, the `embed` extra, the GPU and the index on
-the running server, and takes about 25 minutes. What the answers left behind, the spend
+the running server, and takes under half an hour. What the answers left behind, the spend
 log and the cached answers it names, is searched for canaries by `ntk eval canaries`,
 which needs neither the GPU nor the server.
 
@@ -393,7 +394,7 @@ and keeps its output in `docs/claims/`, headed by when and at which commit it ra
 the output from the log of an earlier run, for a run that takes an hour on the GPU; a
 progress bar's lines are left out. `check` names every number no record of its bullet's
 commands prints, and every bullet with numbers and no record; identifiers and a measure's
-parameters, the 10 of a top 10, are not claims. `tests/test_claims.py` runs the check in
+parameters, the `10` of a top 10, are not claims. `tests/test_claims.py` runs the check in
 the build.
 
 ```
@@ -429,7 +430,7 @@ uv run python bench/probe_recall.py --report
 
 The served path: the server's app as `ntk serve` builds it, over the running index and in
 this process, the encoder and the reranker loaded first as `ntk serve` loads them; then a
-session for each role and the first 20 dev probes asked through `POST /search`, each as its
+session for each role and the first `20` dev probes asked through `POST /search`, each as its
 narrowest reader, `--questions` to change how many, a probe whose gold unit the manifest
 lacks set apart and named. It prints the models' load, the first
 search's seconds and the median and 95th percentile of the rest, what the trace's own
@@ -470,7 +471,7 @@ page reads at once, and a file per question, which it fetches when one is first 
 (PF-F13). Each trace keeps every stage's first ten rows, how
 many the stage held, and the text of the units its rows and excerpts name: nothing a role
 may not read, as the served trace holds nothing of it. `POST /ask` asks the provider every
-time (N68), so a recording is 27 calls, made outside the provider's peak hours; it needs the
+time (N68), so a recording is `27` calls, made outside the provider's peak hours; it needs the
 index on the running server, the `embed` extra, the GPU and the provider's key.
 `tests/test_page.py` holds the file to every role's labels.
 

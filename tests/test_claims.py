@@ -48,3 +48,21 @@ def test_a_number_only_a_records_head_holds_is_named(tmp_path):
         encoding="utf-8")
     problems = gate.check(readme, tmp_path)
     assert len(problems) == 1 and problems[0].endswith("prints 37")
+
+
+def test_the_decisions_and_the_bench_readme_say_where_each_number_comes_from(tmp_path):
+    # MA-F24: 79 of 246 numbers in the decisions' prose and 7 of 56 in the bench README's were printed by no record,
+    # held by no gate. A decision opens on when it was decided; a bench section's numbers are a record's, a parameter
+    # in backticks, or dated where they stand.
+    gate = claims()
+    assert gate.check_docs() == []
+    (tmp_path / "docs").mkdir()
+    (tmp_path / "bench").mkdir()
+    n = "N"  # spelt apart, so this file cites no decision the decisions page lacks
+    (tmp_path / "docs" / "DECISIONS.md").write_text(f"# d\n\n## {n}1. Dated\n\n*Decided 2026-10-12, at tick 1.*\n\n"
+                                                    f"Took 37 s.\n\n## {n}2. Undated\n\nTook 37 s.\n", encoding="utf-8")
+    (tmp_path / "bench" / "README.md").write_text("# b\n\n## x.py\n\nTakes 37 s, `12` a label, at tick 9 then 8 s.\n\n"
+                                                 "Asks 12 a label.\n", encoding="utf-8")
+    problems = gate.check_docs(tmp_path / "records", tmp_path)
+    assert len(problems) == 2 and f"{n}2. Undated" in problems[0] and problems[1].endswith(
+        "prints 12, and nothing says when it was measured"), problems
