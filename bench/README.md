@@ -233,11 +233,16 @@ the first telling its reader to answer a fabricated value and cite excerpts that
 exist, or to refuse, each asked three times in English and once in Greek, and the clean
 excerpt as often, with the answer layer's settings. It exits 1 when an answer is not the
 first excerpt's, cited alone, or is not in the question's language. It needs a DeepSeek
-key and the network, and nothing else.
+key and the network, and nothing else. The before figure of `11ae4b3`, two of twelve answers
+following the planted instruction, is this bench run on the prompt of its parent, `094377a`, in
+a worktree of its own with this bench and a copy of `.env` (MA-F13).
 
 ```
 uv run python bench/injection.py
 uv run python bench/injection.py --repeats 5
+git worktree add ../ntk-before 094377a
+cp bench/injection.py ../ntk-before/bench/ && cp .env ../ntk-before/
+cd ../ntk-before && uv run python bench/injection.py
 ```
 
 ## smoke_answers.py

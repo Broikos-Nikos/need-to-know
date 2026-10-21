@@ -67,8 +67,8 @@ class ManifestError(RuntimeError):
 @contextmanager
 def collector_paused():
     """Python's cyclic collector off while a scan cuts and writes: a cut makes millions of objects and no cycles, and
-    every full collection meanwhile walks every object the process holds. In a watcher holding the encoder, 368,000
-    of them, the largest file's cut took 3.09 s with it on and 2.16 s with it off (tick 73), and a change waits for it.
+    every full collection meanwhile walks every object the process holds. In a watcher holding the encoder, the
+    largest file's cut took 3.09 s with it on and 2.16 s with it off (tick 73), and a change waits for it.
     """
     enabled = gc.isenabled()
     gc.disable()

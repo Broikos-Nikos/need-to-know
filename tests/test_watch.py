@@ -282,7 +282,7 @@ def test_the_watcher_loads_the_encoder_before_it_watches_when_it_syncs_the_index
 
 
 def test_the_watcher_looks_every_half_second_unless_told_otherwise():
-    # N53: a change waits two intervals before its scan, and a look at 320 files costs 9 ms.
+    # N53: a change waits two intervals before its scan, and a look is one stat of each file.
     from needtoknow.cli import build_parser
     assert build_parser().parse_args(["ingest", "watch"]).interval == 0.5
 

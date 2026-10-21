@@ -105,8 +105,8 @@ def test_the_ingest_command_prints_its_run(corpus, capsys):
 
 
 def test_a_scan_cuts_with_the_collector_paused_and_turns_it_back_on(corpus, monkeypatch):
-    # T3.16: in a watcher holding the encoder, full collections during a cut walk 368,000 objects: the largest file's
-    # cut took 3.09 s with the collector on and 2.16 s with it off.
+    # T3.16: in a watcher holding the encoder, every full collection during a cut walks every object it holds: the
+    # largest file's cut took 3.09 s with the collector on and 2.16 s with it off.
     import gc
 
     from needtoknow.ingest import pipeline

@@ -272,3 +272,19 @@ test = "tests/test_bench.py::test_a_saved_run_is_named_by_every_argument_given_a
 file = "bench/machine.py"
 old = '''        if value != parser.get_default(key):'''
 new = '''        if False:'''
+
+[[control]]
+name = "the README test reading commands of plain words only"
+test = "tests/test_readme.py::test_every_ntk_command_the_readme_gives_parses"
+[[control.change]]
+file = "tests/test_readme.py"
+old = '''        found = re.fullmatch(r"\s*(?:uv run )?ntk (.+?)\s*", text)'''
+new = '''        found = re.fullmatch(r"\s*(?:uv run )?ntk ([a-z][a-z -]*?)\s*", text)'''
+
+[[control]]
+name = "a README placeholder of no known kind"
+test = "tests/test_readme.py::test_every_ntk_command_the_readme_gives_parses"
+[[control.change]]
+file = "README.md"
+old = '''ntk ask "<question>" --as <role>'''
+new = '''ntk ask "<query>" --as <role>'''

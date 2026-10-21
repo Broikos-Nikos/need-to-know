@@ -45,7 +45,7 @@ def build_parser() -> argparse.ArgumentParser:
                                                              "more")
     ingest = commands.add_parser("ingest", help="cut the assembled corpus into units and record them in the manifest")
     ingest.add_argument("action", choices=("build", "scan", "watch"))
-    # Half a second: a change waits two intervals before its scan, and a look costs 9 ms (N53).
+    # Half a second: a change waits two intervals before its scan, and a look is one stat of each file (N53).
     ingest.add_argument("--interval", type=ranged(float, 0.1, 60.0), default=0.5,
                         help="watch: seconds between looks at the corpus folder, 0.1 to 60")
     ingest.add_argument("--manifest-only", action="store_true",

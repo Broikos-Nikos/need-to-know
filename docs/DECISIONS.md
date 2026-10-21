@@ -188,7 +188,7 @@ interval, waits one quiet interval after they move, then runs the scan, which de
 what changed.
 
 **Evidence.** Filesystem events need a dependency or per platform code and arrive in
-bursts that need debouncing anyway; a look at the corpus's 320 files costs 9 ms.
+bursts that need debouncing anyway; a look is one stat of each of the corpus's files.
 
 **Reverses if.** The polling interval is what keeps a change from reaching queries in
 time.
@@ -258,9 +258,9 @@ hold 0.97 with, and the lists merged.
 collector paused and under a lock it waits for; the watcher loads the encoder when it
 starts.
 
-**Evidence.** A change waits two intervals before its scan, and a look costs 9 ms. In a
-watcher holding the encoder, full collections during a cut walked 368,000 objects, and
-the largest document's change took 6.6 to 7.4 s. With these, it reaches a query in 4.6
+**Evidence.** A change waits two intervals before its scan, and a look is one stat of each
+file. In a watcher holding the encoder, every full collection during a cut walked every
+object the process held, and the largest document's change took 6.6 to 7.4 s. With these, it reaches a query in 4.6
 s, and a one sentence edit in 1.6 s (`bench/revocation.py`, `bench/freshness.py`).
 
 **Measured again, 2026-10-13.** Both benches now repeat each change five times in one

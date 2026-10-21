@@ -19,9 +19,29 @@ def test_every_path_the_readme_names_exists():
     assert not missing, missing
 
 
+# A placeholder the README writes, and a value of its kind (MT-F17).
+PLACEHOLDERS = {"question": "a question", "role": "sales", "file": "runs.jsonl"}
+
+
+def ntk_commands(readme: str) -> list[str]:
+    """Every ntk command the README gives, in a code span or a code block, its placeholders filled."""
+    spans = re.findall(r"`([^`\n]+)`", readme)
+    blocks = [line for block in re.findall(r"```\n(.*?)```", readme, re.S) for line in block.splitlines()]
+    commands = []
+    for text in spans + blocks:
+        found = re.fullmatch(r"\s*(?:uv run )?ntk (.+?)\s*", text)
+        if found:
+            unknown = set(re.findall(r"<(\w+)>", found[1])) - set(PLACEHOLDERS)
+            assert not unknown, (text, unknown)  # a placeholder of no known kind fails, it is not skipped
+            commands.append(re.sub(r"<(\w+)>", lambda m: PLACEHOLDERS[m[1]], found[1]))
+    return commands
+
+
 def test_every_ntk_command_the_readme_gives_parses():
-    commands = re.findall(r"`?(?:uv run )?ntk ([a-z][a-z -]*?)(?:`|\n|$)", README)
-    assert len(commands) >= 5
+    # MT-F17: the gate parsed a command only when it held lower case letters, spaces and dashes, so the ones with a
+    # placeholder, a quoted question or a path were skipped without a word, ntk ask and ntk eval run among them.
+    commands = ntk_commands(README)
+    assert any('"' in c for c in commands) and any("--as" in c for c in commands) and len(commands) >= 30
     for command in commands:
         try:
             build_parser().parse_args(shlex.split(command))
