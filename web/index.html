@@ -58,6 +58,10 @@
           <input type="checkbox" id="slow" />
           <span>Slow motion</span>
         </label>
+        <label class="check">
+          <input type="checkbox" id="every" />
+          <span>As every role</span>
+        </label>
       </form>
       <p class="note" id="note">
         Search runs the retrieval alone. Ask sends its excerpts to the model as well, and scores the answer when the
@@ -65,6 +69,7 @@
         reduced motion set, nothing moves.
       </p>
       <p class="state" id="state" role="status"></p>
+      <section class="compare" id="compare" aria-label="The question as every role" hidden></section>
       <section class="trace" id="trace" aria-label="The question’s stages"></section>
     </main>
     <section class="panel" id="feed" aria-labelledby="feed-title" hidden>

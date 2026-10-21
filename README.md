@@ -206,7 +206,8 @@ uv run ntk ingest watch
   ```
 * `npm ci` and `npm run build`, with Node 22 or later, build the page into `web/dist`, which
   `ntk serve` serves at its own address beside its routes. There a role searches, or asks and
-  is answered and scored, and each stage of the trace shows with its seconds on the server;
+  is answered and scored, or the same question goes to all nine roles side by side, and each
+  stage of the trace shows with its seconds on the server;
   slow motion plays the trace one stage at a time, and with reduced motion set nothing moves.
   Below it the build's figures, live or as `ntk stats` recorded them, and the change benches'
   recorded runs, each scan and sync of each change, replayed at the speed they ran:

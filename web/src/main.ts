@@ -357,29 +357,91 @@ function link(root: HTMLElement) {
   })
 }
 
-// Replayed, a recorded trace is drawn as a live one is: the same stages, the same slow motion.
+// The same question as every role, a card each: what the role reads, what its search put first, what it was told,
+// and the verdict where the question is the role's own; a card opens its role's whole trace below the cards.
+function roleCard(role: string, trace: Trace): HTMLElement {
+  const card = element('article', 'role-card')
+  const { labels, passes } = trace.filter
+  card.append(element('h3', '', role), element('p', 'minor', `reads ${labels.join(', ')}; ${number(passes)} units pass`))
+  const first = trace.reranked.slice(0, 3).map((hit) => trace.units[hit.unit_id]?.doc_id ?? '?')
+  card.append(element('p', 'firsts', first.length ? first.join(', ') : 'nothing found'))
+  const told = trace.answer
+  if (told) {
+    const text = told.status === 'invalid' ? `The reply could not be read: ${told.error ?? ''}` : told.answer
+    card.append(element('p', `said clamped${told.status === 'not_found' ? ' refused' : ''}`, text))
+  }
+  const verdict = trace.verdict
+  if (verdict && !('error' in verdict)) {
+    const how = verdict.refusal ? 'a refusal' : verdict.grounded ? 'grounded' : 'not grounded'
+    card.append(element('p', 'tag', `${verdict.item}, its own role: ${verdict.correct ? 'correct' : 'not correct'}, ${how}`))
+  }
+  const open = element('button', 'more', 'Its stages') as HTMLButtonElement
+  open.type = 'button'
+  open.addEventListener('click', () => {
+    summary = `${role}’s stages, below the cards.`
+    draw(trace)
+    play(byId<HTMLInputElement>('slow').checked)
+    byId<HTMLElement>('trace').scrollIntoView({ block: 'start', behavior: still.matches ? 'auto' : 'smooth' })
+  })
+  card.append(open)
+  return card
+}
+
+// The cards replace a single trace, and a single trace the cards.
+function cards(): HTMLElement {
+  const grid = byId<HTMLElement>('compare')
+  grid.replaceChildren()
+  grid.hidden = false
+  byId<HTMLElement>('trace').replaceChildren()
+  return grid
+}
+
+// Replayed, a recorded trace is drawn as a live one is: the same stages, the same slow motion, the same cards.
 function replay(event: SubmitEvent) {
   event.preventDefault()
+  const by = recordings?.traces[byId<HTMLSelectElement>('pick').value]
+  if (!recordings || !by) return
+  if (byId<HTMLInputElement>('every').checked) {
+    const grid = cards()
+    for (const role of recordings.roles) if (by[role]) grid.append(roleCard(role, by[role]))
+    summary = 'Replayed as every role, as the app answered each when recorded.'
+    byId<HTMLElement>('state').textContent = summary
+    return
+  }
+  byId<HTMLElement>('compare').hidden = true
   const role = byId<HTMLSelectElement>('role').value
-  const trace = recordings?.traces[byId<HTMLSelectElement>('pick').value]?.[role]
-  if (!trace) return
+  if (!by[role]) return
   summary = `Replayed as ${role}, as the app answered it when recorded.`
-  draw(trace)
+  draw(by[role])
   play(byId<HTMLInputElement>('slow').checked)
 }
 
 async function run(event: SubmitEvent) {
   event.preventDefault()
   const asking = (event.submitter as HTMLButtonElement | null)?.value === 'ask'
+  const every = byId<HTMLInputElement>('every').checked
   const role = byId<HTMLSelectElement>('role').value
   const question = byId<HTMLInputElement>('question').value
   const buttons = [...byId<HTMLFormElement>('query').querySelectorAll('button')]
   const state = byId<HTMLElement>('state')
+  const body = { method: 'POST', body: JSON.stringify({ question }) }
   for (const button of buttons) button.disabled = true
   state.classList.remove('error')
-  state.textContent = asking ? `Asking as ${role}: the search, then the model, which takes seconds.` : `Searching as ${role}.`
   try {
-    const trace = await call<Trace>(asking ? 'ask' : 'search', { method: 'POST', body: JSON.stringify({ question }) }, role)
+    if (every) {
+      const grid = cards()
+      const roles = [...byId<HTMLSelectElement>('role').options].map((option) => option.value)
+      for (const [index, each] of roles.entries()) {
+        state.textContent = `${asking ? 'Asking' : 'Searching'} as ${each}, ${index + 1} of ${roles.length}.`
+        grid.append(roleCard(each, await call<Trace>(asking ? 'ask' : 'search', body, each)))
+      }
+      summary = `${asking ? 'Asked' : 'Searched'} as every role.`
+      state.textContent = summary
+      return
+    }
+    byId<HTMLElement>('compare').hidden = true
+    state.textContent = asking ? `Asking as ${role}: the search, then the model, which takes seconds.` : `Searching as ${role}.`
+    const trace = await call<Trace>(asking ? 'ask' : 'search', body, role)
     summary = `${asking ? 'Asked' : 'Searched'} as ${trace.role}.`
     draw(trace)
     play(byId<HTMLInputElement>('slow').checked)
