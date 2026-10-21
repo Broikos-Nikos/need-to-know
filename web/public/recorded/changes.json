@@ -1,0 +1,521 @@
+{
+ "changes": [
+  {
+   "bench": "freshness",
+   "command": "uv run python bench/freshness.py",
+   "recorded": "recorded 2026-10-18 21:56 from the log freshness-t149.log, written 2026-10-18 21:30",
+   "doc_id": "NET_MAN_009",
+   "size": "8.8 MB",
+   "reader": "network-ops",
+   "catch_up": 23.2,
+   "interval": 0.5,
+   "objective": 5.0,
+   "kinds": [
+    "edit",
+    "undoing"
+   ],
+   "runs": [
+    {
+     "run": 1,
+     "change": "edit",
+     "seen": 3.47,
+     "events": [
+      {
+       "kind": "scan",
+       "at": 1.02,
+       "took": 1.65,
+       "parts": {},
+       "detail": "1 read"
+      },
+      {
+       "kind": "sync",
+       "at": 2.7,
+       "took": 0.8,
+       "parts": {
+        "read": 0.24,
+        "deletes": 0.06,
+        "embedding": 0.38,
+        "upserts": 0.02,
+        "check": 0.09
+       },
+       "detail": "read 0.24, deletes 0.06, embedding 0.38, upserts 0.02, check 0.09"
+      }
+     ]
+    },
+    {
+     "run": 1,
+     "change": "undoing",
+     "seen": 3.11,
+     "events": [
+      {
+       "kind": "scan",
+       "at": 1.0,
+       "took": 1.71,
+       "parts": {},
+       "detail": "1 read"
+      },
+      {
+       "kind": "sync",
+       "at": 2.75,
+       "took": 0.38,
+       "parts": {
+        "read": 0.25,
+        "deletes": 0.01,
+        "embedding": 0.0,
+        "upserts": 0.01,
+        "check": 0.12
+       },
+       "detail": "read 0.25, deletes 0.01, embedding 0.00, upserts 0.01, check 0.12"
+      }
+     ]
+    },
+    {
+     "run": 2,
+     "change": "edit",
+     "seen": 3.2,
+     "events": [
+      {
+       "kind": "scan",
+       "at": 1.0,
+       "took": 1.67,
+       "parts": {},
+       "detail": "1 read"
+      },
+      {
+       "kind": "sync",
+       "at": 2.7,
+       "took": 0.52,
+       "parts": {
+        "read": 0.41,
+        "deletes": 0.01,
+        "embedding": 0.0,
+        "upserts": 0.0,
+        "check": 0.09
+       },
+       "detail": "read 0.41, deletes 0.01, embedding 0.00, upserts 0.00, check 0.09"
+      }
+     ]
+    },
+    {
+     "run": 2,
+     "change": "undoing",
+     "seen": 2.97,
+     "events": [
+      {
+       "kind": "scan",
+       "at": 0.98,
+       "took": 1.53,
+       "parts": {},
+       "detail": "1 read"
+      },
+      {
+       "kind": "sync",
+       "at": 2.55,
+       "took": 0.38,
+       "parts": {
+        "read": 0.26,
+        "deletes": 0.02,
+        "embedding": 0.0,
+        "upserts": 0.0,
+        "check": 0.1
+       },
+       "detail": "read 0.26, deletes 0.02, embedding 0.00, upserts 0.00, check 0.10"
+      }
+     ]
+    },
+    {
+     "run": 3,
+     "change": "edit",
+     "seen": 3.03,
+     "events": [
+      {
+       "kind": "scan",
+       "at": 0.99,
+       "took": 1.56,
+       "parts": {},
+       "detail": "1 read"
+      },
+      {
+       "kind": "sync",
+       "at": 2.58,
+       "took": 0.5,
+       "parts": {
+        "read": 0.39,
+        "deletes": 0.01,
+        "embedding": 0.0,
+        "upserts": 0.0,
+        "check": 0.09
+       },
+       "detail": "read 0.39, deletes 0.01, embedding 0.00, upserts 0.00, check 0.09"
+      }
+     ]
+    },
+    {
+     "run": 3,
+     "change": "undoing",
+     "seen": 3.12,
+     "events": [
+      {
+       "kind": "scan",
+       "at": 1.01,
+       "took": 1.68,
+       "parts": {},
+       "detail": "1 read"
+      },
+      {
+       "kind": "sync",
+       "at": 2.72,
+       "took": 0.36,
+       "parts": {
+        "read": 0.26,
+        "deletes": 0.01,
+        "embedding": 0.0,
+        "upserts": 0.0,
+        "check": 0.09
+       },
+       "detail": "read 0.26, deletes 0.01, embedding 0.00, upserts 0.00, check 0.09"
+      }
+     ]
+    },
+    {
+     "run": 4,
+     "change": "edit",
+     "seen": 3.22,
+     "events": [
+      {
+       "kind": "scan",
+       "at": 0.99,
+       "took": 1.71,
+       "parts": {},
+       "detail": "1 read"
+      },
+      {
+       "kind": "sync",
+       "at": 2.73,
+       "took": 0.55,
+       "parts": {
+        "read": 0.44,
+        "deletes": 0.01,
+        "embedding": 0.0,
+        "upserts": 0.0,
+        "check": 0.09
+       },
+       "detail": "read 0.44, deletes 0.01, embedding 0.00, upserts 0.00, check 0.09"
+      }
+     ]
+    },
+    {
+     "run": 4,
+     "change": "undoing",
+     "seen": 3.11,
+     "events": [
+      {
+       "kind": "scan",
+       "at": 1.03,
+       "took": 1.63,
+       "parts": {},
+       "detail": "1 read"
+      },
+      {
+       "kind": "sync",
+       "at": 2.7,
+       "took": 0.4,
+       "parts": {
+        "read": 0.29,
+        "deletes": 0.01,
+        "embedding": 0.0,
+        "upserts": 0.0,
+        "check": 0.1
+       },
+       "detail": "read 0.29, deletes 0.01, embedding 0.00, upserts 0.00, check 0.10"
+      }
+     ]
+    },
+    {
+     "run": 5,
+     "change": "edit",
+     "seen": 3.1,
+     "events": [
+      {
+       "kind": "scan",
+       "at": 1.03,
+       "took": 1.71,
+       "parts": {},
+       "detail": "1 read"
+      },
+      {
+       "kind": "sync",
+       "at": 2.78,
+       "took": 0.36,
+       "parts": {
+        "read": 0.26,
+        "deletes": 0.01,
+        "embedding": 0.0,
+        "upserts": 0.01,
+        "check": 0.09
+       },
+       "detail": "read 0.26, deletes 0.01, embedding 0.00, upserts 0.01, check 0.09"
+      }
+     ]
+    },
+    {
+     "run": 5,
+     "change": "undoing",
+     "seen": 3.17,
+     "events": [
+      {
+       "kind": "scan",
+       "at": 1.02,
+       "took": 1.58,
+       "parts": {},
+       "detail": "1 read"
+      },
+      {
+       "kind": "sync",
+       "at": 2.64,
+       "took": 0.53,
+       "parts": {
+        "read": 0.43,
+        "deletes": 0.01,
+        "embedding": 0.0,
+        "upserts": 0.0,
+        "check": 0.09
+       },
+       "detail": "read 0.43, deletes 0.01, embedding 0.00, upserts 0.00, check 0.09"
+      }
+     ]
+    }
+   ],
+   "said": [
+    "NET_MAN_009: the edited sentence reached a query in median 3.2 s, largest 3.5 s, over 5 runs; its undoing in median 3.1 s, largest 3.2 s, over 5 runs (watch interval 0.5 s; objective 5 s)",
+    "NET_MAN_009: units embedded again, each edit [1, 0, 0, 0, 0] and each undoing [0, 0, 0, 0, 0], out of 501031 points in the collection"
+   ]
+  },
+  {
+   "bench": "revocation",
+   "command": "uv run python bench/revocation.py",
+   "recorded": "recorded 2026-10-21 09:36 from the log revocation-t182.log, written 2026-10-21 09:35",
+   "doc_id": "LOG_CAT_006",
+   "size": null,
+   "reader": "finance",
+   "catch_up": 37.0,
+   "interval": 0.5,
+   "objective": 5.0,
+   "kinds": [
+    "widening",
+    "narrowing"
+   ],
+   "runs": [
+    {
+     "run": 1,
+     "change": "widening",
+     "seen": 4.12,
+     "events": [
+      {
+       "kind": "scan",
+       "at": 1.04,
+       "took": 2.54,
+       "parts": {},
+       "detail": "1 read"
+      },
+      {
+       "kind": "sync",
+       "at": 3.62,
+       "took": 0.59,
+       "parts": {
+        "read": 0.4,
+        "deletes": 0.06,
+        "embedding": 0.0,
+        "upserts": 0.03,
+        "check": 0.1
+       },
+       "detail": "read 0.40, deletes 0.06, embedding 0.00, upserts 0.03, check 0.10"
+      }
+     ]
+    },
+    {
+     "run": 1,
+     "change": "narrowing",
+     "seen": 3.97,
+     "events": [
+      {
+       "kind": "scan",
+       "at": 1.0,
+       "took": 2.98,
+       "parts": {},
+       "detail": "1 read"
+      }
+     ]
+    },
+    {
+     "run": 2,
+     "change": "widening",
+     "seen": 3.99,
+     "events": [
+      {
+       "kind": "scan",
+       "at": 1.05,
+       "took": 2.46,
+       "parts": {},
+       "detail": "1 read"
+      },
+      {
+       "kind": "sync",
+       "at": 3.56,
+       "took": 0.45,
+       "parts": {
+        "read": 0.33,
+        "deletes": 0.02,
+        "embedding": 0.0,
+        "upserts": 0.01,
+        "check": 0.09
+       },
+       "detail": "read 0.33, deletes 0.02, embedding 0.00, upserts 0.01, check 0.09"
+      }
+     ]
+    },
+    {
+     "run": 2,
+     "change": "narrowing",
+     "seen": 4.63,
+     "events": [
+      {
+       "kind": "scan",
+       "at": 1.01,
+       "took": 3.66,
+       "parts": {},
+       "detail": "1 read"
+      }
+     ]
+    },
+    {
+     "run": 3,
+     "change": "widening",
+     "seen": 5.42,
+     "events": [
+      {
+       "kind": "scan",
+       "at": 1.03,
+       "took": 3.66,
+       "parts": {},
+       "detail": "1 read"
+      },
+      {
+       "kind": "sync",
+       "at": 4.73,
+       "took": 0.76,
+       "parts": {
+        "read": 0.61,
+        "deletes": 0.04,
+        "embedding": 0.0,
+        "upserts": 0.02,
+        "check": 0.1
+       },
+       "detail": "read 0.61, deletes 0.04, embedding 0.00, upserts 0.02, check 0.10"
+      }
+     ]
+    },
+    {
+     "run": 3,
+     "change": "narrowing",
+     "seen": 3.95,
+     "events": [
+      {
+       "kind": "scan",
+       "at": 1.06,
+       "took": 2.91,
+       "parts": {},
+       "detail": "1 read"
+      }
+     ]
+    },
+    {
+     "run": 4,
+     "change": "widening",
+     "seen": 4.33,
+     "events": [
+      {
+       "kind": "scan",
+       "at": 1.03,
+       "took": 2.51,
+       "parts": {},
+       "detail": "1 read"
+      },
+      {
+       "kind": "sync",
+       "at": 3.58,
+       "took": 0.82,
+       "parts": {
+        "read": 0.69,
+        "deletes": 0.02,
+        "embedding": 0.0,
+        "upserts": 0.01,
+        "check": 0.09
+       },
+       "detail": "read 0.69, deletes 0.02, embedding 0.00, upserts 0.01, check 0.09"
+      }
+     ]
+    },
+    {
+     "run": 4,
+     "change": "narrowing",
+     "seen": 4.66,
+     "events": [
+      {
+       "kind": "scan",
+       "at": 1.03,
+       "took": 3.65,
+       "parts": {},
+       "detail": "1 read"
+      }
+     ]
+    },
+    {
+     "run": 5,
+     "change": "widening",
+     "seen": 5.34,
+     "events": [
+      {
+       "kind": "scan",
+       "at": 1.02,
+       "took": 3.59,
+       "parts": {},
+       "detail": "1 read"
+      },
+      {
+       "kind": "sync",
+       "at": 4.65,
+       "took": 0.73,
+       "parts": {
+        "read": 0.56,
+        "deletes": 0.05,
+        "embedding": 0.0,
+        "upserts": 0.02,
+        "check": 0.1
+       },
+       "detail": "read 0.56, deletes 0.05, embedding 0.00, upserts 0.02, check 0.10"
+      }
+     ]
+    },
+    {
+     "run": 5,
+     "change": "narrowing",
+     "seen": 3.76,
+     "events": [
+      {
+       "kind": "scan",
+       "at": 1.02,
+       "took": 2.75,
+       "parts": {},
+       "detail": "1 read"
+      }
+     ]
+    }
+   ],
+   "said": [
+    "past the 5 s objective",
+    "LOG_CAT_006: logistics widened to logistics and finance, then narrowed back; as finance: the section found after the edit, median 4.3 s, largest 5.4 s, over 5 runs; gone after the narrowing, median 4.0 s, largest 4.7 s, over 5 runs (watch interval 0.5 s; objective 5 s)"
+   ]
+  }
+ ]
+}

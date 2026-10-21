@@ -62,6 +62,20 @@
       <p class="state" id="state" role="status"></p>
       <section class="trace" id="trace" aria-label="The question’s stages"></section>
     </main>
+    <section class="panel" id="scale" aria-labelledby="scale-title" hidden>
+      <h2 id="scale-title">The build</h2>
+      <p class="origin" id="scale-origin"></p>
+      <dl class="figures" id="figures"></dl>
+    </section>
+    <section class="panel" id="changes" aria-labelledby="changes-title" hidden>
+      <h2 id="changes-title">A change, as the watcher took it</h2>
+      <p class="note">
+        A file changes on disk and <code>ntk ingest watch</code> scans it, cuts and embeds again only what changed, and
+        syncs the index; a role then asks until its query sees the change. These are recorded runs, each lane one
+        change, timed from the moment the file was written.
+      </p>
+      <div id="change-charts"></div>
+    </section>
     <script type="module" src="./src/main.ts"></script>
   </body>
 </html>

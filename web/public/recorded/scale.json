@@ -1,0 +1,18 @@
+{
+ "command": "uv run ntk stats",
+ "recorded": "recorded 2026-10-18 21:56, run at e5ece23, the tree holding changes",
+ "documents": 160,
+ "bytes": 314698575,
+ "units": 501031,
+ "layers": {
+  "prose": 1641,
+  "table": 499390
+ },
+ "vectors": 501031,
+ "collection": "documents_v2",
+ "disk": {
+  "index": 3948030510,
+  "manifest": 561278976,
+  "vector_cache": 1073283072
+ }
+}

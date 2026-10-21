@@ -3,6 +3,8 @@ words use, so no Greek falls back to another face, the house style's fourth rule
 licence and keeps its copyright and licence records; and the page writes what the server sends, the documents' text
 and the model's answer among it, as text, never through the HTML parser."""
 
+import importlib.util
+import json
 import re
 
 import pytest
@@ -64,3 +66,53 @@ def test_the_page_writes_text_and_never_markup():
     found = [f"{path.name}:{number}" for path in sources
              for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1) if MARKUP.search(line)]
     assert not found, found
+
+
+def page_data():
+    spec = importlib.util.spec_from_file_location("page_data", repo_root() / "bench" / "page_data.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def numbers(value) -> list[float]:
+    """Every number a JSON value holds, its strings left out: they are copied whole from a record."""
+    if isinstance(value, bool) or isinstance(value, str) or value is None:
+        return []
+    if isinstance(value, (int, float)):
+        return [float(value)]
+    items = value.values() if isinstance(value, dict) else value
+    return [n for item in items for n in numbers(item)]
+
+
+def test_the_pages_recorded_data_is_what_the_records_print():
+    # T6.2e: the page replays the change benches' runs and shows the build's figures from the records the README's
+    # claims are held to. What it ships is what bench/page_data.py reads from them, every number in it is one a record
+    # prints, and every run a bench counted is there.
+    data = page_data()
+    built = data.built()
+    out = repo_root() / "web" / "public" / "recorded"
+    for name, content in built.items():
+        assert (out / name).read_bytes() == content, f"web/public/recorded/{name} is stale: run bench/page_data.py"
+    names = [record for record, _ in data.BENCHES.values()] + [data.STATS]
+    printed = {float(n.replace(",", "")) for name in names
+               for n in re.findall(r"\d[\d,]*(?:\.\d+)?", (data.RECORDS / name).read_text(encoding="utf-8"))}
+    shown = {n for content in built.values() for n in numbers(json.loads(content))}
+    assert shown <= printed, sorted(shown - printed)[:10]
+    for change in json.loads(built["changes.json"])["changes"]:
+        counted = {int(n) for line in change["said"] for n in re.findall(r"over (\d+) runs", line)}
+        assert len(counted) == 1 and len(change["runs"]) == 2 * counted.pop(), change["bench"]
+        assert {run["change"] for run in change["runs"]} == set(change["kinds"]), change["bench"]
+
+
+def test_a_record_line_the_page_cannot_read_is_an_error(tmp_path, monkeypatch):
+    # T6.2e: a bench that prints a new kind of line must not drop out of the page unseen.
+    data = page_data()
+    for name in [record for record, _ in data.BENCHES.values()] + [data.STATS]:
+        (tmp_path / name).write_bytes((data.RECORDS / name).read_bytes())
+    monkeypatch.setattr(data, "RECORDS", tmp_path)
+    assert data.built()  # the copies read as the records do
+    path = tmp_path / data.BENCHES["revocation"][0]
+    path.write_bytes(path.read_bytes() + b"  run 6, the widening: scan at 1.04 s took 2.54 s (1 read)" + bytes([10]))  # never seen
+    with pytest.raises(data.RecordError, match="none of its forms"):
+        data.built()

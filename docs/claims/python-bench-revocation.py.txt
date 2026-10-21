@@ -1,0 +1,17 @@
+command: uv run python bench/revocation.py
+recorded 2026-10-21 09:36 from the log revocation-t182.log, written 2026-10-21 09:35
+---
+
+LOG_CAT_006, as finance; the watcher's catch up, a scan and a sync of every document: 37.0 s
+  run 1, the widening: scan at 1.04 s took 2.54 s (1 read); sync at 3.62 s took 0.59 s (read 0.40, deletes 0.06, embedding 0.00, upserts 0.03, check 0.10); seen at 4.12 s
+  run 1, the narrowing: scan at 1.00 s took 2.98 s (1 read); seen at 3.97 s
+  run 2, the widening: scan at 1.05 s took 2.46 s (1 read); sync at 3.56 s took 0.45 s (read 0.33, deletes 0.02, embedding 0.00, upserts 0.01, check 0.09); seen at 3.99 s
+  run 2, the narrowing: scan at 1.01 s took 3.66 s (1 read); seen at 4.63 s
+  run 3, the widening: scan at 1.03 s took 3.66 s (1 read); sync at 4.73 s took 0.76 s (read 0.61, deletes 0.04, embedding 0.00, upserts 0.02, check 0.10); seen at 5.42 s
+  run 3, the narrowing: scan at 1.06 s took 2.91 s (1 read); seen at 3.95 s
+  run 4, the widening: scan at 1.03 s took 2.51 s (1 read); sync at 3.58 s took 0.82 s (read 0.69, deletes 0.02, embedding 0.00, upserts 0.01, check 0.09); seen at 4.33 s
+  run 4, the narrowing: scan at 1.03 s took 3.65 s (1 read); seen at 4.66 s
+  run 5, the widening: scan at 1.02 s took 3.59 s (1 read); sync at 4.65 s took 0.73 s (read 0.56, deletes 0.05, embedding 0.00, upserts 0.02, check 0.10); seen at 5.34 s
+  run 5, the narrowing: scan at 1.02 s took 2.75 s (1 read); seen at 3.76 s
+past the 5 s objective
+LOG_CAT_006: logistics widened to logistics and finance, then narrowed back; as finance: the section found after the edit, median 4.3 s, largest 5.4 s, over 5 runs; gone after the narrowing, median 4.0 s, largest 4.7 s, over 5 runs (watch interval 0.5 s; objective 5 s)

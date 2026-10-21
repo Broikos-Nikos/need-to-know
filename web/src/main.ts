@@ -356,13 +356,177 @@ async function run(event: SubmitEvent) {
   }
 }
 
+// What the change benches and `ntk stats` printed, as bench/page_data.py reads them from the records the README's
+// claims are held to: the page replays them, with the command and the time each record names.
+type Step = { kind: 'scan' | 'sync'; at: number; took: number; parts: Record<string, number>; detail: string }
+type Run = { run: number; change: string; seen: number; events: Step[] }
+type Change = {
+  bench: string
+  command: string
+  recorded: string
+  doc_id: string
+  size: string | null
+  reader: string
+  catch_up: number
+  objective: number
+  runs: Run[]
+  said: string[]
+}
+type Figures = {
+  documents: number
+  bytes: number
+  units: number
+  layers: Record<string, number>
+  vectors: number
+  collection: string
+  disk: { index: number; manifest: number; vector_cache: number }
+  command?: string
+  recorded?: string
+}
+
+const TITLES: Record<string, (change: Change) => string> = {
+  freshness: (c) => `One sentence of ${c.doc_id}, ${c.size}, edited and undone, asked as ${c.reader}`,
+  revocation: (c) => `A section of ${c.doc_id} widened to ${c.reader} and narrowed back, asked as ${c.reader}`,
+}
+
+async function recorded<T>(name: string): Promise<T | null> {
+  try {
+    const response = await fetch(`recorded/${name}`)
+    return response.ok ? ((await response.json()) as T) : null
+  } catch {
+    return null
+  }
+}
+
+function drawFigures(figures: Figures, origin: string) {
+  const tiles: [string, string, string][] = [
+    ['Documents', number(figures.documents), `${number(figures.bytes)} bytes`],
+    ['Units', number(figures.units), Object.entries(figures.layers).map(([layer, n]) => `${layer} ${number(n)}`).join(', ')],
+    ['Vectors', number(figures.vectors), `in ${figures.collection}`],
+    ['The index on disk', number(figures.disk.index), 'bytes'],
+    ['The manifest', number(figures.disk.manifest), 'bytes'],
+    ['The vector cache', number(figures.disk.vector_cache), 'bytes'],
+  ]
+  byId<HTMLElement>('figures').replaceChildren(...tiles.map(([label, value, under]) => {
+    const tile = element('div', 'tile')
+    tile.append(element('dt', '', label), element('dd', 'value', value), element('dd', 'under', under))
+    return tile
+  }))
+  byId<HTMLElement>('scale-origin').textContent = origin
+  byId<HTMLElement>('scale').hidden = false
+}
+
+// One lane per run, each scan and sync drawn where it began and as long as it took, the moment a query first saw the
+// change marked, and the objective as a hairline. Play runs the lanes at the speed they were recorded.
+function drawChange(change: Change): HTMLElement {
+  const block = element('article', 'change')
+  const title = (TITLES[change.bench] ?? ((c: Change) => c.doc_id))(change)
+  block.append(element('h3', '', title), element('p', 'origin', `${change.recorded}: ${change.command}`))
+  const legend = element('ul', 'legend')
+  for (const [className, text] of [['scan', 'the watcher’s scan'], ['sync', 'its sync into the index'],
+    ['seen', 'a query first sees the change'], ['goal', `the ${change.objective} s objective`]]) {
+    const item = element('li')
+    item.append(element('span', `key ${className}`), document.createTextNode(text))
+    legend.append(item)
+  }
+  const domain = Math.ceil(Math.max(change.objective, ...change.runs.map((run) => run.seen)) + 0.5)
+  const at = (seconds: number) => `${(seconds / domain) * 100}%`
+  const plot = element('div', 'plot')
+  plot.setAttribute('aria-hidden', 'true') // the table below holds every value for a reader who cannot see it
+  const axis = element('div', 'lane axis')
+  const ticks = element('div', 'track')
+  for (let second = 0; second <= domain; second++) {
+    const tick = element('span', 'tick', String(second))
+    tick.style.left = at(second)
+    ticks.append(tick)
+  }
+  axis.append(element('span', 'name', 'seconds'), ticks)
+  plot.append(axis)
+  const bars: { node: HTMLElement; event: Step }[] = []
+  const dots: { node: HTMLElement; seen: number }[] = []
+  for (const run of change.runs) {
+    const lane = element('div', 'lane')
+    const track = element('div', 'track')
+    const goal = element('span', 'goal')
+    goal.style.left = at(change.objective)
+    track.append(goal)
+    for (const event of run.events) {
+      const bar = element('span', `bar ${event.kind}`)
+      bar.style.left = at(event.at)
+      bar.style.width = at(event.took)
+      bar.title = `${event.kind} at ${secs(event.at)}, took ${secs(event.took)} (${event.detail})`
+      track.append(bar)
+      bars.push({ node: bar, event })
+    }
+    const dot = element('span', 'dot')
+    dot.style.left = at(run.seen)
+    dot.title = `seen at ${secs(run.seen)}`
+    track.append(dot)
+    dots.push({ node: dot, seen: run.seen })
+    lane.append(element('span', 'name', `run ${run.run}, ${run.change}`), track)
+    plot.append(lane)
+  }
+  const cursor = element('span', 'cursor')
+  cursor.hidden = true
+  plot.append(cursor)
+  const play = element('button', 'second play', 'Play at the recorded speed') as HTMLButtonElement
+  play.type = 'button'
+  play.hidden = still.matches // with reduced motion nothing moves: the lanes already show where every run ended
+  play.addEventListener('click', () => {
+    const began = performance.now()
+    play.disabled = true
+    cursor.hidden = false
+    const frame = (now: number) => {
+      const t = (now - began) / 1000
+      for (const { node, event } of bars) node.style.transform = `scaleX(${Math.min(1, Math.max(0, (t - event.at) / event.took))})`
+      for (const { node, seen } of dots) node.classList.toggle('waiting', t < seen)
+      cursor.style.left = `calc(var(--name) + (100% - var(--name)) * ${Math.min(t, domain) / domain})`
+      if (t < domain) {
+        requestAnimationFrame(frame)
+      } else {
+        cursor.hidden = true
+        play.disabled = false
+      }
+    }
+    requestAnimationFrame(frame)
+  })
+  block.append(legend, plot, play, ...change.said.map((line) => element('p', 'said', line)), table(change))
+  return block
+}
+
+function table(change: Change): HTMLElement {
+  const details = element('details', 'runs')
+  details.append(element('summary', '', 'The runs as a table'))
+  const grid = element('table')
+  const head = element('tr')
+  for (const name of ['Run', 'Change', 'Scans and syncs, from the change', 'Seen']) head.append(element('th', '', name))
+  grid.append(head)
+  for (const run of change.runs) {
+    const row = element('tr')
+    const steps = run.events.map((e) => `${e.kind} at ${secs(e.at)}, took ${secs(e.took)} (${e.detail})`).join('; ')
+    row.append(element('td', '', String(run.run)), element('td', '', run.change), element('td', '', steps || 'none'),
+      element('td', '', secs(run.seen)))
+    grid.append(row)
+  }
+  details.append(grid)
+  return details
+}
+
 async function start() {
   const mode = byId<HTMLParagraphElement>('mode')
-  const roles = await served()
+  const [roles, changes, figures] = await Promise.all([served(), recorded<{ changes: Change[] }>('changes.json'),
+    recorded<Figures>('scale.json')])
+  if (changes) {
+    byId<HTMLElement>('change-charts').replaceChildren(...changes.changes.map(drawChange))
+    byId<HTMLElement>('changes').hidden = false
+  }
+  if (figures) drawFigures(figures, `${figures.recorded}: ${figures.command}`)
   if (!roles) {
     mode.textContent = 'No local server answers here: start one with ntk serve and open the page it serves.'
     return
   }
+  // Live, the build's figures come from the server, the same for every role, through the first role's session.
+  call<Figures>('stats', {}, roles[0]).then((live) => drawFigures(live, 'live, from the local server')).catch(() => {})
   const picker = byId<HTMLSelectElement>('role')
   picker.replaceChildren(...roles.map((role) => {
     const option = document.createElement('option')

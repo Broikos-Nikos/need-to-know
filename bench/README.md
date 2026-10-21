@@ -423,3 +423,20 @@ extra and the GPU.
 ```
 uv run python bench/served.py
 ```
+
+## page_data.py
+
+The page's recorded data, read from the claims records rather than from a run: the
+freshness and revocation benches' runs, each scan and sync of each change with the moment a
+query saw it, and the build's figures as `ntk stats` printed them, written to
+`web/public/recorded/` for the page to replay with the command and the time each record
+names. A record line none of its forms reads is an error, so a bench that prints something
+new cannot drop out of the page unseen; `--check` exits 1 when the page's files differ from
+what the records give, and `tests/test_page.py` holds them to the records and every number
+in them to a number a record prints. Record a bench first, from its log when it exits 1
+past its objective:
+
+```
+uv run python bench/claims.py record "uv run python bench/revocation.py" --log revocation-t182.log
+uv run python bench/page_data.py
+```
