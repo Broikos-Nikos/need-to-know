@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**243 findings, 215 closed, 28 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
+**246 findings, 215 closed, 31 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -174,7 +174,7 @@ An audit pass on whether every number can be produced again. 26 findings, 24 clo
 
 ## `MT`, the maintainer in six months
 
-An audit pass on whether a fresh clone can be rebuilt and changed safely. 28 findings, 23 closed.
+An audit pass on whether a fresh clone can be rebuilt and changed safely. 31 findings, 23 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -206,6 +206,9 @@ An audit pass on whether a fresh clone can be rebuilt and changed safely. 28 fin
 | `MT-F26` | low | fixed, tick 201 | The page's Trace, Answer and Scored types restate the served trace's keys, and vite.config.ts lists the server's seven routes for npm run dev, both by hand: test_api holds the served keys in Python alone, so a field renamed on the server leaves the live page reading undefined and a new route is not handed over; a test that reads both copies from the page's files and compares them with a served body's keys and the app's routes |
 | `MT-F27` | low | open | Task ids like T6.2e and house rules cited in 100 tracked files name records the repository does not hold, and neither docs/DECISIONS.md nor docs/AUDITS.md says what they are: one sentence beside the research notes' in docs/DECISIONS.md |
 | `MT-F28` | low | open | test_the_readme_says_what_fails_and_the_claims_gate_reads_it asks for two What fails bullets, today's count, so T7.6's fix of the relabel fails it: at least one, each read by the claims check and stating a number |
+| `MT-F29` | medium | open | The counts the change feed and the document view read are made once per manifest, keyed by a trigger's name, with every statement IF NOT EXISTS: a fix to a trigger in code never reaches a manifest made before it, measured, and SCHEMA_VERSION does not cover them: a digest of the counts' SQL kept in the manifest, the counts made again when it differs |
+| `MT-F30` | low | open | The README names ffmpeg as the one program npm does not install, while npm run check:page and npm run capture launch Playwright's Chromium, which npm ci does not fetch: name npx playwright install chromium beside both |
+| `MT-F31` | low | open | The counted steps gate of the feed and the view asserts the counts equal before and after, and would pass on zero both times if a refactor reached the manifest another way: assert every count above zero |
 
 ## `SC`, the supply chain auditor
 
