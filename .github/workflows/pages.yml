@@ -1,0 +1,113 @@
+# Test, build, gate and publish the page.
+#
+# The page is the published face of a retrieval system that runs on a GPU, and
+# the runner has none, so nothing here builds an index or asks a model. What it
+# can hold, it holds:
+#
+# `test` runs the suite as the README runs it, `uv sync` and `uv run pytest`,
+# which needs no GPU, key or network after the sync: the permission gate on a
+# small profile in Qdrant's local mode, the noninterference test, the claims and
+# every other test; those that need the GPU, the Qdrant binary or a built index
+# skip and say why.
+#
+# `build` runs the project's own gates before vite writes anything: the type
+# check, every number in the README held to the recorded output of its command,
+# and the page's recorded data held to the records it is read from.
+#
+# `verify` drives the built page in a real browser, where no server of its own
+# answers, as the published page is met: what it replays against the recording,
+# the stand in for the local server, and the page without JavaScript.
+#
+# Nothing deploys unless all three pass: the deploy job needs them, and the jobs
+# that run other people's code, `npm ci`'s install hooks and the browser's
+# install as root, hold no credential that could deploy.
+
+name: pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      # uv at the version the lockfile was written with, from PyPI, into the runner's own Python as the workspace
+      # pins a tool it installs.
+      - run: python -m pip install --disable-pip-version-check "uv==0.12.0"
+      - run: uv sync --frozen
+      - run: uv run pytest -q
+
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: python -m pip install --disable-pip-version-check "uv==0.12.0"
+      - run: npm ci
+      - run: npm run build
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: dist
+          path: web/dist
+          retention-days: 1
+      - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+        with:
+          path: web/dist
+
+  verify:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: dist
+          path: web/dist
+      - run: npx playwright install --with-deps chromium
+      - run: npm run verify
+
+  deploy:
+    # Only after all three, and the only job holding the permissions that can publish anything.
+    needs: [test, build, verify]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

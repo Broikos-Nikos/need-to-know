@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "check:page": "node tools/check-page.mjs",
+    "verify": "node tools/check-page.mjs",
     "capture": "node tools/capture.mjs",
     "check": "uv run python bench/claims.py check && uv run python bench/page_data.py --check"
   },
