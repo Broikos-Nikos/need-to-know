@@ -170,6 +170,19 @@ def head(command: str, log: Path | None) -> str:
             f"{'' if clean else ', the tree holding changes'}\n---\n")
 
 
+def written(output: str) -> str:
+    """A command's output as a record keeps it. A progress bar's counts are no claim, and would let any number pass: its
+    lines are left out. This machine's data folder is written as the setting that names it, and the repository's own
+    folder as `.`, so a record names no folder of the author's: a warning gives its file as the repository's (SC-F5)."""
+    from needtoknow.settings import data_dir
+    output = "\n".join(line for line in output.replace("\r\n", "\n").split("\n") if "%|" not in line)
+    for form in {str(data_dir()), data_dir().as_posix()}:
+        output = output.replace(form, "NTK_DATA_DIR")
+    for form in {str(REPO), REPO.as_posix()}:
+        output = output.replace(form, ".")
+    return output
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("action", choices=("record", "check"))
@@ -197,12 +210,7 @@ def main() -> int:
         output = log.read_text(encoding="utf-8", errors="replace")
     else:
         output = run(args.command)
-    # A progress bar's counts are no claim, and would let any number pass: its lines are left out. This machine's data
-    # folder is written as the setting that names it.
-    from needtoknow.settings import data_dir
-    output = "\n".join(line for line in output.replace("\r\n", "\n").split("\n") if "%|" not in line)
-    for form in {str(data_dir()), data_dir().as_posix()}:
-        output = output.replace(form, "NTK_DATA_DIR")
+    output = written(output)
     RECORDS.mkdir(parents=True, exist_ok=True)
     path = record_path(args.command)
     path.write_bytes((head(args.command, log) + output).encode("utf-8"))

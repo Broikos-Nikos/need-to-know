@@ -43,3 +43,14 @@ def test_every_cited_decision_has_an_entry_in_docs_decisions():
         cited.setdefault(found, "the commit log")
     missing = {decision: where for decision, where in cited.items() if decision not in listed}
     assert {"N50", "N51"} <= set(cited) and not missing, f"cited but not in docs/DECISIONS.md: {missing}"
+
+
+def test_the_decisions_page_says_what_the_task_ids_the_history_cites_are():
+    # MT-F27: task ids like T6.2e and the house rules, cited in a hundred tracked files and the commit log, name the
+    # project's working plan and log, which the repository does not hold, and no page said so. The decisions page does,
+    # once, where it says what the research notes' citations are.
+    task = re.compile(r"(?<![A-Za-z0-9_-])T[0-9]+[.][0-9]+[a-z0-9]*(?![0-9])")
+    cited = [name for name in git("ls-files").splitlines() if (repo_root() / name).suffix in {".py", ".ts", ".mjs", ".md"}
+             and task.search((repo_root() / name).read_text(encoding="utf-8", errors="replace"))]
+    header = (repo_root() / "docs" / "DECISIONS.md").read_text(encoding="utf-8").split(chr(10) + "## ")[0]
+    assert cited and "Task ids like `T6.2e`" in header and "working plan and log" in header, (len(cited), header[-400:])

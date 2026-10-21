@@ -893,3 +893,23 @@ old = '''> searches no role was shown a unit it may not read, and the 35 test qu
 '''
 new = '''> searches no role was shown a unit it may not read, and the 35 test questions scored 0.991. Retrieval over a vector
 '''
+
+[[control]]
+name = "a record keeping the checkout's own folder"
+test = "tests/test_claims.py::test_a_record_names_the_repository_as_a_dot_and_no_folder_of_this_machine"
+[[control.change]]
+file = "bench/claims.py"
+old = '''    for form in {str(REPO), REPO.as_posix()}:
+        output = output.replace(form, ".")
+'''
+new = ''''''
+
+[[control]]
+name = "the decisions page silent on the task ids the history cites"
+test = "tests/test_decisions.py::test_the_decisions_page_says_what_the_task_ids_the_history_cites_are"
+[[control.change]]
+file = "docs/DECISIONS.md"
+old = ''' Task ids like `T6.2e`, and the house rules a comment
+or a commit message names, belong to the project's working plan and log, kept beside the repository and not in it:
+the history cites them as a lab notebook cites its pages, and what they led to is here or in `docs/AUDITS.md`.'''
+new = ''''''

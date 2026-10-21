@@ -66,3 +66,30 @@ def test_the_decisions_and_the_bench_readme_say_where_each_number_comes_from(tmp
     problems = gate.check_docs(tmp_path / "records", tmp_path)
     assert len(problems) == 2 and f"{n}2. Undated" in problems[0] and problems[1].endswith(
         "prints 12, and nothing says when it was measured"), problems
+
+
+def test_a_record_names_the_repository_as_a_dot_and_no_folder_of_this_machine():
+    # SC-F5: a record kept a command's warnings as written, the full path of the checkout they came from among them, in
+    # docs/claims/python-bench-draws.py.txt. The writer puts the repository's folder as `.`, in either slash.
+    gate = claims()
+    for root in (str(gate.REPO), gate.REPO.as_posix()):
+        slash = "/" if "/" in root else chr(92)
+        said = gate.written(chr(10).join([f"{root}{slash}src{slash}x.py:1: UserWarning", "kept 12", ""]))
+        assert root not in said and said.startswith(".") and "kept 12" in said, said
+
+
+def test_no_tracked_file_names_a_folder_of_this_machine():
+    # SC-F5: whatever wrote it, a tracked file holds neither the checkout's own folder nor its user's home, in either
+    # slash and any case, so the published history names no folder of the author's.
+    import subprocess
+    root = BENCH.parent
+    forms = {form.lower() for place in (root, Path.home()) for form in (str(place), place.as_posix())}
+    tracked = subprocess.run(["git", "ls-files"], cwd=root, capture_output=True, text=True, check=True).stdout.split()
+    found = []
+    for name in tracked:
+        try:
+            text = (root / name).read_text(encoding="utf-8").lower()
+        except (UnicodeDecodeError, OSError):  # a binary, a font or the picture
+            continue
+        found += [name for form in forms if form in text]
+    assert not found, sorted(set(found))

@@ -7,7 +7,9 @@ in full, with the sessions around them; this page is its public part. Each entry
 on when it was decided, and its numbers are what was measured then; a later measurement
 in it says its own date, and where a command in this repository measures the same thing,
 the entry names it. `bench/claims.py check` fails on an entry that does not say when. Citations like `03-retrieval-rag/10` name
-chapters of the author's research notes, which are not published.
+chapters of the author's research notes, which are not published. Task ids like `T6.2e`, and the house rules a comment
+or a commit message names, belong to the project's working plan and log, kept beside the repository and not in it:
+the history cites them as a lab notebook cites its pages, and what they led to is here or in `docs/AUDITS.md`.
 
 `tests/test_decisions.py` fails if the repository cites a decision this page lacks.
 
