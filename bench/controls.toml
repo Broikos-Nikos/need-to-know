@@ -341,3 +341,29 @@ old = '''every role, sales and hr held
   together, general alone, and sales with returns removed, asking'''
 new = '''every role and three
   combinations of them, asking'''
+
+[[control]]
+name = "a failure's figure no record prints"
+test = "tests/test_claims.py"
+[[control.change]]
+file = "README.md"
+old = '''unit lower in 72 of 88 matched pairs'''
+new = '''unit lower in 73 of 88 matched pairs'''
+
+[[control]]
+name = "the README without its failures"
+test = "tests/test_readme.py::test_the_readme_says_what_fails_and_the_claims_gate_reads_it"
+[[control.change]]
+file = "README.md"
+old = '''## What fails
+'''
+new = '''## What else
+'''
+
+[[control]]
+name = "the claims check reading the working half alone"
+test = "tests/test_readme.py::test_the_readme_says_what_fails_and_the_claims_gate_reads_it"
+[[control.change]]
+file = "bench/claims.py"
+old = '''    for heading in ("## What works today", "## What fails"):'''
+new = '''    for heading in ("## What works today",):'''

@@ -490,8 +490,12 @@ def test_n50_quotes_the_attacks_saved_runs():
             low, high = wilson(lower, kept)
             quoted.append(f"{lower} of {kept}")
             assert re.search(rf"{lower} of {kept}[^()]*\(Wilson {low:.2f} to {high:.2f}\)", n50), (mode, name)
-    # In the order the decision reads: the whole collection, its null, the view, its null.
-    assert [n50.index(q) for q in quoted] == sorted(n50.index(q) for q in quoted), quoted
+    # In the order the decision reads: the whole collection, its null, the view, its null; each found after the one
+    # before, since two nulls can hold the same count.
+    position = 0
+    for quote in quoted:
+        assert quote in n50[position:], (quote, quoted)
+        position = n50.index(quote, position) + len(quote)
 
 
 def test_the_row_draw_names_a_register_the_corpus_lacks(monkeypatch, tmp_path):

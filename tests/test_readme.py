@@ -89,3 +89,17 @@ def test_the_readme_names_every_case_the_permission_suite_runs_beyond_the_roles(
     named = {"sales and hr": "sales and hr held together", "general alone": "general alone",
              "sales, returns removed": "sales with returns removed"}
     assert all(named[case] in bullet[:600] for case in beyond), beyond
+
+
+def test_the_readme_says_what_fails_and_the_claims_gate_reads_it():
+    # T6.5, house rule 2: a project publishes a failure, measured; its numbers are held as the rest are.
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("claims", repo_root() / "bench" / "claims.py")
+    claims = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(claims)
+    assert "## What fails" in README
+    section = README[README.index("## What fails"):]
+    section = section[:section.index("\n## ", 1)]
+    failing = [part for part in re.split(r"\n\* ", section)[1:] if part.strip()]
+    read = claims.bullets(README)
+    assert len(failing) >= 2 and all(bullet in read and claims.claimed(bullet) for bullet in failing), failing

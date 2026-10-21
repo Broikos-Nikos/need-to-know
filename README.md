@@ -163,6 +163,20 @@ command in this repository that produces it.
 * Every audit finding the history cites, open or fixed, is in `docs/AUDITS.md`, and
   every decision the code cites is in `docs/DECISIONS.md`.
 
+## What fails
+
+* The lexical search's term weights leak when they are counted over the whole collection:
+  asked as sales, hr and returns, a word frequent in text the role may not read ranked its
+  unit lower in 72 of 88 matched pairs (Wilson 0.72 to 0.88), against 60 of 126 pairs of
+  words absent from that text (Wilson 0.39 to 0.56). This build counts them over the role's
+  own view (N50), where the gap falls to 51 of 88 (Wilson 0.48 to 0.68), inside what a
+  matched pair cannot tell from how words sit in the role's own text:
+  `uv run python bench/idf_attack.py` and `uv run python bench/idf_attack.py --global-idf`.
+* A relabel of the largest document misses its 5 s objective: the widened section reached
+  its new reader in 5.3 s at the median and 6.0 s at most over five runs, with the
+  processor 12 percent busy with other programs before them, the scan of that one file
+  taking most of it (PF-F10): `uv run python bench/revocation.py`.
+
 ## Run it
 
 You need Python 3.12 and [uv](https://docs.astral.sh/uv/). `uv sync` fetches the

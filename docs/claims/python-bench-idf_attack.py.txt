@@ -1,0 +1,15 @@
+command: uv run python bench/idf_attack.py
+recorded 2026-10-21 12:21 from the log idf-attack-t195-view.log, written 2026-10-21 12:16
+---
+as sales, searching dense,sparse, weights over the role's view: words seen 1 to 3 times, frequent in hidden text 26, absent from it 413
+
+test pairs, hidden-frequent first: 26, both units ranked in 17, the first word's unit lower in 11 (65%, Wilson 0.41 to 0.83)
+null pairs: 60, both units ranked in 42, the first word's unit lower in 20 (48%, Wilson 0.33 to 0.62)
+as hr, searching dense,sparse, weights over the role's view: words seen 1 to 3 times, frequent in hidden text 79, absent from it 266
+test pairs, hidden-frequent first: 60, both units ranked in 38, the first word's unit lower in 21 (55%, Wilson 0.40 to 0.70)
+null pairs: 60, both units ranked in 40, the first word's unit lower in 18 (45%, Wilson 0.31 to 0.60)
+as returns, searching dense,sparse, weights over the role's view: words seen 1 to 3 times, frequent in hidden text 49, absent from it 239
+test pairs, hidden-frequent first: 49, both units ranked in 33, the first word's unit lower in 19 (58%, Wilson 0.41 to 0.73)
+null pairs: 60, both units ranked in 44, the first word's unit lower in 22 (50%, Wilson 0.36 to 0.64)
+pooled over sales, hr, returns, test pairs, hidden-frequent first: both units ranked in 88, the first word's unit lower in 51 (58%, Wilson 0.48 to 0.68)
+pooled over sales, hr, returns, null pairs: both units ranked in 126, the first word's unit lower in 60 (48%, Wilson 0.39 to 0.56)
