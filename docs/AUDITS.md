@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**224 findings, 206 closed, 18 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
+**229 findings, 206 closed, 23 open**, from 16 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -222,7 +222,7 @@ An audit pass of three minutes, on whether the author ships, measures and says s
 | `HE-F1` | medium | fixed, tick 37 | The README says nothing is measured while the repository proves a clone rebuilds the corpus, kills recover and every block resolves: a What works today list, each item with its command |
 | `HE-F2` | medium | fixed, tick 37 | The README never says the documents are synthetic or who the writers are: one sentence on provenance where the documents first appear |
 | `HE-F3` | high | fixed, tick 37 | The README says none of the run section needs a GPU, a key or a network, but uv sync downloads the dependencies: say the rest runs without them once uv sync has fetched them |
-| `HE-F4` | medium | open | The headline numbers, 0.981 of the 35 test items answered right, no leak, 0.964 recall@10 on the dev probes, a change reaching a query in 3.7 s, sit in the README's fourteenth bullet, ninety lines under the picture: those four under the picture in a section the claims check reads |
+| `HE-F4` | medium | open | The headline numbers, a mean score of 0.981 over the 35 test items, no leak, 0.964 recall@10 on the dev probes, a change reaching a query in 3.7 s, sit in the README's fifteenth bullet, the figure at line 119 and the picture at line 8: those four under the picture in a section the claims check reads |
 | `HE-F5` | low | open | The served path's bullet runs 28 lines, every route's contract a clause of one paragraph: the guarantee in a sentence, the routes as a short list, the timings their own bullet |
 | `HE-F6` | low | open | A clone sees the page only through ntk serve, which needs the index; npm run preview serves the build replaying the recording, and the README never names it |
 
@@ -252,12 +252,17 @@ An audit pass that tried to make restricted text readable by the wrong role. 17 
 
 ## `RC`, the recruiter
 
-An audit pass of ten seconds on the first screen, by someone who hires but does not build. 2 findings, 2 closed.
+An audit pass of ten seconds on the first screen, by someone who hires but does not build. 7 findings, 2 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `RC-F1` | medium | fixed, tick 194 | The README opens with jargon, a vector database RAG project, and the plain idea comes forty words in: lead with what it does for a person |
 | `RC-F2` | medium | fixed, tick 205 | Nothing in the first screen can be seen or tried: the capture goes above everything when P6 lands |
+| `RC-F3` | medium | open | The page opens on one department's trace: at 1280 by 800 its answer sits at 3,464 px of 5,692, under four ranked lists and ten excerpts, while As every role, which shows nine departments in the first screen, is unchecked: draw the first question as every role at load |
+| `RC-F4` | low | open | The README's recording opens on the trace: sales's filter and ranked lists until 2.0 s, the nine departments from 2.0 s to 4.75 s of 16.26 s, and GitHub holds animated images for a reader whose system asks for reduced motion: start on the cards and hold them |
+| `RC-F5` | low | open | The page's lede turns to the trade's words in its second sentence, filter, both searches, fusion, rerank, and the line under it opens Replayed, as no server answers here, which reads as a fault: both in plain words |
+| `RC-F6` | low | open | 97 of the 160 documents are Greek, and neither the README's first screen nor the page's says the documents are in two languages, while the page's first answer, in English, cites a Greek heading |
+| `RC-F7` | low | open | On GitHub the README starts under 23 rows of files, near 1,400 px at 1280 by 800 as evalkit's under 14 rows starts at 1,038, so the About box holds the first screen's only sentence: T7.3's description opens with what the project does for a person |
 
 ## `PF`, the performance auditor
 
