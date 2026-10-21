@@ -15,6 +15,8 @@
  *    signs in again and asks again (DR-F38).
  * 7. With JavaScript off, the notice says where the figures come from and no line says a server is being looked for
  *    (HS-F24, HS-F27).
+ * 8. Live, a question the server refuses clears the trace below it, and a server that stops is named as stopped in
+ *    the state line and in the feed (HS-F25, HS-F26).
  *
  * Static checks of the same files, the trace's labels and the rows the recorder keeps, are in tests/test_page.py; this
  * is the one that runs the page.
@@ -32,6 +34,7 @@ const traces = resolve(root, 'web', 'public', 'recorded', 'traces')
 const SOURCE = 'https://github.com/Broikos-Nikos/need-to-know'
 const SEARCHES = ['dense', 'sparse', 'fused', 'reranked']
 const SHOWN = Number(/^const SHOWN = (\d+)$/m.exec(readFileSync(resolve(root, 'web', 'src', 'main.ts'), 'utf8'))[1])
+const STOPPED = /^const STOPPED = '([^']+)'$/m.exec(readFileSync(resolve(root, 'web', 'src', 'main.ts'), 'utf8'))[1]
 const number = (n) => n.toLocaleString('en')
 const flat = (text) => text.replace(/\s+/g, ' ').trim()
 const later = (ms) => new Promise((done) => setTimeout(done, ms))
@@ -141,6 +144,8 @@ async function standIn() {
   const traced = asked[index.questions[0].id]
   const held = new Map()
   const seen = { signins: 0, refused: 0 }
+  let gone = false  // a server stopped: every route's connection dropped, as a refused one reaches the page
+  let garbled = false  // the next search answered by something in the way, a proxy's page rather than the server's JSON
   const send = (response, status, body) => {
     response.writeHead(status, { 'Content-Type': 'application/json' })
     response.end(JSON.stringify(body))
@@ -151,6 +156,10 @@ async function standIn() {
     return JSON.parse(text || '{}')
   }
   const { url, stop } = await serve({ host: '127.0.0.1', base: '/', routes: async (request, response, path) => {
+    if (gone && ['/roles', '/session', '/search', '/ask', '/events', '/stats'].includes(path)) {
+      request.socket.destroy()
+      return true
+    }
     if (path === '/roles') return send(response, 200, { roles: index.roles }) ?? true
     if (path === '/session') {
       const { role } = await body(request)
@@ -167,10 +176,20 @@ async function standIn() {
     }
     if (path === '/events') return send(response, 200, { events: [] }) ?? true
     if (path === '/stats') return send(response, 200, { ...figures, measured: '2026-10-21T10:00:00+00:00' }) ?? true
+    const { question } = await body(request)
+    if (garbled) {
+      garbled = false
+      response.writeHead(502, { 'Content-Type': 'text/html' })
+      response.end('<html><body>Bad gateway</body></html>')
+      return true
+    }
+    if (!/[\p{L}\p{N}]/u.test(question ?? '')) {  // as the retrieval API refuses a question of no word (HS-F13)
+      return send(response, 400, { detail: 'a question needs at least one word' }) ?? true
+    }
     const { answer, verdict, counts, ...trace } = traced[role]  // a search's trace holds no answer and every row
     return send(response, 200, trace) ?? true
   } })
-  return { url, stop, seen, restart: () => held.clear() }
+  return { url, stop, seen, restart: () => held.clear(), down: () => { gone = true }, garble: () => { garbled = true } }
 }
 
 const replayed = await serve()
@@ -387,6 +406,47 @@ try {
       `the mode line ${looking ? 'shown' : 'hidden'}`)
   }
   await bare.close()
+
+  // 8. Live, a question the server refuses takes the last trace away with it, and a server that stops is named as
+  // stopped, in the state line and in the feed, not in the browser's words (HS-F25, HS-F26). The stand in goes last.
+  const lost = await opened(live.url)
+  await lost.waitForFunction(() => document.getElementById('feed')?.hidden === false, null, { timeout: 10_000 })
+  await lost.setChecked('#slow', false)
+  await lost.selectOption('#role', index.roles[0])
+  await lost.fill('#question', 'How long are call recordings kept?')
+  await lost.click('button[value="search"]')
+  await lost.waitForFunction(() => document.querySelectorAll('#trace [data-stage]').length > 0, null, { timeout: 10_000 })
+  await lost.fill('#question', '   ')
+  await lost.click('button[value="search"]')
+  await lost.waitForFunction(() => document.getElementById('state')?.classList.contains('error'), null, { timeout: 10_000 })
+    .catch(() => {})
+  const refused = { state: await lost.textContent('#state'), stages: await lost.locator('#trace [data-stage]').count() }
+  live.garble()
+  await lost.fill('#question', 'How long are call recordings kept?')
+  await lost.click('button[value="search"]')
+  await lost.waitForFunction(() => /^the server answered/.test(document.getElementById('state')?.textContent ?? ''), null, {
+    timeout: 10_000,
+  }).catch(() => {})
+  const proxied = await lost.textContent('#state')
+  live.down()
+  await lost.fill('#question', 'How long are call recordings kept?')
+  await lost.click('button[value="search"]')
+  await lost.waitForFunction((stopped) => document.getElementById('state')?.textContent === stopped, STOPPED, {
+    timeout: 10_000,
+  }).catch(() => {})
+  const stoppedSays = await lost.textContent('#state')
+  const told = await lost.waitForFunction((stopped) => (document.getElementById('feed-origin')?.textContent ?? '')
+    .startsWith(stopped), STOPPED, { timeout: 15_000 }).then(() => true, () => false)
+  const plain = proxied === 'the server answered 502 with something other than JSON'
+  if (refused.state === 'a question needs at least one word' && refused.stages === 0 && plain && stoppedSays === STOPPED &&
+      told) {
+    ok('live, a refused question takes the last trace with it; a reply not the server\'s and a stopped server are named so')
+  } else {
+    fail('live, a refusal, a proxy\'s page or a stopped server leaves the page saying something else',
+      `${JSON.stringify(refused)}; ${JSON.stringify(proxied)}; ${JSON.stringify(stoppedSays)}; the feed: ` +
+      JSON.stringify(await lost.textContent('#feed-origin')))
+  }
+  await lost.close()
 } finally {
   await browser.close()
   replayed.stop()

@@ -720,3 +720,56 @@ file = "web/index.html"
 old = '''    <noscript><style>#mode { display: none; }</style></noscript>
 '''
 new = ''''''
+
+[[control]]
+name = "a refused connection said in the browser's words"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 'node_modules/vite/bin/vite.js', 'build'], check=True, capture_output=True)"]
+[[control.change]]
+file = "web/src/main.ts"
+old = '''  let response: Response
+  try {
+    response = await fetch(path, { ...init, headers })
+  } catch {
+    throw new Error(STOPPED)
+  }
+'''
+new = '''  const response = await fetch(path, { ...init, headers }).catch((error) => { throw error ?? new Error(STOPPED) })
+'''
+
+[[control]]
+name = "a reply other than JSON read as JSON"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 'node_modules/vite/bin/vite.js', 'build'], check=True, capture_output=True)"]
+[[control.change]]
+file = "web/src/main.ts"
+old = '''  const body = await response.json().catch(() => null)
+  if (body === null) throw new Error(`the server answered ${response.status} with something other than JSON`)
+'''
+new = '''  const body = await response.json()
+'''
+
+[[control]]
+name = "the feed calling itself live while its polls fail"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 'node_modules/vite/bin/vite.js', 'build'], check=True, capture_output=True)"]
+[[control.change]]
+file = "web/src/main.ts"
+old = '''    feedDelay = Math.min(feedDelay * 2, FEED_MOST)
+    byId<HTMLElement>('feed-origin').textContent =
+      `${(error as Error).message}; the list is as it last stood, asked again in ${feedDelay / 1000} s`
+'''
+new = '''    void [error, FEED_MOST]
+'''
+
+[[control]]
+name = "a refused question's trace left standing"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 'node_modules/vite/bin/vite.js', 'build'], check=True, capture_output=True)"]
+[[control.change]]
+file = "web/src/main.ts"
+old = '''    state.textContent = (error as Error).message
+    forget()
+'''
+new = '''    state.textContent = (error as Error).message
+'''

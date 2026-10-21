@@ -67,6 +67,9 @@ const SEARCHES: Search[] = ['dense', 'sparse', 'fused', 'reranked']
 const SHOWN = 10
 const TURN = 1200 // each stage's turn in slow motion, in milliseconds
 const FEED = 5000 // how often the page asks the change feed again, in milliseconds, while it is visible (N66)
+const FEED_MOST = 60_000 // the longest the feed waits between asks while the server does not answer (HS-F25)
+// A request the network refused, said in the page's words: the browser's own, "Failed to fetch", named nothing.
+const STOPPED = 'the local server stopped answering: uv run ntk serve starts it again'
 const LOOPBACK = ['127.0.0.1', 'localhost']
 const tokens = new Map<string, string>()
 const still = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -79,6 +82,7 @@ let replays = 0 // the replays asked for, so one whose file comes after a later 
 let feedTimer = 0
 let feedStarted = false
 let feedRole = ''
+let feedDelay = FEED
 
 const NBSP = String.fromCharCode(160) // a figure and its unit stay on one line
 const byId = <T extends HTMLElement>(id: string) => document.getElementById(id) as T
@@ -119,13 +123,19 @@ async function call<T>(path: string, init: RequestInit = {}, role?: string, agai
   const headers = new Headers(init.headers)
   headers.set('Content-Type', 'application/json')
   if (role) headers.set('Authorization', `Bearer ${await token(role)}`)
-  const response = await fetch(path, { ...init, headers })
+  let response: Response
+  try {
+    response = await fetch(path, { ...init, headers })
+  } catch {
+    throw new Error(STOPPED)
+  }
   // A session the server no longer holds, after it restarted or dropped its oldest: sign in once more, ask again.
   if (response.status === 401 && role && again) {
     tokens.delete(role)
     return call<T>(path, init, role, false)
   }
-  const body = await response.json()
+  const body = await response.json().catch(() => null)
+  if (body === null) throw new Error(`the server answered ${response.status} with something other than JSON`)
   if (!response.ok) throw new Error(typeof body.detail === 'string' ? body.detail : JSON.stringify(body.detail))
   return body as T
 }
@@ -312,6 +322,15 @@ function draw(trace: Trace) {
   }
 }
 
+// A trace no question on the page stands for any more, after a refusal or a recording that could not be read, taken
+// away with its slow motion, so nothing under the message reads as its answer and no stage writes over it (HS-F26).
+function forget() {
+  for (const timer of timers) window.clearTimeout(timer)
+  timers = []
+  pinned = null
+  byId<HTMLElement>('trace').replaceChildren()
+}
+
 // Slow motion: the trace as it came, one stage per turn, its steps filling the timeline as they play, the page
 // following the stage that plays. Nothing is made up between stages; with reduced motion set the stages still take
 // their turns, and nothing moves or scrolls smoothly.
@@ -432,6 +451,7 @@ async function replay(event: SubmitEvent) {
     if (turn !== replays) return
     if (!file) {
       byId<HTMLElement>('state').textContent = 'The recording of that question could not be read.'
+      forget()
       return
     }
   }
@@ -483,6 +503,7 @@ async function run(event: SubmitEvent) {
   } catch (error) {
     state.classList.add('error')
     state.textContent = (error as Error).message
+    forget()
   } finally {
     for (const button of buttons) button.disabled = false
   }
@@ -683,11 +704,16 @@ async function follow(role: string) {
       if (!list.children.length) list.append(element('li', 'none', 'No scan has added anything this role may read.'))
       byId<HTMLElement>('feed-origin').textContent = `live, as ${role} may see them, asked every ${FEED / 1000} s`
       byId<HTMLElement>('feed').hidden = false
+      feedDelay = FEED
     }
-  } catch {
-    // the next poll asks again
+  } catch (error) {
+    // The server gone or refusing: say so, keep the list as it last stood, and ask less often until it answers
+    // (HS-F25); it said "live" and "no scan has added anything" while every poll failed.
+    feedDelay = Math.min(feedDelay * 2, FEED_MOST)
+    byId<HTMLElement>('feed-origin').textContent =
+      `${(error as Error).message}; the list is as it last stood, asked again in ${feedDelay / 1000} s`
   }
-  if (role === feedRole) feedTimer = window.setTimeout(() => void follow(feedRole), FEED)
+  if (role === feedRole) feedTimer = window.setTimeout(() => void follow(feedRole), feedDelay)
 }
 
 function fill(select: HTMLSelectElement, entries: [string, string][]) {
