@@ -691,7 +691,7 @@ test = "tests/test_manifest.py::test_the_counts_the_feed_and_a_view_read_follow_
 [[control.change]]
 file = "src/needtoknow/ingest/manifest.py"
 old = '''INSERT INTO added SELECT j.value, u.run_id, u.doc_id, u.labels, COUNT(*) FROM units u, json_each(u.labels) j
-    WHERE NOT EXISTS (SELECT 1 FROM added) GROUP BY j.value, u.run_id, u.doc_id, u.labels;
+    GROUP BY j.value, u.run_id, u.doc_id, u.labels;
 '''
 new = ''''''
 
@@ -756,8 +756,8 @@ then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 
 [[control.change]]
 file = "web/src/main.ts"
 old = '''    feedDelay = Math.min(feedDelay * 2, FEED_MOST)
-    byId<HTMLElement>('feed-origin').textContent =
-      `${(error as Error).message}; the list is as it last stood, asked again in ${feedDelay / 1000} s`
+    say(byId<HTMLElement>('feed-origin'),
+      `${(error as Error).message}; the list is as it last stood, asked again in ${feedDelay / 1000} s`)
 '''
 new = '''    void [error, FEED_MOST]
 '''
@@ -830,4 +830,46 @@ file = "tests/test_readme.py"
 old = '''    missing = sorted(p for p in named if p not in held and p.rstrip("/") not in held and p.rstrip("/") not in MADE)
 '''
 new = '''    missing = sorted(p for p in named if p not in held and p.rstrip("/") not in held)
+'''
+
+[[control]]
+name = "the counts made once, whatever their text"
+test = "tests/test_manifest.py::test_a_change_to_the_counts_reaches_a_manifest_made_before_it"
+[[control.change]]
+file = "src/needtoknow/ingest/manifest.py"
+old = '''        if made != (COUNTS,):
+'''
+new = '''        if made is None:
+'''
+
+[[control]]
+name = "the steps gate counting nothing"
+test = "tests/test_api.py::test_a_roles_feed_and_document_view_do_the_same_work_whatever_it_may_not_read"
+[[control.change]]
+file = "tests/test_api.py"
+old = '''    monkeypatch.setattr(api, "opened", counting)
+'''
+new = '''    monkeypatch.setattr(api, "nothing", counting, raising=False)
+'''
+
+[[control]]
+name = "the feed's line written again at every poll"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 'node_modules/vite/bin/vite.js', 'build'], check=True, capture_output=True)"]
+[[control.change]]
+file = "web/src/main.ts"
+old = '''  if (node.textContent !== text) node.textContent = text
+'''
+new = '''  node.textContent = text
+'''
+
+[[control]]
+name = "the feed's line no status region"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+then = ["-c", "import shutil, subprocess; subprocess.run([shutil.which('node'), 'node_modules/vite/bin/vite.js', 'build'], check=True, capture_output=True)"]
+[[control.change]]
+file = "web/index.html"
+old = '''      <p class="origin" id="feed-origin" role="status"></p>
+'''
+new = '''      <p class="origin" id="feed-origin"></p>
 '''

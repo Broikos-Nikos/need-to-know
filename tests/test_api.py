@@ -214,7 +214,8 @@ def test_a_roles_feed_and_document_view_do_the_same_work_whatever_it_may_not_rea
                        [(f"counsel{n}", key, json.dumps(["legal"]), json.dumps([section]), f"Counsel's note {n}.", 20 + n,
                          21 + n) for n, (key, section) in enumerate([("key", "Policy")] * 2 + [("annex", "Annex")])])
     after, replies = work()
-    assert replies == shown and after == before, (before, after)
+    # MT-F31: counts of nothing would be equal too, should a refactor reach the manifest another way.
+    assert replies == shown and after == before and all(before), (before, after)
 
 
 def test_a_poll_shows_a_scan_that_ended_in_the_same_second_as_the_last_it_read(client):

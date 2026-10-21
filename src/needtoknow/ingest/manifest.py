@@ -61,30 +61,30 @@ CREATE TABLE changes (
 # What the change feed and a document's view show a role, counted under each label as the units are written: a unit
 # counts once under every label it holds, in its scan's row of `added` and its segment's row of `segments`. A role's
 # poll and its view read the rows of the labels it reads and no other, so their work holds nothing of the text it may
-# not read, not a scan's time, not a segment's size (AC-F18, AC-F19). Made once, in a manifest without them, in one
-# transaction that counts the units already there; the triggers keep them in step from then on, a cascade's deletes
-# included, and refuse an update that would move a unit out of its rows.
+# not read, not a scan's time, not a segment's size (AC-F18, AC-F19). Made in one transaction that counts the units
+# already there; the triggers keep them in step from then on, a cascade's deletes included, and refuse an update that
+# would move a unit out of its rows. The manifest keeps a digest of this text, and a manifest whose digest is not the
+# code's has its counts made again, so a change here reaches every manifest made before it (MT-F29).
 SUMMARIES = """
-BEGIN IMMEDIATE;
-CREATE TABLE IF NOT EXISTS added (
+CREATE TABLE added (
     label TEXT NOT NULL, run_id INTEGER NOT NULL, doc_id TEXT NOT NULL, labels TEXT NOT NULL, units INTEGER NOT NULL,
     PRIMARY KEY (label, run_id, doc_id, labels)
 ) WITHOUT ROWID;
-CREATE TABLE IF NOT EXISTS segments (
+CREATE TABLE segments (
     doc_id TEXT NOT NULL, label TEXT NOT NULL, section_key TEXT NOT NULL, labels TEXT NOT NULL, units INTEGER NOT NULL,
     PRIMARY KEY (doc_id, label, section_key, labels)
 ) WITHOUT ROWID;
 INSERT INTO added SELECT j.value, u.run_id, u.doc_id, u.labels, COUNT(*) FROM units u, json_each(u.labels) j
-    WHERE NOT EXISTS (SELECT 1 FROM added) GROUP BY j.value, u.run_id, u.doc_id, u.labels;
+    GROUP BY j.value, u.run_id, u.doc_id, u.labels;
 INSERT INTO segments SELECT u.doc_id, j.value, u.section_key, u.labels, COUNT(*) FROM units u, json_each(u.labels) j
-    WHERE NOT EXISTS (SELECT 1 FROM segments) GROUP BY u.doc_id, j.value, u.section_key, u.labels;
-CREATE TRIGGER IF NOT EXISTS unit_written AFTER INSERT ON units BEGIN
+    GROUP BY u.doc_id, j.value, u.section_key, u.labels;
+CREATE TRIGGER unit_written AFTER INSERT ON units BEGIN
     INSERT INTO added SELECT value, NEW.run_id, NEW.doc_id, NEW.labels, 1 FROM json_each(NEW.labels) WHERE true
         ON CONFLICT (label, run_id, doc_id, labels) DO UPDATE SET units = units + 1;
     INSERT INTO segments SELECT NEW.doc_id, value, NEW.section_key, NEW.labels, 1 FROM json_each(NEW.labels) WHERE true
         ON CONFLICT (doc_id, label, section_key, labels) DO UPDATE SET units = units + 1;
 END;
-CREATE TRIGGER IF NOT EXISTS unit_removed AFTER DELETE ON units BEGIN
+CREATE TRIGGER unit_removed AFTER DELETE ON units BEGIN
     UPDATE added SET units = units - 1 WHERE label IN (SELECT value FROM json_each(OLD.labels))
         AND run_id = OLD.run_id AND doc_id = OLD.doc_id AND labels = OLD.labels;
     DELETE FROM added WHERE label IN (SELECT value FROM json_each(OLD.labels))
@@ -94,10 +94,18 @@ CREATE TRIGGER IF NOT EXISTS unit_removed AFTER DELETE ON units BEGIN
     DELETE FROM segments WHERE doc_id = OLD.doc_id AND label IN (SELECT value FROM json_each(OLD.labels))
         AND section_key = OLD.section_key AND labels = OLD.labels AND units = 0;
 END;
-CREATE TRIGGER IF NOT EXISTS unit_kept BEFORE UPDATE OF unit_id, doc_id, section_key, labels, run_id ON units BEGIN
+CREATE TRIGGER unit_kept BEFORE UPDATE OF unit_id, doc_id, section_key, labels, run_id ON units BEGIN
     SELECT RAISE(ABORT, 'a unit keeps its id, document, section, labels and scan: a change is a new unit');
 END;
-COMMIT;
+"""
+COUNTS = hashlib.sha256(SUMMARIES.encode("utf-8")).hexdigest()[:16]
+# The counts as any earlier text made them, taken away before they are made again.
+UNMADE = """
+DROP TRIGGER IF EXISTS unit_kept;
+DROP TRIGGER IF EXISTS unit_removed;
+DROP TRIGGER IF EXISTS unit_written;
+DROP TABLE IF EXISTS added;
+DROP TABLE IF EXISTS segments;
 """
 
 
@@ -152,8 +160,12 @@ def opened(path: Path | None = None):
         if not db.execute("SELECT 1 FROM sqlite_master WHERE type = 'index' AND name = 'units_by_doc_run'").fetchone():
             db.execute("CREATE INDEX IF NOT EXISTS units_by_doc_run ON units(doc_id, run_id)")
             db.execute("DROP INDEX IF EXISTS units_by_doc")
-        if not db.execute("SELECT 1 FROM sqlite_master WHERE type = 'trigger' AND name = 'unit_kept'").fetchone():
-            db.executescript(SUMMARIES)
+        made = db.execute("SELECT digest FROM made WHERE name = 'counts'").fetchone() if db.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'made'").fetchone() else None
+        if made != (COUNTS,):
+            db.executescript(f"BEGIN IMMEDIATE;\n{UNMADE}{SUMMARIES}"
+                             "CREATE TABLE IF NOT EXISTS made (name TEXT PRIMARY KEY, digest TEXT NOT NULL);\n"
+                             f"INSERT OR REPLACE INTO made VALUES ('counts', '{COUNTS}');\nCOMMIT;\n")
         yield db
         db.commit()
     finally:

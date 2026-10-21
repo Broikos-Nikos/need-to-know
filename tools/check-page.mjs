@@ -390,6 +390,17 @@ try {
     fail('live, the page did not sign in again after its session was forgotten', `${JSON.stringify(state)}; ` +
       `${live.seen.refused - before.refused} refused, ${again} sign ins after`)
   }
+  // The feed's line is a status region, read aloud at each change, so a poll that finds nothing new leaves it as it
+  // stands (PF-F14): watched through a poll and a half, it changes not once.
+  const changes = await signed.evaluate((wait) => new Promise((done) => {
+    const line = document.getElementById('feed-origin')
+    let seen = 0
+    const watch = new MutationObserver((records) => { seen += records.length })
+    watch.observe(line, { childList: true, characterData: true, subtree: true })
+    setTimeout(() => { watch.disconnect(); done({ role: line.getAttribute('role'), seen }) }, wait)
+  }), 7_500)
+  if (changes.role === 'status' && changes.seen === 0) ok('live, the feed\'s line a status region, left alone by a poll with nothing new')
+  else fail('live, the feed\'s line is no status region, or a poll rewrites it unchanged', JSON.stringify(changes))
   await signed.close()
 
   // 7. With JavaScript off: the notice says where the figures come from, and no line says a server is being looked for

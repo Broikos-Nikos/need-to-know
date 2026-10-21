@@ -674,6 +674,12 @@ function table(change: Change): HTMLElement {
   return details
 }
 
+// A status line rewritten only when its words change: a screen reader reads a status region at every change, and the
+// feed asks every few seconds, so the same sentence written again would be spoken again (PF-F14).
+function say(node: HTMLElement, text: string) {
+  if (node.textContent !== text) node.textContent = text
+}
+
 // The change feed as the chosen role may see it, asked again every few seconds while the page is visible (N66): each
 // finished scan that added units the role may read, newest first. A poll for a role no longer chosen draws nothing.
 async function follow(role: string) {
@@ -702,7 +708,7 @@ async function follow(role: string) {
       }
       while (list.children.length > SHOWN) list.lastElementChild?.remove()
       if (!list.children.length) list.append(element('li', 'none', 'No scan has added anything this role may read.'))
-      byId<HTMLElement>('feed-origin').textContent = `live, as ${role} may see them, asked every ${FEED / 1000} s`
+      say(byId<HTMLElement>('feed-origin'), `live, as ${role} may see them, asked every ${FEED / 1000} s`)
       byId<HTMLElement>('feed').hidden = false
       feedDelay = FEED
     }
@@ -710,8 +716,8 @@ async function follow(role: string) {
     // The server gone or refusing: say so, keep the list as it last stood, and ask less often until it answers
     // (HS-F25); it said "live" and "no scan has added anything" while every poll failed.
     feedDelay = Math.min(feedDelay * 2, FEED_MOST)
-    byId<HTMLElement>('feed-origin').textContent =
-      `${(error as Error).message}; the list is as it last stood, asked again in ${feedDelay / 1000} s`
+    say(byId<HTMLElement>('feed-origin'),
+      `${(error as Error).message}; the list is as it last stood, asked again in ${feedDelay / 1000} s`)
   }
   if (role === feedRole) feedTimer = window.setTimeout(() => void follow(feedRole), feedDelay)
 }

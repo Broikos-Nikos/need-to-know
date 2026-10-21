@@ -102,11 +102,30 @@ def test_the_counts_the_feed_and_a_view_read_follow_every_unit_written_and_remov
     assert kept == recounted and all(kept), kept
     with opened() as db:  # a manifest as it was before the counts
         db.executescript("DROP TRIGGER unit_kept; DROP TRIGGER unit_written; DROP TRIGGER unit_removed; "
-                         "DROP TABLE added; DROP TABLE segments;")
+                         "DROP TABLE added; DROP TABLE segments; DROP TABLE made;")
     kept, recounted = kept_and_recounted()
     assert kept == recounted and all(kept), kept
     with opened() as db, pytest.raises(sqlite3.IntegrityError, match="a change is a new unit"):
         db.execute("UPDATE units SET labels = '[\"general\"]' WHERE rowid = 1")
+
+
+def test_a_change_to_the_counts_reaches_a_manifest_made_before_it(corpus, monkeypatch):
+    # MT-F29: the counts were made once, keyed by a trigger's name, every statement IF NOT EXISTS, so a fix to a trigger
+    # in the code never reached a manifest made before it, and nothing said so. The manifest keeps the digest of the
+    # text that made its counts, and one that is not the code's is made again, recounted from the units.
+    from needtoknow.ingest import manifest
+    build()
+    mended = manifest.SUMMARIES.replace("UPDATE added SET units = units - 1", "UPDATE added SET units = MAX(units - 1, 0)")
+    assert mended != manifest.SUMMARIES
+    monkeypatch.setattr(manifest, "SUMMARIES", mended)
+    monkeypatch.setattr(manifest, "COUNTS", manifest.hashlib.sha256(mended.encode("utf-8")).hexdigest()[:16])
+    with opened() as db:
+        trigger = db.execute("SELECT sql FROM sqlite_master WHERE name = 'unit_removed'").fetchone()[0]
+        made = db.execute("SELECT digest FROM made WHERE name = 'counts'").fetchone()[0]
+        kept = sorted(db.execute("SELECT * FROM added"))
+        recounted = sorted(db.execute("SELECT j.value, u.run_id, u.doc_id, u.labels, COUNT(*) FROM units u, "
+                                      "json_each(u.labels) j GROUP BY j.value, u.run_id, u.doc_id, u.labels"))
+    assert "MAX(units - 1, 0)" in trigger and made == manifest.COUNTS and kept == recounted and kept, (trigger, made)
 
 
 def test_identical_units_in_one_section_keep_distinct_ids(corpus, tmp_path):
