@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**247 findings, 217 closed, 30 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
+**247 findings, 220 closed, 27 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -174,7 +174,7 @@ An audit pass on whether every number can be produced again. 26 findings, 24 clo
 
 ## `MT`, the maintainer in six months
 
-An audit pass on whether a fresh clone can be rebuilt and changed safely. 31 findings, 25 closed.
+An audit pass on whether a fresh clone can be rebuilt and changed safely. 31 findings, 27 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -206,9 +206,9 @@ An audit pass on whether a fresh clone can be rebuilt and changed safely. 31 fin
 | `MT-F26` | low | fixed, tick 201 | The page's Trace, Answer and Scored types restate the served trace's keys, and vite.config.ts lists the server's seven routes for npm run dev, both by hand: test_api holds the served keys in Python alone, so a field renamed on the server leaves the live page reading undefined and a new route is not handed over; a test that reads both copies from the page's files and compares them with a served body's keys and the app's routes |
 | `MT-F27` | low | open | Task ids like T6.2e and house rules cited in 100 tracked files name records the repository does not hold, and neither docs/DECISIONS.md nor docs/AUDITS.md says what they are: one sentence beside the research notes' in docs/DECISIONS.md |
 | `MT-F28` | low | open | test_the_readme_says_what_fails_and_the_claims_gate_reads_it asks for two What fails bullets, today's count, so T7.6's fix of the relabel fails it: at least one, each read by the claims check and stating a number |
-| `MT-F29` | medium | open | The counts the change feed and the document view read are made once per manifest, keyed by a trigger's name, with every statement IF NOT EXISTS: a fix to a trigger in code never reaches a manifest made before it, measured, and SCHEMA_VERSION does not cover them: a digest of the counts' SQL kept in the manifest, the counts made again when it differs |
+| `MT-F29` | medium | fixed, tick 225 | The counts the change feed and the document view read are made once per manifest, keyed by a trigger's name, with every statement IF NOT EXISTS: a fix to a trigger in code never reaches a manifest made before it, measured, and SCHEMA_VERSION does not cover them: a digest of the counts' SQL kept in the manifest, the counts made again when it differs |
 | `MT-F30` | low | open | The README names ffmpeg as the one program npm does not install, while npm run check:page and npm run capture launch Playwright's Chromium, which npm ci does not fetch: name npx playwright install chromium beside both |
-| `MT-F31` | low | open | The counted steps gate of the feed and the view asserts the counts equal before and after, and would pass on zero both times if a refactor reached the manifest another way: assert every count above zero |
+| `MT-F31` | low | fixed, tick 225 | The counted steps gate of the feed and the view asserts the counts equal before and after, and would pass on zero both times if a refactor reached the manifest another way: assert every count above zero |
 
 ## `SC`, the supply chain auditor
 
@@ -278,7 +278,7 @@ An audit pass of ten seconds on the first screen, by someone who hires but does 
 
 ## `PF`, the performance auditor
 
-An audit pass on time, memory and disk, its page half waiting for the page. 14 findings, 11 closed.
+An audit pass on time, memory and disk, its page half waiting for the page. 14 findings, 12 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -295,7 +295,7 @@ An audit pass on time, memory and disk, its page half waiting for the page. 14 f
 | `PF-F11` | medium | fixed, tick 192 | The change feed's empty poll costs the server 0.46 to 0.74 s every five seconds for each open page, reading again every scan since the role's last visible one, and grows with each scan the role cannot see; the whole feed 1.7 to 1.9 s warm, 4.9 s cold: one grouped query on an index of units by run, and the session's place kept on the server |
 | `PF-F12` | low | fixed, tick 192 | GET /stats walks the index's folder at every load, 0.48 to 0.55 s warm and 2.7 s at the day's first load: keep the footprint of the last sync, or cache it, and say its time |
 | `PF-F13` | low | fixed, tick 192 | The replay fetches all 27 traces, 1.1 MB in their provisional form, before anything is picked: a small index for the pickers, a file per question fetched at its first replay |
-| `PF-F14` | low | open | The feed says on its origin line that the local server stopped answering, and the line is no live region, so a screen reader is never told: role status on it, the line rewritten only when its words change |
+| `PF-F14` | low | fixed, tick 225 | The feed says on its origin line that the local server stopped answering, and the line is no live region, so a screen reader is never told: role status on it, the line rewritten only when its words change |
 
 ## `DE`, the design eye
 
