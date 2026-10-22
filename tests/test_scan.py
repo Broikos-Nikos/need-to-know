@@ -56,13 +56,13 @@ def all_units():
 
 def counting_reads(monkeypatch):
     reads = []
-    real = pipeline.document_units
+    real = pipeline.load
 
-    def counted(file, meta, unknown=None):
+    def counted(file, meta):
         reads.append(meta["doc_id"])
-        return real(file, meta, unknown)
+        return real(file, meta)
 
-    monkeypatch.setattr(pipeline, "document_units", counted)
+    monkeypatch.setattr(pipeline, "load", counted)
     return reads
 
 
@@ -232,17 +232,17 @@ def test_a_write_that_lands_during_the_cut_is_read_by_the_next_scan(corpus, monk
     # and every later scan skipped the file; the edit reached neither the manifest nor the index until a build.
     base, docs = corpus
     target = base / "full" / f"{docs[0]['id']}.txt"
-    real = pipeline.document_units
+    real = pipeline.load
 
-    def cut_then_saved(file, meta, unknown=None):
-        out = real(file, meta, unknown)
+    def read_then_saved(file, meta):
+        out = real(file, meta)
         if file == target:
-            monkeypatch.setattr(pipeline, "document_units", real)
+            monkeypatch.setattr(pipeline, "load", real)
             file.write_bytes(file.read_bytes().replace(b"notes the outcome", b"logs the outcome"))
         return out
 
     target.write_bytes(target.read_bytes().replace(b"keeps the outcome", b"files the outcome"))
-    monkeypatch.setattr(pipeline, "document_units", cut_then_saved)
+    monkeypatch.setattr(pipeline, "load", read_then_saved)
     assert scan()["changes"] == {"changed": 1}
     again = scan()
     assert again["files_read"] == 1 and again["changes"] == {"changed": 1}

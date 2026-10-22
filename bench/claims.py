@@ -165,9 +165,22 @@ def head(command: str, log: Path | None) -> str:
         written = dt.datetime.fromtimestamp(log.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
         return f"command: {command_of(command)}\nrecorded {when} from the log {log.name}, written {written}\n---\n"
     commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=REPO, capture_output=True, text=True).stdout
-    clean = not subprocess.run(["git", "status", "--porcelain"], cwd=REPO, capture_output=True, text=True).stdout.strip()
-    return (f"command: {command_of(command)}\nrecorded {when}, run at {commit.strip()}"
-            f"{'' if clean else ', the tree holding changes'}\n---\n")
+    status = subprocess.run(["git", "status", "--porcelain"], cwd=REPO, capture_output=True, text=True).stdout
+    return f"command: {command_of(command)}\nrecorded {when}, run at {commit.strip()}{changes(status)}\n---\n"
+
+
+# What a figure can come from: a change to the records, the docs or the tests moves none.
+CODE = ("src/", "bench/", "config/", "pyproject.toml", "uv.lock")
+
+
+def changes(status: str) -> str:
+    """The code a run used beyond its commit, by file, from `git status --porcelain`: a record made before its code was
+    committed named the commit before it alone, whose code gave another figure (MA-F29)."""
+    paths = sorted({line[3:].split(" -> ")[-1].strip('"') for line in status.splitlines() if line.strip()})
+    code = [p for p in paths if p.startswith(CODE)]
+    if code:
+        return f", with changes to {', '.join(code)}"
+    return ", the tree holding changes to no code" if paths else ""
 
 
 def written(output: str) -> str:

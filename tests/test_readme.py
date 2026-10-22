@@ -127,10 +127,11 @@ def test_the_readme_says_what_fails_and_the_claims_gate_reads_it():
     section = section[:section.index("\n## ", 1)]
     failing = [part for part in re.split(r"\n\* ", section)[1:] if part.strip()]
     read = claims.bullets(README)
-    assert len(failing) >= 2 and all(bullet in read and claims.claimed(bullet) for bullet in failing), failing
+    # MT-F28: at least one, as the house rule asks; two was the count of the day it was written.
+    assert len(failing) >= 1 and all(bullet in read and claims.claimed(bullet) for bullet in failing), failing
 
 
-def test_the_readme_gives_the_relabel_it_fails_in_both_directions():
+def test_the_readme_gives_the_relabel_in_both_directions():
     # T6.5: the bullet gave the widening's figures alone, not the narrowing's, the direction that takes access away.
     record = (repo_root() / "docs" / "claims" / "python-bench-revocation.py.txt").read_text(encoding="utf-8")
     pairs = re.findall(r"median (\d+\.\d) s, largest (\d+\.\d) s", record)

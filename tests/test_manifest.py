@@ -179,8 +179,8 @@ def test_a_scan_cuts_with_the_collector_paused_and_turns_it_back_on(corpus, monk
 
     from needtoknow.ingest import pipeline
     seen = []
-    real = pipeline.document_units
-    monkeypatch.setattr(pipeline, "document_units", lambda *a, **k: seen.append(gc.isenabled()) or real(*a, **k))
+    real = pipeline.text_units
+    monkeypatch.setattr(pipeline, "text_units", lambda *a, **k: seen.append(gc.isenabled()) or real(*a, **k))
     assert gc.isenabled()
     build()
     assert seen and not any(seen) and gc.isenabled()

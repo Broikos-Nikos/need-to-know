@@ -106,10 +106,11 @@ Widens one section's audience to a second label, as the simulator's relabel does
 puts the file back, which narrows it again, with `ntk ingest watch` running as a process
 of its own and syncing the index; it times how long a reader of the second label takes to
 find the section, and how long until it can no longer, each with its scan and sync. By
-default it takes the largest document that qualifies, LOG_CAT_006, since a change costs a
-scan of its whole file; `--doc` names another. It widens and narrows five times,
-`--runs` to change that, and prints each change's median, largest and count; it exits 1
-when any run passes the objective, `5 s`. It needs the corpus, the manifest, the vector cache, the `embed` extra and the index on the
+default it takes the largest document that qualifies, LOG_CAT_006, the slowest to scan
+while a scan cut the whole file; since T7.6 a scan cuts only the parts of a plain text file
+a change touched. `--doc` names another. It widens and narrows ten times, the objective
+holding over ten with the largest deciding, `--runs` to change that, and prints each
+change's median, largest and count; it exits 1 when any run passes the objective, `5 s`. It needs the corpus, the manifest, the vector cache, the `embed` extra and the index on the
 running server, and leaves the corpus as it found it. Commits "Let the watcher carry
 every change into the index" and "Bring the largest document's change under 5 s" quote
 it.
@@ -469,6 +470,19 @@ build's history rather than its content. It needs the corpus and the manifest un
 
 ```
 uv run python bench/corpus_digest.py
+```
+
+## parts_check.py
+
+Whether every plain text file cuts the same by its parts as whole (T7.6): its head, then each keyword section cut
+after the head, as a scan cuts the parts a change touched, against the whole cut's units, each unit's id, labels,
+path, text and offsets. It prints how many files have parts and how many cut the same both ways, the three largest
+parts beside their files, since a change inside a file's largest part still cuts all of that part, and the seconds
+of both ways; it exits 1 on any file that cuts otherwise. It needs the corpus under `NTK_DATA_DIR`, and writes
+nothing.
+
+```
+uv run python bench/parts_check.py
 ```
 
 ## page_data.py

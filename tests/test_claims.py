@@ -93,3 +93,13 @@ def test_no_tracked_file_names_a_folder_of_this_machine():
             continue
         found += [name for form in forms if form in text]
     assert not found, sorted(set(found))
+
+
+def test_a_record_from_a_tree_holding_changes_names_the_code_that_differs():
+    # MA-F29: the stats record said run at 0a52bf1, the tree holding changes, and that commit's code gave another
+    # index size; the code the run used beyond its commit is named file by file, records and tests left out.
+    tool = claims()
+    status = " M src/needtoknow/index/collection.py\n M docs/claims/ntk-stats.txt\n?? bench/parts_check.py\n M tests/x.py\n"
+    assert tool.changes(status) == ", with changes to bench/parts_check.py, src/needtoknow/index/collection.py"
+    assert tool.changes(" M README.md\n") == ", the tree holding changes to no code"
+    assert tool.changes("") == ""

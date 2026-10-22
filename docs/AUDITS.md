@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**253 findings, 245 closed, 8 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
+**257 findings, 250 closed, 7 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -144,7 +144,7 @@ An audit pass that killed the pipeline mid build and mid change. 7 findings, 7 c
 
 ## `MA`, the measurement auditor
 
-An audit pass on whether every number can be produced again. 27 findings, 27 closed.
+An audit pass on whether every number can be produced again. 31 findings, 30 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -175,10 +175,14 @@ An audit pass on whether every number can be produced again. 27 findings, 27 clo
 | `MA-F25` | low | fixed, tick 206 | The README says the live page asks the change feed every five seconds, FEED = 5000 in main.ts, and nothing reads one against the other: a test that finds FEED's seconds in the page bullet |
 | `MA-F26` | low | fixed, tick 206 | The bench README states that the before recipe, run again on 2026-10-21, gave no such answer in twelve: a scratch worktree's run with no record; run it to a log and record it with claims.py --log, or drop the count |
 | `MA-F27` | low | fixed, tick 229 | The README's What fails bullet on ties and N50's amendment leave out the 30,000 filler units the move was measured among, the condition that decided it: at 3,000 a bulk of 1,500 moved nothing: name the 30,000 beside the 15,000 |
+| `MA-F28` | low | fixed, tick 241 | The README's freshness gives the largest of one run of five edits, 3.8 s, which a run the next day missed by 0.4 s, its median holding at 3.7: the median and that every edit met the 5 s objective, never one run's largest alone |
+| `MA-F29` | low | fixed, tick 241 | Records made before their code was committed name the commit before it: ntk-stats and the page's scale.json say run at 0a52bf1, whose code gives an index of 3,948,042,658 bytes, not 3,773,074,626; a record from a tree holding changes names that tree too, and the two are made again at a commit |
+| `MA-F30` | low | open | bench/ties.py makes its collection with a copy of the index's create call, which T7.5's named indexing threshold did not reach, equal tonight only as the engine's default: one function makes both, with a test that their configurations agree |
+| `MA-F31` | low | fixed, tick 241 | e2f1eff's message gives a before run, the sync 1346 s, its CPU 680 s and the data directory's peak 20.19 GB, that no record in the repository holds, its log on the build's machine alone; the record of the build before is dcd5cd0's: keep the message and name it in the errata, as a wrong message is |
 
 ## `MT`, the maintainer in six months
 
-An audit pass on whether a fresh clone can be rebuilt and changed safely. 33 findings, 32 closed.
+An audit pass on whether a fresh clone can be rebuilt and changed safely. 33 findings, 33 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -209,7 +213,7 @@ An audit pass on whether a fresh clone can be rebuilt and changed safely. 33 fin
 | `MT-F25` | low | fixed, tick 219 | bench/controls.py calls a control passed whenever its test's pytest exits 0, and a skipped test exits 0: a control on a test that needs the plan, the manifest or the GPU reports a gate that cannot fail where they are absent; report a skip as its own outcome, did not run, with its reason, exiting 1 |
 | `MT-F26` | low | fixed, tick 201 | The page's Trace, Answer and Scored types restate the served trace's keys, and vite.config.ts lists the server's seven routes for npm run dev, both by hand: test_api holds the served keys in Python alone, so a field renamed on the server leaves the live page reading undefined and a new route is not handed over; a test that reads both copies from the page's files and compares them with a served body's keys and the app's routes |
 | `MT-F27` | low | fixed, tick 227 | Task ids like T6.2e and house rules cited in 100 tracked files name records the repository does not hold, and neither docs/DECISIONS.md nor docs/AUDITS.md says what they are: one sentence beside the research notes' in docs/DECISIONS.md |
-| `MT-F28` | low | open | test_the_readme_says_what_fails_and_the_claims_gate_reads_it asks for two What fails bullets, today's count, so T7.6's fix of the relabel fails it: at least one, each read by the claims check and stating a number |
+| `MT-F28` | low | fixed, tick 241 | test_the_readme_says_what_fails_and_the_claims_gate_reads_it asks for two What fails bullets, today's count, so T7.6's fix of the relabel fails it: at least one, each read by the claims check and stating a number |
 | `MT-F29` | medium | fixed, tick 225 | The counts the change feed and the document view read are made once per manifest, keyed by a trigger's name, with every statement IF NOT EXISTS: a fix to a trigger in code never reaches a manifest made before it, measured, and SCHEMA_VERSION does not cover them: a digest of the counts' SQL kept in the manifest, the counts made again when it differs |
 | `MT-F30` | low | fixed, tick 230 | The README names ffmpeg as the one program npm does not install, while npm run check:page and npm run capture launch Playwright's Chromium, which npm ci does not fetch: name npx playwright install chromium beside both |
 | `MT-F31` | low | fixed, tick 225 | The counted steps gate of the feed and the view asserts the counts equal before and after, and would pass on zero both times if a refactor reached the manifest another way: assert every count above zero |
@@ -284,7 +288,7 @@ An audit pass of ten seconds on the first screen, by someone who hires but does 
 
 ## `PF`, the performance auditor
 
-An audit pass on time, memory and disk, its page half waiting for the page. 14 findings, 13 closed.
+An audit pass on time, memory and disk, its page half waiting for the page. 14 findings, 14 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -297,7 +301,7 @@ An audit pass on time, memory and disk, its page half waiting for the page. 14 f
 | `PF-F7` | low | fixed, tick 163 | Each ntk ask loads the encoder and the reranker in a fresh process, 30 s of search before the question reaches the provider against 0.65 s warm: the served path keeps both loaded, and the README says what a first question costs Measured by ntk ask. |
 | `PF-F8` | medium | fixed, tick 135 | The spend log books the models' loading as search time: each process's first question shows 28 to 35 s of search against a 0.77 s median, cached answers too, so the log's p95 of 28 s is loading, not search: load the models before the clock and record the load apart, or mark cold questions and report cold and warm apart |
 | `PF-F9` | low | fixed, tick 193 | The golden checks read the whole manifest for ten keys: the table items' check scans every unit's text, 5.2 of ntk eval check's 7.1 s, and the row draw scans once per candidate key, its test the suite's slowest at 43 s of 139: count each key's units in one pass and cache it beside the manifest under its last run id |
-| `PF-F10` | medium | open | The largest document's relabel passed the 5 s objective on one run in ten: bench/revocation.py on LOG_CAT_006 found the widened section in 5.6 s, its scan alone 3.87 s against 2.24 to 2.96 s on the other runs, and exited 1; run again it held at 3.9 s; N53's reversal condition is met: a scan that cuts only the sections a change touched, or the objective restated with ten runs and the largest deciding, and N53 amended either way |
+| `PF-F10` | medium | fixed, tick 241 | The largest document's relabel passed the 5 s objective on one run in ten: bench/revocation.py on LOG_CAT_006 found the widened section in 5.6 s, its scan alone 3.87 s against 2.24 to 2.96 s on the other runs, and exited 1; run again it held at 3.9 s; N53's reversal condition is met: a scan that cuts only the sections a change touched, or the objective restated with ten runs and the largest deciding, and N53 amended either way |
 | `PF-F11` | medium | fixed, tick 192 | The change feed's empty poll costs the server 0.46 to 0.74 s every five seconds for each open page, reading again every scan since the role's last visible one, and grows with each scan the role cannot see; the whole feed 1.7 to 1.9 s warm, 4.9 s cold: one grouped query on an index of units by run, and the session's place kept on the server |
 | `PF-F12` | low | fixed, tick 192 | GET /stats walks the index's folder at every load, 0.48 to 0.55 s warm and 2.7 s at the day's first load: keep the footprint of the last sync, or cache it, and say its time |
 | `PF-F13` | low | fixed, tick 192 | The replay fetches all 27 traces, 1.1 MB in their provisional form, before anything is picked: a small index for the pickers, a file per question fetched at its first replay |
@@ -385,3 +389,4 @@ The same session's review of the answer layer, its cache and the measurements of
 Commit messages stand as written. Where one says something false of its own commit, it is listed here with what is true, and the later commit that mends it.
 
 * `17a64d9` says "pytest with the GPU hidden: 603 passed, 7 skipped", a count of the suite on the working tree before the fonts the commit adds were staged. At `17a64d9` the decisions test fails: it read the fonts' bytes as text, and found in them citations of decisions that do not exist. `691a2d1` mends the test, and its message says so (MA-F23).
+* `e2f1eff` says the sync went from 1346 s to 408 s, its CPU from 680 s to 312 s and the data directory's peak from 20.19 GB to 7.06 GB. Its before figures are a run of 2026-10-22 on the build's machine, whose log the repository does not hold; the repository's record of the build before, `dcd5cd0`'s `docs/claims/python-bench-full_build.py-fresh.txt`, gives the sync 1096 s, its CPU 660 s and the peak 18.58 GB, and the after figures are the record at `e2f1eff` (MA-F31).

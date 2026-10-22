@@ -325,6 +325,18 @@ the first edit embedded one unit of the 501,031 (`bench/freshness.py`).
 or the largest document's change passes 5 s again; then a scan cuts only the sections
 that changed.
 
+**Amended 2026-10-23, T7.6.** It passed 5 s again: on 2026-10-22, thirty widenings of the
+largest document reached a query at a median of 5.3 s and at most 7.4 s, the scan of the
+file taking 3.2 to 4.8 s of each (PF-F10). A scan now cuts only the parts of a plain text
+file a change touched: the file splits at its keyword sections, a heading such as SECTION 3
+at the head of a run of lines, where the path and the audience go back to the title's, and
+each part cut after the file's head gives the units the whole cut gives, in all 85 plain
+text files (`bench/parts_check.py`). The objective is held over ten runs, the largest
+deciding: the widening reached its reader at a median of 2.2 s and at most 2.5 s, the
+narrowing left it at 1.5 s and at most 1.7 s, and the one sentence edit at 1.9 s
+(`bench/revocation.py`, `bench/freshness.py`). A change inside the part that holds most of
+a file, its tables, still cuts all of that part.
+
 ## N56. The split's family is every fact that shares a planted section
 
 *Decided 2026-10-13, at tick 99.*

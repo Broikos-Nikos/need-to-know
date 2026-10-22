@@ -1,6 +1,6 @@
 {
  "command": "uv run ntk stats",
- "recorded": "recorded 2026-10-22 22:38, run at 0a52bf1, the tree holding changes",
+ "recorded": "recorded 2026-10-23 01:46, run at 917a0fd, with changes to bench/README.md, bench/claims.py, bench/controls.toml, bench/machine.py, bench/page_data.py, bench/parts_check.py, bench/revocation.py, src/needtoknow/ingest/manifest.py, src/needtoknow/ingest/pipeline.py",
  "documents": 160,
  "bytes": 314698549,
  "units": 501031,
@@ -11,8 +11,8 @@
  "vectors": 501031,
  "collection": "documents_v2",
  "disk": {
-  "index": 3773074626,
-  "manifest": 565600256,
+  "index": 3769891117,
+  "manifest": 565690368,
   "vector_cache": 1073217536
  }
 }

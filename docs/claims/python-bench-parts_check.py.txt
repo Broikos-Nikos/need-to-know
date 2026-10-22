@@ -1,0 +1,8 @@
+command: uv run python bench/parts_check.py
+recorded 2026-10-23 01:36, run at 917a0fd, with changes to bench/README.md, bench/claims.py, bench/controls.toml, bench/machine.py, bench/page_data.py, bench/parts_check.py, bench/revocation.py, src/needtoknow/ingest/manifest.py, src/needtoknow/ingest/pipeline.py
+---
+plain text files 85, with keyword sections 85: cut by their parts the same as whole 85, otherwise 0
+  NET_MAN_009: 12 keyword sections; its largest part 7,394,091 of its 8,838,302 characters
+  LOG_CAT_006: 9 keyword sections; its largest part 6,386,208 of its 8,064,829 characters
+  RET_MAN_006: 10 keyword sections; its largest part 5,328,873 of its 6,261,122 characters
+cut whole in 32.1 s, by parts in 33.9 s

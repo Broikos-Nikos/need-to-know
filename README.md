@@ -19,7 +19,7 @@ question asked as every department.
   `uv run python bench/permission_suite.py`.
 * **0.964** of the 194 dev probes find a gold unit in the top 10, each asked by the
   narrowest role that may read it: `uv run python bench/probe_recall.py`.
-* **3.7 s** at the median for a paragraph edited in the largest file to reach a
+* **1.9 s** at the median for a paragraph edited in the largest file to reach a
   question: `uv run python bench/freshness.py`.
 
 Every accuracy figure in this README is this one corpus's; retrieval, which needs no
@@ -58,16 +58,25 @@ named, real or invented: the documents call it "the Company".
   the GPU, the sync 408 and Qdrant's indexing, deferred to the sync's end, 52; the data
   directory at most 7.06 GB: `uv run python bench/full_build.py --fresh`. It holds 160
   documents of 314,698,549 bytes, cut into 501,031 units and as many vectors, the index
-  taking 3,773,074,626 bytes of disk: `uv run ntk stats`.
+  taking 3,769,891,117 bytes of disk: `uv run ntk stats`.
 * Every unit is embedded as its passage, its heading path above its text, and kept
   in a cache under that passage, so a second run, a relabel or a rebuilt index
   embeds nothing again; a passage longer than the model takes is refused, never
   cut: `ntk embed`.
 * One paragraph edited in the largest file, 8.8 MB, reaches a question through
-  `ntk ingest watch` in 3.7 s at the median and 3.8 s at most over five edits, and its
-  undoing in 3.6 s and 3.7 s, with the processor 24 percent busy with other programs before
-  the runs; the edit is embedded again as one unit of the 501,031 the first time, and read
-  from the vector cache after: `uv run python bench/freshness.py`.
+  `ntk ingest watch` in 1.9 s at the median over five edits, and its undoing in 2.0 s,
+  each one inside the 5 s objective, with the processor 67 percent busy with other programs
+  before the runs; the scan cuts only the part of the file the edit touched, and the
+  edit's passage comes from the vector cache: `uv run python bench/freshness.py`.
+* A relabel of the largest document reaches its new reader in 2.2 s at the median and
+  2.5 s at most over ten runs, the largest deciding, and narrowed back, it leaves that
+  reader in 1.5 s at the median and 1.7 s at most, inside the 5 s objective, with the
+  processor 72 percent busy with other programs before them:
+  `uv run python bench/revocation.py`. A plain text file splits at its keyword sections,
+  where the path and the audience go back to the title's, and each of the 85 cuts by its
+  parts the same as whole, so a scan cuts only the parts a change touched; a change inside
+  the part that holds most of a file still cuts all of that part:
+  `uv run python bench/parts_check.py`.
 * A role's question is searched inside that role's filter, on the dense and the lexical
   side alike, and fused in the engine: no unit a role may not read came back in 5,760
   searches, nor reached the excerpts a prompt would hold, every role, sales and hr held
@@ -204,11 +213,6 @@ named, real or invented: the documents call it "the Company".
   own view (N50), where the gap falls to 51 of 88 (Wilson 0.48 to 0.68), inside what a
   matched pair cannot tell from how words sit in the role's own text:
   `uv run python bench/idf_attack.py` and `uv run python bench/idf_attack.py --global-idf`.
-* A relabel of the largest document misses its 5 s objective: the widened section reached
-  its new reader in 5.3 s at the median and 6.0 s at most over five runs, and narrowed
-  back, it left that reader in 4.5 s at the median and 5.2 s at most, with the processor
-  12 percent busy with other programs before them, the scan of that one file taking most
-  of it (PF-F10): `uv run python bench/revocation.py`.
 * The order of units of exactly equal score is the engine's, set by the index's layout,
   which units a role may not read help shape. In a collection made as the index's is, 150
   units of sales tied in both searches, among 30,000 units of all 10 labels, kept their

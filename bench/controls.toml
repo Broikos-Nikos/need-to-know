@@ -258,12 +258,12 @@ old = '''    before = int(machine["before"]) if machine["before"] else None'''
 new = '''    before = None'''
 
 [[control]]
-name = "the README's freshness figures of tick 149"
+name = "the README's freshness figures of tick 240"
 test = "tests/test_claims.py"
 [[control.change]]
 file = "README.md"
-old = '''`ntk ingest watch` in 3.7 s at the median and 3.8 s at most over five edits'''
-new = '''`ntk ingest watch` in 3.2 s at the median and 3.5 s at most over five edits'''
+old = '''`ntk ingest watch` in 1.9 s at the median over five edits'''
+new = '''`ntk ingest watch` in 3.7 s at the median over five edits'''
 
 [[control]]
 name = "a saved run named whatever its arguments"
@@ -370,12 +370,14 @@ new = '''    for heading in ("## The numbers", "## What works today"):'''
 
 [[control]]
 name = "the relabel's narrowing left out again"
-test = "tests/test_readme.py::test_the_readme_gives_the_relabel_it_fails_in_both_directions"
+test = "tests/test_readme.py::test_the_readme_gives_the_relabel_in_both_directions"
 [[control.change]]
 file = "README.md"
-old = '''over five runs, and narrowed
-  back, it left that reader in 4.5 s at the median and 5.2 s at most, with the processor'''
-new = '''over five runs, with the processor'''
+old = '''over ten runs, the largest deciding, and narrowed back, it leaves that
+  reader in 1.5 s at the median and 1.7 s at most, inside the 5 s objective, with the
+  processor'''
+new = '''over ten runs, the largest deciding, inside the 5 s objective, with the
+  processor'''
 
 [[control]]
 name = "the recorder keeping more rows than the page draws"
@@ -1328,9 +1330,9 @@ test = "tests/test_scan.py::test_a_write_that_lands_during_the_cut_is_read_by_th
 [[control.change]]
 file = "src/needtoknow/ingest/manifest.py"
 old = '''            file_row(db, run_id, rel, stat, side, meta, digest)
-            added, removed = replace_units(db, run_id, doc_id, cut)'''
+            added, removed = counted or replace_units('''
 new = '''            file_row(db, run_id, rel, file.stat(), sidecar.stat(), meta, digest)
-            added, removed = replace_units(db, run_id, doc_id, cut)'''
+            added, removed = counted or replace_units('''
 
 [[control]]
 name = "a sidecar not read again after its stat"
@@ -1437,3 +1439,60 @@ test = "tests/test_sync.py::test_a_sync_counts_its_points_into_the_table_in_memo
 file = "src/needtoknow/index/sync.py"
 old = '''                if len(counted) >= COUNTED:'''
 new = '''                if len(counted) >= 1:'''
+
+[[control]]
+name = "a part split at a keyword line inside a run"
+test = "tests/test_parts.py::test_a_plain_text_file_splits_at_the_keyword_headings_that_open_a_run"
+[[control.change]]
+file = "src/needtoknow/ingest/pipeline.py"
+old = '''        before = text.rfind("\n", 0, start - 1) + 1
+        if not INK.search(text, before, start - 1):
+            found.append(start)'''
+new = '''        found.append(start)'''
+
+[[control]]
+name = "the head's digest without the default audience"
+test = "tests/test_parts.py::test_a_change_to_the_head_or_to_the_default_audience_cuts_the_file_whole"
+[[control.change]]
+file = "src/needtoknow/ingest/manifest.py"
+old = '''    found[0] = (0, starts[0], part_digest(f"{meta.get('default_audience', '')}\x1f{text[:starts[0]]}"))
+'''
+new = ''''''
+
+[[control]]
+name = "the parts after a change left where they were"
+test = "tests/test_parts.py::test_the_parts_after_a_change_move_by_its_length"
+[[control.change]]
+file = "src/needtoknow/ingest/manifest.py"
+old = '''    if new_hi != old_hi:  # the parts after the change, moved by its length, every unit in one statement
+        db.execute('UPDATE units SET start = start + ?, "end" = "end" + ? WHERE doc_id = ? AND start >= ?',
+                   (new_hi - old_hi, new_hi - old_hi, doc_id, old_hi))
+'''
+new = ''''''
+
+[[control]]
+name = "a part cut alone though it shares a section with a part kept"
+test = "tests/test_parts.py::test_a_part_that_shares_a_section_with_a_part_kept_is_cut_whole"
+[[control.change]]
+file = "src/needtoknow/ingest/manifest.py"
+old = '''    if any(u.section_key in outside for u in cut):
+        return None
+'''
+new = ''''''
+
+[[control]]
+name = "a file's parts not kept after its cut"
+test = "tests/test_parts.py::test_an_edit_in_one_part_cuts_that_part_alone_and_ends_where_a_build_ends"
+[[control.change]]
+file = "src/needtoknow/ingest/manifest.py"
+old = '''            keep_parts(db, doc_id, split)
+'''
+new = ''''''
+
+[[control]]
+name = "a record from a changed tree naming no file"
+test = "tests/test_claims.py::test_a_record_from_a_tree_holding_changes_names_the_code_that_differs"
+[[control.change]]
+file = "bench/claims.py"
+old = '''        return f", with changes to {', '.join(code)}"'''
+new = '''        return ", the tree holding changes"'''

@@ -160,6 +160,11 @@ def opened(path: Path | None = None):
         if not db.execute("SELECT 1 FROM sqlite_master WHERE type = 'index' AND name = 'units_by_doc_run'").fetchone():
             db.execute("CREATE INDEX IF NOT EXISTS units_by_doc_run ON units(doc_id, run_id)")
             db.execute("DROP INDEX IF EXISTS units_by_doc")
+        # Each plain text file's parts as its last cut found them, so that the next scan cuts only the parts a change
+        # touched (T7.6). Made once, in a manifest without it; a file with no parts here is cut whole.
+        db.execute('CREATE TABLE IF NOT EXISTS parts (doc_id TEXT NOT NULL REFERENCES files(doc_id) ON DELETE CASCADE, '
+                   'ordinal INTEGER NOT NULL, start INTEGER NOT NULL, "end" INTEGER NOT NULL, digest TEXT NOT NULL, '
+                   'PRIMARY KEY (doc_id, ordinal)) WITHOUT ROWID')
         made = db.execute("SELECT digest FROM made WHERE name = 'counts'").fetchone() if db.execute(
             "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'made'").fetchone() else None
         if made != (COUNTS,):
@@ -231,6 +236,81 @@ def replace_units(db: sqlite3.Connection, run_id: int, doc_id: str, found: list[
     return len(added), len(removed)
 
 
+def part_digest(text: str) -> str:
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()[:32]
+
+
+def parts_of(text: str, meta: dict) -> list[tuple[int, int, str]]:
+    """A plain text file's head and keyword sections, each as start, end and digest; the head's digest holds the
+    sidecar's default audience too, which every part's labels can come from. Empty for a file without keyword
+    sections, which is always cut whole."""
+    starts = pipeline.parts(text, meta["format"])
+    if not starts:
+        return []
+    edges = [0, *starts, len(text)]
+    found = [(a, b, part_digest(text[a:b])) for a, b in zip(edges, edges[1:])]
+    found[0] = (0, starts[0], part_digest(f"{meta.get('default_audience', '')}\x1f{text[:starts[0]]}"))
+    return found
+
+
+def keep_parts(db: sqlite3.Connection, doc_id: str, found: list[tuple[int, int, str]]) -> None:
+    db.execute("DELETE FROM parts WHERE doc_id = ?", (doc_id,))
+    db.executemany("INSERT INTO parts VALUES (?, ?, ?, ?, ?)", [(doc_id, k, *part) for k, part in enumerate(found)])
+
+
+def cut_parts(db: sqlite3.Connection, run_id: int, doc_id: str, text: str, meta: dict,
+              found: list[tuple[int, int, str]], unknown: list[str]) -> tuple[int, int] | None:
+    """A changed plain text file brought up to date by cutting only the parts a change touched (T7.6): the units added
+    and removed, or None, the manifest untouched, when the file is to be cut whole.
+
+    The parts whose digests are the last cut's, counted from the front and from the back, keep their units, those after
+    the change moved by its length in one statement; each part between is cut after the file's head, which gives it
+    the units the whole cut gives it, and its units are compared with those the manifest held there. Whole instead: no
+    parts now or at the last cut; the head changed, which every part's path and labels follow; nothing between; or a
+    part between sharing a section with a part kept, since the ids of their identical units depend on each other.
+    """
+    kept = db.execute('SELECT start, "end", digest FROM parts WHERE doc_id = ? ORDER BY ordinal', (doc_id,)).fetchall()
+    if not found or not kept or found[0][2] != kept[0][2]:
+        return None
+    front = 0
+    while front < min(len(kept), len(found)) and kept[front][2] == found[front][2]:
+        front += 1
+    back = 0
+    while back < min(len(kept), len(found)) - front and kept[-1 - back][2] == found[-1 - back][2]:
+        back += 1
+    old_lo = kept[front][0] if front < len(kept) else kept[-1][1]
+    old_hi = kept[len(kept) - back][0] if back else kept[-1][1]
+    new_hi = found[len(found) - back][0] if back else found[-1][1]
+    if front == len(kept) == len(found):
+        return None
+    head = text[:found[0][1]]
+    cut = []
+    for start, end, _ in found[front:len(found) - back]:
+        shift = start - len(head)
+        cut += [replace(u, start=u.start + shift, end=u.end + shift)
+                for u in pipeline.text_units(head + text[start:end], meta, unknown) if u.start >= len(head)]
+    cut = unique_ids(cut)
+    outside = {key for (key,) in db.execute(
+        "SELECT DISTINCT section_key FROM units WHERE doc_id = ? AND (start < ? OR start >= ?)", (doc_id, old_lo, old_hi))}
+    if any(u.section_key in outside for u in cut):
+        return None
+    old = {uid: (start, end) for uid, start, end in db.execute(
+        'SELECT unit_id, start, "end" FROM units WHERE doc_id = ? AND start >= ? AND start < ?', (doc_id, old_lo, old_hi))}
+    new = {u.unit_id: u for u in cut}
+    removed = set(old) - set(new)
+    db.executemany("DELETE FROM units WHERE unit_id = ?", [(uid,) for uid in removed])
+    if new_hi != old_hi:  # the parts after the change, moved by its length, every unit in one statement
+        db.execute('UPDATE units SET start = start + ?, "end" = "end" + ? WHERE doc_id = ? AND start >= ?',
+                   (new_hi - old_hi, new_hi - old_hi, doc_id, old_hi))
+    db.executemany('UPDATE units SET start = ?, "end" = ? WHERE unit_id = ?',
+                   [(u.start, u.end, uid) for uid, u in new.items() if uid in old and old[uid] != (u.start, u.end)])
+    added = [u for uid, u in new.items() if uid not in old]
+    db.executemany("INSERT INTO units VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                   [(u.unit_id, u.doc_id, u.section_key, u.layer, json.dumps(u.labels), json.dumps(u.path, ensure_ascii=False),
+                     u.text, u.start, u.end, u.language, run_id) for u in added])
+    return len(added), len(removed)
+
+
 def scan(full: Path | None = None, path: Path | None = None, force: bool = False) -> dict:
     """Bring the manifest up to date with the corpus, reading only what may have changed unless forced."""
     full = full or data_dir() / "corpus" / "full"
@@ -275,15 +355,21 @@ def scan(full: Path | None = None, path: Path | None = None, force: bool = False
             meta = json.loads(sidecar.read_text(encoding="utf-8"))
             if meta.get("doc_id") != doc_id or file.name != f"{sidecar.name[:-len('.meta.json')]}.{meta.get('format')}":
                 continue
-            text, cut = pipeline.document_units(file, meta, unknown)
+            text = pipeline.load(file, meta)
             summary["files_read"] += 1
             digest = content_hash(text, meta)
             if not force and row is not None and row[5] == digest and row[6] == pipeline.VERSIONS:
                 file_row(db, run_id, rel, stat, side, meta, digest)
                 note(doc_id, "renamed" if row[0] != rel else "touched")
                 continue
+            # A file cut before at these versions is cut only where its parts changed; a build, a new file and any
+            # other are cut whole, and either way the parts are kept for the next scan (T7.6).
+            split = parts_of(text, meta)
+            counted = None if force or row is None or row[6] != pipeline.VERSIONS else cut_parts(
+                db, run_id, doc_id, text, meta, split, unknown)
             file_row(db, run_id, rel, stat, side, meta, digest)
-            added, removed = replace_units(db, run_id, doc_id, cut)
+            added, removed = counted or replace_units(db, run_id, doc_id, pipeline.text_units(text, meta, unknown))
+            keep_parts(db, doc_id, split)
             summary["units_added"] += added
             summary["units_removed"] += removed
             if added or removed or row is None:

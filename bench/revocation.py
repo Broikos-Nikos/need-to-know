@@ -1,18 +1,20 @@
 """How long an audience change takes to reach queries through the watcher, the scan and the sync (T3.13, AC-F6).
 
-    uv run python bench/revocation.py [--interval SECONDS] [--doc DOC_ID] [--runs 5]
+    uv run python bench/revocation.py [--interval SECONDS] [--doc DOC_ID] [--runs 10]
 
 Needs the corpus, the manifest, the vector cache, the embed extra and the index on the
 running server (`ntk qdrant start`, `ntk index sync`). It picks the first prose section
 of a plain text document whose audience is one department that MIXES extends, the
-largest such document unless `--doc` names another, since a change costs a scan of its
-whole file; it starts the
+largest such document unless `--doc` names another, the slowest to scan while a scan cut
+the whole file, as it does still for a change inside the part of the file that holds most
+of it (T7.6); it starts the
 watcher with the sync, waits for its catch up, and widens the section's audience to a
 second label, as the simulator's relabel does; it times until a role of that second label
 finds one of the section's units. Then it puts the file back, which narrows the audience
 again, and times until that role finds none: the revocation. Every scan and sync between
 an edit and the query that saw it is printed with its seconds (MA-F6). It widens and
-narrows `--runs` times, five by default, and prints each change's median, largest and
+narrows `--runs` times, ten by default, the objective holding over ten with the largest
+deciding (T7.6), and prints each change's median, largest and
 count, since one run is one draw of the watcher's poll, the scan and the machine's load
 (RS-F13). The corpus is left as it was found, and the next sync after it leaves the index
 as it was. It exits 1 when any run takes longer than the objective, 5 s.
@@ -42,7 +44,7 @@ def main() -> int:
     parser.add_argument("--interval", type=float, help="the watcher's interval; by default its own")
     parser.add_argument("--doc", help="the document to relabel; by default the largest that qualifies, "
                         "the slowest to scan")
-    parser.add_argument("--runs", type=int, default=5, help="how many times to widen and narrow; the largest decides")
+    parser.add_argument("--runs", type=int, default=10, help="how many times to widen and narrow; the largest decides")
     args = parser.parse_args()
     sys.stdout.reconfigure(encoding="utf-8")
     full = data_dir() / "corpus" / "full"

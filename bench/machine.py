@@ -21,10 +21,12 @@ QUIET = 3.0  # seconds the load is read for before the runs
 
 
 def commit() -> str:
-    """The commit and whether the tree holds changes, as a record's head says them."""
+    """The commit and the code a run used beyond it, file by file, as a record's head says them (MA-F29)."""
+    from claims import changes
+
     def git(*args: str) -> str:
-        return subprocess.run(["git", *args], cwd=REPO, capture_output=True, text=True).stdout.strip()
-    return f"at {git('rev-parse', '--short', 'HEAD')}{', the tree holding changes' if git('status', '--porcelain') else ''}"
+        return subprocess.run(["git", *args], cwd=REPO, capture_output=True, text=True).stdout
+    return f"at {git('rev-parse', '--short', 'HEAD').strip()}{changes(git('status', '--porcelain'))}"
 
 
 def counters() -> tuple[int, int] | None:

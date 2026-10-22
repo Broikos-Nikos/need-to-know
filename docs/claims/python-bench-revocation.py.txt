@@ -1,19 +1,28 @@
 command: uv run python bench/revocation.py
-recorded 2026-10-21 10:58 from the log revocation-t189.log, written 2026-10-21 10:50
+recorded 2026-10-23 01:35 from the log revocation-t241b.log, written 2026-10-23 01:33
 ---
 
-at 5c76363; the processor 12 percent busy in the 3 s before the runs
-LOG_CAT_006, as finance; the watcher's catch up, a scan and a sync of every document: 25.9 s
-  run 1, the widening: scan at 1.11 s took 3.84 s (1 read); sync at 5.25 s took 0.72 s (read 0.53, deletes 0.05, embedding 0.00, upserts 0.02, check 0.12); seen at 5.93 s
-  run 1, the narrowing: scan at 1.07 s took 3.43 s (1 read); seen at 4.47 s
-  run 2, the widening: scan at 1.05 s took 3.29 s (1 read); sync at 4.39 s took 0.91 s (read 0.75, deletes 0.04, embedding 0.00, upserts 0.01, check 0.11); seen at 5.27 s
-  run 2, the narrowing: scan at 1.03 s took 3.46 s (1 read); seen at 4.47 s
-  run 3, the widening: scan at 1.05 s took 4.02 s (1 read); sync at 5.13 s took 0.87 s (read 0.70, deletes 0.04, embedding 0.00, upserts 0.02, check 0.12); seen at 5.95 s
-  run 3, the narrowing: scan at 1.06 s took 4.18 s (1 read); seen at 5.21 s
-  run 4, the widening: scan at 1.05 s took 3.38 s (1 read); sync at 4.47 s took 0.88 s (read 0.73, deletes 0.03, embedding 0.00, upserts 0.01, check 0.11); seen at 5.28 s
-  run 4, the narrowing: scan at 1.02 s took 3.54 s (1 read); sync at 4.61 s took 0.74 s (read 0.61, deletes 0.02, embedding 0.00, upserts 0.01, check 0.10); seen at 4.77 s
-  run 5, the widening: scan at 1.02 s took 3.28 s (1 read); sync at 4.35 s took 0.92 s (read 0.73, deletes 0.05, embedding 0.00, upserts 0.01, check 0.12); seen at 5.23 s
-  run 5, the narrowing: scan at 1.04 s took 3.37 s (1 read); seen at 4.40 s
-the processor 62 percent busy over the runs, the bench's own work included
-past the 5 s objective
-LOG_CAT_006: logistics widened to logistics and finance, then narrowed back; as finance: the section found after the edit, median 5.3 s, largest 6.0 s, over 5 runs; gone after the narrowing, median 4.5 s, largest 5.2 s, over 5 runs (watch interval 0.5 s; objective 5 s)
+at 917a0fd, with changes to bench/README.md, bench/claims.py, bench/controls.toml, bench/machine.py, bench/page_data.py, bench/parts_check.py, bench/revocation.py, src/needtoknow/ingest/manifest.py, src/needtoknow/ingest/pipeline.py; the processor 72 percent busy in the 3 s before the runs
+LOG_CAT_006, as finance; the watcher's catch up, a scan and a sync of every document: 30.1 s
+  run 1, the widening: scan at 1.03 s took 0.54 s (1 read); sync at 1.62 s took 0.78 s (read 0.59, deletes 0.05, embedding 0.00, upserts 0.01, check 0.13); seen at 2.27 s
+  run 1, the narrowing: scan at 0.98 s took 0.58 s (1 read); seen at 1.56 s
+  run 2, the widening: scan at 1.00 s took 0.55 s (1 read); sync at 1.60 s took 0.78 s (read 0.62, deletes 0.02, embedding 0.00, upserts 0.02, check 0.13); seen at 2.37 s
+  run 2, the narrowing: scan at 1.03 s took 0.70 s (1 read); seen at 1.54 s
+  run 3, the widening: scan at 1.03 s took 0.52 s (1 read); sync at 1.60 s took 0.83 s (read 0.68, deletes 0.02, embedding 0.00, upserts 0.01, check 0.12); seen at 2.41 s
+  run 3, the narrowing: scan at 1.01 s took 0.48 s (1 read); seen at 1.49 s
+  run 4, the widening: scan at 0.99 s took 0.54 s (1 read); sync at 1.58 s took 0.94 s (read 0.77, deletes 0.02, embedding 0.00, upserts 0.01, check 0.14); seen at 2.48 s
+  run 4, the narrowing: scan at 1.01 s took 0.53 s (1 read); seen at 1.53 s
+  run 5, the widening: scan at 1.02 s took 0.54 s (1 read); sync at 1.60 s took 0.55 s (read 0.41, deletes 0.02, embedding 0.00, upserts 0.01, check 0.12); seen at 2.18 s
+  run 5, the narrowing: scan at 1.00 s took 0.49 s (1 read); seen at 1.44 s
+  run 6, the widening: scan at 1.04 s took 0.51 s (1 read); sync at 1.58 s took 0.55 s (read 0.39, deletes 0.02, embedding 0.00, upserts 0.01, check 0.14); seen at 2.10 s
+  run 6, the narrowing: scan at 1.02 s took 0.50 s (1 read); seen at 1.51 s
+  run 7, the widening: scan at 1.05 s took 0.55 s (1 read); sync at 1.63 s took 0.53 s (read 0.39, deletes 0.02, embedding 0.00, upserts 0.01, check 0.11); seen at 2.21 s
+  run 7, the narrowing: scan at 0.98 s took 0.51 s (1 read); sync at 1.54 s took 0.70 s (read 0.56, deletes 0.02, embedding 0.00, upserts 0.01, check 0.11); seen at 1.56 s
+  run 8, the widening: scan at 1.00 s took 0.51 s (1 read); sync at 1.55 s took 0.56 s (read 0.38, deletes 0.03, embedding 0.00, upserts 0.01, check 0.14); seen at 2.09 s
+  run 8, the narrowing: scan at 1.00 s took 0.58 s (1 read); seen at 1.58 s
+  run 9, the widening: scan at 1.01 s took 0.49 s (1 read); sync at 1.56 s took 0.85 s (read 0.70, deletes 0.02, embedding 0.00, upserts 0.01, check 0.13); seen at 2.39 s
+  run 9, the narrowing: scan at 0.99 s took 0.56 s (1 read); seen at 1.54 s
+  run 10, the widening: scan at 1.00 s took 0.50 s (1 read); sync at 1.54 s took 0.78 s (read 0.61, deletes 0.03, embedding 0.00, upserts 0.01, check 0.13); seen at 2.21 s
+  run 10, the narrowing: scan at 1.04 s took 0.54 s (1 read); sync at 1.61 s took 0.49 s (read 0.35, deletes 0.02, embedding 0.00, upserts 0.01, check 0.11); seen at 1.65 s
+the processor 77 percent busy over the runs, the bench's own work included
+LOG_CAT_006: logistics widened to logistics and finance, then narrowed back; as finance: the section found after the edit, median 2.2 s, largest 2.5 s, over 10 runs; gone after the narrowing, median 1.5 s, largest 1.7 s, over 10 runs (watch interval 0.5 s; objective 5 s)

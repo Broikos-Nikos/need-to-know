@@ -27,7 +27,7 @@ BENCHES = {"freshness": ("python-bench-freshness.py.txt", ("edit", "undoing")),
 STATS = "ntk-stats.txt"
 
 # What the bench ran under, its first line and its last (bench/machine.py; MA-F20, MA-F22).
-MACHINE = re.compile(r"at (?P<commit>[0-9a-f]+)(?P<dirty>, the tree holding changes)?; the processor "
+MACHINE = re.compile(r"at (?P<commit>[0-9a-f]+)(?P<dirty>, (?:the tree holding changes|with changes to)[^;]*)?; the processor "
                      r"(?:(?P<before>\d+) percent busy|unknown) in the [\d.]+ s before the runs")
 DURING = re.compile(r"the processor (?:(?P<during>\d+) percent busy|unknown) over the runs, the bench's own work included")
 OPENING = re.compile(r"(?P<doc>[A-Z]+_[A-Z]+_\d+), (?:(?P<size>[\d.]+ MB), )?as (?P<reader>[a-z-]+); the watcher's catch "
