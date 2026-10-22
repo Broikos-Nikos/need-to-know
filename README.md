@@ -4,6 +4,8 @@ Ask a question as a department, and get an answer built only from what that
 department may read. Every section of every document, in English or in Greek, says who
 may read it, so sales and legal asking the same question get different answers, and
 neither is shown a paragraph written for the other.
+**[The page is live.](https://broikos-nikos.github.io/need-to-know/)** It opens on one
+question asked as every department.
 
 ![The page, replayed: a question about how big a discount a shop advisor may give, asked as each department, sales and admin answered with the same seven percent and every other department refused in the same words; then the sales answer drawn one stage at a time, its filter, two searches, their fusion, a rerank, the excerpts and the answer with its citation](docs/need-to-know.gif)
 
