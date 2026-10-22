@@ -243,6 +243,8 @@ uv run pytest
   lists: how many pass depends on the machine as well as the code.
 * `bench/` holds the scripts behind the numbers in the history, and
   `docs/AUDITS.md` lists every audit finding the history cites.
+* `docs/REBUILD.md` gives the order a rebuild takes, the models and binary it pins, and the
+  figures that say a rebuild is the same build.
 
 ### Build the index and search it
 

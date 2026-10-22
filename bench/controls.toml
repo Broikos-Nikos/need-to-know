@@ -1295,3 +1295,29 @@ test = "tests/test_noninterference.py::test_the_comparison_takes_a_scores_last_b
 file = "tests/test_noninterference.py"
 old = '''SCORE_REL = 1e-6'''
 new = '''SCORE_REL = 1e-12'''
+
+[[control]]
+name = "a rebuild command that does not parse"
+test = "tests/test_rebuild.py::test_every_command_the_rebuild_gives_parses_or_is_here"
+[[control.change]]
+file = "docs/REBUILD.md"
+old = '''uv run ntk index sync
+'''
+new = '''uv run ntk index synch
+'''
+
+[[control]]
+name = "a rebuild pinning another revision"
+test = "tests/test_rebuild.py::test_the_rebuild_pins_what_the_configuration_pins"
+[[control.change]]
+file = "docs/REBUILD.md"
+old = '''`953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e`'''
+new = '''`953dc6f6f85a1b2dbfca4c34a2796e7dde08d41f`'''
+
+[[control]]
+name = "a rebuild naming a record that is not committed"
+test = "tests/test_rebuild.py::test_the_records_the_rebuild_names_are_committed"
+[[control.change]]
+file = "docs/REBUILD.md"
+old = '''`docs/claims/ntk-stats.txt`'''
+new = '''`docs/claims/ntk-stat.txt`'''

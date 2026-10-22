@@ -459,6 +459,18 @@ asked anything.
 uv run python bench/ties.py
 ```
 
+## corpus_digest.py
+
+The build's deterministic parts as three digests, for a rebuild to compare with (`docs/REBUILD.md`): the plan and the
+assembled corpus, each file's path and bytes in order of its path, and the manifest's units, each with its document,
+section, layer, labels, heading path, text, offsets and language, in order of its id. The vectors are left out, since
+the GPU need not give an embedding the same last bits twice, and so is the scan that wrote each unit, which numbers the
+build's history rather than its content. It needs the corpus and the manifest under `NTK_DATA_DIR`, and nothing else.
+
+```
+uv run python bench/corpus_digest.py
+```
+
 ## page_data.py
 
 The page's recorded data, read from the claims records rather than from a run: the

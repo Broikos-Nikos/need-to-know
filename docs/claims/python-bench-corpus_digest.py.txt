@@ -1,0 +1,6 @@
+command: uv run python bench/corpus_digest.py
+recorded 2026-10-22 04:46, run at da3b30a, the tree holding changes
+---
+corpus/plan: 6 files, 551,209 bytes, sha256 50d4d99dd44928b7dde57327c6359fe7c34ce6642ec2a3a3d2ee7d7f2948a32c
+corpus/full: 320 files, 314,741,418 bytes, sha256 0dfbd66e7358a796dc49f433508c8bfff92e28d5550139b17bb8024061c6bc03
+manifest: 501,031 units, sha256 069823fa6a7c50a5f44e47ced5b8ed443b416531cc308891eef8f8bfa4a78ae4
