@@ -117,7 +117,8 @@ def answers(monkeypatch, root, client, role: str, questions: list[str]) -> list[
     for question in questions:
         trace = {}
         fused = search(client, question, role, rerank="none", trace=trace)
-        order = rerank.rerank(question, fused, passages_of([h["unit_id"] for h in fused]), "cross") if fused else []
+        passages = passages_of([h["unit_id"] for h in fused])
+        order = rerank.rerank(question, fused, [passages[h["unit_id"]] for h in fused], "cross") if fused else []
         out.append({"weights": sent[-1], "fused": [(h["unit_id"], h["rank"], h["score"]) for h in fused],
                     "reranked": [h["unit_id"] for h in order], "passes": trace["filter"]["passes"],
                     # At the engine's precision: local mode scores in float64 over a matrix the hidden units size,

@@ -847,9 +847,9 @@ name = "the steps gate counting nothing"
 test = "tests/test_api.py::test_a_roles_feed_and_document_view_do_the_same_work_whatever_it_may_not_read"
 [[control.change]]
 file = "tests/test_api.py"
-old = '''    monkeypatch.setattr(api, "opened", counting)
+old = '''        monkeypatch.setattr(api, name, counting(reader))
 '''
-new = '''    monkeypatch.setattr(api, "nothing", counting, raising=False)
+new = '''        monkeypatch.setattr(api, "nothing", counting(reader), raising=False)
 '''
 
 [[control]]
@@ -1257,3 +1257,33 @@ test = "tests/test_readme.py::test_the_recording_opens_on_every_department_and_h
 file = "docs/capture.json"
 old = '''"every_role_held": 5.01'''
 new = '''"every_role_held": 2.75'''
+
+[[control]]
+name = "the document view read in two snapshots again"
+test = "tests/test_api.py::test_a_documents_view_read_while_a_scan_commits_is_the_view_it_began_with"
+[[control.change]]
+file = "src/needtoknow/api.py"
+old = '''    with read() as db:  # the segments and their first units from one snapshot, which no scan moves (DR-F41)'''
+new = '''    with opened() as db:'''
+
+[[control]]
+name = "the expansion read in two snapshots again"
+test = "tests/test_expand.py::test_a_hit_read_while_a_scan_commits_is_widened_as_its_segment_stood"
+[[control.change]]
+file = "src/needtoknow/index/expand.py"
+old = '''from needtoknow.ingest.manifest import read
+'''
+new = '''from needtoknow.ingest.manifest import opened, read
+'''
+[[control.change]]
+file = "src/needtoknow/index/expand.py"
+old = '''    with read() as db:  # a hit's row, its segment and their texts from one snapshot, which no scan moves (DR-F41)'''
+new = '''    with opened() as db:'''
+
+[[control]]
+name = "the rerank reading every hit as held"
+test = "tests/test_search.py::test_a_unit_a_scan_drops_after_the_manifests_check_is_left_out_of_the_rerank"
+[[control.change]]
+file = "src/needtoknow/index/search.py"
+old = '''        held = [hit for hit in hits if hit["unit_id"] in passages]'''
+new = '''        held = hits'''

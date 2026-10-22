@@ -256,6 +256,21 @@ def test_a_point_the_manifest_has_dropped_is_never_returned_reranked_or_printed(
     assert "Shops open at nine" not in capsys.readouterr().out
 
 
+def test_a_unit_a_scan_drops_after_the_manifests_check_is_left_out_of_the_rerank(client, monkeypatch):
+    # DR-F41: the check that each hit is in the manifest ran, then the trace's counts, then the reranker's passages,
+    # read by id as though every unit were still there: one a scan dropped between them ended the search, KeyError.
+    from needtoknow.index import rerank
+    from needtoknow.index import search as module
+    checked = module.in_manifest
+    monkeypatch.setattr(module, "in_manifest", lambda unit_ids: checked(unit_ids) | {"open"})  # checked before the scan
+    with opened() as db:
+        db.execute("DELETE FROM units WHERE unit_id = 'open'")  # the scan, between the check and the passages
+    monkeypatch.setattr(rerank, "cross_scores", lambda question, passages: [0.0] * len(passages))
+    hits = ask(client, role="sales", rerank="cross")
+    assert hits and "open" not in {h["unit_id"] for h in hits}
+    assert [h["rank"] for h in hits] == list(range(1, len(hits) + 1))
+
+
 def test_ntk_search_skips_a_hit_a_scan_dropped_between_the_search_and_its_printing(client, monkeypatch, capsys):
     # DR-F15's race: the search kept to the manifest, and a scan dropped the unit before the line was printed.
     import argparse

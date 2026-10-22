@@ -172,6 +172,16 @@ def opened(path: Path | None = None):
         db.close()
 
 
+@contextmanager
+def read(path: Path | None = None):
+    """The manifest for reads that depend on one another, every statement against one snapshot: a scan committed while
+    they run is seen by none of them. Two statements in turn saw a scan between them, and a segment found by the first
+    had no units by the second (DR-F41)."""
+    with opened(path) as db:
+        db.execute("BEGIN")
+        yield db
+
+
 def now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 

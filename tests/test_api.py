@@ -97,6 +97,19 @@ def test_a_documents_view_holds_the_segments_the_role_may_read_and_nothing_of_th
     assert hidden.json()["detail"] == "no document 'LEG'" and unknown.json()["detail"] == "no document 'NOPE'"
 
 
+def test_a_documents_view_read_while_a_scan_commits_is_the_view_it_began_with(client, monkeypatch):
+    # DR-F41: the view read the segments, then each one's first units, in two statements; a relabel committed between
+    # them left a segment with no units, and GET /doc ended in a 500, IndexError.
+    from test_expand import commit_between
+    reads = readable(load_policy(), "sales")
+    before = api.outline("DOC", reads)
+    raced = commit_between(monkeypatch, api, "FROM segments", [
+        ("DELETE FROM units WHERE unit_id = 'sales'", ()),
+        ("INSERT INTO units VALUES ('sales2', 'DOC', 'key', 'prose', ?, ?, 'Counsel now.', 0, 1, 'en', 1)",
+         (json.dumps(["legal"]), json.dumps(["Policy"])))])
+    assert api.outline("DOC", reads) == before and raced["committed"]
+
+
 def test_the_change_feed_shows_a_role_only_what_it_may_read_and_nothing_of_the_rest(client):
     # T6.1j: a scan that added only text the role may not read, a removal and an unfinished scan show as nothing,
     # and no scan's number is served, whose gaps would count them.
@@ -168,18 +181,22 @@ def steps(monkeypatch, call) -> int:
     """The SQLite instructions `call` runs in the manifest through the server's routes, counted on every connection they
     open: a measure of their work that no machine's speed or load moves."""
     from contextlib import contextmanager
-    real, counted = api.opened, [0]
+    real, counted = {name: getattr(api, name) for name in ("opened", "read")}, [0]  # read: one snapshot (DR-F41)
 
-    @contextmanager
-    def counting(*args, **kwargs):
-        with real(*args, **kwargs) as db:
-            db.set_progress_handler(lambda: counted.__setitem__(0, counted[0] + 1), 1)
-            yield db
-    monkeypatch.setattr(api, "opened", counting)
+    def counting(reader):
+        @contextmanager
+        def counted_reader(*args, **kwargs):
+            with reader(*args, **kwargs) as db:
+                db.set_progress_handler(lambda: counted.__setitem__(0, counted[0] + 1), 1)
+                yield db
+        return counted_reader
+    for name, reader in real.items():
+        monkeypatch.setattr(api, name, counting(reader))
     try:
         call()
     finally:
-        monkeypatch.setattr(api, "opened", real)
+        for name, reader in real.items():
+            monkeypatch.setattr(api, name, reader)
     return counted[0]
 
 

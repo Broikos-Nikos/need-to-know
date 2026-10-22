@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import json
 
-from needtoknow.ingest.manifest import opened
+from needtoknow.ingest.manifest import read
 
 TOP = 8
 WINDOW = 1
@@ -25,7 +25,7 @@ SEGMENT = 'SELECT unit_id FROM units WHERE doc_id = ? AND section_key = ? AND la
 def excerpts(hits: list[dict], top: int = TOP, window: int = WINDOW) -> list[dict]:
     """The top hits as excerpts, best first: document, section, labels, heading path, units in order, text, rank."""
     found: list[dict] = []
-    with opened() as db:
+    with read() as db:  # a hit's row, its segment and their texts from one snapshot, which no scan moves (DR-F41)
         for hit in hits[:top]:
             row = db.execute("SELECT doc_id, section_key, labels, path FROM units WHERE unit_id = ?",
                              (hit["unit_id"],)).fetchone()

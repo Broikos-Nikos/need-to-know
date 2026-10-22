@@ -26,6 +26,67 @@ def hit(unit, rank):
     return {"unit_id": unit, "rank": rank, "score": 1.0 / rank}
 
 
+class Fetched(list):
+    """Rows already read, answering as the cursor they came from would."""
+
+    def fetchone(self):
+        return self[0] if self else None
+
+    def fetchall(self):
+        return list(self)
+
+
+def commit_between(monkeypatch, module, after: str, change: list) -> dict:
+    """The module's manifest readers, read() and opened() alike, patched so that a second connection commits `change`
+    right after the first statement holding `after`, as a scan between two reads would (DR-F41). It says whether it did,
+    so a reader the patch never reached cannot pass for want of a race."""
+    import sqlite3
+    from contextlib import contextmanager
+
+    from needtoknow.ingest.manifest import manifest_path
+    raced = {"committed": False}
+
+    def wrapped(real):
+        @contextmanager
+        def racing(*args, **kwargs):
+            with real(*args, **kwargs) as db:
+                class Racing:
+                    def __getattr__(self, name):
+                        return getattr(db, name)
+
+                    def execute(self, sql, params=()):
+                        cursor = db.execute(sql, params)
+                        if raced["committed"] or after not in sql:
+                            return cursor
+                        rows = Fetched(cursor.fetchall())
+                        other = sqlite3.connect(manifest_path())
+                        for statement, values in change:
+                            other.execute(statement, values)
+                        other.commit()
+                        other.close()
+                        raced["committed"] = True
+                        return rows
+                yield Racing()
+        return racing
+
+    for name in ("read", "opened"):
+        if hasattr(module, name):
+            monkeypatch.setattr(module, name, wrapped(getattr(module, name)))
+    return raced
+
+
+def test_a_hit_read_while_a_scan_commits_is_widened_as_its_segment_stood(manifest, monkeypatch):
+    # DR-F41: a hit's row, then its segment, in two statements; the hit replaced between them was not in its own
+    # segment, and the search ended in a 500, ValueError.
+    from needtoknow.index import expand
+    before = excerpts([hit("b", 1)])
+    raced = commit_between(monkeypatch, expand, "WHERE unit_id = ?", [
+        ("DELETE FROM units WHERE unit_id = 'b'", ()),
+        ("INSERT INTO units VALUES ('b2', 'DOC', 'key', 'prose', '[\"returns\"]', '[\"Policy\"]', 'Edited.', 10, 15, "
+         "'en', 1)", ())])
+    assert excerpts([hit("b", 1)]) == before and raced["committed"]
+
+
 def test_a_hit_is_widened_to_its_neighbours_in_document_order(manifest):
     (only,) = excerpts([hit("b", 1)])
     assert only["units"] == ["a", "b", "c"] and only["text"] == "First.\n\nSecond.\n\nThird."

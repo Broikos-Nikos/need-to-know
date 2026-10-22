@@ -143,8 +143,13 @@ def search(client, question: str, role: str, policy: dict | None = None, form: s
         lap("trace")
     from needtoknow.index import rerank as second
     mode = rerank or second.load_config()["mode"]
-    result = hits if mode == "none" or not hits else second.rerank(
-        question, hits, passages_of([hit["unit_id"] for hit in hits]), mode)
+    if mode == "none" or not hits:
+        result = hits
+    else:
+        # A unit a scan dropped since the manifest's check above awaits its sync as one never held does (DR-F41).
+        passages = passages_of([hit["unit_id"] for hit in hits])
+        held = [hit for hit in hits if hit["unit_id"] in passages]
+        result = second.rerank(question, held, [passages[hit["unit_id"]] for hit in held], mode)
     if trace is not None:
         lap("rerank")
         trace.update(reranked=result, seconds=seconds)
@@ -183,14 +188,16 @@ def in_manifest(unit_ids: list[str]) -> set[str]:
     return held
 
 
-def passages_of(unit_ids: list[str]) -> list[str]:
-    """The passages of the given units, as the encoders read them, from the manifest."""
+def passages_of(unit_ids: list[str]) -> dict[str, str]:
+    """The passages of those of the given units the manifest holds, as the encoders read them, by unit: one a scan took
+    since its search found it is not there, where every unit was assumed to be and a KeyError ended the search
+    (DR-F41)."""
     import json
 
     from needtoknow.ingest.manifest import opened
     from needtoknow.ingest.units import passage
 
     with opened() as db:
-        rows = {u: (p, t) for u, p, t in db.execute(
-            f"SELECT unit_id, path, text FROM units WHERE unit_id IN ({','.join('?' * len(unit_ids))})", unit_ids)}
-    return [passage(json.loads(rows[u][0]), rows[u][1]) for u in unit_ids]
+        rows = db.execute(f"SELECT unit_id, path, text FROM units WHERE unit_id IN ({','.join('?' * len(unit_ids))})",
+                          unit_ids).fetchall()
+    return {unit: passage(json.loads(path), text) for unit, path, text in rows}

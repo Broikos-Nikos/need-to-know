@@ -85,7 +85,7 @@ from needtoknow.index import server
 from needtoknow.index.expand import excerpts
 from needtoknow.index.footprint import NoBuild, footprint, vectors
 from needtoknow.index.search import QuestionError, search
-from needtoknow.ingest.manifest import opened
+from needtoknow.ingest.manifest import opened, read
 from needtoknow.policy import PolicyError, load_policy, readable
 from needtoknow.providers.call import ProviderError
 from needtoknow.settings import repo_root
@@ -146,7 +146,7 @@ def outline(doc_id: str, reads: frozenset[str]) -> list[dict]:
     whatever it holds (AC-F18)."""
     labels_read = sorted(reads)
     shown = []
-    with opened() as db:
+    with read() as db:  # the segments and their first units from one snapshot, which no scan moves (DR-F41)
         found = {(key, labels): units for key, labels, units in db.execute(
             f"SELECT section_key, labels, units FROM segments WHERE doc_id = ? AND label IN ({among(reads)})",
             (doc_id, *labels_read))}
