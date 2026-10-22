@@ -1287,3 +1287,11 @@ test = "tests/test_search.py::test_a_unit_a_scan_drops_after_the_manifests_check
 file = "src/needtoknow/index/search.py"
 old = '''        held = [hit for hit in hits if hit["unit_id"] in passages]'''
 new = '''        held = hits'''
+
+[[control]]
+name = "a score compared to its last bit"
+test = "tests/test_noninterference.py::test_the_comparison_takes_a_scores_last_bits_and_no_more"
+[[control.change]]
+file = "tests/test_noninterference.py"
+old = '''SCORE_REL = 1e-6'''
+new = '''SCORE_REL = 1e-12'''

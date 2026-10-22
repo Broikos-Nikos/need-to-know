@@ -20,6 +20,7 @@ module alone and checked to be used there (MT-F15), and what it holds, it holds 
 """
 
 import json
+import math
 import random
 import types
 from collections import defaultdict
@@ -121,12 +122,37 @@ def answers(monkeypatch, root, client, role: str, questions: list[str]) -> list[
         order = rerank.rerank(question, fused, [passages[h["unit_id"]] for h in fused], "cross") if fused else []
         out.append({"weights": sent[-1], "fused": [(h["unit_id"], h["rank"], h["score"]) for h in fused],
                     "reranked": [h["unit_id"] for h in order], "passes": trace["filter"]["passes"],
-                    # At the engine's precision: local mode scores in float64 over a matrix the hidden units size,
-                    # so the last bits of a dense score move with them; the server's scores are float32.
-                    **{side: [(h["unit_id"], h["rank"], float(np.float32(h["score"]))) for h in trace[side]]
-                       for side in ("dense", "sparse")}})
+                    **{side: [(h["unit_id"], h["rank"], h["score"]) for h in trace[side]] for side in ("dense", "sparse")}})
     monkeypatch.setattr(client, "query_points", real)
     return out
+
+
+# A score's last bits: local mode scores in float64 over a matrix the hidden units size, and how a machine's BLAS blocks
+# that sum moves the last bits with them. Rounded to float32, a score on a rounding's edge fell on one side here and on
+# the other on the Linux runner, one float32 step at 0.0198 (the first deploy, bc89a04). The server scores in float32.
+SCORE_REL = 1e-6
+
+
+def differing(x: dict, y: dict) -> list[str]:
+    """The parts of two answers that differ: every part exactly, each search's ids and ranks exactly, and its scores
+    to within their last bits."""
+    parts = [part for part in x if part not in ("dense", "sparse") and x[part] != y[part]]
+    for side in ("dense", "sparse"):
+        a, b = x[side], y[side]
+        if [hit[:2] for hit in a] != [hit[:2] for hit in b] or not all(
+                math.isclose(s, t, rel_tol=SCORE_REL, abs_tol=1e-12) for (_, _, s), (_, _, t) in zip(a, b)):
+            parts.append(side)
+    return parts
+
+
+def test_the_comparison_takes_a_scores_last_bits_and_no_more():
+    # The first deploy's failure, the runner's dense score one float32 step from this machine's, is the same answer;
+    # a score a hidden unit moved in its fourth digit is not, nor is a rank.
+    x = {"weights": [], "passes": 3, "dense": [("u", 1, -0.01975477859377861)], "sparse": [("v", 1, 0.0763641744852066)]}
+    runner = {**x, "dense": [("u", 1, -0.01975478045642376)]}
+    moved = {**x, "sparse": [("v", 1, 0.0763241744852066)]}
+    swapped = {**x, "dense": [("u", 2, -0.01975477859377861)]}
+    assert differing(x, runner) == [] and differing(x, moved) == ["sparse"] and differing(x, swapped) == ["dense"]
 
 
 def whole(monkeypatch, root, questions: list[str]) -> list[list[float]]:
@@ -188,7 +214,7 @@ def test_a_roles_results_do_not_move_when_only_text_it_may_not_read_changes(monk
             assert whole(monkeypatch, tmp_path / "a", questions) != whole(monkeypatch, root, questions), (role, change)
             after = answers(monkeypatch, root, client, role, questions)
             for question, x, y in zip(questions, before, after):
-                assert x == y, (role, change, question, [part for part in x if x[part] != y[part]])
+                assert not differing(x, y), (role, change, question, differing(x, y))
         checked.append(role)
     assert len(checked) == len(policy["roles"]) - 1, checked
     assert stable.sorted > 0, "Qdrant's local collection no longer sorts with numpy's argsort: the stable sort stands for nothing"
