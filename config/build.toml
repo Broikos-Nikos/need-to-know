@@ -1,6 +1,6 @@
-# What a full build of the full profile needed on this machine, as `uv run python bench/full_build.py --fresh`
-# printed it at tick 71, 2026-10-12. The doctor asks for this disk free before a build, half again for headroom
-# (MA-F3): the data directory peaks during the sync, while Qdrant writes its log and merges segments, at about
-# three times what it holds once the build is done.
+# What a full build of the full profile needs on this machine, as `uv run python bench/full_build.py --fresh`
+# printed it at tick 238, 2026-10-22. The doctor asks for this disk free before a build, half again for headroom
+# (MA-F3). The data directory peaks in the index's phases; at tick 71 it reached 18.58 GB there, while Qdrant indexed
+# the segments the sync was still growing, and since T7.5 a full sync defers the indexing to its end.
 [measured]
-peak_data_dir_gb = 18.58
+peak_data_dir_gb = 7.06
