@@ -54,10 +54,11 @@ named, real or invented: the documents call it "the Company".
   the corpus, at about 14 times that file's size; a file of a hundred megabytes or
   more would want cutting a section at a time: `uv run python bench/ingest_steps.py`.
 * The full build, from the assembled corpus to a searchable index, runs phase by
-  phase with the memory and disk each needs, 4912 s here, 3620 of them embedding on
-  the GPU: `uv run python bench/full_build.py --fresh`. It holds 160
+  phase with the memory and disk each needs, 5124 s here, 4430 of them embedding on
+  the GPU, the sync 408 and Qdrant's indexing, deferred to the sync's end, 52; the data
+  directory at most 7.06 GB: `uv run python bench/full_build.py --fresh`. It holds 160
   documents of 314,698,549 bytes, cut into 501,031 units and as many vectors, the index
-  taking 3,948,042,658 bytes of disk: `uv run ntk stats`.
+  taking 3,773,074,626 bytes of disk: `uv run ntk stats`.
 * Every unit is embedded as its passage, its heading path above its text, and kept
   in a cache under that passage, so a second run, a relabel or a rebuilt index
   embeds nothing again; a passage longer than the model takes is refused, never
@@ -198,8 +199,8 @@ named, real or invented: the documents call it "the Company".
 
 * The lexical search's term weights leak when they are counted over the whole collection:
   asked as sales, hr and returns, a word frequent in text the role may not read ranked its
-  unit lower in 72 of 88 matched pairs (Wilson 0.72 to 0.88), against 60 of 126 pairs of
-  words absent from that text (Wilson 0.39 to 0.56). This build counts them over the role's
+  unit lower in 72 of 88 matched pairs (Wilson 0.72 to 0.88), against 61 of 126 pairs of
+  words absent from that text (Wilson 0.40 to 0.57). This build counts them over the role's
   own view (N50), where the gap falls to 51 of 88 (Wilson 0.48 to 0.68), inside what a
   matched pair cannot tell from how words sit in the role's own text:
   `uv run python bench/idf_attack.py` and `uv run python bench/idf_attack.py --global-idf`.

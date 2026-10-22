@@ -11,7 +11,9 @@ Vectors come from the cache by passage (DR-F10): a relabel that keeps its passag
 no embedding, and one whose safe path lost a heading costs one. Sparse vectors are
 written at the frozen average length (KB1-F15), and every point's terms are counted
 into the frequency table per label set as it goes in, and out, read from the point
-itself, before it is deleted (N50). Being a comparison of states rather
+itself, before it is deleted (N50); the counts of points going in are kept in memory and
+written every COUNTED points and at the end, since a write after every batch, into a table
+that a full build fills, was most of a full sync's work (T7.5). Being a comparison of states rather
 than a replay of a log, a sync killed at any point is finished by the next one, and
 two in a row change nothing. One sync writes at a time, under an operating system
 lock, and every sync ends by checking the frequency table's passages per label set
@@ -22,6 +24,11 @@ alone, through the payload index on `doc_id`, which is what the watcher asks for
 whole comparison reads every unit and every point id. Its seconds count from the start,
 and `ntk index sync` prints them by part: the reading, the deletes, the embedding, the
 upserts and the closing check (MA-F8).
+
+A sync that writes BULK points or more is a bulk load (T7.5): Qdrant indexes nothing while it
+writes, and each segment once at its end, rather than again and again as segments grow,
+which held three copies of the index on disk at once; any sync after one puts the indexing
+back, a bulk load killed before its end having left it off.
 """
 
 from __future__ import annotations
@@ -35,10 +42,15 @@ from needtoknow.corpus import exclusive
 from needtoknow.embed import cache
 from needtoknow.index import frequencies
 from needtoknow.settings import data_dir
-from needtoknow.index.collection import COLLECTION, DENSE, SPARSE, label_set, payload, point_id
+from needtoknow.index.collection import (COLLECTION, DENSE, INDEXING_THRESHOLD, SPARSE, label_set, payload,
+                                         point_id)
 from needtoknow.ingest.units import passage
 
 BATCH = 256
+# Points a sync writes at or above which it is a bulk load, its indexing deferred to its end.
+BULK = 20_000
+# Points whose terms are counted in memory before the frequency table is written.
+COUNTED = BATCH * 200
 
 
 class SyncError(RuntimeError):
@@ -59,6 +71,17 @@ def held(client, doc_ids: list[str] | None = None) -> set[str]:
         ids.update(str(record.id) for record in records)
         if offset is None:
             return ids
+
+
+def indexing(client, deferred: bool) -> bool:
+    """Qdrant's indexing off for a bulk load, or back on; whether it changed anything."""
+    from qdrant_client import models
+
+    threshold = 0 if deferred else INDEXING_THRESHOLD
+    if client.get_collection(COLLECTION).config.optimizer_config.indexing_threshold == threshold:
+        return False
+    client.update_collection(COLLECTION, optimizers_config=models.OptimizersConfigDiff(indexing_threshold=threshold))
+    return True
 
 
 def sync(client, manifest: Path | None = None, report=None, doc_ids: list[str] | None = None,
@@ -105,8 +128,10 @@ def _sync(client, manifest: Path | None, report, doc_ids: list[str] | None, forc
                         f"for the manifest in {data_dir()}: a data folder other than the one the index was built "
                         "from, a corpus draw's say, reaches the same server. ntk index sync --force deletes them "
                         "when that is meant (MT-F18)")
+    bulk = len(todo) >= BULK
     summary = {"units": len(wanted), "points_before": len(present), "deleted": len(stale), "upserted": 0,
-               "embedded": 0, "seconds": 0.0, "parts": parts}
+               "embedded": 0, "seconds": 0.0, "parts": parts, "bulk": bulk}
+    indexing(client, deferred=bulk)
     lap("read")
     with frequencies.opened(COLLECTION) as counts, cache.opened() as vectors:
         for start in range(0, len(stale), BATCH * 4):
@@ -126,21 +151,35 @@ def _sync(client, manifest: Path | None, report, doc_ids: list[str] | None, forc
                     first.setdefault(key, (row[0], text))
             summary["embedded"] = cache.embed(vectors, list(first.items()))["embedded"]
         lap("embedding")
-        for start in range(0, len(todo), BATCH):
-            part, part_texts = todo[start:start + BATCH], texts[start:start + BATCH]
-            dense = cache.read(vectors, keys[start:start + BATCH])
-            sparse = [lexical.document(text, stats["avgdl"]) for text in part_texts]
-            client.upsert(COLLECTION, wait=True, points=models.Batch(
-                ids=[point_id(row[0]) for row in part],
-                vectors={DENSE: dense.tolist(),
-                         SPARSE: [models.SparseVector(indices=i, values=v) for i, v in sparse]},
-                payloads=[payload(row[0], row[1], row[2], row[3], json.loads(row[4]), json.loads(row[5]), row[9])
-                          for row in part]))
-            frequencies.count(counts, [(label_set(json.loads(row[4])), indices) for row, (indices, _) in zip(part, sparse)], 1)
-            counts.commit()
-            summary["upserted"] += len(part)
-            if report and (summary["upserted"] % (BATCH * 200) == 0 or summary["upserted"] == len(todo)):
-                report(f"upserted {summary['upserted']} of {len(todo)} points, {time.perf_counter() - began:.0f} s")
+        counted: list = []  # the points written and not yet counted into the table
+
+        def count() -> None:
+            if counted:
+                frequencies.count(counts, counted, 1)
+                counts.commit()
+                counted.clear()
+
+        try:
+            for start in range(0, len(todo), BATCH):
+                part, part_texts = todo[start:start + BATCH], texts[start:start + BATCH]
+                dense = cache.read(vectors, keys[start:start + BATCH])
+                sparse = [lexical.document(text, stats["avgdl"]) for text in part_texts]
+                client.upsert(COLLECTION, wait=True, points=models.Batch(
+                    ids=[point_id(row[0]) for row in part],
+                    vectors={DENSE: dense.tolist(),
+                             SPARSE: [models.SparseVector(indices=i, values=v) for i, v in sparse]},
+                    payloads=[payload(row[0], row[1], row[2], row[3], json.loads(row[4]), json.loads(row[5]), row[9])
+                              for row in part]))
+                counted.extend((label_set(json.loads(row[4])), indices) for row, (indices, _) in zip(part, sparse))
+                if len(counted) >= COUNTED:
+                    count()
+                summary["upserted"] += len(part)
+                if report and (summary["upserted"] % (BATCH * 200) == 0 or summary["upserted"] == len(todo)):
+                    report(f"upserted {summary['upserted']} of {len(todo)} points, {time.perf_counter() - began:.0f} s")
+            count()
+        finally:
+            if bulk:
+                indexing(client, deferred=False)
         lap("upserts")
     with frequencies.opened(COLLECTION) as counts:
         summary["drift"] = frequencies.drift(counts, client, COLLECTION)

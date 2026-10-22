@@ -1,7 +1,6 @@
 """The lexical analyser and BM25 vectors (T3.2): folding, stopwords, stemming by script, the
 values Qdrant gets, and statistics frozen per index (KB1-F15, RS-F3)."""
 
-import hashlib
 import importlib.metadata
 from pathlib import Path
 
@@ -76,5 +75,33 @@ def test_statistics_are_measured_once_and_refused_when_another_analyser_wrote_th
 
 
 def test_the_analyser_version_is_its_code_and_its_stemmer_release():
-    digest = hashlib.sha256(Path(lexical.__file__).read_bytes()).hexdigest()[:16]
+    digest = lexical.code_version(Path(lexical.__file__))
     assert lexical.ANALYSER_VERSION == f"{digest} snowballstemmer {importlib.metadata.version('snowballstemmer')}"
+
+
+def test_a_docstring_or_a_comment_leaves_the_analyser_version_and_code_moves_it(tmp_path):
+    # MT-F9: the version was the whole file's hash, so a sentence edited in a docstring staled a built index's statistics.
+    source = Path(lexical.__file__).read_text(encoding="utf-8")
+    copy = tmp_path / "lexical.py"
+
+    def version(text: str) -> str:
+        copy.write_text(text, encoding="utf-8")
+        return lexical.code_version(copy)
+
+    base = version(source)
+    assert version(source.replace('"""The lexical side (T3.2)', '"""The lexical side, reworded (T3.2)', 1)) == base
+    assert version(source.replace("K1 = 1.2\n", "K1 = 1.2  # a comment\n", 1)) == base
+    assert version(source.replace("K1 = 1.2\n", "K1 = 1.3\n", 1)) != base
+    assert version(source.replace("οσο οτι\n", "οσο οτι εωσ\n", 1)) != base
+
+
+def test_a_word_the_stemmer_empties_stays_as_it_was_folded():
+    # DR-F16: the Greek stemmer turned these into nothing, and every unit holding one shared one empty term.
+    assert lexical.terms("όταν ίδια ίδιο έως είτε ιστό ιστούς") == ["οταν", "ιδια", "ιδιο", "εωσ", "ειτε", "ιστο", "ιστουσ"]
+
+
+def test_the_docstrings_say_the_role_view_weighs_a_question_and_not_qdrant():
+    # KB4-K11: the module and query() said Qdrant weighed a question by its IDF modifier, which N50 removed.
+    first = lexical.__doc__.split("\n\n")[0]
+    assert "IDF modifier" not in first and "role" in first
+    assert "Qdrant" not in lexical.query.__doc__ and "role" in lexical.query.__doc__

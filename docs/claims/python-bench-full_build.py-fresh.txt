@@ -1,94 +1,92 @@
 command: uv run python bench/full_build.py --fresh
-recorded 2026-10-18 22:14 from the log full-build-t71.log, written 2026-10-12 22:52
+recorded 2026-10-22 22:38 from the log full-build-t238-fresh.log, written 2026-10-22 22:37
 ---
-fresh: the collection documents_v2 and 7 files deleted: bge-m3-5617a9f61b02-float16-cls1.db, frequencies.db, lexical.json, manifest.db, manifest.db-shm, manifest.db-wal, writer.lock
-started 2026-10-12 21:30:39; the data directory holds 4.08 GB
-build run 1: files 160, read 160, changed 160, removed 0; units added 501031, removed 0, in the manifest 501031 (NTK_DATA_DIR\manifest.db); changes by kind: added 160
-ingest: 130 s; cpu 126 s; peak working set 0.20 GB; machine busy 94%; data directory at most 4.18 GB
-manifest: 509 MB in pages, 501031 units; by column, MB: unit_id 15.3, doc_id 5.2, section_key 7.6, layer 2.4, labels 5.6, path 46.5, text 317.0, language 1.0
+fresh: the collection documents_v2 and 5 files deleted: bge-m3-5617a9f61b02-float16-cls1.db, frequencies.db, lexical.json, manifest.db, writer.lock
+started 2026-10-22 21:12:24; the data directory holds 0.39 GB
+build run 1: files 160, read 160, changed 160, removed 0; units added 501031, removed 0, in the manifest 501031 (NTK_DATA_DIR\manifest.db); changes by kind: added 160; in 182.85 s
+ingest: 183 s; cpu 164 s; peak working set 0.20 GB; machine busy 94%; data directory at most 1.45 GB
+manifest: 539 MB in pages, 501031 units; by column, MB: unit_id 15.3, doc_id 5.2, section_key 7.6, layer 2.4, labels 5.6, path 46.5, text 317.0, language 1.0
 
-embedded 8192 of 501028 passages, 1906840 tokens, 23,970 tokens/s
-embedded 16384 of 501028 passages, 3795851 tokens, 28,560 tokens/s
-embedded 24576 of 501028 passages, 5692189 tokens, 29,298 tokens/s
-embedded 32768 of 501028 passages, 7581896 tokens, 30,091 tokens/s
-embedded 40960 of 501028 passages, 9486258 tokens, 30,839 tokens/s
-embedded 49152 of 501028 passages, 11391879 tokens, 31,317 tokens/s
-embedded 57344 of 501028 passages, 13288553 tokens, 31,523 tokens/s
-embedded 65536 of 501028 passages, 15190390 tokens, 31,666 tokens/s
-embedded 73728 of 501028 passages, 17081419 tokens, 31,752 tokens/s
-embedded 81920 of 501028 passages, 18984418 tokens, 31,854 tokens/s
-embedded 90112 of 501028 passages, 20876135 tokens, 31,950 tokens/s
-embedded 98304 of 501028 passages, 22787750 tokens, 32,005 tokens/s
-embedded 106496 of 501028 passages, 24676836 tokens, 32,068 tokens/s
-embedded 114688 of 501028 passages, 26587976 tokens, 32,123 tokens/s
-embedded 122880 of 501028 passages, 28481785 tokens, 32,135 tokens/s
-embedded 131072 of 501028 passages, 30384685 tokens, 32,180 tokens/s
-embedded 139264 of 501028 passages, 32286607 tokens, 32,222 tokens/s
-embedded 147456 of 501028 passages, 34185097 tokens, 32,257 tokens/s
-embedded 155648 of 501028 passages, 36094459 tokens, 32,287 tokens/s
-embedded 163840 of 501028 passages, 37991383 tokens, 32,298 tokens/s
-embedded 172032 of 501028 passages, 39896021 tokens, 32,316 tokens/s
-embedded 180224 of 501028 passages, 41782297 tokens, 32,336 tokens/s
-embedded 188416 of 501028 passages, 43679769 tokens, 32,354 tokens/s
-embedded 196608 of 501028 passages, 45573155 tokens, 32,369 tokens/s
-embedded 204800 of 501028 passages, 47472381 tokens, 32,389 tokens/s
-embedded 212992 of 501028 passages, 49379643 tokens, 32,403 tokens/s
-embedded 221184 of 501028 passages, 51282628 tokens, 32,410 tokens/s
-embedded 229376 of 501028 passages, 53170957 tokens, 32,436 tokens/s
-embedded 237568 of 501028 passages, 55069736 tokens, 32,453 tokens/s
-embedded 245760 of 501028 passages, 56969129 tokens, 32,476 tokens/s
-embedded 253952 of 501028 passages, 58867757 tokens, 32,484 tokens/s
-embedded 262144 of 501028 passages, 60780106 tokens, 32,476 tokens/s
-embedded 270336 of 501028 passages, 62672729 tokens, 32,477 tokens/s
-embedded 278528 of 501028 passages, 64573371 tokens, 32,451 tokens/s
-embedded 286720 of 501028 passages, 66472411 tokens, 32,449 tokens/s
-embedded 294912 of 501028 passages, 68364698 tokens, 32,453 tokens/s
-embedded 303104 of 501028 passages, 70255807 tokens, 32,462 tokens/s
-embedded 311296 of 501028 passages, 72150516 tokens, 32,449 tokens/s
-embedded 319488 of 501028 passages, 74044687 tokens, 32,458 tokens/s
-embedded 327680 of 501028 passages, 75947303 tokens, 32,458 tokens/s
-embedded 335872 of 501028 passages, 77831490 tokens, 32,422 tokens/s
-embedded 344064 of 501028 passages, 79735118 tokens, 32,406 tokens/s
-embedded 352256 of 501028 passages, 81644233 tokens, 32,392 tokens/s
-embedded 360448 of 501028 passages, 83537085 tokens, 32,375 tokens/s
-embedded 368640 of 501028 passages, 85440645 tokens, 32,372 tokens/s
-embedded 376832 of 501028 passages, 87343558 tokens, 32,358 tokens/s
-embedded 385024 of 501028 passages, 89239368 tokens, 32,337 tokens/s
-embedded 393216 of 501028 passages, 91132268 tokens, 32,313 tokens/s
-embedded 401408 of 501028 passages, 93039563 tokens, 32,306 tokens/s
-embedded 409600 of 501028 passages, 94929897 tokens, 32,295 tokens/s
-embedded 417792 of 501028 passages, 96813475 tokens, 32,269 tokens/s
-embedded 425984 of 501028 passages, 98712814 tokens, 32,262 tokens/s
-embedded 434176 of 501028 passages, 100611986 tokens, 32,253 tokens/s
-embedded 442368 of 501028 passages, 102501826 tokens, 32,256 tokens/s
-embedded 450560 of 501028 passages, 104399486 tokens, 32,258 tokens/s
-embedded 458752 of 501028 passages, 106287933 tokens, 32,260 tokens/s
-embedded 466944 of 501028 passages, 108201100 tokens, 32,255 tokens/s
-embedded 475136 of 501028 passages, 110115399 tokens, 32,258 tokens/s
-embedded 483328 of 501028 passages, 112006222 tokens, 32,257 tokens/s
-embedded 491520 of 501028 passages, 113898869 tokens, 32,256 tokens/s
-embedded 499712 of 501028 passages, 115778257 tokens, 32,248 tokens/s
-embedded 501028 of 501028 passages, 116079273 tokens, 32,242 tokens/s
-units 501031; passages cached before 0, missing 501028, embedded 501028: 116079273 tokens in 3600 s, 32,242 tokens/s; BAAI/bge-m3@5617a9f61b028005a4858fdac845db406aefb181 float16 cls1 in NTK_DATA_DIR\embed\bge-m3-5617a9f61b02-float16-cls1.db
-embed: 3620 s; cpu 3875 s; peak working set 4.75 GB; machine busy 81%; data directory at most 1.99 GB
-qdrant started afresh as pid 23628, ready in 0.5 s
+embedded 8192 of 501028 passages, 1906840 tokens, 26,166 tokens/s
+embedded 16384 of 501028 passages, 3795851 tokens, 29,927 tokens/s
+embedded 24576 of 501028 passages, 5692189 tokens, 30,273 tokens/s
+embedded 32768 of 501028 passages, 7581896 tokens, 29,464 tokens/s
+embedded 40960 of 501028 passages, 9486258 tokens, 28,741 tokens/s
+embedded 49152 of 501028 passages, 11391879 tokens, 28,266 tokens/s
+embedded 57344 of 501028 passages, 13288553 tokens, 27,932 tokens/s
+embedded 65536 of 501028 passages, 15190390 tokens, 27,658 tokens/s
+embedded 73728 of 501028 passages, 17081419 tokens, 27,454 tokens/s
+embedded 81920 of 501028 passages, 18984418 tokens, 27,327 tokens/s
+embedded 90112 of 501028 passages, 20876135 tokens, 27,187 tokens/s
+embedded 98304 of 501028 passages, 22787750 tokens, 27,060 tokens/s
+embedded 106496 of 501028 passages, 24676836 tokens, 26,985 tokens/s
+embedded 114688 of 501028 passages, 26587976 tokens, 26,887 tokens/s
+embedded 122880 of 501028 passages, 28481785 tokens, 26,819 tokens/s
+embedded 131072 of 501028 passages, 30384685 tokens, 26,761 tokens/s
+embedded 139264 of 501028 passages, 32286607 tokens, 26,698 tokens/s
+embedded 147456 of 501028 passages, 34185097 tokens, 26,619 tokens/s
+embedded 155648 of 501028 passages, 36094459 tokens, 26,555 tokens/s
+embedded 163840 of 501028 passages, 37991189 tokens, 26,479 tokens/s
+embedded 172032 of 501028 passages, 39896035 tokens, 26,420 tokens/s
+embedded 180224 of 501028 passages, 41782152 tokens, 26,366 tokens/s
+embedded 188416 of 501028 passages, 43679750 tokens, 26,320 tokens/s
+embedded 196608 of 501028 passages, 45573090 tokens, 26,288 tokens/s
+embedded 204800 of 501028 passages, 47472468 tokens, 26,262 tokens/s
+embedded 212992 of 501028 passages, 49379681 tokens, 26,239 tokens/s
+embedded 221184 of 501028 passages, 51282429 tokens, 26,215 tokens/s
+embedded 229376 of 501028 passages, 53170784 tokens, 26,211 tokens/s
+embedded 237568 of 501028 passages, 55069816 tokens, 26,202 tokens/s
+embedded 245760 of 501028 passages, 56969068 tokens, 26,192 tokens/s
+embedded 253952 of 501028 passages, 58867760 tokens, 26,180 tokens/s
+embedded 262144 of 501028 passages, 60779844 tokens, 26,168 tokens/s
+embedded 270336 of 501028 passages, 62672874 tokens, 26,164 tokens/s
+embedded 278528 of 501028 passages, 64573302 tokens, 26,156 tokens/s
+embedded 286720 of 501028 passages, 66472376 tokens, 26,169 tokens/s
+embedded 294912 of 501028 passages, 68364878 tokens, 26,175 tokens/s
+embedded 303104 of 501028 passages, 70255875 tokens, 26,183 tokens/s
+embedded 311296 of 501028 passages, 72150506 tokens, 26,196 tokens/s
+embedded 319488 of 501028 passages, 74044941 tokens, 26,204 tokens/s
+embedded 327680 of 501028 passages, 75947234 tokens, 26,214 tokens/s
+embedded 335872 of 501028 passages, 77831634 tokens, 26,227 tokens/s
+embedded 344064 of 501028 passages, 79735420 tokens, 26,245 tokens/s
+embedded 352256 of 501028 passages, 81644093 tokens, 26,262 tokens/s
+embedded 360448 of 501028 passages, 83536998 tokens, 26,272 tokens/s
+embedded 368640 of 501028 passages, 85440598 tokens, 26,278 tokens/s
+embedded 376832 of 501028 passages, 87343753 tokens, 26,303 tokens/s
+embedded 385024 of 501028 passages, 89239447 tokens, 26,312 tokens/s
+embedded 393216 of 501028 passages, 91132229 tokens, 26,317 tokens/s
+embedded 401408 of 501028 passages, 93039558 tokens, 26,328 tokens/s
+embedded 409600 of 501028 passages, 94929959 tokens, 26,321 tokens/s
+embedded 417792 of 501028 passages, 96813460 tokens, 26,329 tokens/s
+embedded 425984 of 501028 passages, 98712901 tokens, 26,330 tokens/s
+embedded 434176 of 501028 passages, 100611921 tokens, 26,325 tokens/s
+embedded 442368 of 501028 passages, 102501961 tokens, 26,327 tokens/s
+embedded 450560 of 501028 passages, 104399163 tokens, 26,331 tokens/s
+embedded 458752 of 501028 passages, 106288076 tokens, 26,336 tokens/s
+embedded 466944 of 501028 passages, 108200880 tokens, 26,330 tokens/s
+embedded 475136 of 501028 passages, 110115231 tokens, 26,323 tokens/s
+embedded 483328 of 501028 passages, 112006231 tokens, 26,314 tokens/s
+embedded 491520 of 501028 passages, 113899002 tokens, 26,308 tokens/s
+embedded 499712 of 501028 passages, 115778250 tokens, 26,312 tokens/s
+embedded 501028 of 501028 passages, 116079266 tokens, 26,309 tokens/s
+units 501031; passages cached before 0, missing 501028, embedded 501028: 116079266 tokens in 4412 s, 26,309 tokens/s; BAAI/bge-m3@5617a9f61b028005a4858fdac845db406aefb181 float16 cls1 in NTK_DATA_DIR\embed\bge-m3-5617a9f61b02-float16-cls1.db
+embed: 4430 s; cpu 4688 s; peak working set 4.76 GB; machine busy 60%; data directory at most 1.97 GB
+qdrant started afresh as pid 16068, ready in 0.5 s
 documents_v2: created; lexical statistics frozen over 501031 passages, avgdl 80.29
-index create: 63 s; cpu 60 s; peak working set 0.17 GB; machine busy 64%; data directory at most 2.72 GB
+index create: 50 s; cpu 47 s; peak working set 0.17 GB; machine busy 40%; data directory at most 2.73 GB
 documents_v2: already there, and of this shape; lexical statistics frozen over 501031 passages, avgdl 80.29
-upserted 51200 of 501031 points, 64 s
-upserted 102400 of 501031 points, 143 s
-upserted 153600 of 501031 points, 246 s
-upserted 204800 of 501031 points, 343 s
-upserted 256000 of 501031 points, 459 s
-upserted 307200 of 501031 points, 577 s
-upserted 358400 of 501031 points, 694 s
-upserted 409600 of 501031 points, 828 s
-upserted 460800 of 501031 points, 965 s
-upserted 501031 of 501031 points, 1082 s
-synced: units 501031, points 0 before and 501031 after; deleted 0, embedded 0, upserted 501031 in 1082.1 s (read 6.2, deletes 0.0, embedding 7.5, upserts 1068.1, check 0.2)
-index sync: 1096 s; cpu 660 s; peak working set 1.55 GB; machine busy 83%; data directory at most 18.58 GB
-qdrant indexing: 4 s; cpu 10 s; peak working set 5.71 GB; machine busy 81%; data directory at most 6.35 GB
-qdrant over the build: cpu 2092 s, peak working set 5.71 GB; 501031 points, 1002062 vectors indexed, 8 segments; storage 4.41 GB
-full build: 4912 s (1.36 h); data directory at most 18.58 GB, now 6.35 GB
-exit 0
-finished 2026-10-12T22:52:43+0300
+upserted 51200 of 501031 points, 44 s
+upserted 102400 of 501031 points, 84 s
+upserted 153600 of 501031 points, 124 s
+upserted 204800 of 501031 points, 163 s
+upserted 256000 of 501031 points, 204 s
+upserted 307200 of 501031 points, 246 s
+upserted 358400 of 501031 points, 288 s
+upserted 409600 of 501031 points, 329 s
+upserted 460800 of 501031 points, 370 s
+upserted 501031 of 501031 points, 397 s
+synced: units 501031, points 0 before and 501031 after; deleted 0, embedded 0, upserted 501031 in 404.6 s (read 4.7, deletes 0.0, embedding 5.7, upserts 394.2, check 0.1)
+index sync: 408 s; cpu 312 s; peak working set 1.71 GB; machine busy 42%; data directory at most 5.67 GB
+qdrant indexing: 52 s; cpu 286 s; peak working set 4.83 GB; machine busy 70%; data directory at most 7.06 GB
+qdrant over the build: cpu 349 s, peak working set 4.83 GB; 501031 points, 1002062 vectors indexed, 8 segments; storage 3.86 GB
+full build: 5124 s (1.42 h); data directory at most 7.06 GB, now 5.81 GB

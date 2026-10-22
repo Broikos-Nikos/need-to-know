@@ -1,6 +1,6 @@
 {
  "command": "uv run ntk stats",
- "recorded": "recorded 2026-10-21 13:51, run at 54c3732",
+ "recorded": "recorded 2026-10-22 22:38, run at 0a52bf1, the tree holding changes",
  "documents": 160,
  "bytes": 314698549,
  "units": 501031,
@@ -11,8 +11,8 @@
  "vectors": 501031,
  "collection": "documents_v2",
  "disk": {
-  "index": 3948042658,
-  "manifest": 571838464,
-  "vector_cache": 1073283072
+  "index": 3773074626,
+  "manifest": 565600256,
+  "vector_cache": 1073217536
  }
 }

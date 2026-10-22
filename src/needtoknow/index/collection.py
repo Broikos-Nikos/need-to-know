@@ -7,7 +7,8 @@ frequency part, without Qdrant's IDF modifier, which would count every label set
 question brings IDF weights over the asking role's view instead (N50, AC-F5); and
 keyword payload indexes on `label_set`, the tenant key that keeps each set's points
 together, and on `labels`, `doc_id` and `lang`. Filters may name `labels` or
-`label_set`, and the filter bench measures both (KB1-F3).
+`label_set`, and the filter bench measures both (KB1-F3); no search walks the graph by
+`doc_id` or `lang`, so their indexes build no edges in it (KB4-K10).
 
 A point's id is a UUID made from its unit id, so an upsert replays over itself. Its
 payload holds what a filter or a delete needs; the text and the offsets stay in the
@@ -33,6 +34,9 @@ COLLECTION = "documents_v2"
 DENSE, SPARSE = "dense", "bm25"
 DIMENSIONS = 1024
 HNSW_M = 16
+# Qdrant's indexing threshold, in kilobytes of vectors, its default named here: a segment above it is indexed, and a
+# bulk load, which defers the indexing to its end, puts this back (T7.5).
+INDEXING_THRESHOLD = 10_000
 
 
 class CollectionError(RuntimeError):
@@ -67,8 +71,9 @@ def indexes() -> dict:
     from qdrant_client import models
 
     keyword = models.PayloadSchemaType.KEYWORD
+    unwalked = models.KeywordIndexParams(type="keyword", enable_hnsw=False)
     return {"label_set": models.KeywordIndexParams(type="keyword", is_tenant=True), "labels": keyword,
-            "doc_id": keyword, "lang": keyword}
+            "doc_id": unwalked, "lang": unwalked}
 
 
 def problems(info) -> list[str]:
@@ -109,13 +114,16 @@ def ensure(client, passages) -> dict:
 
     `passages` is called only on creation, and gives every passage the index will hold.
     """
+    from qdrant_client import models
+
     created = not client.collection_exists(COLLECTION)
     if created:  # the statistics first: a run killed in between leaves no collection without them
         lexical.freeze(lexical.measure(passages()))
         for leftover in frequencies.table_path().parent.glob(frequencies.table_path().name + "*"):
             leftover.unlink()  # the new collection holds no point, and its table counts none
         vectors, sparse = config()
-        client.create_collection(COLLECTION, vectors_config=vectors, sparse_vectors_config=sparse)
+        client.create_collection(COLLECTION, vectors_config=vectors, sparse_vectors_config=sparse,
+                                 optimizers_config=models.OptimizersConfigDiff(indexing_threshold=INDEXING_THRESHOLD))
     else:
         found = problems(client.get_collection(COLLECTION))
         if found:

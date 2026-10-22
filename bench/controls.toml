@@ -1367,3 +1367,73 @@ test = "tests/test_watch.py::test_the_manifest_log_names_each_document_a_later_r
 file = "src/needtoknow/ingest/manifest.py"
 old = '''AND (units_added > 0 OR units_removed > 0) '''
 new = ''''''
+
+[[control]]
+name = "the analyser's version taken from every byte of its file"
+test = "tests/test_lexical.py::test_a_docstring_or_a_comment_leaves_the_analyser_version_and_code_moves_it"
+[[control.change]]
+file = "src/needtoknow/lexical.py"
+old = '''    return hashlib.sha256(ast.dump(tree).encode("utf-8")).hexdigest()[:16]'''
+new = '''    return hashlib.sha256(path.read_bytes()).hexdigest()[:16]'''
+
+[[control]]
+name = "a stem the stemmer empties kept empty"
+test = "tests/test_lexical.py::test_a_word_the_stemmer_empties_stays_as_it_was_folded"
+[[control.change]]
+file = "src/needtoknow/lexical.py"
+old = '''        return GREEK.stemWord(word) or word'''
+new = '''        return GREEK.stemWord(word)'''
+
+[[control]]
+name = "the lexical module saying Qdrant's IDF modifier weighs a question"
+test = "tests/test_lexical.py::test_the_docstrings_say_the_role_view_weighs_a_question_and_not_qdrant"
+[[control.change]]
+file = "src/needtoknow/lexical.py"
+old = '''frequency part, which a question's IDF weights over the asking role's view score (N50).'''
+new = '''frequency part, which Qdrant scores with its IDF modifier.'''
+
+[[control]]
+name = "graph edges built for documents and languages"
+test = "tests/test_collection.py::test_no_index_builds_graph_edges_for_a_document_or_a_language"
+[[control.change]]
+file = "src/needtoknow/index/collection.py"
+old = '''            "doc_id": unwalked, "lang": unwalked}'''
+new = '''            "doc_id": keyword, "lang": keyword}'''
+
+[[control]]
+name = "the collection made with the engine's own indexing threshold"
+test = "tests/test_collection.py::test_the_collection_is_made_with_the_indexing_threshold_a_bulk_load_puts_back"
+[[control.change]]
+file = "src/needtoknow/index/collection.py"
+old = '''        client.create_collection(COLLECTION, vectors_config=vectors, sparse_vectors_config=sparse,
+                                 optimizers_config=models.OptimizersConfigDiff(indexing_threshold=INDEXING_THRESHOLD))'''
+new = '''        client.create_collection(COLLECTION, vectors_config=vectors, sparse_vectors_config=sparse)'''
+
+[[control]]
+name = "a bulk load that leaves the indexing off"
+test = "tests/test_sync.py::test_a_bulk_load_defers_the_indexing_to_its_end_and_a_sync_after_it_puts_it_back"
+[[control.change]]
+file = "src/needtoknow/index/sync.py"
+old = '''            if bulk:
+                indexing(client, deferred=False)
+'''
+new = '''            pass
+'''
+
+[[control]]
+name = "the indexing set again whether or not it differs"
+test = "tests/test_sync.py::test_the_indexing_is_changed_only_where_it_differs"
+[[control.change]]
+file = "src/needtoknow/index/sync.py"
+old = '''    if client.get_collection(COLLECTION).config.optimizer_config.indexing_threshold == threshold:
+        return False
+'''
+new = ''''''
+
+[[control]]
+name = "the frequency table written after every batch"
+test = "tests/test_sync.py::test_a_sync_counts_its_points_into_the_table_in_memory_and_writes_them_together"
+[[control.change]]
+file = "src/needtoknow/index/sync.py"
+old = '''                if len(counted) >= COUNTED:'''
+new = '''                if len(counted) >= 1:'''

@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**253 findings, 238 closed, 15 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
+**253 findings, 245 closed, 8 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -82,7 +82,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 
 ## `DR`, the deep reviewer
 
-An audit pass on correctness, read in the logic rather than the comments. 41 findings, 40 closed.
+An audit pass on correctness, read in the logic rather than the comments. 41 findings, 41 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -101,7 +101,7 @@ An audit pass on correctness, read in the logic rather than the comments. 41 fin
 | `DR-F13` | low | fixed, tick 54 | An unknown html data-audience is reported folded, not as written |
 | `DR-F14` | low | fixed, tick 54 | HTML text outside h1 to h6, p, li and tr is dropped without a word (0 characters on this corpus) |
 | `DR-F15` | medium | fixed, tick 85 | A hit the manifest has dropped, between a scan and its sync, crashes the reranked search (KeyError) and ntk search (TypeError) |
-| `DR-F16` | low | open | The Greek stemmer turns έως into an empty term, so every unit holding it shares one meaningless term in the lexical index: make it a stopword when lexical.py next changes, with MT-F9's fix, since any edit to it stales the frozen statistics |
+| `DR-F16` | low | fixed, tick 238 | The Greek stemmer turns έως into an empty term, so every unit holding it shares one meaningless term in the lexical index: make it a stopword when lexical.py next changes, with MT-F9's fix, since any edit to it stales the frozen statistics |
 | `DR-F17` | medium | fixed, tick 117 | parse raises on a reply whose citations are not a list (TypeError) or hold a digit int cannot read such as a superscript (ValueError), where its docstring promises status invalid: read a non list as invalid or a bare integer as one citation, take a string only when isdecimal and ASCII, and test each; the class, found the same tick: the adapters read choices, output, content and candidates with .get on what they assume are objects, so a reply of the wrong shape there ends in a traceback too |
 | `DR-F18` | medium | fixed, tick 135 | A reply cut off mid body raises http.client.IncompleteRead, no OSError, so it escapes call.post's retries after one attempt as a raw exception: catch HTTPException with the network errors and test four attempts then a ProviderError |
 | `DR-F19` | medium | fixed, tick 123 | quoted escapes only lower case document tags, so </DOCUMENT> or <Document inside a document reaches the model as written, against the docstring's promise that no text opens or closes a quotation: escape case insensitively, with any space after < or / |
@@ -178,7 +178,7 @@ An audit pass on whether every number can be produced again. 27 findings, 27 clo
 
 ## `MT`, the maintainer in six months
 
-An audit pass on whether a fresh clone can be rebuilt and changed safely. 33 findings, 29 closed.
+An audit pass on whether a fresh clone can be rebuilt and changed safely. 33 findings, 32 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -190,7 +190,7 @@ An audit pass on whether a fresh clone can be rebuilt and changed safely. 33 fin
 | `MT-F6` | medium | fixed, tick 82 | The code cites decisions N7 to N53 in 18 files, and none resolves in the repository |
 | `MT-F7` | low | fixed, tick 82 | A changed collection or analyser is refused with no command to rebuild it, short of a bench that also deletes the vector cache |
 | `MT-F8` | low | fixed, tick 82 | bench/README.md opens by saying every bench runs with no GPU, key or network; eight of fifteen files need the GPU or the server |
-| `MT-F9` | low | open | An edit anywhere in lexical.py stales the index's frozen statistics: the analyser's version is the whole file's hash |
+| `MT-F9` | low | fixed, tick 238 | An edit anywhere in lexical.py stales the index's frozen statistics: the analyser's version is the whole file's hash |
 | `MT-F10` | medium | fixed, tick 117 | The README never mentions the golden items, ntk eval check and what it needs, ntk eval draft, or that the protocol changes only by a dated entry; two docstrings still say protocol version 4; nothing tells whoever edits prompt.py's rules to rerun bench/injection.py |
 | `MT-F11` | medium | fixed, tick 113 | The dev set rests on two checks no command repeats: the table rows' seeded draw and each absent fact's and near miss's search of the corpus prose ran from the session's scratchpad; a regenerated narrative could answer one in passing, as it already mentions a courier C3: each J and N item names its probe words and ntk eval check confirms none is held, the row draw a committed command |
 | `MT-F12` | low | fixed, tick 113 | ntk eval split writes over eval/families.json whatever it draws, though the split's salience reads narrative/ and the items were written against the registered split: refuse a differing result once items exist, behind a flag the protocol history records |
@@ -213,8 +213,8 @@ An audit pass on whether a fresh clone can be rebuilt and changed safely. 33 fin
 | `MT-F29` | medium | fixed, tick 225 | The counts the change feed and the document view read are made once per manifest, keyed by a trigger's name, with every statement IF NOT EXISTS: a fix to a trigger in code never reaches a manifest made before it, measured, and SCHEMA_VERSION does not cover them: a digest of the counts' SQL kept in the manifest, the counts made again when it differs |
 | `MT-F30` | low | fixed, tick 230 | The README names ffmpeg as the one program npm does not install, while npm run check:page and npm run capture launch Playwright's Chromium, which npm ci does not fetch: name npx playwright install chromium beside both |
 | `MT-F31` | low | fixed, tick 225 | The counted steps gate of the feed and the view asserts the counts equal before and after, and would pass on zero both times if a refactor reached the manifest another way: assert every count above zero |
-| `MT-F32` | low | open | docs/REBUILD.md says ntk qdrant start checks both of the server's hashes; it checks the binary's before every start and names the download's for the reader to check: say so |
-| `MT-F33` | low | open | docs/REBUILD.md excuses the index's bytes alone; rebuilt, the manifest's and the vector cache's differ too, 565,600,256 against 571,838,464 and 1,073,217,536 against 1,073,283,072, SQLite files whose pages follow their history: say every byte count on disk may differ, and only the counts above it must not |
+| `MT-F32` | low | fixed, tick 238 | docs/REBUILD.md says ntk qdrant start checks both of the server's hashes; it checks the binary's before every start and names the download's for the reader to check: say so |
+| `MT-F33` | low | fixed, tick 238 | docs/REBUILD.md excuses the index's bytes alone; rebuilt, the manifest's and the vector cache's differ too, 565,600,256 against 571,838,464 and 1,073,217,536 against 1,073,283,072, SQLite files whose pages follow their history: say every byte count on disk may differ, and only the counts above it must not |
 
 ## `SC`, the supply chain auditor
 
@@ -284,7 +284,7 @@ An audit pass of ten seconds on the first screen, by someone who hires but does 
 
 ## `PF`, the performance auditor
 
-An audit pass on time, memory and disk, its page half waiting for the page. 14 findings, 12 closed.
+An audit pass on time, memory and disk, its page half waiting for the page. 14 findings, 13 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -293,7 +293,7 @@ An audit pass on time, memory and disk, its page half waiting for the page. 14 f
 | `PF-F3` | low | fixed, tick 70 | Memory peaks at 19 times the size of the file being cut (158 MB for 8.43 MB): say the limit, stream by section if larger files arrive Measured by `bench/ingest_steps.py`, at 4659edd's code. |
 | `PF-F4` | medium | fixed, tick 78 | The cross encoder pads each batch of 16, in rank order, to its longest pair: sorted by length it scores a question in 572 ms instead of 843, the same top 8 |
 | `PF-F5` | low | fixed, tick 78 | Expansion finds each hit's segment by reading its whole document through the doc_id index: 31 to 43 ms for the top 8 |
-| `PF-F6` | low | open | Within one watcher, each widening of the largest document made the next sync's read slower, 0.40 to 0.73 s over five runs, leaving 0.2 s under the 5 s objective: run the change thirty times to see whether the engine's own vacuum bounds it, and if it does not, read only the sections that changed Measured by bench/revocation.py. |
+| `PF-F6` | low | fixed, tick 238 | Within one watcher, each widening of the largest document made the next sync's read slower, 0.40 to 0.73 s over five runs, leaving 0.2 s under the 5 s objective: run the change thirty times to see whether the engine's own vacuum bounds it, and if it does not, read only the sections that changed Measured by bench/revocation.py. |
 | `PF-F7` | low | fixed, tick 163 | Each ntk ask loads the encoder and the reranker in a fresh process, 30 s of search before the question reaches the provider against 0.65 s warm: the served path keeps both loaded, and the README says what a first question costs Measured by ntk ask. |
 | `PF-F8` | medium | fixed, tick 135 | The spend log books the models' loading as search time: each process's first question shows 28 to 35 s of search against a 0.77 s median, cached answers too, so the log's p95 of 28 s is loading, not search: load the models before the clock and record the load apart, or mark cold questions and report cold and warm apart |
 | `PF-F9` | low | fixed, tick 193 | The golden checks read the whole manifest for ten keys: the table items' check scans every unit's text, 5.2 of ntk eval check's 7.1 s, and the row draw scans once per candidate key, its test the suite's slowest at 43 s of 139: count each key's units in one pass and cache it beside the manifest under its last run id |
@@ -360,14 +360,14 @@ The same session's review of the generated corpus. 5 findings, 5 closed.
 
 ## `KB4`, the retrieval design at P3 exit, reviewed against a knowledge base
 
-The same session's review of the retrieval design and its measured filtered recall. 4 findings, 1 closed.
+The same session's review of the retrieval design and its measured filtered recall. 4 findings, 3 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `KB4-K8` | medium | open | The planned graph path mends the union filter but not the prose island, and N7's comparison would mix unit size with exactness: per label prefetches nested under one request and checked once against a merge in the client, prose searched exactly through a filter on its layer, and the sentence variant held to the filter bench at 0.97 per role on both layers before E6 compares it |
 | `KB4-K9` | low | fixed, tick 131 | The matched pair gap cannot tell a leak from how words sit in the role's own text: a noninterference test, two builds with the same frozen avgdl that differ only in units a role may not read, with every role's fused ids, order and scores and its reranked order identical on the attack's questions and the dev probes; N50 names avgdl as the one statistic measured over the whole collection |
-| `KB4-K10` | low | open | Four keyword payload indexes build graph edges per value that no served search walks: enable_hnsw false on doc_id and lang, and on label_set once the bench stops comparing forms, with bench/full_build.py --fresh timed before and after |
-| `KB4-K11` | low | open | The lexical module's docstrings say Qdrant weighs a question by its IDF modifier, gone since N50: query() returns placeholders that search() replaces with BM25's IDF over the asking role's view |
+| `KB4-K10` | low | fixed, tick 238 | Four keyword payload indexes build graph edges per value that no served search walks: enable_hnsw false on doc_id and lang, and on label_set once the bench stops comparing forms, with bench/full_build.py --fresh timed before and after |
+| `KB4-K11` | low | fixed, tick 238 | The lexical module's docstrings say Qdrant weighs a question by its IDF modifier, gone since N50: query() returns placeholders that search() replaces with BM25's IDF over the asking role's view |
 
 ## `KB5`, the answer layer at P4 exit, reviewed against a knowledge base
 

@@ -15,7 +15,8 @@ that say a rebuild is the same build.
   `953dc6f6f85a1b2dbfca4c34a2796e7dde08d41e`. They load only from the local Hugging Face cache; `ntk doctor` names
   the command that fetches each, `uv run hf download <repo> --revision <revision>`.
 - The index's server, Qdrant `1.19.2`, pinned in `config/qdrant.toml` with the sha256 of its download and of its
-  binary; `ntk qdrant start` says where to download it, checks both and writes the server's key into `.env`.
+  binary; `ntk qdrant start` names the download and the sha256 to check it by, checks the binary's own sha256 before
+  every start, and writes the server's key into `.env`.
 - A DeepSeek key in `.env` for answers alone. The index needs none, and the committed answers in
   `eval/runs/baseline/` need no asking again.
 
@@ -48,9 +49,11 @@ the manifest on, timed phase by phase.
 
 - `bench/corpus_digest.py` prints a digest of the plan, of the assembled corpus byte for byte, and of the manifest's
   units: the same three lines as its record, `docs/claims/python-bench-corpus_digest.py.txt`. The build made on
-  2026-10-12, as it stood on 2026-10-22, and a fresh clone's assembly and ingest of 2026-10-22 gave the same lines.
+  2026-10-12, as it stood on 2026-10-22, a fresh clone's assembly and ingest of 2026-10-22, and the rebuild from
+  this page on the machine whose data was deleted gave the same lines.
 - `ntk corpus check` finds every planted fact where the plan put it, and `ntk stats` prints the build's counts as its
-  record, `docs/claims/ntk-stats.txt`, does; the bytes of the index on disk are the engine's own layout and may differ.
+  record, `docs/claims/ntk-stats.txt`, does. The three sizes on disk may differ: the index's by the engine's own
+  layout, the manifest's and the vector cache's by the order their pages were written in.
 - Every figure the README states is a command's output kept in `docs/claims/`. `uv run python bench/claims.py record
   "<command>"` writes a record again, and `git diff docs/claims` shows what moved. The vectors come from the GPU,
   which need not give an embedding the same last bits twice, so retrieval's figures are compared at the precision

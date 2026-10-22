@@ -1,5 +1,5 @@
-"""The lexical side (T3.2): a passage as BM25 terms, hashed into a sparse vector that Qdrant
-scores with its IDF modifier.
+"""The lexical side (T3.2): a passage as BM25 terms, hashed into a sparse vector of BM25's term
+frequency part, which a question's IDF weights over the asking role's view score (N50).
 
 The analyser, in this order: lower case; accents stripped and final sigma folded, so a
 question typed without accents finds accented text (`03-retrieval-rag/10` section 5);
@@ -9,7 +9,9 @@ half the corpus is in each and a function word of either would otherwise carry w
 (KB1-F15, `03-retrieval-rag/12` section 5); and each word stemmed by its own script, not
 by its unit's language: Snowball's Greek stemmer for a word with a Greek letter, its
 English stemmer for any other word of letters, none for a word with a digit (KB1-F15). A
-stemmed BM25 is what made fusion pay in Greek in the base's M9c (same doc, section 5).
+word the stemmer turns into nothing stays as it was folded: οταν, ιδια, ιδιο, εωσ, ειτε,
+ιστο and ιστουσ were such words in the corpus, and their units shared one empty term (DR-F16).
+A stemmed BM25 is what made fusion pay in Greek in the base's M9c (same doc, section 5).
 
 A unit is analysed as its passage, the same text the dense side embeds. A term's id is
 four bytes of its blake2b hash, the u32 that Qdrant's sparse indices are; terms that
@@ -18,9 +20,10 @@ tf (k1 + 1) / (tf + k1 (1 - b + b dl / avgdl)); a question sends each of its ter
 once, weighed by its IDF over the asking role's view (`needtoknow.index.frequencies`,
 N50), never over the whole collection. avgdl is measured
 once per index and frozen with the analyser's version (KB1-F15): vectors written on a
-moving average would drift from every vector written before them. The version is this
-file's own digest and the stemmer's release, not a number bumped by hand, so a changed
-analyser can never write vectors beside its predecessor's (DR-F7's shape).
+moving average would drift from every vector written before them. The version is a digest
+of this file's code, its docstrings and comments left out, and the stemmer's release, not a
+number bumped by hand, so a changed analyser can never write vectors beside its
+predecessor's (DR-F7's shape), and a sentence about it no longer stales a built index (MT-F9).
 
 An IDF over the whole collection counted restricted text too, and tick 60's attack read
 it from the ranks (AC-F5), so the weights are counted per role view; the encoder still
@@ -29,6 +32,7 @@ reads one passage and no label.
 
 from __future__ import annotations
 
+import ast
 import hashlib
 import importlib.metadata
 import json
@@ -42,8 +46,21 @@ import snowballstemmer
 
 from needtoknow.settings import data_dir
 
-ANALYSER_VERSION = (hashlib.sha256(Path(__file__).read_bytes()).hexdigest()[:16]
-                    + " snowballstemmer " + importlib.metadata.version("snowballstemmer"))
+
+def code_version(path: Path) -> str:
+    """A digest of a file's code with its docstrings left out, and so its comments, which no syntax tree holds: what
+    decides a term or a value moves it, a sentence about them does not (MT-F9)."""
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    for node in ast.walk(tree):
+        body = getattr(node, "body", None)
+        if (isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)) and body
+                and isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant)
+                and isinstance(body[0].value.value, str)):
+            node.body = body[1:] or [ast.Pass()]
+    return hashlib.sha256(ast.dump(tree).encode("utf-8")).hexdigest()[:16]
+
+
+ANALYSER_VERSION = code_version(Path(__file__)) + " snowballstemmer " + importlib.metadata.version("snowballstemmer")
 K1 = 1.2
 B = 0.75
 WORD = re.compile(r"\w+")
@@ -72,8 +89,8 @@ def stem(word: str) -> str:
     if not word.isalpha():
         return word
     if any("α" <= letter <= "ω" for letter in word):
-        return GREEK.stemWord(word)
-    return ENGLISH.stemWord(word)
+        return GREEK.stemWord(word) or word
+    return ENGLISH.stemWord(word) or word
 
 
 def terms(text: str) -> list[str]:
@@ -99,7 +116,8 @@ def document(text: str, avgdl: float) -> tuple[list[int], list[float]]:
 
 
 def query(text: str) -> tuple[list[int], list[float]]:
-    """A question's sparse vector: each of its terms once, at 1, for Qdrant to weigh by IDF."""
+    """A question's sparse vector: each of its terms once, at 1, a value the search replaces with the term's IDF over
+    the asking role's view (N50)."""
     indices = sorted({term_id(term) for term in terms(text)})
     return indices, [1.0] * len(indices)
 

@@ -231,10 +231,12 @@ and a change to the policy takes effect at the next query.
 
 **Evidence.** Weighted over the whole collection, ranks told a role which words were
 common in text it may not read. Asked as sales, hr and returns, the hidden-frequent
-word's unit ranked lower in 72 of 88 matched pairs (Wilson 0.72 to 0.88), against 60 of
-126 null pairs (Wilson 0.39 to 0.56); weighted over the view, in 51 of 88 (Wilson 0.48 to
-0.68), its null 60 of 126 (Wilson 0.39 to 0.56), as measured again on 2026-10-21
-(`bench/idf_attack.py`, and `--global-idf`). The view's gap over
+word's unit ranked lower in 72 of 88 matched pairs (Wilson 0.72 to 0.88), against 61 of
+126 null pairs (Wilson 0.40 to 0.57); weighted over the view, in 51 of 88 (Wilson 0.48 to
+0.68), its null 61 of 126 (Wilson 0.40 to 0.57), as measured again on 2026-10-22
+(`bench/idf_attack.py`, and `--global-idf`), once the analyser kept the words its stemmer
+emptied (DR-F16); on 2026-10-21 each null was 60 of 126 (Wilson 0.39 to 0.56) and the rest
+the same. The view's gap over
 its null is one this statistic cannot read: a null pair matches how often the role sees
 a word, not how its units sit in the role's text. The view's claim rests on construction
 instead, ranks from text the role may read and one statistic over every unit, the

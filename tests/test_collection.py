@@ -123,3 +123,19 @@ def test_statistics_another_analyser_froze_are_one_line_naming_the_command_that_
     line = capsys.readouterr().out.strip()
     assert line.startswith("index: ") and line.endswith("ntk index create --replace rebuilds them with the collection, "
                                                           "keeping the vector cache")
+
+
+def test_no_index_builds_graph_edges_for_a_document_or_a_language():
+    # KB4-K10: four keyword indexes built edges per value in the graph, and no search walks it by document or language.
+    made = collection.indexes()
+    assert made["doc_id"].enable_hnsw is False and made["lang"].enable_hnsw is False
+    assert made["label_set"].is_tenant and made["labels"] == models.PayloadSchemaType.KEYWORD
+
+
+def test_the_collection_is_made_with_the_indexing_threshold_a_bulk_load_puts_back(client, monkeypatch):
+    # T7.5: a bulk load turns the indexing off and puts back this value, the collection's own rather than the engine's.
+    made = {}
+    real = client.create_collection
+    monkeypatch.setattr(client, "create_collection", lambda *a, **k: made.update(k) or real(*a, **k))
+    ensure(client, lambda: iter(PASSAGES))
+    assert made["optimizers_config"].indexing_threshold == collection.INDEXING_THRESHOLD

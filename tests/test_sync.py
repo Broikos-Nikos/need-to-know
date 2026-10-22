@@ -220,3 +220,49 @@ def test_a_table_a_killed_sync_left_wrong_is_recounted_by_the_next(world):
     assert summary["drift"] == {"sales": (1, 7)} and summary["recounted"] == 2
     with frequencies.opened(COLLECTION) as db:
         assert frequencies.drift(db, client, COLLECTION) == {}
+
+
+def test_a_bulk_load_defers_the_indexing_to_its_end_and_a_sync_after_it_puts_it_back(world, monkeypatch):
+    # T7.5: Qdrant indexed segments again and again as a full sync grew them, the index three times over on disk.
+    client, _, _ = world
+    asked = []
+    monkeypatch.setattr(loader, "indexing", lambda _client, deferred: asked.append(deferred) or True)
+    monkeypatch.setattr(loader, "BULK", 2)
+    assert loader.sync(client)["bulk"] and asked == [True, False]
+    asked.clear()
+    assert not loader.sync(client)["bulk"] and asked == [False]  # whatever a killed bulk load left, put back
+
+
+def test_the_indexing_is_changed_only_where_it_differs():
+    # T7.5: a sync of one document makes no change to the collection's settings when they are already right.
+    class Collection:
+        def __init__(self, threshold):
+            self.threshold, self.updates = threshold, []
+
+        def get_collection(self, _name):
+            from types import SimpleNamespace
+            return SimpleNamespace(config=SimpleNamespace(optimizer_config=SimpleNamespace(indexing_threshold=self.threshold)))
+
+        def update_collection(self, _name, optimizers_config):
+            self.updates.append(optimizers_config.indexing_threshold)
+            self.threshold = optimizers_config.indexing_threshold
+
+    from needtoknow.index.collection import INDEXING_THRESHOLD
+    left_off = Collection(0)
+    assert loader.indexing(left_off, deferred=False) and left_off.updates == [INDEXING_THRESHOLD]
+    assert not loader.indexing(left_off, deferred=False) and left_off.updates == [INDEXING_THRESHOLD]
+    assert loader.indexing(left_off, deferred=True) and left_off.updates == [INDEXING_THRESHOLD, 0]
+
+
+def test_a_sync_counts_its_points_into_the_table_in_memory_and_writes_them_together(world, monkeypatch):
+    # T7.5: a write after every batch, into the table a full build fills, was most of a full sync's client CPU.
+    from needtoknow.index import frequencies
+    client, _, _ = world
+    written, real = [], frequencies.count
+    monkeypatch.setattr(frequencies, "count", lambda db, points, sign: written.append((len(points), sign)) or real(db, points, sign))
+    monkeypatch.setattr(loader, "BATCH", 1)
+    monkeypatch.setattr(loader, "COUNTED", 10)
+    loader.sync(client)
+    assert written == [(2, 1)]
+    with frequencies.opened(COLLECTION) as db:
+        assert frequencies.drift(db, client, COLLECTION) == {}
