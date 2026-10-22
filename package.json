@@ -16,9 +16,9 @@
     "check": "uv run python bench/claims.py check && uv run python bench/page_data.py --check"
   },
   "devDependencies": {
-    "@types/node": "^24.13.6",
+    "@types/node": "^26.6.5",
     "playwright": "1.61.1",
-    "typescript": "5.9.3",
+    "typescript": "7.0.2",
     "vite": "8.3.4"
   },
   "allowScripts": {
