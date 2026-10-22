@@ -6,7 +6,8 @@ holds still for one interval, so a file written in several steps, or a swap of t
 whole folder, is scanned once and whole (debounced). Then it runs the scan of T2.8,
 which decides what changed. Polling rather than filesystem events (N48): no new
 dependency, the same behaviour on every platform, and a freshness of two intervals
-plus one scan.
+plus one scan. What it syncs it reads from the manifest's own log, every run since the
+last it synced, so a scan by hand or a build beside it reaches the index too (OP-F7).
 
 It begins by catching up: a scan, for whatever changed while no watcher ran, and a
 sync of every document, for whatever a watcher that died between its scan and its
@@ -31,7 +32,7 @@ import time
 from pathlib import Path
 from typing import Callable
 
-from needtoknow.ingest.manifest import ManifestError, scan
+from needtoknow.ingest.manifest import ManifestError, changed_since, scan
 
 
 def fingerprint(full: Path) -> frozenset[tuple[str, int, int]]:
@@ -51,10 +52,10 @@ def fingerprint(full: Path) -> frozenset[tuple[str, int, int]]:
 def watch(full: Path, interval: float = 1.0, stop: Callable[[], bool] = lambda: False,
           report: Callable[[dict], None] = lambda summary: None, sleep: Callable[[float], None] = time.sleep,
           scan_fn: Callable[[Path], dict] = scan, sync_fn: Callable[[list[str] | None], dict] | None = None,
-          catch_up: bool = True) -> int:
-    """Catch up, then scan after every change once it has settled and sync the documents it changed, until `stop`;
-    the scans run, the catch up's included."""
-    last, unsynced, runs = fingerprint(full), set(), 0
+          catch_up: bool = True, log_fn: Callable[[int | None], tuple[int, list[str]]] = changed_since) -> int:
+    """Catch up, then scan after every change once it has settled and sync the documents every scan changed, this
+    watcher's or another process's, until `stop`; returns the scans run, the catch up's included."""
+    last, unsynced, runs, seen = fingerprint(full), set(), 0, None
     # The catch up: a scan at once, and a sync of every document, since what a dead watcher left unsynced died with it.
     pending = everything = first = catch_up
     while not stop():
@@ -78,6 +79,16 @@ def watch(full: Path, interval: float = 1.0, stop: Callable[[], bool] = lambda: 
                 unsynced.update(summary.get("changed_docs", []))
                 pending = False
             runs += 1
+        if sync_fn is not None:
+            # The manifest's log since the last look: the first look only marks where it stands, the catch up's sync
+            # or the watcher's start covering what came before (OP-F7).
+            try:
+                top, changed = log_fn(seen)
+            except Exception as error:  # the manifest held or gone: said, and read again next interval
+                report({"error": f"manifest log not read, trying again: {type(error).__name__}: {error}"})
+            else:
+                unsynced.update(changed)
+                seen = top
         if (unsynced or everything) and sync_fn is not None:
             try:
                 report(sync_fn(None if everything else sorted(unsynced)))

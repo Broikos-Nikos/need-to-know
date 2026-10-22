@@ -1321,3 +1321,49 @@ test = "tests/test_rebuild.py::test_the_records_the_rebuild_names_are_committed"
 file = "docs/REBUILD.md"
 old = '''`docs/claims/ntk-stats.txt`'''
 new = '''`docs/claims/ntk-stat.txt`'''
+
+[[control]]
+name = "a file's stats taken after its cut"
+test = "tests/test_scan.py::test_a_write_that_lands_during_the_cut_is_read_by_the_next_scan"
+[[control.change]]
+file = "src/needtoknow/ingest/manifest.py"
+old = '''            file_row(db, run_id, rel, stat, side, meta, digest)
+            added, removed = replace_units(db, run_id, doc_id, cut)'''
+new = '''            file_row(db, run_id, rel, file.stat(), sidecar.stat(), meta, digest)
+            added, removed = replace_units(db, run_id, doc_id, cut)'''
+
+[[control]]
+name = "a sidecar not read again after its stat"
+test = "tests/test_scan.py::test_a_sidecar_rewritten_after_the_listing_is_cut_with_what_it_now_says"
+[[control.change]]
+file = "src/needtoknow/ingest/manifest.py"
+old = '''            meta = json.loads(sidecar.read_text(encoding="utf-8"))
+'''
+new = ''''''
+
+[[control]]
+name = "a sidecar rewritten as another document cut under the listed one"
+test = "tests/test_scan.py::test_a_sidecar_rewritten_as_another_document_is_left_to_the_next_scan"
+[[control.change]]
+file = "src/needtoknow/ingest/manifest.py"
+old = '''            if meta.get("doc_id") != doc_id or file.name != f"{sidecar.name[:-len('.meta.json')]}.{meta.get('format')}":
+                continue
+'''
+new = ''''''
+
+[[control]]
+name = "a watcher syncing its own scans alone"
+test = "tests/test_watch.py::test_a_scan_another_process_made_is_synced_by_the_watcher"
+[[control.change]]
+file = "src/needtoknow/ingest/watch.py"
+old = '''                unsynced.update(changed)
+'''
+new = ''''''
+
+[[control]]
+name = "the manifest's log naming a document a run only touched"
+test = "tests/test_watch.py::test_the_manifest_log_names_each_document_a_later_run_changed_and_none_it_touched"
+[[control.change]]
+file = "src/needtoknow/ingest/manifest.py"
+old = '''AND (units_added > 0 OR units_removed > 0) '''
+new = ''''''

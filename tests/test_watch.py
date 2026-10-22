@@ -306,3 +306,33 @@ def test_a_scan_that_fails_is_said_and_tried_again_and_the_watcher_lives(tmp_pat
     watch(tmp_path, interval=0, stop=stop, report=reports.append, sleep=lambda _seconds: None, scan_fn=scan_fn)
     assert len(calls) == 2
     assert reports[0]["error"] == "manifest not scanned, trying again: OperationalError: database is locked"
+
+
+def test_a_scan_another_process_made_is_synced_by_the_watcher(monkeypatch, tmp_path):
+    # OP-F7: ntk ingest scan by hand, or a build, beside a watcher moved the manifest; the watcher's next scan then found
+    # nothing changed, and the watcher synced only what its own scans had changed.
+    from needtoknow.ingest.manifest import scan
+    full = make_corpus(monkeypatch, tmp_path)
+    synced = []
+
+    def by_hand():
+        edit(full, b"notes the outcome", b"logs the outcome")()
+        scan(full)
+
+    steps = Script([lambda: None, by_hand, lambda: None, lambda: None])
+    watch(full, catch_up=False, stop=steps.stop, sleep=steps.sleep, sync_fn=lambda docs: synced.append(docs) or {})
+    assert synced == [["RET_PRO_001"]]
+
+
+def test_the_manifest_log_names_each_document_a_later_run_changed_and_none_it_touched(monkeypatch, tmp_path):
+    # OP-F7: what the watcher syncs by; a touch changes no unit, so it moves the log's last run and names nothing.
+    from needtoknow.ingest.manifest import changed_since, scan
+    full = make_corpus(monkeypatch, tmp_path)
+    first, none = changed_since(None)
+    assert first == 1 and none == []
+    edit(full, b"notes the outcome", b"logs the outcome")()
+    scan(full)
+    assert changed_since(first) == (2, ["RET_PRO_001"])
+    later(full / "RET_PRO_001.txt")
+    scan(full)
+    assert changed_since(2) == (3, []) and changed_since(first) == (3, ["RET_PRO_001"])

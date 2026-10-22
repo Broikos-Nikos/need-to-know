@@ -225,3 +225,72 @@ def test_a_unit_moved_by_an_insertion_keeps_its_id_and_gets_its_new_offsets(corp
                           (doc["id"], "prose")).fetchall()  # a table unit repeats its header, so its text is no span
     kept = [row for row in rows if row[0] in before]
     assert len(kept) >= 2 and all(source[start:end] == text for _, text, start, end in kept)
+
+
+def test_a_write_that_lands_during_the_cut_is_read_by_the_next_scan(corpus, monkeypatch):
+    # OP-F6: the stats were taken after the cut, so a second save landing during it was recorded as the version cut,
+    # and every later scan skipped the file; the edit reached neither the manifest nor the index until a build.
+    base, docs = corpus
+    target = base / "full" / f"{docs[0]['id']}.txt"
+    real = pipeline.document_units
+
+    def cut_then_saved(file, meta, unknown=None):
+        out = real(file, meta, unknown)
+        if file == target:
+            monkeypatch.setattr(pipeline, "document_units", real)
+            file.write_bytes(file.read_bytes().replace(b"notes the outcome", b"logs the outcome"))
+        return out
+
+    target.write_bytes(target.read_bytes().replace(b"keeps the outcome", b"files the outcome"))
+    monkeypatch.setattr(pipeline, "document_units", cut_then_saved)
+    assert scan()["changes"] == {"changed": 1}
+    again = scan()
+    assert again["files_read"] == 1 and again["changes"] == {"changed": 1}
+    assert any("logs the outcome" in unit[0] for unit in doc_units(docs[0]["id"]).values())
+
+
+def test_a_sidecar_rewritten_after_the_listing_is_cut_with_what_it_now_says(corpus, monkeypatch):
+    # OP-F6: the listing reads every sidecar before the scan reaches its file, which then recorded the newer stat over
+    # the older audience; the narrowing was never read.
+    base, docs = corpus
+    meta_path = base / "full" / f"{docs[3]['id']}.meta.json"
+    real = manifest.corpus_files
+
+    def listed_then_rewritten(folder):
+        found = real(folder)
+        meta = json.loads(meta_path.read_text(encoding="utf-8"))
+        meta["default_audience"] = "finance"
+        meta_path.write_bytes(json.dumps(meta).encode("utf-8"))
+        return found
+
+    monkeypatch.setattr(manifest, "corpus_files", listed_then_rewritten)
+    assert scan()["changes"] == {"changed": 1}
+    monkeypatch.setattr(manifest, "corpus_files", real)
+    assert scan()["files_read"] == 0
+    assert any(unit[1] == ["finance"] for unit in doc_units(docs[3]["id"]).values())
+
+
+def test_a_sidecar_rewritten_as_another_document_is_left_to_the_next_scan(corpus, monkeypatch):
+    # OP-F6: what a sidecar says is read after its stat; one that names another document by then is not cut under the
+    # listed one, and its file is read by the scan after.
+    base, docs = corpus
+    meta_path = base / "full" / f"{docs[3]['id']}.meta.json"
+    target = base / "full" / f"{docs[3]['id']}.txt"
+    target.write_bytes(target.read_bytes().replace(b"keeps the outcome", b"files the outcome"))
+    real = manifest.corpus_files
+    original = meta_path.read_bytes()
+
+    def listed_then_renamed(folder):
+        found = real(folder)
+        meta = json.loads(original)
+        meta["doc_id"] = "LOG_PRO_999"
+        meta_path.write_bytes(json.dumps(meta).encode("utf-8"))
+        return found
+
+    monkeypatch.setattr(manifest, "corpus_files", listed_then_renamed)
+    first = scan()
+    assert first["files_read"] == 0 and docs[3]["id"] not in first["changed_docs"]
+    monkeypatch.setattr(manifest, "corpus_files", real)
+    meta_path.write_bytes(original)
+    assert scan()["changed_docs"] == [docs[3]["id"]]
+    assert any("files the outcome" in unit[0] for unit in doc_units(docs[3]["id"]).values())

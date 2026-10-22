@@ -202,8 +202,8 @@ def unique_ids(found: list[Unit]) -> list[Unit]:
     return out
 
 
-def file_row(db: sqlite3.Connection, run_id: int, rel: str, file: Path, sidecar: Path, meta: dict, digest: str) -> None:
-    stat, side = file.stat(), sidecar.stat()
+def file_row(db: sqlite3.Connection, run_id: int, rel: str, stat, side, meta: dict, digest: str) -> None:
+    """A file's row, with the stats of the file and its sidecar taken before either was read (OP-F6)."""
     db.execute(
         "INSERT INTO files VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(doc_id) DO UPDATE SET path = excluded.path, "
         "size = excluded.size, mtime_ns = excluded.mtime_ns, sidecar_size = excluded.sidecar_size, "
@@ -259,6 +259,9 @@ def scan(full: Path | None = None, path: Path | None = None, force: bool = False
             summary["files"] += 1
             rel = file.relative_to(full).as_posix()
             row = known.get(doc_id)
+            # The stats the row records, taken once and before anything is read: a write landing after them moves
+            # them, so the next scan reads the file again. Taken after the cut, they named a version the cut never
+            # read, and the write was skipped by every scan after (OP-F6).
             stat, side = file.stat(), sidecar.stat()
             same_stats = row is not None and row[1:5] == (stat.st_size, stat.st_mtime_ns, side.st_size, side.st_mtime_ns)
             if not force and same_stats and row[6] == pipeline.VERSIONS:
@@ -266,14 +269,20 @@ def scan(full: Path | None = None, path: Path | None = None, force: bool = False
                     db.execute("UPDATE files SET path = ?, run_id = ? WHERE doc_id = ?", (rel, run_id, doc_id))
                     note(doc_id, "renamed")
                 continue
+            # The sidecar read again after its stat, since the listing read it before: an audience changed between the
+            # two was cut under the older one and recorded under the newer stat (OP-F6). One rewritten as another
+            # document meanwhile is left, its stats unrecorded, to the next scan's listing.
+            meta = json.loads(sidecar.read_text(encoding="utf-8"))
+            if meta.get("doc_id") != doc_id or file.name != f"{sidecar.name[:-len('.meta.json')]}.{meta.get('format')}":
+                continue
             text, cut = pipeline.document_units(file, meta, unknown)
             summary["files_read"] += 1
             digest = content_hash(text, meta)
             if not force and row is not None and row[5] == digest and row[6] == pipeline.VERSIONS:
-                file_row(db, run_id, rel, file, sidecar, meta, digest)
+                file_row(db, run_id, rel, stat, side, meta, digest)
                 note(doc_id, "renamed" if row[0] != rel else "touched")
                 continue
-            file_row(db, run_id, rel, file, sidecar, meta, digest)
+            file_row(db, run_id, rel, stat, side, meta, digest)
             added, removed = replace_units(db, run_id, doc_id, cut)
             summary["units_added"] += added
             summary["units_removed"] += removed
@@ -303,3 +312,22 @@ def scan(full: Path | None = None, path: Path | None = None, force: bool = False
 def build(full: Path | None = None, path: Path | None = None) -> dict:
     """Every file read and cut, whatever its timestamps say."""
     return scan(full, path, force=True)
+
+
+def changed_since(run_id: int | None, path: Path | None = None) -> tuple[int, list[str]]:
+    """The manifest's last run, and the documents whose units the runs after `run_id` added or removed, whichever
+    process ran them: what a watcher syncs by, since a scan by hand or a build beside it moves the manifest and the
+    watcher's own next scan then finds nothing (OP-F7). None asks for the last run alone. Read only."""
+    path = path or manifest_path()
+    if not path.is_file():
+        return run_id or 0, []
+    db = sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True)
+    try:
+        last = db.execute("SELECT COALESCE(MAX(run_id), 0) FROM runs").fetchone()[0]
+        if run_id is None or last <= run_id:
+            return last, []
+        return last, [doc_id for (doc_id,) in db.execute(
+            "SELECT DISTINCT doc_id FROM changes WHERE run_id > ? AND run_id <= ? AND (units_added > 0 OR units_removed > 0) "
+            "ORDER BY doc_id", (run_id, last))]
+    finally:
+        db.close()

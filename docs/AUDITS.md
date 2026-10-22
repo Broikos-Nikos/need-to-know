@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**249 findings, 236 closed, 13 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
+**253 findings, 238 closed, 15 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -130,7 +130,7 @@ An audit pass on correctness, read in the logic rather than the comments. 41 fin
 
 ## `OP`, the pipeline operator
 
-An audit pass that killed the pipeline mid build and mid change. 5 findings, 5 closed.
+An audit pass that killed the pipeline mid build and mid change. 7 findings, 7 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -139,6 +139,8 @@ An audit pass that killed the pipeline mid build and mid change. 5 findings, 5 c
 | `OP-F3` | low | fixed, tick 22 | Two simulators at once would share sequence numbers: a lock for the run |
 | `OP-F4` | high | fixed, tick 65 | A watcher that starts late, or restarts after dying between its scan and its sync, never catches up: a revocation made then stays served |
 | `OP-F5` | medium | fixed, tick 65 | The frequency table drifts from the index after a killed sync or two syncs at once, and nothing notices |
+| `OP-F6` | high | fixed, tick 237 | A write that lands while the scan reads a file, or a sidecar rewritten after the scan listed it, is recorded as read and never read again: file_row takes the stats after the cut and corpus_files reads every sidecar before the loop stats it, so the next scan's shortcut skips the file; a narrowed audience saved twice within a cut never reaches the manifest or the index until ntk ingest build |
+| `OP-F7` | medium | fixed, tick 237 | A scan another process makes while the watcher runs, ntk ingest scan or build, is never synced: the watcher syncs only the documents its own scans changed, so its next scan finds nothing; the search drops the old points by the manifest (DR-F15), so nothing revoked is shown, but a widening or an edit never becomes searchable and the dropped points take places in the limit, as in HS-F9's build beside a watcher |
 
 ## `MA`, the measurement auditor
 
@@ -176,7 +178,7 @@ An audit pass on whether every number can be produced again. 27 findings, 27 clo
 
 ## `MT`, the maintainer in six months
 
-An audit pass on whether a fresh clone can be rebuilt and changed safely. 31 findings, 29 closed.
+An audit pass on whether a fresh clone can be rebuilt and changed safely. 33 findings, 29 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -211,6 +213,8 @@ An audit pass on whether a fresh clone can be rebuilt and changed safely. 31 fin
 | `MT-F29` | medium | fixed, tick 225 | The counts the change feed and the document view read are made once per manifest, keyed by a trigger's name, with every statement IF NOT EXISTS: a fix to a trigger in code never reaches a manifest made before it, measured, and SCHEMA_VERSION does not cover them: a digest of the counts' SQL kept in the manifest, the counts made again when it differs |
 | `MT-F30` | low | fixed, tick 230 | The README names ffmpeg as the one program npm does not install, while npm run check:page and npm run capture launch Playwright's Chromium, which npm ci does not fetch: name npx playwright install chromium beside both |
 | `MT-F31` | low | fixed, tick 225 | The counted steps gate of the feed and the view asserts the counts equal before and after, and would pass on zero both times if a refactor reached the manifest another way: assert every count above zero |
+| `MT-F32` | low | open | docs/REBUILD.md says ntk qdrant start checks both of the server's hashes; it checks the binary's before every start and names the download's for the reader to check: say so |
+| `MT-F33` | low | open | docs/REBUILD.md excuses the index's bytes alone; rebuilt, the manifest's and the vector cache's differ too, 565,600,256 against 571,838,464 and 1,073,217,536 against 1,073,283,072, SQLite files whose pages follow their history: say every byte count on disk may differ, and only the counts above it must not |
 
 ## `SC`, the supply chain auditor
 
