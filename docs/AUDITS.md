@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**261 findings, 254 closed, 7 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
+**263 findings, 254 closed, 9 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -83,7 +83,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 
 ## `DR`, the deep reviewer
 
-An audit pass on correctness, read in the logic rather than the comments. 41 findings, 41 closed.
+An audit pass on correctness, read in the logic rather than the comments. 43 findings, 41 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -128,6 +128,8 @@ An audit pass on correctness, read in the logic rather than the comments. 41 fin
 | `DR-F39` | low | fixed, tick 202 | replay() draws whichever recorded question's file arrives last: an unfetched question then a fetched one, picked quickly, leave the first drawn under the second's name; draw only for the latest request |
 | `DR-F40` | low | fixed, tick 202 | The feed route runs on the thread pool and drops the oldest place with del places[next(iter(places))], which two polls past 256 places can race into a RuntimeError or KeyError; make it async as the sign in is, or lock it |
 | `DR-F41` | medium | fixed, tick 233 | A scan committed between two reads of the served path ends the request in a 500: the document view's segments then units (IndexError), the expansion's row then segment (ValueError), in_manifest then passages_of (KeyError); read each pair in one snapshot or leave out what is gone |
+| `DR-F42` | low | open | A sidecar's language never reaches a unit whose id survives, in a scan or a build: the id leaves the language and the layer out, replace_units and cut_parts rewrite a surviving unit's offsets alone, and content_hash and the head's digest hold the default audience as their one sidecar field; a language corrected alone scans as touched, and with an edit the new units carry it and the rest keep the old |
+| `DR-F43` | low | open | ranked() doubles a search's window without bound, each doubling asking for the whole window again: a group of n equal scores at the cut costs about log2(n / 120) more calls; on the index 34 of 527 dev searches widened, the largest to 960; one more call with score_threshold at the cut's score returns the whole group at once (raised by the knowledge base session from the code, measured here) |
 
 ## `OP`, the pipeline operator
 

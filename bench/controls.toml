@@ -902,6 +902,56 @@ new = '''    "salience": 0.3861
 '''
 
 [[control]]
+name = "the growth items counted with the originals"
+test = "tests/test_golden.py::test_the_growth_items_ask_their_drawn_families_once_and_count_apart_from_the_originals"
+[[control.change]]
+file = "src/needtoknow/eval/golden.py"
+old = '''    items = [item for item in items if "growth" not in item]
+'''
+new = '''    items = list(items)
+'''
+
+[[control]]
+name = "a growth pair drawn under a common label"
+test = "tests/test_golden.py::test_the_growth_draw_pairs_families_under_no_common_label_and_takes_each_once"
+[[control.change]]
+file = "src/needtoknow/eval/golden.py"
+old = '''                        and not labels[fid] & labels[first]), None)
+'''
+new = '''                        ), None)
+'''
+
+[[control]]
+name = "a growth item on a family the seed did not draw"
+test = "tests/test_golden.py::test_the_growth_items_ask_their_drawn_families_once_and_count_apart_from_the_originals"
+[[control.change]]
+file = "src/needtoknow/eval/golden.py"
+old = '''        if wanted.get(key) != item.get("category"):
+'''
+new = '''        if False:
+'''
+
+[[control]]
+name = "the growth items in the twin draw"
+test = "tests/test_golden.py::test_the_dev_twins_pair_the_items_the_seed_draws"
+[[control.change]]
+file = "src/needtoknow/eval/golden.py"
+old = '''    originals = [item for item in dev if not item.get("twin") and "growth" not in item]
+'''
+new = '''    originals = [item for item in dev if not item.get("twin")]
+'''
+
+[[control]]
+name = "version 10's growth left unchecked"
+test = "tests/test_protocol.py::test_version_10_draws_the_growth_by_a_seed_and_counts_its_items"
+[[control.change]]
+file = "src/needtoknow/eval/protocol.py"
+old = '''    if not (isinstance(growth, dict) and set(growth) == {"version", "seed", "C", "F"}
+'''
+new = '''    if False and (isinstance(growth, dict) and set(growth) == {"version", "seed", "C", "F"}
+'''
+
+[[control]]
 name = "the fusion's ties left in the order the searches were listed"
 test = "tests/test_search.py::test_units_of_equal_fused_score_go_in_the_order_of_their_ids_whichever_search_comes_first"
 [[control.change]]

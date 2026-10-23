@@ -1,6 +1,6 @@
 command: uv run ntk eval check
-recorded 2026-10-23 04:40, run at 63e54ae, with changes to bench/README.md, bench/controls.toml, bench/repeatability.py, bench/served.py, bench/ties.py, src/needtoknow/eval/protocol.py, src/needtoknow/index/collection.py, src/needtoknow/index/search.py
+recorded 2026-10-23 05:19, run at 0d30138, with changes to bench/baseline.py, bench/controls.toml, src/needtoknow/cli.py, src/needtoknow/eval/golden.py, src/needtoknow/eval/protocol.py
 ---
 test: 35 items, 16 in Greek, 29 on a family; by category A 6 B 5 C 3 D 4 E 4 F 1 G 4 H 1 I 2 J 2 M 1 N 2; by layer prose 33, table 2
-dev: 153 items, 77 in Greek, 129 on a family; none for F01V00, F03V00 (N58); by category A 22 B 23 C 17 D 20 E 19 F 5 G 14 H 4 I 8 J 8 M 5 N 8; by layer prose 145, table 8
-every item keeps its rules, and the counts are version 9's
+dev: 171 items, 86 in Greek, 147 on a family; none for F01V00, F03V00 (N58); by category A 22 B 23 C 27 D 20 E 19 F 13 G 14 H 4 I 8 J 8 M 5 N 8; by layer prose 163, table 8; 18 of them its growth, C 10 F 8 (N63)
+every item keeps its rules, and the counts are version 10's

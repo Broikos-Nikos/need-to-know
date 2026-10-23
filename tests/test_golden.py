@@ -226,6 +226,57 @@ def test_a_twin_is_its_original_reworded_away_from_the_planted_sentence(ctx):
     assert any("dev: 1 twins, registered 20" in p for p in problems(original, twin))
 
 
+GROWTH = {"version": 10, "seed": 3, "C": 1, "F": 1}
+
+
+def grown(ctx):
+    """Three dev families beside the fixture's, two of sales in an English document and one of legal in a Greek one,
+    and the protocol's growth by one F pair and one C family."""
+    for doc, language, facts in (("D7", "en", (("F71V00", "sales"), ("F73V00", "sales"))), ("D8", "el", (("F72V00", "legal"),))):
+        ctx.docs[doc] = {"id": doc, "language": language, "sections": [{"label": label, "facts": [fid]}
+                                                                         for fid, label in facts]}
+        for fid, label in facts:
+            ctx.facts[fid] = {"id": fid, "family": fid, "label": label, "kind": "single", "placements": [doc],
+                              "values": ["5", "5"], "en": "It takes 5 days.", "el": "Χρειάζονται 5 ημέρες."}
+            ctx.families[fid] = {"id": fid, "split": "dev", "kind": "single", "label": label, "defaults": {},
+                                 "facts": [fid]}
+    ctx.protocol = copy.deepcopy(ctx.protocol)
+    ctx.protocol["items"]["dev"]["growth"] = dict(GROWTH)
+    return ctx
+
+
+def test_the_growth_draw_pairs_families_under_no_common_label_and_takes_each_once(ctx):
+    # N63, version 10: the families the growth items ask are drawn by a seed before any is written.
+    grown(ctx)
+    for seed in range(20):
+        drawn = G.draw_growth(ctx, {**GROWTH, "seed": seed})
+        (pair,), (across,) = drawn["F"], drawn["C"]
+        labels = [{ctx.facts[f]["label"] for f in ctx.families[fid]["facts"]} for fid in pair]
+        assert not labels[0] & labels[1] and across not in pair, seed
+        assert drawn == G.draw_growth(ctx, {**GROWTH, "seed": seed})
+    with pytest.raises(G.GoldenError, match="for growth"):
+        G.draw_growth(ctx, {**GROWTH, "F": 3})  # one family of legal makes one pair at most
+
+
+def test_the_growth_items_ask_their_drawn_families_once_and_count_apart_from_the_originals(ctx):
+    grown(ctx)
+    drawn = G.draw_growth(ctx, GROWTH)
+    pair, across = drawn["F"][0], drawn["C"][0]
+    asks = lambda *fids: {"status": "answered", "facts": [{"fact_id": ctx.families[fid]["facts"][0],  # noqa: E731
+                                                           "forms": ["5 days"]} for fid in fids]}
+    paired = item(id="D90", category="F", families=pair, role="admin", growth=10, expect=asks(*pair))
+    alone = item(id="D91", category="C", families=[across], growth=10, expect=asks(across))
+    assert G.growth_problems([paired, alone], ctx) == []
+    assert any("which the growth seed did not draw" in p
+               for p in G.growth_problems([paired, {**alone, "families": [pair[0]]}], ctx))
+    assert any(f"{across} is asked by 0 growth items" in p for p in G.growth_problems([paired], ctx))
+    assert any("carries growth 10 and no twin" in p for p in G.growth_problems([paired, {**alone, "growth": 9}], ctx))
+    # The originals' rule of two or three items a family counts the originals alone.
+    three = [item(id=f"D8{n}", families=[across], expect=asks(across)) for n in range(3)]
+    assert not any(f"family {across} asked" in p for p in G.check_split(three + [paired, alone], "dev", ctx))
+    assert any("a growth item is a dev item" in p for p in G.check_split([{**alone, "id": "T09"}], "test", ctx))
+
+
 def test_the_dev_twins_pair_the_items_the_seed_draws():
     # N59: the items given a twin are drawn by a committed seed, in the test's category shares; this needs no build.
     dev, test = G.load_items(G.golden_path("dev")), G.load_items(G.golden_path("test"))

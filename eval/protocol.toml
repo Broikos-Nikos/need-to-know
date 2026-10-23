@@ -8,7 +8,7 @@
 # newest hash in eval/protocol_history.toml, so a change is a new dated entry there
 # with its reason, never a quiet edit.
 
-version = 9
+version = 10
 registered = 2026-10-12
 
 [splits]
@@ -110,6 +110,14 @@ J = 8
 N = 8
 share_tolerance = 0.05
 greek_share = [0.45, 0.55]
+# Version 10 (N63, RS-F30): dev grows in the categories the baseline missed, C across
+# languages and F with two facts, so that the registered test can reach alpha. The
+# growth seed draws the families before any growth item is written: F pairs whose
+# askable facts sit under no common label, then C families with an askable fact whose
+# documents share one language, each family taken once. A growth item carries the
+# version, keeps its category's rules and asks its drawn family or pair alone; the
+# counts and the shares above hold for the other dev items.
+growth = { version = 10, seed = 20261023, C = 10, F = 8 }
 
 [baseline]
 # deepseek-flash on both splits, three repeats, every scored answer asked with the
@@ -142,8 +150,9 @@ alpha = 0.05
 non_inferiority_margin = 0.05
 # The smallest effect is the one the registered test adopts in 80 percent of simulated
 # experiments on the dev units at the assumed discordance; bench/power.py prints it for
-# a range, and the baseline's measured discordance replaces the assumption (N60).
-smallest_visible_effect = 0.12
+# a range, and the baseline's measured discordance replaces the assumption (N60). Version
+# 10's growth took dev from 80 units to 88, and the figure from 0.12 to 0.11.
+smallest_visible_effect = 0.11
 smallest_visible_assumes = "a discordance of 0.2 per item, until the baseline measures it; bench/power.py"
 cost_cut = 0.20
 arms = ["up", "cost", "probe"]

@@ -155,6 +155,14 @@ def test_version_7_names_the_assumption_and_the_bench_behind_the_smallest_visibl
     assert any("RS-F18" in problem for problem in problems), problems
 
 
+@pytest.mark.parametrize("value", [None, {"version": 10, "seed": 20261023, "C": 10},
+                                   {"version": 10, "seed": "a seed", "C": 10, "F": 8}])
+def test_version_10_draws_the_growth_by_a_seed_and_counts_its_items(protocol, value):
+    # N63: dev grows in C and F, the families drawn by a seed before any growth item is written.
+    problems = validate(set_at(protocol, ("items", "dev", "growth"), value))
+    assert any("(N63)" in problem for problem in problems), problems
+
+
 @pytest.mark.parametrize("path, value", [
     (("release", "parity"), "retrieval for every dev item equals the last dev run of the same configuration"),
     (("release", "new_configuration"), None),

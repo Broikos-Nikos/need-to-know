@@ -105,6 +105,12 @@ def validate(protocol: dict) -> list[str]:
     if "bench/baseline.py" not in str(decision.get("reach", "")) or not decision.get("until_dev_can_show_a_gain"):
         problems.append("decision.reach must name bench/baseline.py, which prints the best p any experiment could get, "
                         "and decision.until_dev_can_show_a_gain must say what adopts meanwhile (RS-F30)")
+    # Version 10 (N63): dev grows in C and F by a seeded draw, its items held apart from the originals' counts and shares.
+    growth = protocol.get("items", {}).get("dev", {}).get("growth")
+    if not (isinstance(growth, dict) and set(growth) == {"version", "seed", "C", "F"}
+            and all(isinstance(growth[key], int) and growth[key] > 0 for key in growth)):
+        problems.append("items.dev.growth must name its version, its seed and how many C and F items dev grows by, "
+                        "drawn before any is written (N63)")
     # Version 9 (RS-F32): parity is checked by a command on what a run records, and a change that fails it is a new
     # configuration, asked on dev before anything compares with it.
     release = protocol.get("release", {})

@@ -104,3 +104,17 @@ bench/repeatability.py --against, and a change that shows any item others is a n
 configuration, whose own dev run comes before any test run or experiment. With the \
 fusion moved out of the engine (AC-F20), 24 dev items were shown other excerpts than \
 the baseline recorded, so the next dev run is the configuration's own (RS-F32)."""
+
+[[version]]
+date = 2026-10-23
+sha256 = "f512bf26a44bd1ff49fc38bad90ab67ee5285c64ededf28d9e0fcf744ad3804a"
+reason = """\
+After the baseline, before any experiment, as N63 opened P8. The baseline left 4 of \
+the 80 dev units below a perfect score, all in C across languages and F with two \
+facts, so the registered test could reach p 0.125 at best. Dev grows by 10 C items \
+and 8 F items on families a seed draws before any is written, F pairs whose facts \
+sit under no common label first, then C families whose fact sits in documents of \
+one language; each growth item carries the version and asks its drawn family or pair \
+alone, and the per family counts and shares hold for the other dev items. The \
+grown dev holds 88 units, and the smallest visible effect at the assumed \
+discordance falls from 0.12 to 0.11 (bench/power.py)."""

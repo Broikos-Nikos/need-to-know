@@ -117,11 +117,15 @@ def main() -> int:
     sources = Sources(ctx)
     defaults = {fid for family in ctx.families.values() for fid in family.get("defaults") or {}}
     runs, items, parity, statuses, opened = {}, {}, {}, {}, {}
-    for split in ("test", "dev"):
+    # The splits the folder holds a run of, each item that run asked: a later dev run of a grown dev reports alone, and
+    # the baseline still reports the items it asked, not the ones dev grew by after it (version 10).
+    splits = [split for split in ("test", "dev") if (args.folder / f"{split}.jsonl").is_file()]
+    for split in splits:
         check_use(split, "baseline")
-        items[split] = load_items(golden_path(split))
+        asked = {answer["id"] for answer in read(args.folder / f"{split}.jsonl")[0]}
+        items[split] = [item for item in load_items(golden_path(split)) if item["id"] in asked]
         for book in ("", "-closed", "-guess"):
-            if book == "-guess" and not (args.folder / f"{split}{book}.jsonl").is_file():
+            if book and not (args.folder / f"{split}{book}.jsonl").is_file():
                 continue
             answers, made = read(args.folder / f"{split}{book}.jsonl")
             if not book:
@@ -134,7 +138,7 @@ def main() -> int:
             runs[split + book]["made"] = made
             runs[split + book]["usd"] = sum(answer.get("usd") or 0.0 for answer in answers)
             statuses[split + book] = Counter(answer["status"] for answer in answers)
-    first = runs["test"]["made"]
+    first = runs[splits[0]]["made"]
     print(f"baseline at {first.get('commit', '?')[:12]}; protocol version {first.get('protocol_version')}; "
           f"{first.get('model')} at temperature {first.get('settings', {}).get('temperature')}; manifest run "
           f"{(first.get('manifest') or {}).get('run')}, {(first.get('manifest') or {}).get('units')} units; "
@@ -142,14 +146,14 @@ def main() -> int:
     made = {name: run["made"] for name, run in runs.items()}
     for line in differences(made) or [f"every run made at the same {', '.join(FIELDS)}"]:
         print(f"  {line}")
-    test = runs["test"]
-    scores = test["scores"]
-    family = [item for item in items["test"] if item["category"] in FAMILY]
-    low, high = wilson(sum(scores.values()), len(scores))
-    family_rate = sum(scores[item["id"]] for item in family) / len(family)
-    print(f"headline: all {len(scores)} test items, {sum(scores.values()) / len(scores):.3f} answered right, Wilson "
-          f"{low:.3f} to {high:.3f}; the {len(family)} family items alone {family_rate:.3f}")
-    for split in ("test", "dev"):
+    if "test" in runs:
+        scores = runs["test"]["scores"]
+        family = [item for item in items["test"] if item["category"] in FAMILY]
+        low, high = wilson(sum(scores.values()), len(scores))
+        family_rate = sum(scores[item["id"]] for item in family) / len(family)
+        print(f"headline: all {len(scores)} test items, {sum(scores.values()) / len(scores):.3f} answered right, "
+              f"Wilson {low:.3f} to {high:.3f}; the {len(family)} family items alone {family_rate:.3f}")
+    for split in splits:
         run = runs[split]
         print(f"{split}: answerable {share(run['answerable'])}; refusals {share(run['refusals'])}; overall "
               f"{share(run['overall'])}; grounded {share(run['grounded'])}; leaks {run['leaks']}; unstable "
@@ -163,7 +167,7 @@ def main() -> int:
                                                     else "") + f"; {len(misses['shown'])} shown every one"
               + (f" ({', '.join(misses['shown'])})" if misses["shown"] else ""))
         print(f"  verdicts that differ between two repeats: {run['discordance']:.4f} of the items, over every pair")
-    for split in ("test", "dev"):
+    for split in (split for split in splits if split + "-closed" in runs):
         counts = statuses[split + "-closed"]
         print(f"{split}, no documents under the answer rules: {counts['not_found']} of {sum(counts.values())} "
               "answers refused, which shows the rules hold and nothing of what the model knows")
@@ -181,12 +185,15 @@ def main() -> int:
                                                                           else "")
               + f"; any other forbidden value {len(others)}" + (f" ({', '.join(others)})" if others else "")
               + (f"; G on the value a law contradicts {share(law)}" if law else ""))
+    if "dev" not in runs:
+        return 0
     originals = [item for item in items["dev"] if not item.get("twin")]
     dev_units = unit_means(originals, runs["dev"]["verdicts"])
-    test_units = unit_means(items["test"], runs["test"]["verdicts"])
-    gap, low, high = difference(list(dev_units.values()), list(test_units.values()))
-    print(f"dev less test over fact families, a diagnostic that changes nothing (N33): {gap:+.3f}, 95 percent "
-          f"{low:+.3f} to {high:+.3f}, over {len(dev_units)} dev and {len(test_units)} test units")
+    if "test" in runs:
+        test_units = unit_means(items["test"], runs["test"]["verdicts"])
+        gap, low, high = difference(list(dev_units.values()), list(test_units.values()))
+        print(f"dev less test over fact families, a diagnostic that changes nothing (N33): {gap:+.3f}, 95 percent "
+              f"{low:+.3f} to {high:+.3f}, over {len(dev_units)} dev and {len(test_units)} test units")
     # The best p any experiment could get against this baseline: the test sees only the families that change (RS-F30).
     alpha = load_protocol()["decision"]["alpha"]
     best = reach(list(dev_units.values()))
@@ -204,7 +211,7 @@ def main() -> int:
     print(f"cost: {sum(run['usd'] for run in runs.values()):.6f} USD over the {len(runs)} runs")
     log = data_dir() / "logs" / "spend.jsonl"
     spend = records(log)  # whole lines (DR-F30)
-    for split in ("test", "dev"):
+    for split in splits:
         answers = opened[split]
         found = seconds_of(answers, {item["id"]: item["role"] for item in items[split]}, spend)
         timing = (f"median {statistics.median(found):.2f} s and p95 {nearest_rank(found, 0.95):.2f} s, over the "

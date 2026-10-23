@@ -250,8 +250,8 @@ def draw_twins(dev: list[dict], test: list[dict], count: int, seed: int = TWIN_S
     largest remainder with the seed's ties, among the categories with such an item; the categories with the fewest
     such items draw first, so an F or M item, whose two families any other draw could take, keeps its seat; within
     each its items are taken in the seed's order, skipping one whose family already has a twin. Twins written are
-    left out."""
-    originals = [item for item in dev if not item.get("twin")]
+    left out, and so are the growth items, which came after the twins and take none (version 10)."""
+    originals = [item for item in dev if not item.get("twin") and "growth" not in item]
     uses = Counter(family for item in originals for family in item.get("families") or [])
     eligible = defaultdict(list)
     for item in originals:
@@ -274,6 +274,75 @@ def draw_twins(dev: list[dict], test: list[dict], count: int, seed: int = TWIN_S
                 taken |= set(families[name])
                 seats[category] -= 1
     return drawn
+
+
+def askable(fact_id: str, family: dict, ctx: Context) -> bool:
+    """A fact an answered item may ask: no deliberate default (RS-F19) and no superseded value."""
+    return (fact_id not in family["defaults"] and fact_id not in DELIBERATE_DEFAULTS
+            and ctx.facts[fact_id]["kind"] != "superseded")
+
+
+def draw_growth(ctx: Context, rule: dict) -> dict[str, list]:
+    """The dev families the growth items ask (version 10, N63), drawn by the rule's seed before any is written: first
+    its F pairs, each of two families whose askable facts sit under no common label, the pair's partner the first
+    family in the seed's order that fits; then its C families, each with an askable fact whose documents share one
+    language, so that a question in the other asks it across languages. A family is taken once."""
+    order = sorted(fid for fid, family in ctx.families.items() if family["split"] == "dev" and not exempt(family, ctx))
+    random.Random(rule["seed"]).shuffle(order)
+    labels = {fid: {ctx.facts[f]["label"] for f in ctx.families[fid]["facts"] if askable(f, ctx.families[fid], ctx)}
+              for fid in order}
+    taken: set[str] = set()
+    pairs: list[list[str]] = []
+    for first in order:
+        if len(pairs) == rule["F"]:
+            break
+        if first in taken or not labels[first]:
+            continue
+        partner = next((fid for fid in order if fid != first and fid not in taken and labels[fid]
+                        and not labels[fid] & labels[first]), None)
+        if partner is not None:
+            pairs.append(sorted([first, partner]))
+            taken |= {first, partner}
+    across: list[str] = []
+    for fid in order:
+        if len(across) == rule["C"]:
+            break
+        family = ctx.families[fid]
+        if fid not in taken and any(askable(f, family, ctx) and len(
+                {ctx.docs[doc]["language"] for doc, _ in ctx.sections(f)}) == 1 for f in family["facts"]):
+            across.append(fid)
+            taken.add(fid)
+    if len(pairs) < rule["F"] or len(across) < rule["C"]:
+        raise GoldenError(f"dev holds {len(pairs)} F pairs and {len(across)} C families for growth, not {rule['F']} "
+                          f"and {rule['C']}")
+    return {"F": pairs, "C": across}
+
+
+def growth_problems(grown: list[dict], ctx: Context) -> list[str]:
+    """The growth items against version 10 (N63): each of the protocol's growth version, no twin, and every drawn
+    family or pair asked by one growth item of its category, and nothing else."""
+    rule = ctx.protocol["items"]["dev"].get("growth")
+    if rule is None:
+        return [f"{item.get('id')}: a growth item, where the protocol registers no growth" for item in grown]
+    try:
+        drawn = draw_growth(ctx, rule)
+    except GoldenError as error:
+        return [f"dev: {error}"]
+    wanted = {**{tuple(pair): "F" for pair in drawn["F"]}, **{(fid,): "C" for fid in drawn["C"]}}
+    problems: list[str] = []
+    asked = Counter()
+    for item in grown:
+        name, key = item.get("id"), tuple(sorted(item.get("families") or []))
+        if item.get("growth") != rule["version"] or item.get("twin"):
+            problems.append(f"{name}: a growth item carries growth {rule['version']} and no twin")
+        if wanted.get(key) != item.get("category"):
+            problems.append(f"{name}: a growth {item.get('category')} item asks {'+'.join(key) or 'nothing'}, which "
+                            "the growth seed did not draw for it")
+        asked[key] += 1
+    for key, category in wanted.items():
+        if asked[key] != 1:
+            problems.append(f"dev: the drawn {category} {'+'.join(key)} is asked by {asked[key]} growth items, not one")
+    return problems
 
 
 def twin_problems(loaded: dict[str, list[dict]], ctx: Context) -> list[str]:
@@ -552,8 +621,14 @@ def exempt(family: dict, ctx: Context) -> bool:
 
 
 def check_split(items: list[dict], split: str, ctx: Context, test_shares: dict | None = None) -> list[str]:
-    """The split's counts and shares against version 6."""
+    """The split's counts and shares against version 6, and dev's growth against version 10, its items apart."""
     problems: list[str] = []
+    grown = [item for item in items if "growth" in item]
+    if grown and split == "test":
+        problems += [f"{item.get('id')}: a growth item is a dev item" for item in grown]
+    elif grown or (split == "dev" and items and ctx.protocol["items"]["dev"].get("growth")):
+        problems += growth_problems(grown, ctx)
+    items = [item for item in items if "growth" not in item]
     counts = Counter(item.get("category") for item in items)
     uses = Counter(family for item in items for family in item.get("families") or [])
     own = ctx.protocol["items"][split]
@@ -615,4 +690,5 @@ def check(ctx: Context | None = None) -> tuple[dict, list[str]]:
                        "layers": dict(Counter(layer(i) for i in loaded[split]))} for split in SPLITS}
     summary["dev"]["exempt"] = sorted(fid for fid, family in ctx.families.items()
                                       if family["split"] == "dev" and exempt(family, ctx))  # MA-F14
+    summary["dev"]["growth"] = dict(sorted(Counter(i.get("category") for i in loaded["dev"] if "growth" in i).items()))
     return summary, problems

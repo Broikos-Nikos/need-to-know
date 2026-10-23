@@ -22,9 +22,12 @@ baseline and at each release.
 
 ## The dev set
 
-153 items: two or three for each dev family an item can ask, in the test's category
-shares, with 8 table cells, 8 absent facts and 8 near misses; every development choice and
-experiment is made on it. Two dev families carry no item: each holds only a value a model
+171 items: 153 written first, two or three for each dev family an item can ask, in the
+test's category shares, with 8 table cells, 8 absent facts and 8 near misses; and 18 that
+version 10 of the protocol grew it by, 10 across languages and 8 asking two facts as the
+administrator, on families a seed drew before any was written, in the two categories the
+baseline missed, so that the registered test can tell a better experiment apart (N63).
+Every development choice and experiment is made on it. Two dev families carry no item: each holds only a value a model
 may know without the documents, under the label every role reads, so no item could ask it
 (N58). Twenty items have a paraphrase twin: the same question for the same role and
 language, worded away from the original, with no more of the planted sentence's rarest
@@ -38,7 +41,7 @@ and original is reported (N59).
 scorer, `--split test --no-search` the first two on test:
 
 * Refusing everything is right for every absent fact, near miss and no access item: 32 of
-  dev's 133 originals, 0.241, and 8 of test's 35, 0.229; dev's figures leave the twenty
+  dev's 151 originals, 0.212, and 8 of test's 35, 0.229; dev's figures leave the twenty
   twins out, which are given apart. Every overall accuracy is read against that floor,
   which is why the answerable accuracy is given apart.
 * Answering every item with its own first form and citing exactly the sections that plant

@@ -527,6 +527,14 @@ reach alpha with 7 of them, a count no command printed that took in three paraph
 twins, which are no units; and the probe arm's 5 families came from an audit's scratch
 work (MA-F19). Both now come from the commands named.
 
+*Amended 2026-10-23, tick 245 (T8.1):* dev grows, protocol version 10. Its seed drew the
+families before any item was written: 8 pairs whose facts sit under no common label, asked
+by the administrator, and 10 families whose fact sits in documents of one language, asked
+in the other; 18 growth items, each asking its drawn family or pair alone, checked by
+`uv run ntk eval check` beside the 153 written first, whose counts and shares they leave
+alone. They are committed before any is answered; the dev run of this configuration, and
+the reach it gives, follow.
+
 ## N64. The server takes the role at sign in, and its trace shows each search's own scores
 
 *Decided 2026-10-18, at tick 163.*

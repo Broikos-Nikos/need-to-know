@@ -146,7 +146,7 @@ named, real or invented: the documents call it "the Company".
 * The evaluation's fact families are split into test and dev by a seed registered before
   any question was written, with every draw that failed the balance check recorded:
   `uv run ntk eval split --check`.
-* The golden questions, 35 test and 153 dev in `eval/golden/`, are each held to the rules
+* The golden questions, 35 test and 171 dev in `eval/golden/`, are each held to the rules
   of their category, the counts the protocol registered and the corpus they ask about:
   `uv run ntk eval check`, which reads the plan, the frequency table and the manifest a
   build makes. A dev question is drafted from `uv run ntk eval draft`, which hides the

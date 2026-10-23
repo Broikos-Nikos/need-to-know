@@ -604,8 +604,10 @@ def cmd_eval_check(out) -> int:
         categories = " ".join(f"{code} {count}" for code, count in seen["categories"].items()) or "none"
         layers = ", ".join(f"{name} {count}" for name, count in sorted(seen["layers"].items())) or "none"
         spared = f"; none for {', '.join(seen['exempt'])} (N58)" if seen.get("exempt") else ""
+        grown = (f"; {sum(seen['growth'].values())} of them its growth, " + " ".join(
+            f"{code} {count}" for code, count in seen["growth"].items()) + " (N63)") if seen.get("growth") else ""
         print(f"{split}: {seen['items']} items, {seen['greek']} in Greek, {seen['family_items']} on a family{spared}; "
-              f"by category {categories}; by layer {layers}", file=out)
+              f"by category {categories}; by layer {layers}{grown}", file=out)
     for problem in problems:
         print(f"  {problem}", file=out)
     print(f"{len(problems)} problems" if problems else
