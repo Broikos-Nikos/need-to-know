@@ -150,10 +150,21 @@ async function token(role: string): Promise<string> {
   return held
 }
 
+// A label in its one form, an outlined chip, wherever it shows (DE-F3); the separator between two stays in the text, for
+// a screen reader and a copy, and the style hides it from the eye.
+function chips(labels: string[], separator: string): HTMLElement[] {
+  return labels.flatMap((label, index) => {
+    const chip = element('span', 'label', label)
+    chip.dataset.label = ''  // the browser check selects on data attributes, never on a class
+    return index ? [element('span', 'sep', separator), chip] : [chip]
+  })
+}
+
 function filtered(trace: Trace): HTMLElement[] {
   const { labels, passes, holds_back } = trace.filter
   const reads = element('p', 'reads', `${trace.role} reads `)
-  labels.forEach((label, index) => reads.append(index ? ', ' : '', element('span', 'label', label)))
+  reads.dataset.reads = ''
+  reads.append(...chips(labels, ', '))
   return [reads, element('p', 'counted', `${number(passes)} units pass the filter and ${number(holds_back)} are held back.`)]
 }
 
@@ -191,22 +202,31 @@ function excerpts(trace: Trace): HTMLElement[] {
     block.id = `excerpt-${index + 1}`
     block.dataset.units = excerpt.units.join(' ')
     block.style.setProperty('--i', String(index))
-    const text = element('p', 'text clamped', excerpt.text)
+    // Closed to its first line until asked, but the one the answer cites, which shows whole (DE-F2).
+    const citing = cited.has(JSON.stringify([excerpt.doc_id, excerpt.section]))
+    const text = element('p', citing ? 'text' : 'text clamped', excerpt.text)
     text.dataset.text = ''
     const where = element('p', 'where', `${index + 1}. ${excerpt.doc_id}, ${heading(excerpt.section)}`)
     where.dataset.where = ''
-    const more = element('button', 'more', 'Show all of it') as HTMLButtonElement
-    more.type = 'button'
-    more.setAttribute('aria-expanded', 'false')
-    more.addEventListener('click', () => {
-      const open = !text.classList.toggle('clamped')
-      more.setAttribute('aria-expanded', String(open))
-      more.textContent = open ? 'Show less' : 'Show all of it'
-    })
-    block.append(where, element('p', 'labels', excerpt.labels.join(' + ')), text, more)
-    if (cited.has(JSON.stringify([excerpt.doc_id, excerpt.section]))) {
+    const tags = element('p', 'labels')
+    tags.append(...chips(excerpt.labels, ' + '))
+    block.append(where)
+    if (citing) {
       block.classList.add('cited')
+      block.dataset.cited = ''
       block.append(element('p', 'tag', 'cited by the answer'))
+    }
+    block.append(tags, text)
+    if (!citing) {
+      const more = element('button', 'more', 'Show all of it') as HTMLButtonElement
+      more.type = 'button'
+      more.setAttribute('aria-expanded', 'false')
+      more.addEventListener('click', () => {
+        const open = !text.classList.toggle('clamped')
+        more.setAttribute('aria-expanded', String(open))
+        more.textContent = open ? 'Show less' : 'Show all of it'
+      })
+      block.append(more)
     }
     return block
   })
@@ -423,7 +443,9 @@ function roleCard(role: string, trace: Trace): HTMLElement {
   const card = element('article', 'role-card')
   card.dataset.role = role
   const { labels, passes } = trace.filter
-  card.append(element('h3', '', role), element('p', 'minor', `reads ${labels.join(', ')}; ${number(passes)} units pass`))
+  const reads = element('p', 'minor', 'reads ')
+  reads.append(...chips(labels, ', '), `; ${number(passes)} units pass`)
+  card.append(element('h3', '', role), reads)
   const first = trace.reranked.slice(0, 3).map((hit) => trace.units[hit.unit_id]?.doc_id ?? '?')
   card.append(element('p', 'firsts', first.length ? first.join(', ') : 'nothing found'))
   const told = trace.answer
@@ -577,18 +599,30 @@ async function recorded<T>(name: string): Promise<T | null> {
   }
 }
 
+// Bytes to three figures in the unit that keeps them under a thousand, the exact count beneath: ten digit integers side
+// by side hid that the index is nearly four times the vector cache (DE-F5).
+function size(bytes: number): string {
+  const [unit, scale] = bytes >= 1e9 ? ['GB', 1e9] : bytes >= 1e6 ? ['MB', 1e6] : bytes >= 1e3 ? ['kB', 1e3] : ['bytes', 1]
+  return scale === 1 ? `${bytes} bytes` : `${(bytes / scale).toPrecision(3)} ${unit}`
+}
+
 function drawFigures(figures: Figures, origin: string) {
+  const exact = (bytes: number) => `${number(bytes)} bytes`
   const tiles: [string, string, string][] = [
-    ['Documents', number(figures.documents), `${number(figures.bytes)} bytes`],
+    ['Documents', number(figures.documents), `${size(figures.bytes)}, ${exact(figures.bytes)}`],
     ['Units', number(figures.units), Object.entries(figures.layers).map(([layer, n]) => `${layer} ${number(n)}`).join(', ')],
     ['Vectors', number(figures.vectors), `in ${figures.collection}`],
-    ['The index on disk', number(figures.disk.index), 'bytes'],
-    ['The manifest', number(figures.disk.manifest), 'bytes'],
-    ['The vector cache', number(figures.disk.vector_cache), 'bytes'],
+    ['The index on disk', size(figures.disk.index), exact(figures.disk.index)],
+    ['The manifest', size(figures.disk.manifest), exact(figures.disk.manifest)],
+    ['The vector cache', size(figures.disk.vector_cache), exact(figures.disk.vector_cache)],
   ]
   byId<HTMLElement>('figures').replaceChildren(...tiles.map(([label, value, under]) => {
     const tile = element('div', 'tile')
-    tile.append(element('dt', '', label), element('dd', 'value', value), element('dd', 'under', under))
+    const [shown, beneath] = [element('dd', 'value', value), element('dd', 'under', under)]
+    tile.dataset.tile = ''
+    shown.dataset.value = ''
+    beneath.dataset.under = ''
+    tile.append(element('dt', '', label), shown, beneath)
     return tile
   }))
   byId<HTMLElement>('scale-origin').textContent = origin

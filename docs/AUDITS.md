@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**263 findings, 256 closed, 7 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
+**263 findings, 260 closed, 3 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -315,15 +315,15 @@ An audit pass on time, memory and disk, its page half waiting for the page. 14 f
 
 ## `DE`, the design eye
 
-An audit pass on the page's type, spacing, rhythm, colour and motion, once it was done. 5 findings, 1 closed.
+An audit pass on the page's type, spacing, rhythm, colour and motion, once it was done. 5 findings, 5 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
 | `DE-F1` | medium | fixed, tick 231 | The answer is the quietest text in its own trace: Roboto Mono 14.04 px in --dim, under excerpts of Manrope 18.69 px in white and beside a verdict at the excerpts' size, in the cards as in the trace: the answer in the body face, white, a step above the body |
-| `DE-F2` | low | open | The excerpts are two thousand pixels of eight identical cards, the cited one told apart by a 14.95 px blue line: each closed to its header and first line, the cited one open and edged in the flame |
-| `DE-F3` | low | open | A label, the page's subject, has no form of its own: 14.04 px mono in --dim as every caption, in the filter, on each excerpt and in each card: one outlined chip everywhere |
-| `DE-F4` | low | open | Eleven type sizes, five of them within two pixels between 14.04 and 16 px, and two greys sixteen levels apart: a five step scale and one grey |
-| `DE-F5` | low | open | The build's tiles print bytes as ten digit integers at 24 px bold, so the index's size beside the cache's is not seen: GB or MB to three figures, the exact bytes beneath |
+| `DE-F2` | low | fixed, tick 247 | The excerpts are two thousand pixels of eight identical cards, the cited one told apart by a 14.95 px blue line: each closed to its header and first line, the cited one open and edged in the flame |
+| `DE-F3` | low | fixed, tick 247 | A label, the page's subject, has no form of its own: 14.04 px mono in --dim as every caption, in the filter, on each excerpt and in each card: one outlined chip everywhere |
+| `DE-F4` | low | fixed, tick 247 | Eleven type sizes, five of them within two pixels between 14.04 and 16 px, and two greys sixteen levels apart: a five step scale and one grey |
+| `DE-F5` | low | fixed, tick 247 | The build's tiles print bytes as ten digit integers at 24 px bold, so the index's size beside the cache's is not seen: GB or MB to three figures, the exact bytes beneath |
 
 ## `KB1`, the plan, reviewed against a knowledge base
 

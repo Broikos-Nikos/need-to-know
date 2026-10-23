@@ -7,9 +7,9 @@
  * The page is served where no server answers (`tools/serve.mjs`), so it replays the recording committed with it and
  * the picture shows what any visitor can make it show. Choreographed against geometry measured at 1280 by 780:
  *
- *   the form        377 to 482
- *   the state line  585
- *   the nine cards  three rows, 619 to 935, 948 to 1,170 and 1,182 to 1,515, drawn at load as every role
+ *   the form        377 to 483
+ *   the state line  586
+ *   the nine cards  three rows, 619 to 969, 982 to 1,236 and 1,249 to 1,600, drawn at load as every role
  *
  * So the picture opens on the cards, as the page does (RC-F3, RC-F4): the frame at 300 holds the question, the box
  * checked and the first row, sales answered beside legal and logistics refused; at 940, the other two rows, admin

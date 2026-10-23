@@ -25,8 +25,7 @@
   --ink-1: #080604;
   --ink-2: #141010;
   --paper: #ffffff;
-  --dim: #9a8f88;
-  --faint: #8a7f76;
+  --dim: #9a8f88; /* the one grey, for everything secondary: a second, ten levels darker, was told apart by no reader (DE-F4) */
   --edge: #73675f; /* a control's border, 3:1 or more against the form's ground (WCAG 1.4.11) */
   --flame-0: #ff8a1f;
   --flame-1: #ff6a00;
@@ -34,8 +33,14 @@
   --measure: oklch(0.78 0.13 235);
   --sans: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --mono: 'Roboto Mono', ui-monospace, 'Cascadia Mono', monospace;
-  --fs-body: clamp(17px, 16px + 0.21vw, 20px);
-  --fs-mono: clamp(14px, 13.4px + 0.05vw, 15px);
+  /* Five type sizes, each at least a fifth above the one under it, where eleven were in use, five of them within two
+     pixels (DE-F4): mono captions and data, secondary prose and controls, the body, the answer and the panels' heads,
+     the title. */
+  --fs-1: 0.8125rem;
+  --fs-2: 1rem;
+  --fs-3: clamp(1.2rem, 1.14rem + 0.12vw, 1.25rem);
+  --fs-4: 1.5rem;
+  --fs-5: clamp(2rem, 1.4rem + 2.6vw, 3.6rem);
   --wrap: 1240px;
   --gutter: clamp(1rem, 4vw, 3rem);
   --ease-arrive: cubic-bezier(0.16, 1, 0.3, 1);
@@ -68,7 +73,7 @@ body {
   background: var(--ink-1);
   color: var(--paper);
   font-family: var(--sans);
-  font-size: var(--fs-body);
+  font-size: var(--fs-3);
   line-height: 1.55;
 }
 
@@ -89,12 +94,12 @@ body {
   margin: 0;
   color: var(--dim);
   font-family: var(--mono);
-  font-size: var(--fs-mono);
+  font-size: var(--fs-1);
 }
 
 h1 {
   margin: 0.4rem 0 0.8rem;
-  font-size: clamp(2rem, 1.4rem + 2.6vw, 3.6rem);
+  font-size: var(--fs-5);
   font-weight: 700;
   line-height: 1.04;
   text-wrap: balance;
@@ -109,8 +114,8 @@ h1 {
 .mode {
   margin: 1.2rem 0 0;
   font-family: var(--mono);
-  font-size: var(--fs-mono);
-  color: var(--faint);
+  font-size: var(--fs-1);
+  color: var(--dim);
 }
 
 .query {
@@ -127,7 +132,7 @@ h1 {
   display: grid;
   gap: 0.3rem;
   color: var(--dim);
-  font-size: 0.85em;
+  font-size: var(--fs-2);
 }
 
 .grow {
@@ -186,7 +191,7 @@ button:disabled {
   align-items: center;
   padding: 0.55rem 0;
   color: var(--dim);
-  font-size: 0.85em;
+  font-size: var(--fs-2);
   cursor: pointer;
 }
 
@@ -200,15 +205,15 @@ button:disabled {
 .note {
   max-width: 72ch;
   margin: 0.8rem 0 0;
-  color: var(--faint);
-  font-size: 0.85em;
+  color: var(--dim);
+  font-size: var(--fs-2);
 }
 
 .state {
   min-height: 1.55em;
   margin: 1rem 0 0.8rem;
   font-family: var(--mono);
-  font-size: var(--fs-mono);
+  font-size: var(--fs-1);
   color: var(--dim);
 }
 
@@ -242,7 +247,7 @@ button:disabled {
 }
 
 .piece.own {
-  background: var(--faint);
+  background: var(--dim);
 }
 
 .piece.waiting {
@@ -252,7 +257,7 @@ button:disabled {
 .caption {
   margin: -0.5rem 0 0;
   font-family: var(--mono);
-  font-size: var(--fs-mono);
+  font-size: var(--fs-1);
   color: var(--dim);
 }
 
@@ -315,13 +320,13 @@ button:disabled {
 
 .step {
   font-family: var(--mono);
-  font-size: var(--fs-mono);
-  color: var(--faint);
+  font-size: var(--fs-1);
+  color: var(--dim);
 }
 
 .card h2 {
   margin: 0;
-  font-size: 1rem;
+  font-size: var(--fs-2);
   font-weight: 700;
   line-height: 1.3;
 }
@@ -329,13 +334,13 @@ button:disabled {
 .says {
   margin: 0.25rem 0 0;
   color: var(--dim);
-  font-size: 0.85em;
+  font-size: var(--fs-2);
 }
 
 .took {
   margin: 0.25rem 0 0;
   font-family: var(--mono);
-  font-size: var(--fs-mono);
+  font-size: var(--fs-1);
   color: var(--measure);
 }
 
@@ -352,9 +357,33 @@ button:disabled {
   margin: 0;
 }
 
+/* A label, the page's subject, has one form wherever it shows, in the filter, on an excerpt and on a card: an outlined
+   chip, where it was set as every caption is (DE-F3). Between two, the separator is kept for a screen reader and a
+   copy, and hidden from the eye. */
 .label {
+  display: inline-block;
+  margin: 0.1rem 0;
+  padding: 0 0.4em;
+  border: 1px solid var(--edge);
+  border-radius: 3px;
   font-family: var(--mono);
-  font-size: var(--fs-mono);
+  font-size: var(--fs-1);
+  line-height: 1.6;
+  color: var(--paper);
+  white-space: nowrap;
+}
+
+.sep + .label {
+  margin-left: 0.3rem;
+}
+
+.sep {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .hits {
@@ -363,7 +392,7 @@ button:disabled {
   padding: 0;
   border: 1px solid var(--edge); /* the rows are one control's states: the list draws their boundary */
   font-family: var(--mono);
-  font-size: var(--fs-mono);
+  font-size: var(--fs-1);
 }
 
 .hit {
@@ -391,7 +420,7 @@ button:disabled {
 }
 
 .rank {
-  color: var(--faint);
+  color: var(--dim);
 }
 
 .doc {
@@ -406,8 +435,8 @@ button:disabled {
 
 .minor {
   margin: 0.5rem 0 0;
-  color: var(--faint);
-  font-size: 0.8em;
+  color: var(--dim);
+  font-size: var(--fs-2);
 }
 
 .excerpt {
@@ -426,13 +455,16 @@ button:disabled {
   box-shadow: inset 2px 0 0 var(--measure);
 }
 
-.where,
-.labels {
+.where {
   margin: 0;
   font-family: var(--mono);
-  font-size: var(--fs-mono);
+  font-size: var(--fs-1);
   color: var(--dim);
   overflow-wrap: anywhere;
+}
+
+.labels {
+  margin: 0.3rem 0 0;
 }
 
 .text,
@@ -450,7 +482,7 @@ button:disabled {
    in the bench lines' mono and grey, under excerpts in white. */
 .said {
   margin-top: 0;
-  font-size: 1.2em;
+  font-size: var(--fs-4);
   font-weight: 500;
   line-height: 1.45;
   color: var(--paper);
@@ -474,11 +506,22 @@ button:disabled {
   overflow: hidden;
 }
 
+/* An excerpt shows its first line until asked, and the one the answer cites shows whole, edged in the flame: eight
+   cards of four lines each made the stage two thousand pixels of one rhythm, the cited one a line of blue (DE-F2). */
+.text.clamped {
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+}
+
+.excerpt.cited {
+  box-shadow: inset 2px 0 0 var(--flame-1);
+}
+
 .more {
   margin: 0.45rem 0 0;
   padding: 0.15rem 0.5rem;
   font: inherit;
-  font-size: 0.8em;
+  font-size: var(--fs-2);
   font-weight: 400;
   color: var(--dim);
   background: none;
@@ -488,7 +531,7 @@ button:disabled {
 .tag {
   margin: 0.4rem 0 0;
   font-family: var(--mono);
-  font-size: 0.8em;
+  font-size: var(--fs-1);
   color: var(--measure);
 }
 
@@ -496,7 +539,7 @@ button:disabled {
   margin: 0.3rem 0 0;
   padding-left: 1.2rem;
   font-family: var(--mono);
-  font-size: var(--fs-mono);
+  font-size: var(--fs-1);
   color: var(--dim);
   overflow-wrap: anywhere;
 }
@@ -542,23 +585,23 @@ button:disabled {
 
 .panel h2 {
   margin: 0 0 0.3rem;
-  font-size: 1.35rem;
+  font-size: var(--fs-4);
   line-height: 1.2;
 }
 
 .origin {
   margin: 0 0 1rem;
   font-family: var(--mono);
-  font-size: var(--fs-mono);
-  color: var(--faint);
+  font-size: var(--fs-1);
+  color: var(--dim);
   overflow-wrap: anywhere;
 }
 
 .foot {
   padding-top: 2.5rem;
   padding-bottom: 3rem;
-  color: var(--faint);
-  font-size: 0.85em;
+  color: var(--dim);
+  font-size: var(--fs-2);
 }
 
 .foot a {
@@ -583,7 +626,7 @@ button:disabled {
 
 .tile dt {
   color: var(--dim);
-  font-size: 0.85em;
+  font-size: var(--fs-2);
 }
 
 .tile dd {
@@ -591,15 +634,15 @@ button:disabled {
 }
 
 .tile .value {
-  font-size: 1.5rem;
+  font-size: var(--fs-4);
   font-weight: 700;
   line-height: 1.3;
 }
 
 .tile .under {
-  color: var(--faint);
+  color: var(--dim);
   font-family: var(--mono);
-  font-size: var(--fs-mono);
+  font-size: var(--fs-1);
   overflow-wrap: anywhere;
 }
 
@@ -612,7 +655,7 @@ button:disabled {
 
 .change h3 {
   margin: 0;
-  font-size: 1rem;
+  font-size: var(--fs-2);
   line-height: 1.35;
 }
 
@@ -628,7 +671,7 @@ button:disabled {
   padding: 0;
   list-style: none;
   color: var(--dim);
-  font-size: 0.85em;
+  font-size: var(--fs-2);
 }
 
 .legend li {
@@ -670,7 +713,7 @@ button:disabled {
   --name: 7.6rem;
   position: relative;
   font-family: var(--mono);
-  font-size: var(--fs-mono);
+  font-size: var(--fs-1);
 }
 
 .lane {
@@ -682,7 +725,7 @@ button:disabled {
 
 .lane .name {
   color: var(--dim);
-  font-size: 0.85em;
+  font-size: var(--fs-1);
   white-space: nowrap;
 }
 
@@ -700,8 +743,8 @@ button:disabled {
   position: absolute;
   top: 0.15rem;
   transform: translateX(-50%);
-  color: var(--faint);
-  font-size: 0.8em;
+  color: var(--dim);
+  font-size: var(--fs-1);
 }
 
 .tick:first-child {
@@ -770,14 +813,14 @@ button:disabled {
   margin: 0.6rem 0 0;
   color: var(--dim);
   font-family: var(--mono);
-  font-size: var(--fs-mono);
+  font-size: var(--fs-1);
   overflow-wrap: anywhere;
 }
 
 .runs {
   margin-top: 0.8rem;
   color: var(--dim);
-  font-size: 0.85em;
+  font-size: var(--fs-2);
 }
 
 .runs summary {
@@ -789,7 +832,7 @@ button:disabled {
   margin-top: 0.5rem;
   border-collapse: collapse;
   font-family: var(--mono);
-  font-size: var(--fs-mono);
+  font-size: var(--fs-1);
   font-variant-numeric: tabular-nums;
 }
 
@@ -802,13 +845,13 @@ button:disabled {
 }
 
 .runs th {
-  color: var(--faint);
+  color: var(--dim);
   font-weight: 400;
 }
 
 code {
   font-family: var(--mono);
-  font-size: 0.9em;
+  font-size: var(--fs-2);
 }
 
 /* The same question as every role: a card each, three to a row on a desktop. */
@@ -828,7 +871,7 @@ code {
 
 .role-card h3 {
   margin: 0;
-  font-size: 1rem;
+  font-size: var(--fs-2);
 }
 
 .role-card .minor {
@@ -838,7 +881,7 @@ code {
 .firsts {
   margin: 0.5rem 0 0;
   font-family: var(--mono);
-  font-size: var(--fs-mono);
+  font-size: var(--fs-1);
   overflow-wrap: anywhere;
 }
 
@@ -855,7 +898,7 @@ code {
   padding: 0;
   list-style: none;
   font-family: var(--mono);
-  font-size: var(--fs-mono);
+  font-size: var(--fs-1);
   color: var(--dim);
 }
 
@@ -866,10 +909,10 @@ code {
 }
 
 .events .none {
-  color: var(--faint);
+  color: var(--dim);
 }
 
-/* On a phone the figures sit two to a row, smaller, so the build fits a screen and the largest still fits its tile. */
+/* On a phone the figures sit two to a row, so the build fits a screen. */
 @media (max-width: 30rem) {
   .figures {
     grid-template-columns: 1fr 1fr;
@@ -877,10 +920,6 @@ code {
 
   .tile {
     padding: 0.6rem 0.7rem;
-  }
-
-  .tile .value {
-    font-size: 1.05rem;
   }
 
   .plot {

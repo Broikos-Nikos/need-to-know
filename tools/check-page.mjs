@@ -157,6 +157,56 @@ const loudest = (page) => page.evaluate(() => {
   return wrong
 })
 
+// The design the design eye's pass asked for (DE-F2 to DE-F5): every excerpt but the one the answer cites closed to a
+// line, and that one whole and edged in the flame; every label a chip, in the filter, on each excerpt and on each card;
+// five type sizes on the page, each a fifth or more above the one under it, and one grey; the disk's bytes to three
+// figures, the exact count beneath.
+const designed = (page) => page.evaluate(() => {
+  const wrong = []
+  for (const block of document.querySelectorAll('#trace [data-units]')) {
+    const text = block.querySelector('[data-text]')
+    const style = getComputedStyle(text)
+    const lines = text.clientHeight / parseFloat(style.lineHeight)
+    const whole = text.scrollHeight <= text.clientHeight + 1
+    if (block.dataset.cited !== undefined) {
+      if (!whole || !getComputedStyle(block).boxShadow.includes('255, 106, 0')) {
+        wrong.push(`the cited ${block.id} not whole and edged in the flame`)
+      }
+    } else if (!whole && Math.round(lines) !== 1) wrong.push(`${block.id} closed to ${lines.toFixed(1)} lines, not one`)
+  }
+  const chips = [...document.querySelectorAll('#trace [data-reads] [data-label], #trace [data-units] [data-label], #compare [data-label]')]
+  const holders = [...document.querySelectorAll('#trace [data-reads], #trace [data-units], #compare [data-role]')]
+  if (holders.some((holder) => !holder.querySelector('[data-label]'))) wrong.push('a filter, an excerpt or a card shows no label')
+  if (chips.some((chip) => !(parseFloat(getComputedStyle(chip).borderTopWidth) > 0))) wrong.push('a label drawn without its chip')
+  const sizes = new Set()
+  const greys = new Set()
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT)
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    const element = node.parentElement
+    if (!node.textContent.trim() || !element || element.closest('[hidden], noscript') || !element.getClientRects().length) continue
+    const style = getComputedStyle(element)
+    sizes.add(Math.round(parseFloat(style.fontSize) * 100) / 100)
+    const [r, g, b] = (style.color.match(/\d+(\.\d+)?/g) ?? []).map(Number)
+    if (r === g && g === b) continue
+    if (Math.abs(r - g) < 20 && Math.abs(g - b) < 20 && r < 200) greys.add(style.color)  // a warm grey: one only
+  }
+  const steps = [...sizes].sort((a, b) => a - b)
+  if (steps.length > 5) wrong.push(`${steps.length} type sizes: ${steps.join(', ')} px`)
+  steps.slice(1).forEach((step, at) => {
+    if (step / steps[at] < 1.199) wrong.push(`type at ${steps[at]} and ${step} px, less than a fifth apart`)
+  })
+  if (greys.size > 1) wrong.push(`${greys.size} greys: ${[...greys].join(', ')}`)
+  const tiles = [...document.querySelectorAll('#figures [data-tile]')].slice(-3)
+  for (const tile of tiles) {
+    const value = tile.querySelector('[data-value]')?.textContent ?? ''
+    const under = tile.querySelector('[data-under]')?.textContent ?? ''
+    if (!/^\d+(\.\d+)? (GB|MB|kB)$/.test(value) || !/^[\d,]+ bytes$/.test(under)) {
+      wrong.push(`the tile ${value} over ${under}, not bytes to three figures over the exact count`)
+    }
+  }
+  return wrong
+})
+
 if (!existsSync(resolve(dist, 'index.html'))) {
   console.error('check:page: no web/dist; npm run build makes it')
   process.exit(1)
@@ -323,6 +373,7 @@ try {
     if (foreign.length) wrong.push(`${foreign.length} drawn units the role's trace does not hold`)
     if (!text.includes(flat(trace.answer.answer))) wrong.push('the recorded answer')
     wrong.push(...await loudest(page))
+    wrong.push(...await designed(page))
     if (wrong.length) {
       fail(`${question.id} as ${question.role}: ${wrong.length} thing${wrong.length === 1 ? '' : 's'} drawn otherwise than recorded`, wrong.join('; '))
     } else {

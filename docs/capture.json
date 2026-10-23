@@ -1,5 +1,5 @@
 {
-  "recorded": "2026-10-21",
+  "recorded": "2026-10-23",
   "ffmpeg": "8.1.2-essentials_build-www.gyan.dev",
   "viewport": {
     "width": 1280,
@@ -20,7 +20,7 @@
       "network-ops": "not_found",
       "admin": "answered"
     },
-    "every_role_held": 5.01,
+    "every_role_held": 5.02,
     "stages_played": 8
   }
 }

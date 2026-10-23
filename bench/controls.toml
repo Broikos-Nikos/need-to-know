@@ -1020,6 +1020,81 @@ new = '''    found[0] = (0, starts[0], part_digest(f"{meta.get('default_audience
 '''
 
 [[control]]
+name = "an excerpt closed to four lines again"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+[[control.change]]
+file = "web/src/style.css"
+old = '''  -webkit-line-clamp: 1;
+  line-clamp: 1;
+'''
+new = '''  -webkit-line-clamp: 4;
+  line-clamp: 4;
+'''
+
+[[control]]
+name = "the cited excerpt closed as the rest are"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+[[control.change]]
+file = "web/src/main.ts"
+old = '''    const text = element('p', citing ? 'text' : 'text clamped', excerpt.text)
+'''
+new = '''    const text = element('p', 'text clamped', excerpt.text)
+'''
+
+[[control]]
+name = "a label set as a caption again"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+[[control.change]]
+file = "web/src/style.css"
+old = '''  padding: 0 0.4em;
+  border: 1px solid var(--edge);
+  border-radius: 3px;
+'''
+new = '''  padding: 0 0.4em;
+  border-radius: 3px;
+'''
+
+[[control]]
+name = "a sixth type size"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+[[control.change]]
+file = "web/src/style.css"
+old = '''.says {
+  margin: 0.25rem 0 0;
+  color: var(--dim);
+  font-size: var(--fs-2);
+'''
+new = '''.says {
+  margin: 0.25rem 0 0;
+  color: var(--dim);
+  font-size: 0.85em;
+'''
+
+[[control]]
+name = "the second grey back"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+[[control.change]]
+file = "web/src/style.css"
+old = '''.minor {
+  margin: 0.5rem 0 0;
+  color: var(--dim);
+'''
+new = '''.minor {
+  margin: 0.5rem 0 0;
+  color: #8a7f76;
+'''
+
+[[control]]
+name = "the disk's bytes as ten digit integers"
+test = "tests/test_page.py::test_the_page_replays_its_recording_in_a_browser_where_no_server_answers"
+[[control.change]]
+file = "web/src/main.ts"
+old = '''    ['The index on disk', size(figures.disk.index), exact(figures.disk.index)],
+'''
+new = '''    ['The index on disk', number(figures.disk.index), exact(figures.disk.index)],
+'''
+
+[[control]]
 name = "the fusion's ties left in the order the searches were listed"
 test = "tests/test_search.py::test_units_of_equal_fused_score_go_in_the_order_of_their_ids_whichever_search_comes_first"
 [[control.change]]
@@ -1462,7 +1537,7 @@ name = "the cards held under four seconds"
 test = "tests/test_readme.py::test_the_recording_opens_on_every_department_and_holds_them_before_the_trace"
 [[control.change]]
 file = "docs/capture.json"
-old = '''"every_role_held": 5.01'''
+old = '''"every_role_held": 5.02'''
 new = '''"every_role_held": 2.75'''
 
 [[control]]
