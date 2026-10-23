@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**270 findings, 268 closed, 2 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
+**270 findings, 269 closed, 1 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -147,7 +147,7 @@ An audit pass that killed the pipeline mid build and mid change. 7 findings, 7 c
 
 ## `MA`, the measurement auditor
 
-An audit pass on whether every number can be produced again. 36 findings, 35 closed.
+An audit pass on whether every number can be produced again. 36 findings, 36 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -183,7 +183,7 @@ An audit pass on whether every number can be produced again. 36 findings, 35 clo
 | `MA-F30` | low | fixed, tick 243 | bench/ties.py makes its collection with a copy of the index's create call, which T7.5's named indexing threshold did not reach, equal tonight only as the engine's default: one function makes both, with a test that their configurations agree |
 | `MA-F31` | low | fixed, tick 241 | e2f1eff's message gives a before run, the sync 1346 s, its CPU 680 s and the data directory's peak 20.19 GB, that no record in the repository holds, its log on the build's machine alone; the record of the build before is dcd5cd0's: keep the message and name it in the errata, as a wrong message is |
 | `MA-F32` | low | fixed, tick 242 | bench/freshness.py says its first edit measures the embedding, but every run edits the fact to the same value, so the vector cache holds that passage from an earlier run and no edit of any run embeds: every recorded freshness figure is the scan and the sync alone; each run's edit a value no run wrote before |
-| `MA-F33` | low | open | Six records taken from a log name no code, this tick's permission suite among them: their benches print no commit line and a log's record head names only the log, so the code behind those figures is on record nowhere; MA-F29's sweep looked only at benches that print one. Each bench a log records prints machine.commit() first, and bench/claims.py record --log refuses a log without that line |
+| `MA-F33` | low | fixed, tick 254 | Six records taken from a log name no code, this tick's permission suite among them: their benches print no commit line and a log's record head names only the log, so the code behind those figures is on record nowhere; MA-F29's sweep looked only at benches that print one. Each bench a log records prints machine.commit() first, and bench/claims.py record --log refuses a log without that line |
 | `MA-F34` | medium | fixed, tick 243 | ntk eval split --check, which the README names, exited 1 from 54c3732 to tick 243: that commit wrote planted sentences anew and moved two families' salience, eval/families.json kept the draw before, and no test drew the split again, so nothing failed; the same draw from the registered seed, 0 families changing split |
 | `MA-F35` | low | fixed, tick 253 | Two commit messages give counts no command prints: 14f2153's six records and four more controls, 1bfd224's eleven type sizes and eight cards of four lines, held by findings' titles (MA-F33, MT-F38, DE-F4, DE-F2) and not by a command; the errata name each |
 | `MA-F36` | medium | fixed, tick 253 | The grown dev's 0.940 reads as a fall from the baseline's 0.970, and is none: on the 133 originals both runs asked this build answers 0.970 with the same four items wrong, the 18 grown items, hard by construction, making the difference; no command prints the like for like or the grown items' own figures, and N63's counts of them were made by hand; bench/baseline.py reports over another run's items and the growth apart, and the README says so |
@@ -405,3 +405,5 @@ Commit messages stand as written. Where one says something false of its own comm
 * `e2f1eff` says the sync went from 1346 s to 408 s, its CPU from 680 s to 312 s and the data directory's peak from 20.19 GB to 7.06 GB. Its before figures are a run of 2026-10-22 on the build's machine, whose log the repository does not hold; the repository's record of the build before, `dcd5cd0`'s `docs/claims/python-bench-full_build.py-fresh.txt`, gives the sync 1096 s, its CPU 660 s and the peak 18.58 GB, and the after figures are the record at `e2f1eff` (MA-F31).
 * `14f2153` says six records taken from a log named no code and four more controls quoted figures a re-record moves: counts from this run's scratch searches, which no command prints; MA-F33's and MT-F38's rows in this table hold them (MA-F35).
 * `1bfd224` says the stylesheet drew eleven type sizes and the excerpts were eight cards of four lines: the design eye's measures of tick 212, which DE-F4's and DE-F2's rows hold and no command prints (MA-F35).
+* `e2f1eff` commits `docs/claims/python-bench-full_build.py-fresh.txt` from its log, `full-build-t238-fresh.log`, which names no code: the run was this commit's code on its working tree, as the DEVLOG's entry for the commit says; a fresh build deletes the served index and takes an hour and a half, so it is not run again to name it, and a fresh build's log names its commit from `14f2153` on (MA-F33).
+* `dcd5cd0` commits `docs/claims/python-bench-probe_recall.py-split-test.txt` from its log, `probe-recall-test-t147.log`, which names no code: the test probes were asked once, at `65b89e5`, for the baseline at tick 147, and the protocol asks the test split once a release, so the record is not made again; the next release's log names its commit (MA-F33).

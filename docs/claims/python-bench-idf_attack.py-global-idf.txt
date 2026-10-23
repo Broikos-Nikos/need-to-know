@@ -1,6 +1,7 @@
 command: uv run python bench/idf_attack.py --global-idf
-recorded 2026-10-22 21:11 from the log idf-attack-t238-global.log, written 2026-10-22 21:11
+recorded 2026-10-23 08:51 from the log idf-attack-t254-global.log, written 2026-10-23 08:50
 ---
+at 8a64d7d, the tree holding changes to no code
 as sales, searching dense,sparse, weights over the whole collection: words seen 1 to 3 times, frequent in hidden text 26, absent from it 413
 
 test pairs, hidden-frequent first: 26, both units ranked in 17, the first word's unit lower in 15 (88%, Wilson 0.66 to 0.97)
