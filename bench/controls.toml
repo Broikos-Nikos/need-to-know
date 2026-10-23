@@ -1307,75 +1307,14 @@ new = '''  question, its new passage embedded.
 '''
 
 [[control]]
-name = "the served path's wall restored"
+name = "the served path's timings joined to its routes"
 test = "tests/test_readme.py::test_the_served_path_gives_its_guarantee_its_routes_as_a_list_and_its_timings_apart"
 [[control.change]]
 file = "README.md"
-old = '''* The local server is the index's one client on the served path, and it shows each role
-  nothing that role may not read: `uv run ntk serve` listens on the loopback alone and
-  answers only requests addressed to it there, and every call after the sign in carries
-  the session's token, never a role (N64).
-  * `POST /session` signs a role in and answers with its token; `GET /roles` names the
-    roles and asks for no session.
-  * `POST /search` answers with the search's stage trace: the role's filter and how many
-    units it passes and holds back, each search's candidates and scores, their fusion, the
-    reranker's order, the excerpts and each stage's seconds. The leak gate asks every case
-    through it too.
-  * `POST /ask` answers with the same trace, the excerpts as they were sent and the answer
-    with its citations, and asks the provider every time: an answer read back from a cache
-    comes in milliseconds, and its time would tell the asker that someone with the same
-    access asked the same before (N68). The spend log keeps the tokens and the price.
-  * Its answer to a dev golden question asked as its own role is scored by the registered
-    scorer; a test question is answered and never scored, `eval/protocol.toml` keeping the
-    test split for the baseline and the release; a refusal's verdict reads the same whether
-    its answer exists where the role may not read or nowhere, naming no category and no
-    leak (AC-F16).
-  * `GET /doc/<id>` shows the segments of a document the role may read and nothing of the
-    others, and refuses a document it may read none of as it refuses an unknown one. A
-    document is named by its id, which says its owning department and kind, and its
-    sections by their own numbers, whose gaps show where sections the role may not read
-    stand, never their text (N65).
-  * `GET /stats` answers with the build's figures as `ntk stats` prints them, the same for
-    every role.
-  * `GET /events` answers with the watcher's changes as the role may see them: a scan
-    shows only for the units it added that the role may read, keyed by the time it
-    finished, and a change to text the role may not read shows as nothing, not even its
-    time (N66).
-* The server loads the models as it starts, 36.3 s here with the processor 65 percent busy
-  with other programs, so its first search took 3.32 s and the rest a median of 1.16 s and
-  1.64 s at the 95th percentile, the trace's own queries 0.162 s of it at the median; over
-  2,000 fused units the scores served are reciprocal rank fusion of the two searches as
-  traced, to the last bit: `uv run python bench/served.py`.
-'''
-new = '''* The local server is the index's one client on the served path: `uv run ntk serve` listens
-  on the loopback alone and answers only requests addressed to it there, a role signs in
-  once, and every search sends the session's token, never a role (N64). Each search answers
-  with its stage trace: the role's filter and how many units it passes and holds back, each
-  search's own candidates and scores, their fusion, the reranker's order, the excerpts and
-  each stage's seconds, every unit in it one the role may read; the leak gate asks every
-  case through it too. `POST /ask` answers with the same trace, the excerpts as they were sent
-  and the answer with its citations, and asks the provider every time: an answer read back
-  from a cache comes in milliseconds, and its time would tell the asker that someone with the
-  same access asked the same before (N68). The spend log keeps the tokens and the price. A
-  dev golden question asked as its own role is
-  scored beside its answer by the registered scorer; a test question is answered and never
-  scored, `eval/protocol.toml` keeping the test split for the baseline and the release; a
-  refusal's verdict reads the same whether its answer exists where the role may not read or
-  nowhere, naming no category and no leak (AC-F16). `GET /doc/<id>` shows a role the segments
-  of a document it may read and nothing of the others, a document it may read none of refused
-  as an unknown one is; a document is named by its id, which says its owning department and
-  kind, and its sections by their own numbers, whose gaps show where sections a role may not
-  read stand, never their text (N65). `GET /stats` answers with the build's figures as `ntk
-  stats` prints them, the same for every role, and `GET /events` with the watcher's changes as
-  the role may see them: a scan shows only for the units it added that the role may read,
-  keyed by the time it finished, and a change to text the role may not read shows as nothing,
-  not even its time (N66). The models
-  load as it starts, 36.3 s here with the processor 65 percent busy with other programs, so
-  its first search took 3.32 s and the rest a median of 1.16 s and 1.64 s at the 95th
-  percentile, the trace's own queries 0.162 s of it at the median; over 2,000 fused units the
-  scores served are reciprocal rank fusion of the two searches as traced, to the last bit:
-  `uv run python bench/served.py`.
-'''
+old = '''
+* The server loads the models as it starts, '''
+new = '''
+  The server loads the models as it starts, '''
 
 [[control]]
 name = "the baseline's wall restored"
@@ -1537,8 +1476,8 @@ name = "the cards held under four seconds"
 test = "tests/test_readme.py::test_the_recording_opens_on_every_department_and_holds_them_before_the_trace"
 [[control.change]]
 file = "docs/capture.json"
-old = '''"every_role_held": 5.02'''
-new = '''"every_role_held": 2.75'''
+old = '''"every_role_held": '''
+new = '''"every_role_held": 2.75, "held_before": '''
 
 [[control]]
 name = "the document view read in two snapshots again"

@@ -2,6 +2,11 @@
 # until the newest entry carries the protocol's current sha256, taken over its
 # bytes with LF line ends, so every change to the protocol is dated and explained
 # here and none is made after the fact without a trace.
+#
+# A new version moves two figures beside it, each held by a test that names its
+# command (MT-F34): eval/families.json carries the version, which `ntk eval split
+# --rewrite` writes again; and when dev's items change, the smallest visible
+# effect, which `bench/power.py` prints and the protocol registers.
 
 [[version]]
 date = 2026-10-12

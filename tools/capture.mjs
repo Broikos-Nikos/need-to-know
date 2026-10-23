@@ -41,7 +41,8 @@ const WORK = resolve(root, '.capture')
 const SIZE = { width: 1280, height: 780 }
 const SCROLLS = [300, 940]  // the question and the first row of cards, then the other two rows
 const HOLD = 2500  // each of them, in milliseconds: the cards held 4 s or more before the trace
-const CROP = 'crop=1280:720:0:0'
+const FRAME = 720  // the picture's height, the top of each 780 high viewport
+const CROP = `crop=1280:${FRAME}:0:0`
 const FPS = 8
 const WIDTH = 880
 const COLOURS = 24  // the accent, the measure's blue, the sync's green and the greys: sixteen banded the blue
@@ -79,6 +80,22 @@ try {
   await page.waitForSelector('#compare [data-role="admin"]', { timeout: 30_000 })
   const cards = await page.$$eval('#compare [data-role]', (all) => all.map((card) => [card.dataset.role,
     card.querySelector('[data-said]')?.dataset.said ?? '']))
+  // The rows the two scrolls frame, measured now rather than taken from the geometry above: a design that pushes a row
+  // out of its frame stops the capture here, where it made a picture without that row before (MT-F36).
+  const boxes = await page.$$eval('#compare [data-role]', (all) => all.map((card) => {
+    const box = card.getBoundingClientRect()
+    return [Math.round(box.top + window.scrollY), Math.round(box.bottom + window.scrollY)]
+  }))
+  const bottoms = {}
+  for (const [top, bottom] of boxes) bottoms[top] = Math.max(bottoms[top] ?? 0, bottom)
+  const rows = Object.entries(bottoms).map(([top, bottom]) => [Number(top), bottom]).sort((a, b) => a[0] - b[0])
+  for (const [y, framed] of [[SCROLLS[0], rows.slice(0, 1)], [SCROLLS[1], rows.slice(1)]]) {
+    const out = framed.filter(([top, bottom]) => top < y || bottom > y + FRAME)
+    if (out.length) {
+      throw new Error(`the scroll to ${y} shows ${y} to ${y + FRAME}, and the cards' row${out.length > 1 ? 's' : ''} ` +
+        `${out.map(([top, bottom]) => `${top} to ${bottom}`).join(' and ')} would be cut: measure the rows and move SCROLLS`)
+    }
+  }
   await page.evaluate((y) => window.scrollTo({ top: y, behavior: 'instant' }), SCROLLS[0])
   await page.waitForTimeout(800)
   startedAt = Date.now()  // the picture opens 0.4 s before this, on the cards

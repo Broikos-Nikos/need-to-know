@@ -22,6 +22,9 @@
  *    (HS-F24, HS-F27).
  * 8. Live, a question the server refuses clears the trace below it, and a server that stops is named as stopped in
  *    the state line and in the feed (HS-F25, HS-F26).
+ * 9. With each trace of 2, the design the design eye asked for: every excerpt but the one the answer cites closed to a
+ *    line, and that one whole and edged in the flame; every label a chip; five type sizes, each a fifth or more above
+ *    the one under it, and one grey; the disk's bytes to three figures over the exact count (DE-F2 to DE-F5, MT-F35).
  *
  * Static checks of the same files, the trace's labels and the rows the recorder keeps, are in tests/test_page.py; this
  * is the one that runs the page.

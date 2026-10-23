@@ -2,9 +2,11 @@
 
     uv run python bench/baseline.py eval/runs/baseline
 
-Reads `test.jsonl` and `dev.jsonl` in the folder, each split asked as its roles with the cache off; their runs with no
-documents under the answer rules, `test-closed.jsonl` and `dev-closed.jsonl`; and, where they are, their best guess
-runs, `test-guess.jsonl` and `dev-guess.jsonl`, with each file's provenance, and prints:
+Reads `test.jsonl` and `dev.jsonl` in the folder, each split asked as its roles with the cache off, and each item those
+runs asked: a later folder may hold one split, and a run made before dev grew reports the items it asked (version 10,
+MT-F35); where they are, their runs with no documents under the answer rules, `test-closed.jsonl` and
+`dev-closed.jsonl`, and their best guess runs, `test-guess.jsonl` and `dev-guess.jsonl`; with each file's provenance.
+What a split's runs are not there for is left out of what it prints:
 
 * what made the runs: the test run's commit, protocol, model and manifest, then every field of the provenance on
   which the runs differ, named run by run, and the runs whose tree held changes (DR-F28);

@@ -125,7 +125,8 @@ def test_the_committed_split_keeps_every_rule():
     result = json.loads((repo_root() / "eval" / "families.json").read_text(encoding="utf-8"))
     protocol = load_protocol()
     assert result["protocol_version"] == protocol["version"] and result["test_families"] == protocol["splits"][
-        "test_families"]
+        "test_families"], ("eval/families.json is not the protocol's version's: ntk eval split --rewrite writes it again, "
+                           "the same draw, a family moving split only where the protocol moved one (MT-F34)")
     test = [f for f in result["split"] if f["split"] == "test"]
     assert len(test) == result["test_families"] and len(result["split"]) == result["families"]
     registry = [r for f in result["split"] for r in f["registry_families"]]

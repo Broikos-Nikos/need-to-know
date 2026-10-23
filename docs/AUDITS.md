@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**263 findings, 260 closed, 3 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
+**267 findings, 264 closed, 3 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -188,7 +188,7 @@ An audit pass on whether every number can be produced again. 34 findings, 33 clo
 
 ## `MT`, the maintainer in six months
 
-An audit pass on whether a fresh clone can be rebuilt and changed safely. 33 findings, 33 closed.
+An audit pass on whether a fresh clone can be rebuilt and changed safely. 37 findings, 37 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -225,6 +225,10 @@ An audit pass on whether a fresh clone can be rebuilt and changed safely. 33 fin
 | `MT-F31` | low | fixed, tick 225 | The counted steps gate of the feed and the view asserts the counts equal before and after, and would pass on zero both times if a refactor reached the manifest another way: assert every count above zero |
 | `MT-F32` | low | fixed, tick 238 | docs/REBUILD.md says ntk qdrant start checks both of the server's hashes; it checks the binary's before every start and names the download's for the reader to check: say so |
 | `MT-F33` | low | fixed, tick 238 | docs/REBUILD.md excuses the index's bytes alone; rebuilt, the manifest's and the vector cache's differ too, 565,600,256 against 571,838,464 and 1,073,217,536 against 1,073,283,072, SQLite files whose pages follow their history: say every byte count on disk may differ, and only the counts above it must not |
+| `MT-F34` | low | fixed, tick 249 | Two tests that hold data to the protocol fail without naming the fix: test_split's protocol version and test_bench's power figure fail as bare inequalities, assert (8 == 9) and assert 0.11 == 0.12, where ntk eval split --rewrite and bench/power.py are the fix; each message names its command |
+| `MT-F35` | low | fixed, tick 249 | Two docstrings describe what their code did before this run: bench/baseline.py's still requires both splits and both closed runs, and tools/check-page.mjs's header lists checks 0 to 8 without the design check every trace now runs |
+| `MT-F36` | low | fixed, tick 249 | The README's recording is framed by numbers nothing checks: tools/capture.mjs scrolls to 300 and 940 against card rows measured by hand, so a row a design change pushes past the crop leaves the picture and the capture succeeds; measure the rows before recording |
+| `MT-F37` | low | fixed, tick 249 | Two controls quote figures that every re-record moves, the served bullet's latencies and the capture's hold, stale three times in this run, each found by the suite and fixed by hand; each quotes the stable part of its text |
 
 ## `SC`, the supply chain auditor
 

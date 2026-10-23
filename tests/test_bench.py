@@ -255,7 +255,9 @@ def test_the_protocols_smallest_visible_effect_is_the_figure_the_power_bench_pri
     sizes = bench.unit_sizes(load_items(golden_path("dev")))
     assert "0.2" in protocol["decision"]["smallest_visible_assumes"]
     figure = bench.smallest_visible(sizes, 0.2, protocol["decision"]["alpha"], 2000, 2000, SEED)
-    assert figure == protocol["decision"]["smallest_visible_effect"]
+    assert figure == protocol["decision"]["smallest_visible_effect"], (
+        f"bench/power.py prints {figure} on dev's units as they are: a dated version of eval/protocol.toml registers it "
+        "(MT-F34)")
 
 
 def test_the_injection_bench_judges_english_by_its_words_and_not_by_its_letters_alone():
