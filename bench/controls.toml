@@ -1101,6 +1101,16 @@ new = '''        if False:
 '''
 
 [[control]]
+name = "the baseline report's first line reading the test split unguarded"
+test = "tests/test_bench.py::test_the_baseline_report_reads_the_test_split_only_where_its_folder_holds_one"
+[[control.change]]
+file = "bench/baseline.py"
+old = '''          f"{len(runs[splits[0]]['repeats'])} repeats; scorer {scorer_hash()[:16]}")
+'''
+new = '''          f"{len(runs['test']['repeats'])} repeats; scorer {scorer_hash()[:16]}")
+'''
+
+[[control]]
 name = "the fusion's ties left in the order the searches were listed"
 test = "tests/test_search.py::test_units_of_equal_fused_score_go_in_the_order_of_their_ids_whichever_search_comes_first"
 [[control.change]]

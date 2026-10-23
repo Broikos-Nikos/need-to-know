@@ -144,7 +144,7 @@ def main() -> int:
     print(f"baseline at {first.get('commit', '?')[:12]}; protocol version {first.get('protocol_version')}; "
           f"{first.get('model')} at temperature {first.get('settings', {}).get('temperature')}; manifest run "
           f"{(first.get('manifest') or {}).get('run')}, {(first.get('manifest') or {}).get('units')} units; "
-          f"{len(runs['test']['repeats'])} repeats; scorer {scorer_hash()[:16]}")
+          f"{len(runs[splits[0]]['repeats'])} repeats; scorer {scorer_hash()[:16]}")
     made = {name: run["made"] for name, run in runs.items()}
     for line in differences(made) or [f"every run made at the same {', '.join(FIELDS)}"]:
         print(f"  {line}")

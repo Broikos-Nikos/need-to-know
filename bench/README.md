@@ -302,10 +302,13 @@ item (N63); how many items were shown the same units in every repeat; and the le
 each split's mean USD a question and the median and 95th percentile seconds a question
 took, from each answer's own seconds where its run kept them, or else from the line `ask`
 wrote for it in this machine's spend log, matched by role, repeat, status, cost and time.
-It needs the plan, the frequency table and the manifest the scorer reads.
+It needs the plan, the frequency table and the manifest the scorer reads. A folder may hold
+one split's runs alone, as a dev run made after the baseline does, and the report gives
+what those runs hold, for the items they asked.
 
 ```
 uv run python bench/baseline.py eval/runs/baseline
+uv run python bench/baseline.py eval/runs/dev-v10
 ```
 
 ## repeatability.py

@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**268 findings, 265 closed, 3 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
+**268 findings, 266 closed, 2 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -44,7 +44,7 @@ An audit pass that tried to break a first run. 27 findings, 27 closed.
 
 ## `RS`, the retrieval scientist
 
-An audit pass on whether the evaluation can fail and its statistics are honest. 32 findings, 31 closed.
+An audit pass on whether the evaluation can fail and its statistics are honest. 32 findings, 32 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -79,7 +79,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 | `RS-F29` | medium | fixed, tick 141 | Retrieval is not repeatable on one build: D012 and D013 were each shown a different excerpt in one of three repeats at 778fc1d, a near tie at the edge of the top eight reordered between GPU calls, so the release's parity rule, every dev item's retrieved ids and scores equal to the last dev run of the same configuration, fails on noise: make the order of near equal scores deterministic, or state the parity with a tolerance the baseline measures Measured by bench/baseline.py eval/runs/baseline, its parity line. |
 | `RS-F30` | medium | fixed, tick 157 | The registered decision can no longer adopt a change for being better: the sign flip test over families sees only the families that change, the baseline left 4 of the 80 dev families below a perfect score, so the best experiment possible gets p 0.125, too small to tell, and the probe arm's misses sit in 5 families, p 0.0625 at best; only the cost arm can adopt: print the best p the dev units allow beside every decision, then grow dev where the baseline misses as a dated protocol version before any experiment, or register that P8 adopts on cost alone and say so |
 | `RS-F31` | low | fixed, tick 158 | A table row item is judged by its section, and its section is a whole register of up to 13,977 units: a hit or an excerpt on another row counts as the row found and shown, though none does today: judge shown and found by the units holding the row or the fact, keeping the section for citations |
-| `RS-F32` | medium | open | The baseline's dev run no longer describes this build's retrieval: bench/repeatability.py --against eval/runs/baseline/dev.jsonl shows 24 of the 153 dev items other excerpts than it recorded in every repeat, 22 of them alike with 63e54ae's fusion and T8.2's (a scratch diagnostic), from changes after the baseline that move retrieval, each made without a parity run, RS-F29's tie order at the cut and T7.5's analyser with the statistics its fresh build froze among them; and version 8's parity rule named scores and a configuration hash that no run records: parity by that command, protocol version 9, and T8.1's incumbent run the configuration's own dev run, which the release and every experiment compare with |
+| `RS-F32` | medium | fixed, tick 251 | The baseline's dev run no longer describes this build's retrieval: bench/repeatability.py --against eval/runs/baseline/dev.jsonl shows 24 of the 153 dev items other excerpts than it recorded in every repeat, 22 of them alike with 63e54ae's fusion and T8.2's (a scratch diagnostic), from changes after the baseline that move retrieval, each made without a parity run, RS-F29's tie order at the cut and T7.5's analyser with the statistics its fresh build froze among them; and version 8's parity rule named scores and a configuration hash that no run records: parity by that command, protocol version 9, and T8.1's incumbent run the configuration's own dev run, which the release and every experiment compare with |
 
 ## `DR`, the deep reviewer
 

@@ -1,0 +1,9 @@
+command: uv run python bench/repeatability.py --against eval/runs/dev-v10/dev.jsonl
+recorded 2026-10-23 07:26, run at 944ebb7, with changes to bench/baseline.py, bench/controls.toml
+---
+at 944ebb7, with changes to bench/baseline.py, bench/controls.toml
+dev: 171 of 171 items shown the same excerpts in all 3 runs
+against eval/runs/dev-v10/dev.jsonl: 171 of the 171 items it asked shown the excerpts it recorded in every repeat
+513 searches in 425 s
+
+

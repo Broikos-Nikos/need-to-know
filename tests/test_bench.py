@@ -126,6 +126,25 @@ def test_the_draws_bench_reuses_a_draw_only_at_the_same_share_and_states_each_sh
     assert draws.spread([0.5, 0.9, 0.7]) == "0.500 to 0.900"
 
 
+def test_the_baseline_report_reads_the_test_split_only_where_its_folder_holds_one():
+    # Tick 251: version 10's report of a folder of dev alone ended in a KeyError, its first line reading the test run's
+    # repeats outside the guard every other read of the test split sits under.
+    import ast
+    tree = ast.parse((BENCH / "baseline.py").read_text(encoding="utf-8"))
+    parents = {child: node for node in ast.walk(tree) for child in ast.iter_child_nodes(node)}
+
+    def guarded(node) -> bool:
+        while node in parents:
+            node = parents[node]
+            if isinstance(node, ast.If) and ast.unparse(node.test).replace('"', "'") == "'test' in runs":
+                return True
+        return False
+
+    reads = [node for node in ast.walk(tree) if isinstance(node, ast.Subscript) and isinstance(node.value, ast.Name)
+             and node.value.id in ("runs", "items") and isinstance(node.slice, ast.Constant) and node.slice.value == "test"]
+    assert reads and not [node.lineno for node in reads if not guarded(node)]
+
+
 def test_the_baseline_ledger_finds_each_answers_seconds_once_and_reads_p95_by_nearest_rank():
     # PLAN section 1, number 7: the seconds of a run that kept none come from the spend log line ask wrote for each
     # answer, matched by role, repeat, status, cost and time, each line taken once; a run's own seconds come first.

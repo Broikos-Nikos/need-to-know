@@ -532,8 +532,11 @@ families before any item was written: 8 pairs whose facts sit under no common la
 by the administrator, and 10 families whose fact sits in documents of one language, asked
 in the other; 18 growth items, each asking its drawn family or pair alone, checked by
 `uv run ntk eval check` beside the 153 written first, whose counts and shares they leave
-alone. They are committed before any is answered; the dev run of this configuration, and
-the reach it gives, follow.
+alone. They were committed before any was answered. The dev run of this configuration,
+every item three times: 9 of its 88 units below a perfect score, so the best experiment
+reaches p 0.003906 by the registered test and the arm that reads a gain can adopt again;
+5 of the 8 two fact items missed, and none of the 10 across languages
+(`uv run python bench/baseline.py eval/runs/dev-v10`).
 
 ## N64. The server takes the role at sign in, and its trace shows each search's own scores
 

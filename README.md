@@ -186,6 +186,16 @@ named, real or invented: the documents call it "the Company".
   * The answers and their provenance are in `eval/runs/baseline/`; three of the six runs
     record an unclean tree, edits to code those runs never load, and the two best guess
     runs were made later, at another commit.
+* Dev grown so a better experiment can be told: protocol version 10 adds 10 items across
+  languages and 8 asking two facts as the administrator, on families a seed drew before
+  any was written, `uv run ntk eval check`; asked three times on this build, its 151
+  originals answer 0.940, answerable 0.924 and refusals 1.000, with no leak and no verdict
+  differing between repeats, across languages 0.917 over 24 and two facts at once 0.417
+  over 12. 9 of its 88 units now have room, so the best experiment reaches p 0.003906 by
+  the registered test, and one can be adopted for being better (N63):
+  `uv run python bench/baseline.py eval/runs/dev-v10`. Every dev item is shown the
+  excerpts that run recorded, the release's parity:
+  `uv run python bench/repeatability.py --against eval/runs/dev-v10/dev.jsonl`.
 * Retrieval is probed apart from the answers: two questions a fact, one in each language,
   made by code from each split's own facts and worded apart from the planted sentences,
   each with its gold units and the roles that may read them: `uv run ntk eval probes --check`.
