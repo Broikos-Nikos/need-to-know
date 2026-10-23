@@ -306,9 +306,14 @@ It needs the plan, the frequency table and the manifest the scorer reads. A fold
 one split's runs alone, as a dev run made after the baseline does, and the report gives
 what those runs hold, for the items they asked.
 
+With `--asked-by` and another folder, the report keeps to the items that folder's runs
+asked, so a run made on a grown dev compares with the baseline item for item; and the items
+a protocol version grew dev by are given apart (MA-F36).
+
 ```
 uv run python bench/baseline.py eval/runs/baseline
 uv run python bench/baseline.py eval/runs/dev-v10
+uv run python bench/baseline.py eval/runs/dev-v10 --asked-by eval/runs/baseline
 ```
 
 ## repeatability.py

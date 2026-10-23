@@ -1111,6 +1111,26 @@ new = '''          f"{len(runs['test']['repeats'])} repeats; scorer {scorer_hash
 '''
 
 [[control]]
+name = "a report over another run's items reading its own"
+test = "tests/test_bench.py::test_the_baseline_report_gives_a_run_over_another_runs_items_and_the_grown_items_apart"
+[[control.change]]
+file = "bench/baseline.py"
+old = '''    return None if folder is None else {answer["id"] for answer in read(folder / f"{split}.jsonl")[0]}
+'''
+new = '''    return None
+'''
+
+[[control]]
+name = "the grown items counted with the rest"
+test = "tests/test_bench.py::test_the_baseline_report_gives_a_run_over_another_runs_items_and_the_grown_items_apart"
+[[control.change]]
+file = "bench/baseline.py"
+old = '''        if "growth" in item and item["id"] in scores:
+'''
+new = '''        if item["id"] in scores:
+'''
+
+[[control]]
 name = "the fusion's ties left in the order the searches were listed"
 test = "tests/test_search.py::test_units_of_equal_fused_score_go_in_the_order_of_their_ids_whichever_search_comes_first"
 [[control.change]]

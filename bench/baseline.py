@@ -36,7 +36,7 @@ import argparse
 import json
 import statistics
 import sys
-from collections import Counter
+from collections import Counter, defaultdict
 from pathlib import Path
 
 from needtoknow.eval.golden import Context, golden_path, load_items
@@ -52,6 +52,26 @@ def read(path: Path) -> tuple[list[dict], dict]:
     answers = run_answers(path)  # whole lines, each what a run writes (DR-F30, HS-F21)
     sidecar = path.with_name(path.name + ".provenance.json")
     return answers, json.loads(sidecar.read_text(encoding="utf-8")) if sidecar.is_file() else {}
+
+
+def asked_by(folder: Path | None, split: str) -> set[str] | None:
+    """The items another folder's run of the split asked, to report over them alone, or None when none is named: a
+    grown dev's figure beside the baseline's compared two item sets (MA-F36)."""
+    return None if folder is None else {answer["id"] for answer in read(folder / f"{split}.jsonl")[0]}
+
+
+def grown(items: list[dict], scores: dict[str, float]) -> str | None:
+    """What the items a protocol version grew dev by score apart, by category, each item by its mean over the repeats;
+    they were counted by hand from the misses' list (MA-F36)."""
+    by: dict[str, list[float]] = defaultdict(list)
+    for item in items:
+        if "growth" in item and item["id"] in scores:
+            by[item["category"]].append(scores[item["id"]])
+    if not by:
+        return None
+    versions = ", ".join(str(version) for version in sorted({item["growth"] for item in items if "growth" in item}))
+    return f"  the items version {versions} grew dev by: " + "; ".join(
+        f"{code} {sum(values) / len(values):.3f} of {len(values)}" for code, values in sorted(by.items()))
 
 
 def share(rate: dict) -> str:
@@ -113,6 +133,8 @@ def seconds_of(answers: list[dict], roles: dict[str, str], spend: list[dict], wi
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     parser.add_argument("folder", type=Path)
+    parser.add_argument("--asked-by", type=Path, help="report over the items this folder's runs asked, as the baseline's, "
+                                                        "so two runs compare item for item (MA-F36)")
     args = parser.parse_args()
     sys.stdout.reconfigure(encoding="utf-8")
     ctx = Context()
@@ -121,15 +143,18 @@ def main() -> int:
     runs, items, parity, statuses, opened = {}, {}, {}, {}, {}
     # The splits the folder holds a run of, each item that run asked: a later dev run of a grown dev reports alone, and
     # the baseline still reports the items it asked, not the ones dev grew by after it (version 10).
-    splits = [split for split in ("test", "dev") if (args.folder / f"{split}.jsonl").is_file()]
+    splits = [split for split in ("test", "dev") if (args.folder / f"{split}.jsonl").is_file()
+              and (args.asked_by is None or (args.asked_by / f"{split}.jsonl").is_file())]
     for split in splits:
         check_use(split, "baseline")
         asked = {answer["id"] for answer in read(args.folder / f"{split}.jsonl")[0]}
+        asked &= asked_by(args.asked_by, split) or asked
         items[split] = [item for item in load_items(golden_path(split)) if item["id"] in asked]
         for book in ("", "-closed", "-guess"):
             if book and not (args.folder / f"{split}{book}.jsonl").is_file():
                 continue
             answers, made = read(args.folder / f"{split}{book}.jsonl")
+            answers = [answer for answer in answers if answer["id"] in asked]
             if not book:
                 opened[split] = answers
                 shown: dict[str, set] = {}
@@ -148,6 +173,9 @@ def main() -> int:
     made = {name: run["made"] for name, run in runs.items()}
     for line in differences(made) or [f"every run made at the same {', '.join(FIELDS)}"]:
         print(f"  {line}")
+    if args.asked_by is not None:
+        print(f"  over the items {args.asked_by.as_posix()}'s runs asked: " + "; ".join(
+            f"{split} {len(items[split])}" for split in splits))
     if "test" in runs:
         scores = runs["test"]["scores"]
         family = [item for item in items["test"] if item["category"] in FAMILY]
@@ -169,6 +197,9 @@ def main() -> int:
                                                     else "") + f"; {len(misses['shown'])} shown every one"
               + (f" ({', '.join(misses['shown'])})" if misses["shown"] else ""))
         print(f"  verdicts that differ between two repeats: {run['discordance']:.4f} of the items, over every pair")
+        apart = grown(items[split], run["scores"])
+        if apart:
+            print(apart)
     for split in (split for split in splits if split + "-closed" in runs):
         counts = statuses[split + "-closed"]
         print(f"{split}, no documents under the answer rules: {counts['not_found']} of {sum(counts.values())} "

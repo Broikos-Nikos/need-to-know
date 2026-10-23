@@ -538,6 +538,12 @@ reaches p 0.003906 by the registered test and the arm that reads a gain can adop
 5 of the 8 two fact items missed, and none of the 10 across languages
 (`uv run python bench/baseline.py eval/runs/dev-v10`).
 
+*Corrected 2026-10-23, tick 253 (MA-F36):* those two counts were made by hand from the
+report's list of misses; the report now prints the grown items apart, 1.000 over the 10
+across languages and 0.375 over the 8 with two facts. Over the items the baseline asked,
+this build answers 0.970, as the baseline did, the same four items wrong
+(`uv run python bench/baseline.py eval/runs/dev-v10 --asked-by eval/runs/baseline`).
+
 ## N64. The server takes the role at sign in, and its trace shows each search's own scores
 
 *Decided 2026-10-18, at tick 163.*

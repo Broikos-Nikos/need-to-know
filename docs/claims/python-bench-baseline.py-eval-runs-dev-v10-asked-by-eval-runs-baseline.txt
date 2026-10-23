@@ -1,0 +1,19 @@
+command: uv run python bench/baseline.py eval/runs/dev-v10 --asked-by eval/runs/baseline
+recorded 2026-10-23 07:53, run at 0d998d2, with changes to bench/baseline.py, bench/controls.toml
+---
+baseline at 944ebb7f5be1; protocol version 10; deepseek-flash at temperature 0.0; manifest run 96, 501031 units; 3 repeats; scorer af0f0e111b236112
+  every run made at the same commit, protocol, model, settings, manifest, analyser
+  over the items eval/runs/baseline's runs asked: dev 153
+dev: answerable 0.960 of 101; refusals 1.000 of 32; overall 0.970 of 133; grounded 0.960 of 101; leaks 0; unstable 0
+  by category: A 1.000 of 17; B 1.000 of 19; C 0.857 of 14; D 1.000 of 17; E 1.000 of 16; F 0.500 of 4; G 1.000 of 14; H 1.000 of 4; I 1.000 of 8; J 1.000 of 8; M 1.000 of 4; N 1.000 of 8
+  by layer: prose 0.968 of 125; table 1.000 of 8
+  by language: el 0.971 of 68; en 0.969 of 65
+  by table rows shown, answerable prose: shown 0.952 of 21; none 0.958 of 72
+  by G, on a value a law contradicts: yes 1.000 of 3; no 1.000 of 11
+  wrong answers to answerable items over the repeats: 15 not shown a unit holding every fact they needed (D019, D021, D092, D099, D134, D019, D021, D092, D099, D134, D019, D021, D092, D099, D134); 3 shown every one (D141, D141, D141)
+  verdicts that differ between two repeats: 0.0000 of the items, over every pair
+reach on dev, every family below a perfect score made perfect and none worse: p 0.125 by the registered test, 4 of 80 families with room; at alpha 0.05 an experiment cannot be adopted for being better
+  counted by item instead: 4 of 133 dev originals below a perfect score (D019, D021, D092, D099), p 0.125; the unit stays the family
+parity, the same units shown in every repeat: dev 153 of 153 items
+cost: 0.100473 USD over the 1 runs
+ledger, dev: 0.000219 USD a question at the mean over 459; median 1.95 s and p95 2.45 s, over the 459 of 459 answers whose seconds were found

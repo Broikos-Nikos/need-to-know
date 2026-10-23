@@ -126,6 +126,24 @@ def test_the_draws_bench_reuses_a_draw_only_at_the_same_share_and_states_each_sh
     assert draws.spread([0.5, 0.9, 0.7]) == "0.500 to 0.900"
 
 
+def test_the_baseline_report_gives_a_run_over_another_runs_items_and_the_grown_items_apart(tmp_path):
+    # MA-F36: the grown dev's 0.940 sat under the baseline's 0.970 with no like for like, and on the baseline's items
+    # this build answered 0.970; the grown items' own figures were counted by hand from the report's list.
+    import json
+    spec = importlib.util.spec_from_file_location("baseline", BENCH / "baseline.py")
+    baseline = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(baseline)
+    line = {"repeat": 0, "status": "answered", "answer": "7 percent", "citations": []}  # what a run writes, each line
+    (tmp_path / "dev.jsonl").write_text("".join(json.dumps({"id": i, **line}) + "\n" for i in ("D1", "D2")),
+                                        encoding="utf-8")
+    assert baseline.asked_by(tmp_path, "dev") == {"D1", "D2"} and baseline.asked_by(None, "dev") is None
+    items = [{"id": "D1", "category": "A"}, {"id": "D7", "category": "C", "growth": 10},
+             {"id": "D8", "category": "F", "growth": 10}, {"id": "D9", "category": "F", "growth": 10}]
+    scores = {"D1": 0.0, "D7": 1.0, "D8": 1.0, "D9": 0.0}
+    assert baseline.grown(items, scores) == "  the items version 10 grew dev by: C 1.000 of 1; F 0.500 of 2"
+    assert baseline.grown(items[:1], scores) is None
+
+
 def test_the_baseline_report_reads_the_test_split_only_where_its_folder_holds_one():
     # Tick 251: version 10's report of a folder of dev alone ended in a KeyError, its first line reading the test run's
     # repeats outside the guard every other read of the test split sits under.

@@ -191,9 +191,13 @@ named, real or invented: the documents call it "the Company".
   any was written, `uv run ntk eval check`; asked three times on this build, its 151
   originals answer 0.940, answerable 0.924 and refusals 1.000, with no leak and no verdict
   differing between repeats, across languages 0.917 over 24 and two facts at once 0.417
-  over 12. 9 of its 88 units now have room, so the best experiment reaches p 0.003906 by
-  the registered test, and one can be adopted for being better (N63):
-  `uv run python bench/baseline.py eval/runs/dev-v10`. Every dev item is shown the
+  over 12, the items it grew by 1.000 over 10 and 0.375 over 8. 9 of its 88 units now
+  have room, so the best experiment reaches p 0.003906 by the registered test, and one
+  can be adopted for being better (N63): `uv run python bench/baseline.py eval/runs/dev-v10`.
+  Its 0.940 is no fall from the baseline's 0.970: over the items the baseline asked, this
+  build answers 0.970 too, the same four wrong:
+  `uv run python bench/baseline.py eval/runs/dev-v10 --asked-by eval/runs/baseline`.
+  Every dev item is shown the
   excerpts that run recorded, the release's parity:
   `uv run python bench/repeatability.py --against eval/runs/dev-v10/dev.jsonl`.
 * Retrieval is probed apart from the answers: two questions a fact, one in each language,

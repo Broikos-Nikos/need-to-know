@@ -1,5 +1,5 @@
 command: uv run python bench/baseline.py eval/runs/dev-v10
-recorded 2026-10-23 07:18, run at 944ebb7, with changes to bench/baseline.py, bench/controls.toml
+recorded 2026-10-23 07:53, run at 0d998d2, with changes to bench/baseline.py, bench/controls.toml
 ---
 baseline at 944ebb7f5be1; protocol version 10; deepseek-flash at temperature 0.0; manifest run 96, 501031 units; 3 repeats; scorer af0f0e111b236112
   every run made at the same commit, protocol, model, settings, manifest, analyser
@@ -11,6 +11,7 @@ dev: answerable 0.924 of 119; refusals 1.000 of 32; overall 0.940 of 151; ground
   by G, on a value a law contradicts: yes 1.000 of 3; no 1.000 of 11
   wrong answers to answerable items over the repeats: 27 not shown a unit holding every fact they needed (D019, D021, D092, D099, D134, D154, D157, D158, D160, D019, D021, D092, D099, D134, D154, D157, D158, D160, D019, D021, D092, D099, D134, D154, D157, D158, D160); 6 shown every one (D141, D161, D141, D161, D141, D161)
   verdicts that differ between two repeats: 0.0000 of the items, over every pair
+  the items version 10 grew dev by: C 1.000 of 10; F 0.375 of 8
 reach on dev, every family below a perfect score made perfect and none worse: p 0.003906 by the registered test, 9 of 88 families with room; at alpha 0.05 an experiment can be adopted for being better
   counted by item instead: 9 of 151 dev originals below a perfect score (D019, D021, D092, D099, D154, D157, D158, D160, D161), p 0.003906; the unit stays the family
 parity, the same units shown in every repeat: dev 171 of 171 items
