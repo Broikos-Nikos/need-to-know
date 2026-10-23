@@ -346,3 +346,7 @@ uv run ntk ingest watch
 * The provider reads every excerpt the asking role may read, restricted sections
   included: it is a reader outside the role model, and choosing one is a decision about
   where the documents may go.
+
+---
+
+Built by **Nikos Broikos**. [broikos.gr](https://broikos.gr)
