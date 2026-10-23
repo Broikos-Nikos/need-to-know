@@ -1,19 +1,19 @@
 command: uv run python bench/freshness.py
-recorded 2026-10-23 01:35 from the log freshness-t241b.log, written 2026-10-23 01:34
+recorded 2026-10-23 02:32 from the log freshness-t242.log, written 2026-10-23 02:32
 ---
 
-at 917a0fd, with changes to bench/README.md, bench/claims.py, bench/controls.toml, bench/machine.py, bench/page_data.py, bench/parts_check.py, bench/revocation.py, src/needtoknow/ingest/manifest.py, src/needtoknow/ingest/pipeline.py; the processor 67 percent busy in the 3 s before the runs
-NET_MAN_009, 8.8 MB, as network-ops; the watcher's catch up, a scan and a sync of every document: 30.7 s
-  run 1, the edit: scan at 1.04 s took 0.26 s (1 read); sync at 1.34 s took 0.77 s (read 0.58, deletes 0.04, embedding 0.00, upserts 0.02, check 0.13); seen at 2.09 s
-  run 1, the undoing: scan at 1.05 s took 0.26 s (1 read); sync at 1.36 s took 0.57 s (read 0.42, deletes 0.02, embedding 0.00, upserts 0.01, check 0.13); seen at 1.99 s
-  run 2, the edit: scan at 0.96 s took 0.26 s (1 read); sync at 1.26 s took 0.73 s (read 0.57, deletes 0.02, embedding 0.00, upserts 0.01, check 0.13); seen at 1.90 s
-  run 2, the undoing: scan at 1.02 s took 0.28 s (1 read); sync at 1.35 s took 0.55 s (read 0.37, deletes 0.04, embedding 0.00, upserts 0.01, check 0.13); seen at 1.98 s
-  run 3, the edit: scan at 0.95 s took 0.29 s (1 read); sync at 1.28 s took 0.73 s (read 0.58, deletes 0.02, embedding 0.00, upserts 0.01, check 0.13); seen at 1.92 s
-  run 3, the undoing: scan at 1.02 s took 0.25 s (1 read); sync at 1.32 s took 0.52 s (read 0.36, deletes 0.02, embedding 0.00, upserts 0.01, check 0.13); seen at 1.84 s
-  run 4, the edit: scan at 1.04 s took 0.27 s (1 read); sync at 1.35 s took 0.57 s (read 0.36, deletes 0.02, embedding 0.00, upserts 0.02, check 0.16); seen at 1.91 s
-  run 4, the undoing: scan at 0.99 s took 0.26 s (1 read); sync at 1.29 s took 0.75 s (read 0.57, deletes 0.04, embedding 0.00, upserts 0.01, check 0.13); seen at 2.12 s
-  run 5, the edit: scan at 0.95 s took 0.25 s (1 read); sync at 1.24 s took 0.52 s (read 0.35, deletes 0.03, embedding 0.00, upserts 0.01, check 0.13); seen at 1.74 s
-  run 5, the undoing: scan at 1.01 s took 0.30 s (1 read); sync at 1.35 s took 0.50 s (read 0.36, deletes 0.02, embedding 0.00, upserts 0.01, check 0.12); seen at 1.91 s
-the processor 77 percent busy over the runs, the bench's own work included
-NET_MAN_009: the edited sentence reached a query in median 1.9 s, largest 2.1 s, over 5 runs; its undoing in median 2.0 s, largest 2.1 s, over 5 runs (watch interval 0.5 s; objective 5 s)
-NET_MAN_009: units embedded again, each edit [0, 0, 0, 0, 0] and each undoing [0, 0, 0, 0, 0], out of 501031 points in the collection
+at d9f768f, with changes to bench/controls.toml, bench/freshness.py; the processor 77 percent busy in the 3 s before the runs
+NET_MAN_009, 8.8 MB, as network-ops; the watcher's catch up, a scan and a sync of every document: 47.9 s
+  run 1, the edit: scan at 1.06 s took 0.85 s (1 read); sync at 1.97 s took 1.94 s (read 0.88, deletes 0.10, embedding 0.75, upserts 0.05, check 0.17); seen at 3.76 s
+  run 1, the undoing: scan at 1.03 s took 0.92 s (1 read); sync at 2.01 s took 0.76 s (read 0.56, deletes 0.02, embedding 0.00, upserts 0.02, check 0.16); seen at 2.77 s
+  run 2, the edit: scan at 1.06 s took 0.81 s (1 read); sync at 1.93 s took 1.11 s (read 0.84, deletes 0.03, embedding 0.09, upserts 0.01, check 0.15); seen at 2.97 s
+  run 2, the undoing: scan at 1.04 s took 0.92 s (1 read); sync at 2.03 s took 0.75 s (read 0.55, deletes 0.02, embedding 0.00, upserts 0.01, check 0.16); seen at 2.75 s
+  run 3, the edit: scan at 1.01 s took 0.93 s (1 read); sync at 2.01 s took 1.20 s (read 0.85, deletes 0.03, embedding 0.16, upserts 0.01, check 0.16); seen at 3.15 s
+  run 3, the undoing: scan at 1.05 s took 2.00 s (1 read); sync at 3.10 s took 0.73 s (read 0.50, deletes 0.04, embedding 0.00, upserts 0.02, check 0.18); seen at 3.83 s
+  run 4, the edit: scan at 1.07 s took 1.54 s (1 read); sync at 2.67 s took 1.61 s (read 1.19, deletes 0.04, embedding 0.20, upserts 0.01, check 0.16); seen at 4.24 s
+  run 4, the undoing: scan at 1.03 s took 1.89 s (1 read); sync at 2.97 s took 1.05 s (read 0.81, deletes 0.04, embedding 0.00, upserts 0.02, check 0.18); seen at 4.02 s
+  run 5, the edit: scan at 1.05 s took 0.98 s (1 read); sync at 2.09 s took 0.85 s (read 0.55, deletes 0.03, embedding 0.10, upserts 0.01, check 0.16); seen at 2.87 s
+  run 5, the undoing: scan at 1.04 s took 0.79 s (1 read); sync at 1.88 s took 0.73 s (read 0.54, deletes 0.02, embedding 0.00, upserts 0.01, check 0.16); seen at 2.71 s
+the processor 84 percent busy over the runs, the bench's own work included
+NET_MAN_009: the edited sentence reached a query in median 3.2 s, largest 4.2 s, over 5 runs; its undoing in median 2.8 s, largest 4.0 s, over 5 runs (watch interval 0.5 s; objective 5 s)
+NET_MAN_009: units embedded again, each edit [1, 1, 1, 1, 1] and each undoing [0, 0, 0, 0, 0], out of 501031 points in the collection

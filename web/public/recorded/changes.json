@@ -3,15 +3,15 @@
   {
    "bench": "freshness",
    "command": "uv run python bench/freshness.py",
-   "recorded": "recorded 2026-10-23 01:35 from the log freshness-t241b.log, written 2026-10-23 01:34",
-   "commit": "917a0fd",
+   "recorded": "recorded 2026-10-23 02:32 from the log freshness-t242.log, written 2026-10-23 02:32",
+   "commit": "d9f768f",
    "clean": false,
-   "before": 67,
-   "during": 77,
+   "before": 77,
+   "during": 84,
    "doc_id": "NET_MAN_009",
    "size": "8.8 MB",
    "reader": "network-ops",
-   "catch_up": 30.7,
+   "catch_up": 47.9,
    "interval": 0.5,
    "objective": 5.0,
    "kinds": [
@@ -22,277 +22,277 @@
     {
      "run": 1,
      "change": "edit",
-     "seen": 2.09,
+     "seen": 3.76,
      "events": [
       {
        "kind": "scan",
-       "at": 1.04,
-       "took": 0.26,
+       "at": 1.06,
+       "took": 0.85,
        "parts": {},
        "detail": "1 read"
       },
       {
        "kind": "sync",
-       "at": 1.34,
-       "took": 0.77,
+       "at": 1.97,
+       "took": 1.94,
        "parts": {
-        "read": 0.58,
-        "deletes": 0.04,
-        "embedding": 0.0,
-        "upserts": 0.02,
-        "check": 0.13
+        "read": 0.88,
+        "deletes": 0.1,
+        "embedding": 0.75,
+        "upserts": 0.05,
+        "check": 0.17
        },
-       "detail": "read 0.58, deletes 0.04, embedding 0.00, upserts 0.02, check 0.13"
+       "detail": "read 0.88, deletes 0.10, embedding 0.75, upserts 0.05, check 0.17"
       }
      ]
     },
     {
      "run": 1,
      "change": "undoing",
-     "seen": 1.99,
+     "seen": 2.77,
      "events": [
       {
        "kind": "scan",
-       "at": 1.05,
-       "took": 0.26,
+       "at": 1.03,
+       "took": 0.92,
        "parts": {},
        "detail": "1 read"
       },
       {
        "kind": "sync",
-       "at": 1.36,
-       "took": 0.57,
+       "at": 2.01,
+       "took": 0.76,
        "parts": {
-        "read": 0.42,
-        "deletes": 0.02,
-        "embedding": 0.0,
-        "upserts": 0.01,
-        "check": 0.13
-       },
-       "detail": "read 0.42, deletes 0.02, embedding 0.00, upserts 0.01, check 0.13"
-      }
-     ]
-    },
-    {
-     "run": 2,
-     "change": "edit",
-     "seen": 1.9,
-     "events": [
-      {
-       "kind": "scan",
-       "at": 0.96,
-       "took": 0.26,
-       "parts": {},
-       "detail": "1 read"
-      },
-      {
-       "kind": "sync",
-       "at": 1.26,
-       "took": 0.73,
-       "parts": {
-        "read": 0.57,
-        "deletes": 0.02,
-        "embedding": 0.0,
-        "upserts": 0.01,
-        "check": 0.13
-       },
-       "detail": "read 0.57, deletes 0.02, embedding 0.00, upserts 0.01, check 0.13"
-      }
-     ]
-    },
-    {
-     "run": 2,
-     "change": "undoing",
-     "seen": 1.98,
-     "events": [
-      {
-       "kind": "scan",
-       "at": 1.02,
-       "took": 0.28,
-       "parts": {},
-       "detail": "1 read"
-      },
-      {
-       "kind": "sync",
-       "at": 1.35,
-       "took": 0.55,
-       "parts": {
-        "read": 0.37,
-        "deletes": 0.04,
-        "embedding": 0.0,
-        "upserts": 0.01,
-        "check": 0.13
-       },
-       "detail": "read 0.37, deletes 0.04, embedding 0.00, upserts 0.01, check 0.13"
-      }
-     ]
-    },
-    {
-     "run": 3,
-     "change": "edit",
-     "seen": 1.92,
-     "events": [
-      {
-       "kind": "scan",
-       "at": 0.95,
-       "took": 0.29,
-       "parts": {},
-       "detail": "1 read"
-      },
-      {
-       "kind": "sync",
-       "at": 1.28,
-       "took": 0.73,
-       "parts": {
-        "read": 0.58,
-        "deletes": 0.02,
-        "embedding": 0.0,
-        "upserts": 0.01,
-        "check": 0.13
-       },
-       "detail": "read 0.58, deletes 0.02, embedding 0.00, upserts 0.01, check 0.13"
-      }
-     ]
-    },
-    {
-     "run": 3,
-     "change": "undoing",
-     "seen": 1.84,
-     "events": [
-      {
-       "kind": "scan",
-       "at": 1.02,
-       "took": 0.25,
-       "parts": {},
-       "detail": "1 read"
-      },
-      {
-       "kind": "sync",
-       "at": 1.32,
-       "took": 0.52,
-       "parts": {
-        "read": 0.36,
-        "deletes": 0.02,
-        "embedding": 0.0,
-        "upserts": 0.01,
-        "check": 0.13
-       },
-       "detail": "read 0.36, deletes 0.02, embedding 0.00, upserts 0.01, check 0.13"
-      }
-     ]
-    },
-    {
-     "run": 4,
-     "change": "edit",
-     "seen": 1.91,
-     "events": [
-      {
-       "kind": "scan",
-       "at": 1.04,
-       "took": 0.27,
-       "parts": {},
-       "detail": "1 read"
-      },
-      {
-       "kind": "sync",
-       "at": 1.35,
-       "took": 0.57,
-       "parts": {
-        "read": 0.36,
+        "read": 0.56,
         "deletes": 0.02,
         "embedding": 0.0,
         "upserts": 0.02,
         "check": 0.16
        },
-       "detail": "read 0.36, deletes 0.02, embedding 0.00, upserts 0.02, check 0.16"
+       "detail": "read 0.56, deletes 0.02, embedding 0.00, upserts 0.02, check 0.16"
+      }
+     ]
+    },
+    {
+     "run": 2,
+     "change": "edit",
+     "seen": 2.97,
+     "events": [
+      {
+       "kind": "scan",
+       "at": 1.06,
+       "took": 0.81,
+       "parts": {},
+       "detail": "1 read"
+      },
+      {
+       "kind": "sync",
+       "at": 1.93,
+       "took": 1.11,
+       "parts": {
+        "read": 0.84,
+        "deletes": 0.03,
+        "embedding": 0.09,
+        "upserts": 0.01,
+        "check": 0.15
+       },
+       "detail": "read 0.84, deletes 0.03, embedding 0.09, upserts 0.01, check 0.15"
+      }
+     ]
+    },
+    {
+     "run": 2,
+     "change": "undoing",
+     "seen": 2.75,
+     "events": [
+      {
+       "kind": "scan",
+       "at": 1.04,
+       "took": 0.92,
+       "parts": {},
+       "detail": "1 read"
+      },
+      {
+       "kind": "sync",
+       "at": 2.03,
+       "took": 0.75,
+       "parts": {
+        "read": 0.55,
+        "deletes": 0.02,
+        "embedding": 0.0,
+        "upserts": 0.01,
+        "check": 0.16
+       },
+       "detail": "read 0.55, deletes 0.02, embedding 0.00, upserts 0.01, check 0.16"
+      }
+     ]
+    },
+    {
+     "run": 3,
+     "change": "edit",
+     "seen": 3.15,
+     "events": [
+      {
+       "kind": "scan",
+       "at": 1.01,
+       "took": 0.93,
+       "parts": {},
+       "detail": "1 read"
+      },
+      {
+       "kind": "sync",
+       "at": 2.01,
+       "took": 1.2,
+       "parts": {
+        "read": 0.85,
+        "deletes": 0.03,
+        "embedding": 0.16,
+        "upserts": 0.01,
+        "check": 0.16
+       },
+       "detail": "read 0.85, deletes 0.03, embedding 0.16, upserts 0.01, check 0.16"
+      }
+     ]
+    },
+    {
+     "run": 3,
+     "change": "undoing",
+     "seen": 3.83,
+     "events": [
+      {
+       "kind": "scan",
+       "at": 1.05,
+       "took": 2.0,
+       "parts": {},
+       "detail": "1 read"
+      },
+      {
+       "kind": "sync",
+       "at": 3.1,
+       "took": 0.73,
+       "parts": {
+        "read": 0.5,
+        "deletes": 0.04,
+        "embedding": 0.0,
+        "upserts": 0.02,
+        "check": 0.18
+       },
+       "detail": "read 0.50, deletes 0.04, embedding 0.00, upserts 0.02, check 0.18"
+      }
+     ]
+    },
+    {
+     "run": 4,
+     "change": "edit",
+     "seen": 4.24,
+     "events": [
+      {
+       "kind": "scan",
+       "at": 1.07,
+       "took": 1.54,
+       "parts": {},
+       "detail": "1 read"
+      },
+      {
+       "kind": "sync",
+       "at": 2.67,
+       "took": 1.61,
+       "parts": {
+        "read": 1.19,
+        "deletes": 0.04,
+        "embedding": 0.2,
+        "upserts": 0.01,
+        "check": 0.16
+       },
+       "detail": "read 1.19, deletes 0.04, embedding 0.20, upserts 0.01, check 0.16"
       }
      ]
     },
     {
      "run": 4,
      "change": "undoing",
-     "seen": 2.12,
+     "seen": 4.02,
      "events": [
       {
        "kind": "scan",
-       "at": 0.99,
-       "took": 0.26,
+       "at": 1.03,
+       "took": 1.89,
        "parts": {},
        "detail": "1 read"
       },
       {
        "kind": "sync",
-       "at": 1.29,
-       "took": 0.75,
+       "at": 2.97,
+       "took": 1.05,
        "parts": {
-        "read": 0.57,
+        "read": 0.81,
         "deletes": 0.04,
         "embedding": 0.0,
-        "upserts": 0.01,
-        "check": 0.13
+        "upserts": 0.02,
+        "check": 0.18
        },
-       "detail": "read 0.57, deletes 0.04, embedding 0.00, upserts 0.01, check 0.13"
+       "detail": "read 0.81, deletes 0.04, embedding 0.00, upserts 0.02, check 0.18"
       }
      ]
     },
     {
      "run": 5,
      "change": "edit",
-     "seen": 1.74,
+     "seen": 2.87,
      "events": [
       {
        "kind": "scan",
-       "at": 0.95,
-       "took": 0.25,
+       "at": 1.05,
+       "took": 0.98,
        "parts": {},
        "detail": "1 read"
       },
       {
        "kind": "sync",
-       "at": 1.24,
-       "took": 0.52,
+       "at": 2.09,
+       "took": 0.85,
        "parts": {
-        "read": 0.35,
+        "read": 0.55,
         "deletes": 0.03,
-        "embedding": 0.0,
+        "embedding": 0.1,
         "upserts": 0.01,
-        "check": 0.13
+        "check": 0.16
        },
-       "detail": "read 0.35, deletes 0.03, embedding 0.00, upserts 0.01, check 0.13"
+       "detail": "read 0.55, deletes 0.03, embedding 0.10, upserts 0.01, check 0.16"
       }
      ]
     },
     {
      "run": 5,
      "change": "undoing",
-     "seen": 1.91,
+     "seen": 2.71,
      "events": [
       {
        "kind": "scan",
-       "at": 1.01,
-       "took": 0.3,
+       "at": 1.04,
+       "took": 0.79,
        "parts": {},
        "detail": "1 read"
       },
       {
        "kind": "sync",
-       "at": 1.35,
-       "took": 0.5,
+       "at": 1.88,
+       "took": 0.73,
        "parts": {
-        "read": 0.36,
+        "read": 0.54,
         "deletes": 0.02,
         "embedding": 0.0,
         "upserts": 0.01,
-        "check": 0.12
+        "check": 0.16
        },
-       "detail": "read 0.36, deletes 0.02, embedding 0.00, upserts 0.01, check 0.12"
+       "detail": "read 0.54, deletes 0.02, embedding 0.00, upserts 0.01, check 0.16"
       }
      ]
     }
    ],
    "said": [
-    "NET_MAN_009: the edited sentence reached a query in median 1.9 s, largest 2.1 s, over 5 runs; its undoing in median 2.0 s, largest 2.1 s, over 5 runs (watch interval 0.5 s; objective 5 s)",
-    "NET_MAN_009: units embedded again, each edit [0, 0, 0, 0, 0] and each undoing [0, 0, 0, 0, 0], out of 501031 points in the collection"
+    "NET_MAN_009: the edited sentence reached a query in median 3.2 s, largest 4.2 s, over 5 runs; its undoing in median 2.8 s, largest 4.0 s, over 5 runs (watch interval 0.5 s; objective 5 s)",
+    "NET_MAN_009: units embedded again, each edit [1, 1, 1, 1, 1] and each undoing [0, 0, 0, 0, 0], out of 501031 points in the collection"
    ]
   },
   {

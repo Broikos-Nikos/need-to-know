@@ -335,7 +335,11 @@ text files (`bench/parts_check.py`). The objective is held over ten runs, the la
 deciding: the widening reached its reader at a median of 2.2 s and at most 2.5 s, the
 narrowing left it at 1.5 s and at most 1.7 s, and the one sentence edit at 1.9 s
 (`bench/revocation.py`, `bench/freshness.py`). A change inside the part that holds most of
-a file, its tables, still cuts all of that part.
+a file, its tables, still cuts all of that part. That edit timed no embedding: the bench
+wrote the same value every run, a passage the vector cache held from the first run on.
+Written a value no run wrote before, so that every edit embeds its passage (MA-F32), it
+reached the query at 3.2 s at the median and at most 4.2 s, with the processor 84 percent
+busy over the runs.
 
 ## N56. The split's family is every fact that shares a planted section
 

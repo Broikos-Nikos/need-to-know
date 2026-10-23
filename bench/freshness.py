@@ -5,7 +5,9 @@ its undoing: the change bench of the freshness objective (T2.9, MA-F6).
 
 Needs the corpus, the manifest, the vector cache, the embed extra and the index on the
 running server. It changes one planted fact's value in the largest plain text file that
-plants a number, which changes one paragraph's unit, and times until a role that may read
+plants a number, each run to a value no run wrote before, so the edited passage is new to
+the vector cache and is embedded (MA-F32), which changes one paragraph's unit, and times
+until a role that may read
 it finds the new sentence by asking it; then it writes the file's original bytes back and
 times until the old sentence is found again and the new one is not. The watcher runs in a
 thread, started only once its catch up is done, with the encoder already loaded by the
@@ -43,6 +45,13 @@ def found(client, policy: dict, role: str, sentence: str) -> bool:
     return any(row is not None and sentence in " ".join(row[0].split()) for row in texts)
 
 
+def edit_values(planted: str, runs: int, stamp: int) -> list[str]:
+    """One value for each run's edit, none the planted value and none any earlier run of the bench wrote, since the
+    stamp is the moment it started: a passage the vector cache holds is not embedded again, and with the same value
+    every run no edit of any run but the first ever timed an embedding (MA-F32)."""
+    return [str(stamp * 10 + run) for run in range(1, runs + 1)]
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Time an edit through the watcher into queries.")
     parser.add_argument("--interval", type=float, help="the watcher's interval; by default its own")
@@ -59,7 +68,8 @@ def main() -> int:
                           key=lambda c: (c[0], c[1]))
     file, _sidecar, meta = files[doc_id]
     old = fact[meta["language"]]
-    new = replace_value(old, fact["values"][0], str(int(fact["values"][0]) + 1))
+    values = edit_values(fact["values"][0], args.runs, int(time.time()))
+    new = replace_value(old, fact["values"][0], values[0])
     scan(full)
     with opened() as db:
         labels = next(json.loads(row[0]) for row in db.execute(
@@ -77,6 +87,7 @@ def main() -> int:
           f"document: {watched.start():.1f} s", flush=True)
     try:
         for run in range(1, args.runs + 1):
+            new = replace_value(old, fact["values"][0], values[run - 1])
             began = time.perf_counter()
             file.write_bytes(encoded(meta, read(file, meta).replace(old, new, 1)))
             edits.append(until(lambda: found(client, policy, role, new), 60))
@@ -94,8 +105,8 @@ def main() -> int:
     print(cpu.closing(), flush=True)
     print(f"{doc_id}: the edited sentence reached a query in {spread(edits)}; its undoing in {spread(undos)} "
           f"(watch interval {watched.interval:g} s; objective {OBJECTIVE:g} s)")
-    # A passage the vector cache holds is not embedded again, so the first edit is the one that measures the change;
-    # the undoings and the later edits bring back passages already embedded.
+    # Each edit writes a value no earlier run wrote, so its passage is new to the vector cache and is embedded; each
+    # undoing brings back the planted passage, which the cache holds (MA-F32).
     points = next((p for _, p in reversed(embedded["edit"] + embedded["undoing"]) if p), None)
     print(f"{doc_id}: units embedded again, each edit {[n for n, _ in embedded['edit']]} and each undoing "
           f"{[n for n, _ in embedded['undoing']]}, out of {points} points in the collection")

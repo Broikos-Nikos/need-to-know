@@ -593,3 +593,12 @@ def test_every_bench_that_asks_the_probes_sets_lost_ones_apart():
         assert "left out: {', '.join(" in text, name
         if "probes import load" in text:
             assert "lost(" in text, name
+
+
+def test_each_freshness_edit_writes_a_value_no_earlier_run_wrote():
+    # MA-F32: every run edited the fact to the same value, so the vector cache held the edited passage after the first
+    # run ever, and no edit of a later run timed an embedding.
+    sys.path.insert(0, str(BENCH))
+    import freshness
+    first, later = freshness.edit_values("3", 5, 1_761_000_000), freshness.edit_values("3", 5, 1_761_000_001)
+    assert len(set(first)) == 5 and "3" not in first and not set(first) & set(later)

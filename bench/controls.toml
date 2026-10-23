@@ -258,12 +258,12 @@ old = '''    before = int(machine["before"]) if machine["before"] else None'''
 new = '''    before = None'''
 
 [[control]]
-name = "the README's freshness figures of tick 240"
+name = "the README's freshness figures of tick 241, its edits never embedded"
 test = "tests/test_claims.py"
 [[control.change]]
 file = "README.md"
-old = '''`ntk ingest watch` in 1.9 s at the median over five edits'''
-new = '''`ntk ingest watch` in 3.7 s at the median over five edits'''
+old = '''`ntk ingest watch` in 3.2 s at the median over five edits'''
+new = '''`ntk ingest watch` in 1.9 s at the median over five edits'''
 
 [[control]]
 name = "a saved run named whatever its arguments"
@@ -1021,9 +1021,9 @@ name = "a headline number with no command"
 test = "tests/test_readme.py::test_the_numbers_come_right_under_the_picture_each_with_its_command_and_held_as_the_claims_are"
 [[control.change]]
 file = "README.md"
-old = '''  question: `uv run python bench/freshness.py`.
+old = '''  question, its new passage embedded: `uv run python bench/freshness.py`.
 '''
-new = '''  question.
+new = '''  question, its new passage embedded.
 '''
 
 [[control]]
@@ -1496,3 +1496,11 @@ test = "tests/test_claims.py::test_a_record_from_a_tree_holding_changes_names_th
 file = "bench/claims.py"
 old = '''        return f", with changes to {', '.join(code)}"'''
 new = '''        return ", the tree holding changes"'''
+
+[[control]]
+name = "every freshness edit writing the same value"
+test = "tests/test_bench.py::test_each_freshness_edit_writes_a_value_no_earlier_run_wrote"
+[[control.change]]
+file = "bench/freshness.py"
+old = '''    return [str(stamp * 10 + run) for run in range(1, runs + 1)]'''
+new = '''    return [str(int(planted) + 1)] * runs'''

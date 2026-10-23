@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**257 findings, 250 closed, 7 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
+**258 findings, 251 closed, 7 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -144,7 +144,7 @@ An audit pass that killed the pipeline mid build and mid change. 7 findings, 7 c
 
 ## `MA`, the measurement auditor
 
-An audit pass on whether every number can be produced again. 31 findings, 30 closed.
+An audit pass on whether every number can be produced again. 32 findings, 31 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -179,6 +179,7 @@ An audit pass on whether every number can be produced again. 31 findings, 30 clo
 | `MA-F29` | low | fixed, tick 241 | Records made before their code was committed name the commit before it: ntk-stats and the page's scale.json say run at 0a52bf1, whose code gives an index of 3,948,042,658 bytes, not 3,773,074,626; a record from a tree holding changes names that tree too, and the two are made again at a commit |
 | `MA-F30` | low | open | bench/ties.py makes its collection with a copy of the index's create call, which T7.5's named indexing threshold did not reach, equal tonight only as the engine's default: one function makes both, with a test that their configurations agree |
 | `MA-F31` | low | fixed, tick 241 | e2f1eff's message gives a before run, the sync 1346 s, its CPU 680 s and the data directory's peak 20.19 GB, that no record in the repository holds, its log on the build's machine alone; the record of the build before is dcd5cd0's: keep the message and name it in the errata, as a wrong message is |
+| `MA-F32` | low | fixed, tick 242 | bench/freshness.py says its first edit measures the embedding, but every run edits the fact to the same value, so the vector cache holds that passage from an earlier run and no edit of any run embeds: every recorded freshness figure is the scan and the sync alone; each run's edit a value no run wrote before |
 
 ## `MT`, the maintainer in six months
 

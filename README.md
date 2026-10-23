@@ -19,8 +19,8 @@ question asked as every department.
   `uv run python bench/permission_suite.py`.
 * **0.964** of the 194 dev probes find a gold unit in the top 10, each asked by the
   narrowest role that may read it: `uv run python bench/probe_recall.py`.
-* **1.9 s** at the median for a paragraph edited in the largest file to reach a
-  question: `uv run python bench/freshness.py`.
+* **3.2 s** at the median for a paragraph edited in the largest file to reach a
+  question, its new passage embedded: `uv run python bench/freshness.py`.
 
 Every accuracy figure in this README is this one corpus's; retrieval, which needs no
 language model, was measured again on two more draws of it. Each number comes with the
@@ -64,10 +64,11 @@ named, real or invented: the documents call it "the Company".
   embeds nothing again; a passage longer than the model takes is refused, never
   cut: `ntk embed`.
 * One paragraph edited in the largest file, 8.8 MB, reaches a question through
-  `ntk ingest watch` in 1.9 s at the median over five edits, and its undoing in 2.0 s,
-  each one inside the 5 s objective, with the processor 67 percent busy with other programs
-  before the runs; the scan cuts only the part of the file the edit touched, and the
-  edit's passage comes from the vector cache: `uv run python bench/freshness.py`.
+  `ntk ingest watch` in 3.2 s at the median over five edits, each to a value no run wrote
+  before, so that its passage is embedded, and its undoing in 2.8 s, each one inside the
+  5 s objective, with the processor 77 percent busy with other programs before the runs;
+  the scan cuts only the part of the file the edit touched:
+  `uv run python bench/freshness.py`.
 * A relabel of the largest document reaches its new reader in 2.2 s at the median and
   2.5 s at most over ten runs, the largest deciding, and narrowed back, it leaves that
   reader in 1.5 s at the median and 1.7 s at most, inside the 5 s objective, with the
