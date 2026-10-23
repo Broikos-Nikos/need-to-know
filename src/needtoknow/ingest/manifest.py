@@ -192,8 +192,10 @@ def now() -> str:
 
 
 def content_hash(text: str, meta: dict) -> str:
-    """What a file's units are cut from: its decoded text and its sidecar's default audience."""
-    return hashlib.sha256(f"{meta.get('default_audience', '')}\x1f{text}".encode("utf-8")).hexdigest()
+    """What a file's units are cut from: its decoded text and the sidecar fields its units carry, the default audience
+    and the language. With the audience alone, a language corrected in a sidecar scanned as a touch (DR-F42)."""
+    return hashlib.sha256(f"{meta.get('default_audience', '')}\x1f{meta.get('language', '')}\x1f{text}"
+                          .encode("utf-8")).hexdigest()
 
 
 def unique_ids(found: list[Unit]) -> list[Unit]:
@@ -227,9 +229,12 @@ def replace_units(db: sqlite3.Connection, run_id: int, doc_id: str, found: list[
     added = [u for uid, u in new.items() if uid not in old]
     db.executemany("DELETE FROM units WHERE unit_id = ?", [(uid,) for uid in removed])
     # Offsets are not in the id: a paragraph inserted above a unit moves it and keeps its id, so a surviving unit's
-    # offsets are written again, or the expansion and the citations would read where it used to be (T3.7).
-    db.executemany('UPDATE units SET start = ?, "end" = ? WHERE unit_id = ? AND (start != ? OR "end" != ?)',
-                   [(u.start, u.end, u.unit_id, u.start, u.end) for uid, u in new.items() if uid in old])
+    # offsets are written again, or the expansion and the citations would read where it used to be (T3.7). Nor are its
+    # language and layer, written again with them: a sidecar's language reached only the units an edit made (DR-F42).
+    db.executemany('UPDATE units SET start = ?, "end" = ?, language = ?, layer = ? WHERE unit_id = ? '
+                   'AND (start != ? OR "end" != ? OR language != ? OR layer != ?)',
+                   [(u.start, u.end, u.language, u.layer, u.unit_id, u.start, u.end, u.language, u.layer)
+                    for uid, u in new.items() if uid in old])
     db.executemany("INSERT INTO units VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                    [(u.unit_id, u.doc_id, u.section_key, u.layer, json.dumps(u.labels), json.dumps(u.path, ensure_ascii=False),
                      u.text, u.start, u.end, u.language, run_id) for u in added])
@@ -242,14 +247,15 @@ def part_digest(text: str) -> str:
 
 def parts_of(text: str, meta: dict) -> list[tuple[int, int, str]]:
     """A plain text file's head and keyword sections, each as start, end and digest; the head's digest holds the
-    sidecar's default audience too, which every part's labels can come from. Empty for a file without keyword
-    sections, which is always cut whole."""
+    sidecar's default audience too, which every part's labels can come from, and its language, which every unit
+    carries (DR-F42). Empty for a file without keyword sections, which is always cut whole."""
     starts = pipeline.parts(text, meta["format"])
     if not starts:
         return []
     edges = [0, *starts, len(text)]
     found = [(a, b, part_digest(text[a:b])) for a, b in zip(edges, edges[1:])]
-    found[0] = (0, starts[0], part_digest(f"{meta.get('default_audience', '')}\x1f{text[:starts[0]]}"))
+    found[0] = (0, starts[0], part_digest(f"{meta.get('default_audience', '')}\x1f{meta.get('language', '')}\x1f"
+                                          f"{text[:starts[0]]}"))
     return found
 
 

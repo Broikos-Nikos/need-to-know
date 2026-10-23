@@ -289,12 +289,15 @@ def test_points_of_equal_score_come_back_in_one_order_whatever_order_the_engine_
     asked, results = [], []
 
     def tied(order):
-        def batch(*args, **kwargs):
-            asked.append([request.limit for request in kwargs["requests"]])
-            answers = real(*args, **kwargs)
-            for answer in answers:
+        def batch(*args, **kwargs):  # every score made 0.5, a threshold applied to what is made
+            requests = kwargs["requests"]
+            asked.append([request.limit for request in requests])
+            answers = real(*args, **{**kwargs, "requests": [r.model_copy(update={"score_threshold": None})
+                                                            for r in requests]})
+            for request, answer in zip(requests, answers):
                 answer.points = order([models.ScoredPoint(id=p.id, version=0, score=0.5, payload=p.payload)
-                                       for p in answer.points])
+                                       for p in answer.points if request.score_threshold is None
+                                       or 0.5 >= request.score_threshold])
             return answers
         return batch
 
@@ -306,9 +309,9 @@ def test_points_of_equal_score_come_back_in_one_order_whatever_order_the_engine_
 
 
 def test_a_group_of_equal_scores_across_the_cut_is_fetched_whole_before_the_cut(monkeypatch, tmp_path):
-    # AC-F20: thirty units of one text and one vector tie in both searches, more than the first window holds, and the
-    # engine hands the last stored back first; each window is doubled until the group ends inside it, so the three a
-    # role gets are the three first by id.
+    # AC-F20, DR-F43: thirty units of one text and one vector tie in both searches, more than the first window holds,
+    # and the engine hands the last stored back first; each search is asked once more for every unit at or above the
+    # cut's score, the filter's whole count its limit, so the three a role gets are the three first by id.
     from needtoknow.index import search as retrieval
     client = indexed(monkeypatch, tmp_path, [(f"tie{n:02}", ["sales"], "The settlement ceiling for sales claims.",
                                               near(5, 0.5)) for n in range(30)])
@@ -317,14 +320,17 @@ def test_a_group_of_equal_scores_across_the_cut_is_fetched_whole_before_the_cut(
 
     def spy(*args, **kwargs):
         answers = real(*args, **kwargs)
-        asked.append([request.limit for request in kwargs["requests"]])
+        asked.append([(request.limit, request.score_threshold) for request in kwargs["requests"]])
         first.append([point.payload["unit_id"] for point in answers[0].points])
         return answers
 
     monkeypatch.setattr(client, "query_batch_points", spy)
     assert [hit["unit_id"] for hit in ask(client, limit=3)] == ["tie00", "tie01", "tie02"]
     window = 3 + retrieval.TIES
-    assert asked == [[window, window], [2 * window], [2 * window]]  # each side asked again, its window doubled
+    assert asked[0] == [(window, None), (window, None)]
+    # each side asked once more, for every unit the filter passes at or above the tied score at the cut
+    assert [[limit for limit, _ in call] for call in asked[1:]] == [[30], [30]]
+    assert all(threshold is not None for call in asked[1:] for _, threshold in call)
     assert "tie00" not in first[0], "the engine's first window holds the first id, so this test cannot tell"
 
 

@@ -1,10 +1,10 @@
 command: uv run python bench/ties.py
-recorded 2026-10-23 03:19, run at 63e54ae, with changes to bench/controls.toml, bench/ties.py, src/needtoknow/index/collection.py, src/needtoknow/index/search.py
+recorded 2026-10-23 05:32, run at 102386f, with changes to bench/controls.toml, bench/ties.py, src/needtoknow/index/search.py, src/needtoknow/ingest/manifest.py
 ---
 ties_bench: 30,000 filler units over 10 labels; 150 units of sales tied in both searches, and 150 of legal that would tie with them; a limit of 100, 3 calls a state
-alone: 100 of the 150 tied units in the served dense list and 100 in the lexical, every call alike; the fused scores 0.0125 to 0.032786885
+alone: 100 of the 150 tied units in the served dense list and 100 in the lexical, every call alike, each the first 100 of the group by id; the fused scores 0.0125 to 0.032786885
 150 of legal written after: the engine's dense the same, the engine's lexical the same, the served dense the same, the served lexical the same, the served fusion the same
 those 150 deleted again: the engine's dense the same, the engine's lexical the same, the served dense the same, the served lexical the same, the served fusion the same
 15,000 more of legal written after, the optimizer left to settle: the engine's dense MOVED, the engine's lexical MOVED, the served dense the same, the served lexical the same, the served fusion the same
 built again, the same units in the same order: the engine's dense MOVED, the engine's lexical MOVED, the served dense the same, the served lexical the same, the served fusion the same
-in one build, the role's served lists as it had them alone in 3 of 3 states, the engine's own order in 2; built again from the same units, the served lists the same and the engine's order moved; 79 s
+in one build, the role's served lists as it had them alone in 3 of 3 states, the engine's own order in 2; built again from the same units, the served lists the same and the engine's order moved; 59 s

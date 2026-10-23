@@ -151,8 +151,12 @@ def main() -> int:
         tops = {side: len(set(alone[f"the served {side}"]) & {u["payload"]["unit_id"] for u in role})
                 for side in ("dense", "lexical")}
         fused = alone["the served fusion"]
+        # The group runs past the first window, so the served lists hold the first ids of it only if it came back whole.
+        first = [u["payload"]["unit_id"] for u in role][:CANDIDATES]
+        whole = all(alone[f"the served {side}"] == first for side in ("dense", "lexical"))
+        order = f"each the first {CANDIDATES} of the group by id" if whole else "NOT the first of the group by id"
         print(f"alone: {tops['dense']} of the {args.tied} tied units in the served dense list and {tops['lexical']} in "
-              f"the lexical, every call alike; the fused scores {fused[-1][1]} to {fused[0][1]}", flush=True)
+              f"the lexical, every call alike, {order}; the fused scores {fused[-1][1]} to {fused[0][1]}", flush=True)
         # In one build, as the served index lives: units the role may not read written, deleted, and written in bulk.
         written(client, hidden)
         held = [compared(f"{args.tied} of {HIDDEN} written after", asked(client, flt, question, args.calls), alone)]

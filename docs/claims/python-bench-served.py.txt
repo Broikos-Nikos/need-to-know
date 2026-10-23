@@ -1,9 +1,9 @@
 command: uv run python bench/served.py
-recorded 2026-10-23 03:41, run at 63e54ae, with changes to bench/README.md, bench/controls.toml, bench/repeatability.py, bench/served.py, bench/ties.py, src/needtoknow/eval/protocol.py, src/needtoknow/index/collection.py, src/needtoknow/index/search.py
+recorded 2026-10-23 05:34, run at 102386f, with changes to bench/controls.toml, bench/ties.py, src/needtoknow/index/search.py, src/needtoknow/ingest/manifest.py
 ---
-at 63e54ae, with changes to bench/README.md, bench/controls.toml, bench/repeatability.py, bench/served.py, bench/ties.py, src/needtoknow/eval/protocol.py, src/needtoknow/index/collection.py, src/needtoknow/index/search.py; the processor 71 percent busy in the 3 s before the runs
-the models loaded in 37.8 s; 20 dev probes searched through the server as their selective readers, 2 sessions: the first in 2.13 s, then a median of 1.15 s and a 95th percentile of 1.63 s; the trace's own queries a median of 0.169 s
+at 102386f, with changes to bench/controls.toml, bench/ties.py, src/needtoknow/index/search.py, src/needtoknow/ingest/manifest.py; the processor 65 percent busy in the 3 s before the runs
+the models loaded in 36.3 s; 20 dev probes searched through the server as their selective readers, 2 sessions: the first in 3.32 s, then a median of 1.16 s and a 95th percentile of 1.64 s; the trace's own queries a median of 0.162 s
 the fused scores against reciprocal rank fusion of the two searches as traced: 2000 fused units, the largest gap 0.0e+00
-the processor 81 percent busy over the runs, the bench's own work included
+the processor 74 percent busy over the runs, the bench's own work included
 
 

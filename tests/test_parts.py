@@ -199,3 +199,29 @@ def test_a_scan_keeps_each_files_parts_and_a_build_too(sectioned):
     starts = pipeline.parts(TEXT, "txt")
     assert kept == [(k, a, b) for k, (a, b) in enumerate(zip([0, *starts], [*starts, len(TEXT)]))]
     assert manifest.parts_of(TEXT, META)[0][2] != manifest.parts_of(TEXT, {**META, "default_audience": "sales"})[0][2]
+
+
+def test_a_sidecars_language_reaches_every_unit_alone_or_with_an_edit_as_a_build_from_nothing_gives_it(sectioned):
+    # DR-F42: a unit's language is outside its id, and a scan or a build rewrote a surviving unit's offsets alone, so a
+    # language corrected in a sidecar reached only the units an edit made.
+    file, sidecar, _ = sectioned
+
+    def relabel(language: str) -> None:
+        meta = json.loads(sidecar.read_text(encoding="utf-8"))
+        sidecar.write_bytes(json.dumps({**meta, "language": language}, ensure_ascii=False).encode("utf-8"))
+
+    def languages() -> set:
+        return {row[-1] for row in manifest_rows()}
+
+    relabel("el")
+    scan()
+    assert languages() == {"el"}
+    edit(file, "courier services are approved", "courier services are checked")
+    relabel("en")
+    scan()
+    assert languages() == {"en"}
+    scanned = manifest_rows()
+    for leftover in manifest.manifest_path().parent.glob(manifest.manifest_path().name + "*"):
+        leftover.unlink()
+    build()
+    assert manifest_rows() == scanned

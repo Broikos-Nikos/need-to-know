@@ -841,9 +841,9 @@ name = "each search asked for its limit and no window past it"
 test = "tests/test_search.py::test_points_of_equal_score_come_back_in_one_order_whatever_order_the_engine_gives"
 [[control.change]]
 file = "src/needtoknow/index/search.py"
-old = '''    windows = [limit + TIES] * len(requests)
+old = '''    window = limit + TIES
 '''
-new = '''    windows = [limit] * len(requests)
+new = '''    window = limit
 '''
 
 [[control]]
@@ -851,9 +851,13 @@ name = "a group of equal scores across the cut never asked for whole"
 test = "tests/test_search.py::test_a_group_of_equal_scores_across_the_cut_is_fetched_whole_before_the_cut"
 [[control.change]]
 file = "src/needtoknow/index/search.py"
-old = '''        while len(points) == window and points[-1].score == points[limit - 1].score:
-            window *= 2
-            points = client.query_batch_points(collection, requests=[request.model_copy(update={"limit": window})])[0].points
+old = '''        if len(points) == window and points[-1].score == points[limit - 1].score:
+            # A threshold equal to a score leaves that score out, on the server as in local mode (tick 246), so it is
+            # set a millionth below the cut; what comes back below the cut sorts after the group and is cut away.
+            cut = points[limit - 1].score
+            passes = client.count(collection, count_filter=request.filter, exact=True).count
+            points = client.query_batch_points(collection, requests=[request.model_copy(
+                update={"limit": passes, "score_threshold": cut - max(abs(cut), 1.0) * 1e-6})])[0].points
 '''
 new = ''''''
 
@@ -949,6 +953,70 @@ file = "src/needtoknow/eval/protocol.py"
 old = '''    if not (isinstance(growth, dict) and set(growth) == {"version", "seed", "C", "F"}
 '''
 new = '''    if False and (isinstance(growth, dict) and set(growth) == {"version", "seed", "C", "F"}
+'''
+
+[[control]]
+name = "a tie group asked again with no threshold"
+test = "tests/test_search.py::test_a_group_of_equal_scores_across_the_cut_is_fetched_whole_before_the_cut"
+[[control.change]]
+file = "src/needtoknow/index/search.py"
+old = '''                update={"limit": passes, "score_threshold": cut - max(abs(cut), 1.0) * 1e-6})])[0].points
+'''
+new = '''                update={"limit": passes})])[0].points
+'''
+
+[[control]]
+name = "a tie group's threshold at the cut's score itself, which the engine leaves out"
+test = "tests/test_search.py::test_a_group_of_equal_scores_across_the_cut_is_fetched_whole_before_the_cut"
+[[control.change]]
+file = "src/needtoknow/index/search.py"
+old = '''                update={"limit": passes, "score_threshold": cut - max(abs(cut), 1.0) * 1e-6})])[0].points
+'''
+new = '''                update={"limit": passes, "score_threshold": cut})])[0].points
+'''
+
+[[control]]
+name = "a tie group's threshold call capped at the window"
+test = "tests/test_search.py::test_a_group_of_equal_scores_across_the_cut_is_fetched_whole_before_the_cut"
+[[control.change]]
+file = "src/needtoknow/index/search.py"
+old = '''                update={"limit": passes, "score_threshold": cut - max(abs(cut), 1.0) * 1e-6})])[0].points
+'''
+new = '''                update={"limit": window, "score_threshold": cut - max(abs(cut), 1.0) * 1e-6})])[0].points
+'''
+
+[[control]]
+name = "a surviving unit's language left as it was"
+test = "tests/test_parts.py::test_a_sidecars_language_reaches_every_unit_alone_or_with_an_edit_as_a_build_from_nothing_gives_it"
+[[control.change]]
+file = "src/needtoknow/ingest/manifest.py"
+old = '''    db.executemany('UPDATE units SET start = ?, "end" = ?, language = ?, layer = ? WHERE unit_id = ? '
+                   'AND (start != ? OR "end" != ? OR language != ? OR layer != ?)',
+                   [(u.start, u.end, u.language, u.layer, u.unit_id, u.start, u.end, u.language, u.layer)
+                    for uid, u in new.items() if uid in old])
+'''
+new = '''    db.executemany('UPDATE units SET start = ?, "end" = ? WHERE unit_id = ? AND (start != ? OR "end" != ?)',
+                   [(u.start, u.end, u.unit_id, u.start, u.end) for uid, u in new.items() if uid in old])
+'''
+
+[[control]]
+name = "the language left out of a file's content hash"
+test = "tests/test_parts.py::test_a_sidecars_language_reaches_every_unit_alone_or_with_an_edit_as_a_build_from_nothing_gives_it"
+[[control.change]]
+file = "src/needtoknow/ingest/manifest.py"
+old = '''    return hashlib.sha256(f"{meta.get('default_audience', '')}\x1f{meta.get('language', '')}\x1f{text}"
+'''
+new = '''    return hashlib.sha256(f"{meta.get('default_audience', '')}\x1f{text}"
+'''
+
+[[control]]
+name = "the language left out of a file head's digest"
+test = "tests/test_parts.py::test_a_sidecars_language_reaches_every_unit_alone_or_with_an_edit_as_a_build_from_nothing_gives_it"
+[[control.change]]
+file = "src/needtoknow/ingest/manifest.py"
+old = '''    found[0] = (0, starts[0], part_digest(f"{meta.get('default_audience', '')}\x1f{meta.get('language', '')}\x1f"
+'''
+new = '''    found[0] = (0, starts[0], part_digest(f"{meta.get('default_audience', '')}\x1f"
 '''
 
 [[control]]
@@ -1198,9 +1266,9 @@ old = '''* The local server is the index's one client on the served path, and it
     shows only for the units it added that the role may read, keyed by the time it
     finished, and a change to text the role may not read shows as nothing, not even its
     time (N66).
-* The server loads the models as it starts, 37.8 s here with the processor 71 percent busy
-  with other programs, so its first search took 2.13 s and the rest a median of 1.15 s and
-  1.63 s at the 95th percentile, the trace's own queries 0.169 s of it at the median; over
+* The server loads the models as it starts, 36.3 s here with the processor 65 percent busy
+  with other programs, so its first search took 3.32 s and the rest a median of 1.16 s and
+  1.64 s at the 95th percentile, the trace's own queries 0.162 s of it at the median; over
   2,000 fused units the scores served are reciprocal rank fusion of the two searches as
   traced, to the last bit: `uv run python bench/served.py`.
 '''
@@ -1227,9 +1295,9 @@ new = '''* The local server is the index's one client on the served path: `uv ru
   the role may see them: a scan shows only for the units it added that the role may read,
   keyed by the time it finished, and a change to text the role may not read shows as nothing,
   not even its time (N66). The models
-  load as it starts, 37.8 s here with the processor 71 percent busy with other programs, so
-  its first search took 2.13 s and the rest a median of 1.15 s and 1.63 s at the 95th
-  percentile, the trace's own queries 0.169 s of it at the median; over 2,000 fused units the
+  load as it starts, 36.3 s here with the processor 65 percent busy with other programs, so
+  its first search took 3.32 s and the rest a median of 1.16 s and 1.64 s at the 95th
+  percentile, the trace's own queries 0.162 s of it at the median; over 2,000 fused units the
   scores served are reciprocal rank fusion of the two searches as traced, to the last bit:
   `uv run python bench/served.py`.
 '''
@@ -1592,7 +1660,8 @@ name = "the head's digest without the default audience"
 test = "tests/test_parts.py::test_a_change_to_the_head_or_to_the_default_audience_cuts_the_file_whole"
 [[control.change]]
 file = "src/needtoknow/ingest/manifest.py"
-old = '''    found[0] = (0, starts[0], part_digest(f"{meta.get('default_audience', '')}\x1f{text[:starts[0]]}"))
+old = '''    found[0] = (0, starts[0], part_digest(f"{meta.get('default_audience', '')}\x1f{meta.get('language', '')}\x1f"
+                                          f"{text[:starts[0]]}"))
 '''
 new = ''''''
 

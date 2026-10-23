@@ -138,9 +138,9 @@ named, real or invented: the documents call it "the Company".
     shows only for the units it added that the role may read, keyed by the time it
     finished, and a change to text the role may not read shows as nothing, not even its
     time (N66).
-* The server loads the models as it starts, 37.8 s here with the processor 71 percent busy
-  with other programs, so its first search took 2.13 s and the rest a median of 1.15 s and
-  1.63 s at the 95th percentile, the trace's own queries 0.169 s of it at the median; over
+* The server loads the models as it starts, 36.3 s here with the processor 65 percent busy
+  with other programs, so its first search took 3.32 s and the rest a median of 1.16 s and
+  1.64 s at the 95th percentile, the trace's own queries 0.162 s of it at the median; over
   2,000 fused units the scores served are reciprocal rank fusion of the two searches as
   traced, to the last bit: `uv run python bench/served.py`.
 * The evaluation's fact families are split into test and dev by a seed registered before

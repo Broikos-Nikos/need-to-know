@@ -7,8 +7,9 @@ weight (N50, AC-F5). Both searches run inside the role's
 filter, taken from `policy.readable()` and nowhere else (N31). The filter is part of each
 search, never a pass over its results, so a unit the role may not read can neither be
 returned nor take a candidate's place. Each search is asked on its own, and when its limit
-falls inside a group of equal scores it is asked again, its window doubled, until the
-group ends inside it; units of equal score then go in the order of their ids. The engine
+falls inside a group of equal scores that runs past its window it is asked once more for
+every unit at or above the cut's score; units of equal score then go in the order of
+their ids. The engine
 kept them in the order of the index's layout, which units a role may not read shape, and a
 bulk write of such units moved a role's ties once the optimizer settled (AC-F20). The two
 lists are fused here by reciprocal rank, 1 / (60 + rank) summed as the base's M9 did
@@ -49,23 +50,30 @@ class QuestionError(ValueError):
 RRF_K = 60
 FORMS = ("labels", "label_set")
 # Each search is first asked for TIES more than the limit, a window most ties at the cut end inside; one that does
-# not is asked again, its window doubled, until it does (AC-F20). Qdrant hands back points of equal score in an order
-# of its own, which moved an item's excerpts between runs once (RS-F29), so equal scores are put in the ids' order.
+# not is asked once more for every unit scored at least the cut's score (AC-F20, DR-F43). Qdrant hands back points of
+# equal score in an order of its own, which moved an item's excerpts between runs once (RS-F29), so equal scores are
+# put in the ids' order.
 TIES = 20
 
 
 def ranked(client, collection: str, requests: list, limit: int) -> list[list[tuple[str, float]]]:
-    """Each search alone, best first, down to the limit, as unit id and score. A search whose limit falls inside a group
-    of equal scores is asked again, its window doubled, until the group ends inside the window, so every unit tied at
-    the cut is seen; units of equal score are put in the order of their ids, never in the engine's (AC-F20)."""
-    windows = [limit + TIES] * len(requests)
+    """Each search alone, best first, down to the limit, as unit id and score. A search whose window ends inside the
+    group of equal scores at the cut is asked once more for every unit scoring at least the cut's score, its limit every
+    unit the filter passes, so the whole group comes back in one call; a window doubled each time cost a call per
+    doubling, unbounded (DR-F43). Units of equal score are put in the order of their ids, never in the engine's
+    (AC-F20)."""
+    window = limit + TIES
     answers = [answer.points for answer in client.query_batch_points(
-        collection, requests=[request.model_copy(update={"limit": window}) for request, window in zip(requests, windows)])]
+        collection, requests=[request.model_copy(update={"limit": window}) for request in requests])]
     out = []
-    for request, window, points in zip(requests, windows, answers):
-        while len(points) == window and points[-1].score == points[limit - 1].score:
-            window *= 2
-            points = client.query_batch_points(collection, requests=[request.model_copy(update={"limit": window})])[0].points
+    for request, points in zip(requests, answers):
+        if len(points) == window and points[-1].score == points[limit - 1].score:
+            # A threshold equal to a score leaves that score out, on the server as in local mode (tick 246), so it is
+            # set a millionth below the cut; what comes back below the cut sorts after the group and is cut away.
+            cut = points[limit - 1].score
+            passes = client.count(collection, count_filter=request.filter, exact=True).count
+            points = client.query_batch_points(collection, requests=[request.model_copy(
+                update={"limit": passes, "score_threshold": cut - max(abs(cut), 1.0) * 1e-6})])[0].points
         found = sorted(((point.payload["unit_id"], point.score) for point in points), key=lambda pair: (-pair[1], pair[0]))
         out.append(found[:limit])
     return out
