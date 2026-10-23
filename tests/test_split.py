@@ -112,6 +112,15 @@ def test_a_draw_that_does_not_balance_gives_way_to_the_next_seeds_and_every_draw
         S.split(protocol, facts, catalogue, narrative, attempts=30)
 
 
+def test_the_committed_split_is_the_one_the_registered_seed_draws_now(monkeypatch, tmp_path):
+    # MA-F34: 54c3732 wrote planted sentences anew and moved their families' salience while eval/families.json kept the
+    # draw before, so `ntk eval split --check`, which the README names, exited 1 and no test failed.
+    from needtoknow.corpus.plan import build
+    monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path))
+    build()
+    assert S.split() == json.loads((repo_root() / "eval" / "families.json").read_text(encoding="utf-8"))
+
+
 def test_the_committed_split_keeps_every_rule():
     result = json.loads((repo_root() / "eval" / "families.json").read_text(encoding="utf-8"))
     protocol = load_protocol()

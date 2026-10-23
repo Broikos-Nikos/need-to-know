@@ -1,0 +1,9 @@
+command: uv run python bench/repeatability.py --against eval/runs/baseline/dev.jsonl
+recorded 2026-10-23 04:21 from the log parity-t243.log, written 2026-10-23 04:21
+---
+at 63e54ae, with changes to bench/README.md, bench/controls.toml, bench/repeatability.py, bench/served.py, bench/ties.py, src/needtoknow/eval/protocol.py, src/needtoknow/index/collection.py, src/needtoknow/index/search.py
+
+
+dev: 153 of 153 items shown the same excerpts in all 3 runs
+against eval/runs/baseline/dev.jsonl: 127 of the 153 items it asked shown the excerpts it recorded in every repeat; 24 shown others: D010, D030, D031, D039, D047, D048, D049, D057, D058, D060, D061, D062, D063, D064, D074, D080, D082, D104, D128, D132, D143, D146, D148, D151; 2 whose repeats there disagreed: D012, D013
+459 searches in 415 s

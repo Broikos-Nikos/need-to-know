@@ -7,9 +7,9 @@ encoder and the reranker loaded first, as `ntk serve` loads them before it liste
 a session for each role and the first dev probes through `POST /search`, a probe whose
 gold unit the manifest lacks set apart and named (DR-F25). Prints the models' load, the
 first search's seconds and the median and 95th percentile of the rest by nearest rank,
-what the trace's own queries took, and the fusion check: the engine's fused scores
-against reciprocal rank fusion of the two searches as the trace shows them, so the trace
-can be read as what the engine fused (N64).
+what the trace's own queries took, and the fusion check: the fused scores served against
+reciprocal rank fusion of the two searches as the trace shows them, so the trace can be
+read as the lists the fusion read (N64, AC-F20).
 
 Asks the protocol first: dev, for development. Needs the manifest, the index on the
 running server, the `embed` extra and the GPU.

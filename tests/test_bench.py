@@ -595,6 +595,23 @@ def test_every_bench_that_asks_the_probes_sets_lost_ones_apart():
             assert "lost(" in text, name
 
 
+def test_parity_names_an_item_shown_other_excerpts_one_its_run_disagreed_on_and_one_it_never_asked(tmp_path):
+    # RS-F32: the release's parity compares each dev item's excerpts with those a recorded run showed in every repeat.
+    import json
+    sys.path.insert(0, str(BENCH))
+    import repeatability
+    shown = {"D1": [{"doc_id": "A", "units": ["a"]}], "D2": [{"doc_id": "B", "units": ["b"]}],
+             "D3": [{"doc_id": "C", "units": ["c"]}]}
+    rows = [{"id": item, "excerpts": excerpts} for item, excerpts in shown.items() for _ in range(3)]
+    rows[-1] = {"id": "D3", "excerpts": [{"doc_id": "C", "units": ["c", "d"]}]}  # one repeat of D3 shown otherwise
+    run = tmp_path / "dev.jsonl"
+    run.write_text("\n".join(json.dumps(row) for row in rows), encoding="utf-8")
+    now = {item: {repeatability.written(excerpts)} for item, excerpts in shown.items()}
+    now["D2"] = {repeatability.written([{"doc_id": "B", "units": ["b", "e"]}])}
+    now["D4"] = {repeatability.written([])}
+    assert repeatability.parity(now, repeatability.recorded(run)) == (["D2"], ["D3"], ["D4"])
+
+
 def test_each_freshness_edit_writes_a_value_no_earlier_run_wrote():
     # MA-F32: every run edited the fact to the same value, so the vector cache held the edited passage after the first
     # run ever, and no edit of a later run timed an embedding.

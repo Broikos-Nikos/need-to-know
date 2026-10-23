@@ -1,9 +1,9 @@
 command: uv run python bench/served.py
-recorded 2026-10-21 10:58 from the log served-t189.log, written 2026-10-21 10:57
+recorded 2026-10-23 03:41, run at 63e54ae, with changes to bench/README.md, bench/controls.toml, bench/repeatability.py, bench/served.py, bench/ties.py, src/needtoknow/eval/protocol.py, src/needtoknow/index/collection.py, src/needtoknow/index/search.py
 ---
-at df556b5; the processor 57 percent busy in the 3 s before the runs
+at 63e54ae, with changes to bench/README.md, bench/controls.toml, bench/repeatability.py, bench/served.py, bench/ties.py, src/needtoknow/eval/protocol.py, src/needtoknow/index/collection.py, src/needtoknow/index/search.py; the processor 71 percent busy in the 3 s before the runs
+the models loaded in 37.8 s; 20 dev probes searched through the server as their selective readers, 2 sessions: the first in 2.13 s, then a median of 1.15 s and a 95th percentile of 1.63 s; the trace's own queries a median of 0.169 s
+the fused scores against reciprocal rank fusion of the two searches as traced: 2000 fused units, the largest gap 0.0e+00
+the processor 81 percent busy over the runs, the bench's own work included
 
 
-the models loaded in 33.4 s; 20 dev probes searched through the server as their selective readers, 2 sessions: the first in 3.13 s, then a median of 1.20 s and a 95th percentile of 3.21 s; the trace's own queries a median of 0.184 s
-the fused scores against reciprocal rank fusion of the two searches as traced: 2000 fused units, the largest gap 2.3e-09
-the processor 67 percent busy over the runs, the bench's own work included

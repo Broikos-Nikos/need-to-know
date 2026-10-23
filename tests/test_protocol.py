@@ -153,3 +153,14 @@ def test_version_7_names_the_assumption_and_the_bench_behind_the_smallest_visibl
     # N60, RS-F18: the figure is a simulation's, so it travels with what it assumes and the command that prints it.
     problems = validate(set_at(protocol, ("decision", "smallest_visible_assumes"), value))
     assert any("RS-F18" in problem for problem in problems), problems
+
+
+@pytest.mark.parametrize("path, value", [
+    (("release", "parity"), "retrieval for every dev item equals the last dev run of the same configuration"),
+    (("release", "new_configuration"), None),
+])
+def test_version_9_checks_parity_by_a_command_and_says_what_a_change_that_fails_it_asks(protocol, path, value):
+    # RS-F32: version 8's rule named scores and a configuration hash that no run records, and dev items drifted from the
+    # baseline's excerpts through changes no parity run checked.
+    problems = validate(set_at(protocol, path, value))
+    assert any("RS-F32" in problem for problem in problems), problems

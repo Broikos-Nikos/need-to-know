@@ -109,26 +109,34 @@ def drop(client) -> bool:
     return there
 
 
+def create(client, name: str = COLLECTION) -> None:
+    """A collection made as the index's is: its vectors, its indexing threshold and its payload indexes. The ties bench
+    makes its own here too; a copy of this call there missed the threshold T7.5 named (MA-F30)."""
+    from qdrant_client import models
+
+    vectors, sparse = config()
+    client.create_collection(name, vectors_config=vectors, sparse_vectors_config=sparse,
+                             optimizers_config=models.OptimizersConfigDiff(indexing_threshold=INDEXING_THRESHOLD))
+    for field, schema in indexes().items():
+        client.create_payload_index(name, field, field_schema=schema)
+
+
 def ensure(client, passages) -> dict:
     """The collection, created with its frozen lexical statistics when missing; refused when of another shape.
 
     `passages` is called only on creation, and gives every passage the index will hold.
     """
-    from qdrant_client import models
-
     created = not client.collection_exists(COLLECTION)
     if created:  # the statistics first: a run killed in between leaves no collection without them
         lexical.freeze(lexical.measure(passages()))
         for leftover in frequencies.table_path().parent.glob(frequencies.table_path().name + "*"):
             leftover.unlink()  # the new collection holds no point, and its table counts none
-        vectors, sparse = config()
-        client.create_collection(COLLECTION, vectors_config=vectors, sparse_vectors_config=sparse,
-                                 optimizers_config=models.OptimizersConfigDiff(indexing_threshold=INDEXING_THRESHOLD))
+        create(client)
     else:
         found = problems(client.get_collection(COLLECTION))
         if found:
             raise CollectionError(f"{COLLECTION} is not the collection this code builds: {'; '.join(found)}; "
                                   f"ntk index create --replace builds it again, keeping the vector cache")
-    for field, schema in indexes().items():
-        client.create_payload_index(COLLECTION, field, field_schema=schema)
+        for field, schema in indexes().items():  # an index this code added since the collection was made
+            client.create_payload_index(COLLECTION, field, field_schema=schema)
     return {"created": created, "lexical": lexical.frozen()}

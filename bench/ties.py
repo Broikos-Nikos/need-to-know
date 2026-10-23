@@ -1,16 +1,19 @@
-"""Do units a role may not read move the order of its tied units on the index's server (AC-F12)? A collection the
-bench names, `ties_bench`, made as the index's own is made, holds filler units of every label and units of sales that
-tie in both searches. Units of legal that would tie with them are written into it, deleted again, and then written in
-bulk, as a served index meets them, and in each state the role's searches are asked as the served query asks them.
+"""Do units a role may not read move the order of its tied units on the index's server (AC-F12, AC-F20)? A collection
+the bench names, `ties_bench`, made by the function that makes the index's own (MA-F30), holds filler units of every
+label and units of sales that tie in both searches, more of them than the limit. Units of legal that would tie with
+them are written into it, deleted again, and then written in bulk, as a served index meets them, and in each state the
+role's searches are asked in the engine's own order and as the served query asks them.
 
     uv run python bench/ties.py [--tied 150] [--filler 30000] [--calls 3]
 
 Needs the running server (`ntk qdrant start`) and nothing else: the vectors are made here, not encoded, so neither the
-GPU nor the corpus is read, and the index's own collection is never asked anything. N50 says why it matters: units of
-equal score are put in order by the engine, and the fusion ranks each search's units by that order, so an order that
-units the role may not read could move would move the role's fused list too. It prints, for each state, whether the
-role's dense, lexical and fused lists are the ones it had alone, then whether a build again of the very same units, in
-the very same order, gives the role the order it had in the first; a measurement, it exits 0 either way.
+GPU nor the corpus is read, and the index's own collection is never asked anything. N50 says why it matters: the engine
+puts units of equal score in the order of its index's layout, which units the role may not read help shape, and a
+fusion that ranked each search's units by that order would move the role's fused list with it. The served query takes
+a search's group of equal scores across the cut whole and orders it by unit id, and fuses the two lists itself
+(`search.ranked`, `search.fuse`). It prints, for each state, whether the engine's own lists and the role's served
+dense, lexical and fused lists are the ones it had alone, then the same for a build again of the very same units, in
+the very same order; a measurement, it exits 0 either way.
 """
 
 from __future__ import annotations
@@ -22,14 +25,15 @@ import time
 import numpy as np
 
 from needtoknow.index import server
-from needtoknow.index.collection import DENSE, DIMENSIONS, SPARSE, config, indexes, payload, point_id
-from needtoknow.index.search import CANDIDATES, RRF_K, TIES, role_filter
+from needtoknow.index.collection import DENSE, DIMENSIONS, SPARSE, create, payload, point_id
+from needtoknow.index.search import CANDIDATES, fuse, ranked, role_filter
 from needtoknow.policy import load_policy, readable
 
 NAME = "ties_bench"
 ROLE, HIDDEN = "sales", "legal"
 TERMS = [11, 22, 33]  # the tied units' lexical terms, which no filler unit holds
 BATCH = 500
+SERVED = ("the served dense", "the served lexical", "the served fusion")
 
 
 def unit(kind: str, n: int, labels: list[str], dense: list[float], sparse: tuple[list[int], list[float]]) -> dict:
@@ -80,32 +84,26 @@ def made(client, *groups) -> None:
     """The bench's collection made afresh as the index's own is made, its units written group by group, in order."""
     if client.collection_exists(NAME):
         client.delete_collection(NAME)
-    vectors, sparse = config()
-    client.create_collection(NAME, vectors_config=vectors, sparse_vectors_config=sparse)
-    for field, schema in indexes().items():
-        client.create_payload_index(NAME, field, field_schema=schema)
+    create(client, NAME)
     for group in groups:
         written(client, group)
 
 
 def lists(client, flt, question: list[float]) -> dict:
-    """The role's searches as the served query asks them: each search alone in the engine's order, and the fused list
-    as the role is shown it, ordered by score and then by unit id and cut at the limit (RS-F29)."""
+    """The role's two searches in the engine's own order, cut at the limit, and as the served query takes them: each
+    search's group of equal scores across the cut fetched whole and ordered by unit id, and the two fused (AC-F20)."""
     from qdrant_client import models
 
-    prefetch = [models.Prefetch(query=question, using=DENSE, filter=flt, limit=CANDIDATES,
-                                params=models.SearchParams(exact=True)),
-                models.Prefetch(query=models.SparseVector(indices=TERMS, values=[1.0] * len(TERMS)), using=SPARSE,
-                                filter=flt, limit=CANDIDATES)]
-    apart = client.query_batch_points(NAME, requests=[models.QueryRequest(
-        query=p.query, using=p.using, filter=p.filter, params=p.params, limit=p.limit, with_payload=["unit_id"])
-        for p in prefetch])
-    fused = client.query_points(NAME, prefetch=prefetch, query=models.RrfQuery(rrf=models.Rrf(k=RRF_K + 1)),
-                                query_filter=flt, limit=CANDIDATES + TIES, with_payload=["unit_id"]).points
-    shown = sorted(fused, key=lambda point: (-point.score, point.payload["unit_id"]))[:CANDIDATES]
-    return {"dense": [p.payload["unit_id"] for p in apart[0].points],
-            "lexical": [p.payload["unit_id"] for p in apart[1].points],
-            "fused": [(p.payload["unit_id"], round(p.score, 9)) for p in shown]}
+    requests = [models.QueryRequest(query=question, using=DENSE, filter=flt, params=models.SearchParams(exact=True),
+                                    limit=CANDIDATES, with_payload=["unit_id"]),
+                models.QueryRequest(query=models.SparseVector(indices=TERMS, values=[1.0] * len(TERMS)), using=SPARSE,
+                                    filter=flt, limit=CANDIDATES, with_payload=["unit_id"])]
+    engine = client.query_batch_points(NAME, requests=requests)
+    dense, lexical = ranked(client, NAME, requests, CANDIDATES)
+    return {"the engine's dense": [p.payload["unit_id"] for p in engine[0].points],
+            "the engine's lexical": [p.payload["unit_id"] for p in engine[1].points],
+            "the served dense": [unit for unit, _ in dense], "the served lexical": [unit for unit, _ in lexical],
+            "the served fusion": [(unit, round(score, 9)) for unit, score in fuse([dense, lexical], CANDIDATES)]}
 
 
 def asked(client, flt, question: list[float], calls: int) -> dict:
@@ -118,10 +116,11 @@ def asked(client, flt, question: list[float], calls: int) -> dict:
     return seen[0]
 
 
-def compared(state: str, found: dict, alone: dict) -> bool:
+def compared(state: str, found: dict, alone: dict) -> tuple[bool, bool]:
+    """Whether the role's served lists, and the engine's own, are the ones it had alone; each list printed."""
     same = {side: found[side] == alone[side] for side in alone}
     print(f"{state}: " + ", ".join(f"{side} {'the same' if same[side] else 'MOVED'}" for side in alone), flush=True)
-    return all(same.values())
+    return all(same[side] for side in SERVED), all(same[side] for side in alone if side not in SERVED)
 
 
 def main() -> int:
@@ -149,9 +148,11 @@ def main() -> int:
     try:
         made(client, filler(args.filler, labels, 1), role)
         alone = asked(client, flt, question, args.calls)
-        tops = {side: len(set(alone[side]) & {u["payload"]["unit_id"] for u in role}) for side in ("dense", "lexical")}
-        print(f"alone: {tops['dense']} of the {args.tied} tied units in the dense list and {tops['lexical']} in the "
-              f"lexical, every call alike; the fused scores {alone['fused'][-1][1]} to {alone['fused'][0][1]}", flush=True)
+        tops = {side: len(set(alone[f"the served {side}"]) & {u["payload"]["unit_id"] for u in role})
+                for side in ("dense", "lexical")}
+        fused = alone["the served fusion"]
+        print(f"alone: {tops['dense']} of the {args.tied} tied units in the served dense list and {tops['lexical']} in "
+              f"the lexical, every call alike; the fused scores {fused[-1][1]} to {fused[0][1]}", flush=True)
         # In one build, as the served index lives: units the role may not read written, deleted, and written in bulk.
         written(client, hidden)
         held = [compared(f"{args.tied} of {HIDDEN} written after", asked(client, flt, question, args.calls), alone)]
@@ -167,9 +168,10 @@ def main() -> int:
     finally:
         if client.collection_exists(NAME):
             client.delete_collection(NAME)
-    print(f"in one build, the role's tied units as it had them alone in {sum(held)} of {len(held)} states; built again "
-          f"from the same units, its order {'the same' if rebuilt else 'moved'}; {time.perf_counter() - began:.0f} s",
-          flush=True)
+    print(f"in one build, the role's served lists as it had them alone in {sum(s for s, _ in held)} of {len(held)} "
+          f"states, the engine's own order in {sum(e for _, e in held)}; built again from the same units, the served "
+          f"lists {'the same' if rebuilt[0] else 'moved'} and the engine's order {'the same' if rebuilt[1] else 'moved'}; "
+          f"{time.perf_counter() - began:.0f} s", flush=True)
     return 0
 
 

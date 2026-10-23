@@ -91,3 +91,16 @@ best experiment there can be reaches p 0.125, and the probe arm's misses sit in 
 families, so neither arm that reads quality can adopt anything (RS-F30). The reach is \
 stated beside every decision, bench/baseline.py printing it, and until dev can show a \
 gain an experiment is adopted on cost alone; P8 opens by growing dev (N63)."""
+
+[[version]]
+date = 2026-10-23
+sha256 = "70b6a003af711fa979de4af0c53eb344d99c7cf1e36021fc110b542f9908620f"
+reason = """\
+After the baseline, before any experiment. The release's parity rule named each dev \
+item's retrieved ids and scores in the last dev run of the same configuration hash, \
+but a run records the excerpts it showed, not their scores, and no such hash exists. \
+Parity is now the excerpts each dev item is shown against those the run recorded, by \
+bench/repeatability.py --against, and a change that shows any item others is a new \
+configuration, whose own dev run comes before any test run or experiment. With the \
+fusion moved out of the engine (AC-F20), 24 dev items were shown other excerpts than \
+the baseline recorded, so the next dev run is the configuration's own (RS-F32)."""

@@ -322,10 +322,10 @@ def test_the_trace_shows_each_search_as_the_fusion_took_it_and_counts_the_filter
     assert set(body["seconds"]) >= {"encode", "weights", "fusion", "trace", "rerank", "expand", "texts", "total"}
 
 
-def test_units_of_equal_score_keep_the_ranks_the_fusion_gave_them(monkeypatch, tmp_path):
-    # Six units of one text tie on the sparse side, and the engine places them in an order of its own, which is the
-    # order the fusion ranks them in: sorted by unit id, the trace showed them at ranks the fusion had not given them
-    # (tick 163, on the server). Local mode puts ties last stored first, so they are stored in the ids' order.
+def test_units_of_equal_score_go_in_the_order_of_their_ids_in_the_trace_as_in_the_fusion(monkeypatch, tmp_path):
+    # Six units of one text tie on the sparse side, and the engine places them in an order of its own, the index
+    # layout's on the server, which units the role may not read shape (AC-F20); the fusion and the trace take them by
+    # unit id. Local mode puts ties last stored first, so they are stored in the ids' order and come back reversed.
     tied = [(f"tie{c}", ["sales"], "The settlement ceiling for sales claims.", near(10 + n, 0.3 + 0.05 * n))
             for n, c in enumerate("abcdef")]
     client = indexed(monkeypatch, tmp_path, tied)
@@ -337,7 +337,7 @@ def test_units_of_equal_score_keep_the_ranks_the_fusion_gave_them(monkeypatch, t
     engine = [point.payload["unit_id"] for point in answered[-1][1].points]  # the sparse search, asked second
     assert len({hit["score"] for hit in body["sparse"]}) == 1 and len(engine) == 6
     assert engine != sorted(engine), "the engine orders the tied units by id, so this test cannot tell the two apart"
-    assert [hit["unit_id"] for hit in body["sparse"]] == engine
+    assert [hit["unit_id"] for hit in body["sparse"]] == sorted(engine)
     assert [hit["score"] for hit in body["fused"]] == pytest.approx(fusion_of(body), rel=1e-6)
 
 
@@ -566,7 +566,7 @@ def test_a_missing_gpu_or_a_stopped_index_is_a_503_that_names_it(client, monkeyp
     assert response.status_code == 503 and response.json()["detail"] == "no CUDA device is visible to torch"
     http = served(client)
     headers = signed(http, "sales")
-    monkeypatch.setattr(client, "query_points", lambda *a, **k: (_ for _ in ()).throw(ConnectionError("refused")))
+    monkeypatch.setattr(client, "query_batch_points", lambda *a, **k: (_ for _ in ()).throw(ConnectionError("refused")))
     monkeypatch.setattr(api.server, "running", lambda config: None)
     response = http.post("/search", json=ASKED, headers=headers)
     assert response.status_code == 503 and response.json()["detail"].startswith("the index's server is not running")

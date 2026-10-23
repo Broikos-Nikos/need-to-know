@@ -807,22 +807,109 @@ new = '''        self.state = [manifest_path().as_posix(), *(last or (None, None
 '''
 
 [[control]]
-name = "the noninterference test's ties left to numpy's quicksort"
+name = "a search's ties left in the engine's order, which hidden text moves"
 test = "tests/test_noninterference.py::test_a_roles_results_do_not_move_when_only_text_it_may_not_read_changes"
 [[control.change]]
-file = "tests/test_noninterference.py"
-old = '''    monkeypatch.setattr(local_collection, "np", stable)
+file = "src/needtoknow/index/search.py"
+old = '''        found = sorted(((point.payload["unit_id"], point.score) for point in points), key=lambda pair: (-pair[1], pair[0]))
+'''
+new = '''        found = sorted(((point.payload["unit_id"], point.score) for point in points), key=lambda pair: -pair[1])
+'''
+
+[[control]]
+name = "a search's ties left in the engine's order, in the trace and the fusion"
+test = "tests/test_api.py::test_units_of_equal_score_go_in_the_order_of_their_ids_in_the_trace_as_in_the_fusion"
+[[control.change]]
+file = "src/needtoknow/index/search.py"
+old = '''        found = sorted(((point.payload["unit_id"], point.score) for point in points), key=lambda pair: (-pair[1], pair[0]))
+'''
+new = '''        found = sorted(((point.payload["unit_id"], point.score) for point in points), key=lambda pair: -pair[1])
+'''
+
+[[control]]
+name = "a search's ties left in the engine's order, the cut with them"
+test = "tests/test_search.py::test_points_of_equal_score_come_back_in_one_order_whatever_order_the_engine_gives"
+[[control.change]]
+file = "src/needtoknow/index/search.py"
+old = '''        found = sorted(((point.payload["unit_id"], point.score) for point in points), key=lambda pair: (-pair[1], pair[0]))
+'''
+new = '''        found = sorted(((point.payload["unit_id"], point.score) for point in points), key=lambda pair: -pair[1])
+'''
+
+[[control]]
+name = "each search asked for its limit and no window past it"
+test = "tests/test_search.py::test_points_of_equal_score_come_back_in_one_order_whatever_order_the_engine_gives"
+[[control.change]]
+file = "src/needtoknow/index/search.py"
+old = '''    windows = [limit + TIES] * len(requests)
+'''
+new = '''    windows = [limit] * len(requests)
+'''
+
+[[control]]
+name = "a group of equal scores across the cut never asked for whole"
+test = "tests/test_search.py::test_a_group_of_equal_scores_across_the_cut_is_fetched_whole_before_the_cut"
+[[control.change]]
+file = "src/needtoknow/index/search.py"
+old = '''        while len(points) == window and points[-1].score == points[limit - 1].score:
+            window *= 2
+            points = client.query_batch_points(collection, requests=[request.model_copy(update={"limit": window})])[0].points
 '''
 new = ''''''
 
 [[control]]
-name = "the local collection's sorts never counted"
-test = "tests/test_noninterference.py::test_a_roles_results_do_not_move_when_only_text_it_may_not_read_changes"
+name = "the ties bench's collection made by a copy of the index's create call"
+test = "tests/test_collection.py::test_the_ties_bench_makes_its_collection_as_the_index_makes_its_own"
 [[control.change]]
-file = "tests/test_noninterference.py"
-old = '''        self.sorted += 1
+file = "bench/ties.py"
+old = '''    create(client, NAME)
 '''
-new = ''''''
+new = '''    from needtoknow.index.collection import config, indexes
+    vectors, sparse = config()
+    client.create_collection(NAME, vectors_config=vectors, sparse_vectors_config=sparse)
+    for field, schema in indexes().items():
+        client.create_payload_index(NAME, field, field_schema=schema)
+'''
+
+[[control]]
+name = "version 9's parity rule left unchecked"
+test = "tests/test_protocol.py::test_version_9_checks_parity_by_a_command_and_says_what_a_change_that_fails_it_asks"
+[[control.change]]
+file = "src/needtoknow/eval/protocol.py"
+old = '''    if "bench/repeatability.py --against" not in str(release.get("parity", "")) or not release.get("new_configuration"):
+'''
+new = '''    if False:
+'''
+
+[[control]]
+name = "parity read from one repeat of the recorded run"
+test = "tests/test_bench.py::test_parity_names_an_item_shown_other_excerpts_one_its_run_disagreed_on_and_one_it_never_asked"
+[[control.change]]
+file = "bench/repeatability.py"
+old = '''        found[row["id"]].add(written(row["excerpts"]))
+'''
+new = '''        found[row["id"]] = {written(row["excerpts"])}
+'''
+
+[[control]]
+name = "the committed split's figures left from an earlier corpus"
+test = "tests/test_split.py::test_the_committed_split_is_the_one_the_registered_seed_draws_now"
+[[control.change]]
+file = "eval/families.json"
+old = '''    "salience": 0.3847
+'''
+new = '''    "salience": 0.3861
+'''
+
+[[control]]
+name = "the fusion's ties left in the order the searches were listed"
+test = "tests/test_search.py::test_units_of_equal_fused_score_go_in_the_order_of_their_ids_whichever_search_comes_first"
+[[control.change]]
+file = "src/needtoknow/index/search.py"
+old = '''    return sorted(fused.items(), key=lambda pair: (-pair[1], pair[0]))[:limit]
+'''
+new = '''    return sorted(fused.items(), key=lambda pair: -pair[1])[:limit]
+'''
 
 [[control]]
 name = "a path the README names that only a build makes, read as missing"
@@ -911,9 +998,9 @@ name = "the ties bullet without the collection the move was measured in"
 test = "tests/test_readme.py::test_the_ties_bullet_and_n50_name_the_collection_the_move_was_measured_in"
 [[control.change]]
 file = "README.md"
-old = '''  units of sales tied in both searches, among 30,000 units of all 10 labels, kept their
+old = '''  of sales tied in both searches, among 30,000 units of all 10 labels: once 15,000 more of
 '''
-new = '''  units of sales tied in both searches kept their
+new = '''  of sales tied in both searches: once 15,000 more of
 '''
 
 [[control]]
@@ -1061,11 +1148,11 @@ old = '''* The local server is the index's one client on the served path, and it
     shows only for the units it added that the role may read, keyed by the time it
     finished, and a change to text the role may not read shows as nothing, not even its
     time (N66).
-* The server loads the models as it starts, 33.4 s here with the processor 57 percent busy
-  with other programs, so its first search took 3.13 s and the rest a median of 1.20 s and
-  3.21 s at the 95th percentile, the trace's own queries 0.184 s of it at the median; over
-  2,000 fused units the engine's scores match reciprocal rank fusion of the two searches as
-  traced within 2.3e-09: `uv run python bench/served.py`.
+* The server loads the models as it starts, 37.8 s here with the processor 71 percent busy
+  with other programs, so its first search took 2.13 s and the rest a median of 1.15 s and
+  1.63 s at the 95th percentile, the trace's own queries 0.169 s of it at the median; over
+  2,000 fused units the scores served are reciprocal rank fusion of the two searches as
+  traced, to the last bit: `uv run python bench/served.py`.
 '''
 new = '''* The local server is the index's one client on the served path: `uv run ntk serve` listens
   on the loopback alone and answers only requests addressed to it there, a role signs in
@@ -1090,10 +1177,10 @@ new = '''* The local server is the index's one client on the served path: `uv ru
   the role may see them: a scan shows only for the units it added that the role may read,
   keyed by the time it finished, and a change to text the role may not read shows as nothing,
   not even its time (N66). The models
-  load as it starts, 33.4 s here with the processor 57 percent busy with other programs, so
-  its first search took 3.13 s and the rest a median of 1.20 s and 3.21 s at the 95th
-  percentile, the trace's own queries 0.184 s of it at the median; over 2,000 fused units the
-  engine's scores match reciprocal rank fusion of the two searches as traced within 2.3e-09:
+  load as it starts, 37.8 s here with the processor 71 percent busy with other programs, so
+  its first search took 2.13 s and the rest a median of 1.15 s and 1.63 s at the 95th
+  percentile, the trace's own queries 0.169 s of it at the median; over 2,000 fused units the
+  scores served are reciprocal rank fusion of the two searches as traced, to the last bit:
   `uv run python bench/served.py`.
 '''
 
@@ -1407,9 +1494,9 @@ name = "the collection made with the engine's own indexing threshold"
 test = "tests/test_collection.py::test_the_collection_is_made_with_the_indexing_threshold_a_bulk_load_puts_back"
 [[control.change]]
 file = "src/needtoknow/index/collection.py"
-old = '''        client.create_collection(COLLECTION, vectors_config=vectors, sparse_vectors_config=sparse,
-                                 optimizers_config=models.OptimizersConfigDiff(indexing_threshold=INDEXING_THRESHOLD))'''
-new = '''        client.create_collection(COLLECTION, vectors_config=vectors, sparse_vectors_config=sparse)'''
+old = '''    client.create_collection(name, vectors_config=vectors, sparse_vectors_config=sparse,
+                             optimizers_config=models.OptimizersConfigDiff(indexing_threshold=INDEXING_THRESHOLD))'''
+new = '''    client.create_collection(name, vectors_config=vectors, sparse_vectors_config=sparse)'''
 
 [[control]]
 name = "a bulk load that leaves the indexing off"

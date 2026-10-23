@@ -21,7 +21,7 @@
     {
       "key": "fused",
       "title": "Fused",
-      "says": "Reciprocal rank fusion of both lists, in the searches’ own round trip to the engine.",
+      "says": "Reciprocal rank fusion of both lists, in the server, units of equal score in the order of their ids.",
       "timed": ["fusion", "manifest"]
     },
     {

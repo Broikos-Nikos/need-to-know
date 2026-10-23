@@ -105,6 +105,12 @@ def validate(protocol: dict) -> list[str]:
     if "bench/baseline.py" not in str(decision.get("reach", "")) or not decision.get("until_dev_can_show_a_gain"):
         problems.append("decision.reach must name bench/baseline.py, which prints the best p any experiment could get, "
                         "and decision.until_dev_can_show_a_gain must say what adopts meanwhile (RS-F30)")
+    # Version 9 (RS-F32): parity is checked by a command on what a run records, and a change that fails it is a new
+    # configuration, asked on dev before anything compares with it.
+    release = protocol.get("release", {})
+    if "bench/repeatability.py --against" not in str(release.get("parity", "")) or not release.get("new_configuration"):
+        problems.append("release.parity must name bench/repeatability.py --against, which compares the excerpts a run "
+                        "recorded, and release.new_configuration must say what a change that fails it asks (RS-F32)")
     baseline = protocol.get("baseline", {})
     if baseline.get("cache") != "off":
         problems.append("baseline.cache must be 'off': a repeat sends the same prompt and would come back from the "

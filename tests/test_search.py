@@ -81,15 +81,14 @@ def test_the_filter_is_inside_the_search_so_closer_forbidden_units_take_no_place
     assert [hit["unit_id"] for hit in ask(client, question="the and of", role="sales", limit=1)] == ["open"]
 
 
-def test_every_search_and_the_fusion_carry_the_roles_filter(client, monkeypatch):
-    # Qdrant also pushes the outer filter into each search; the code does not lean on that.
+def test_every_search_carries_the_roles_filter(client, monkeypatch):
+    # Each search is asked on its own and fused here (AC-F20), so the filter rides on each request, nowhere else.
     sent = {}
-    real = client.query_points
-    monkeypatch.setattr(client, "query_points", lambda *args, **kwargs: sent.update(kwargs) or real(*args, **kwargs))
+    real = client.query_batch_points
+    monkeypatch.setattr(client, "query_batch_points", lambda *args, **kwargs: sent.update(kwargs) or real(*args, **kwargs))
     ask(client, question="settlement ceiling", role="sales")
     expected = role_filter(load_policy(), "sales")
-    assert len(sent["prefetch"]) == 2 and all(p.filter == expected for p in sent["prefetch"])
-    assert sent["query_filter"] == expected
+    assert len(sent["requests"]) == 2 and all(r.filter == expected for r in sent["requests"])
 
 
 def test_a_unit_both_searches_find_comes_before_one_only_the_dense_side_finds(client):
@@ -133,10 +132,10 @@ def test_ntk_search_prints_what_the_role_may_read_and_refuses_an_unknown_role(cl
 def test_a_questions_lexical_weights_are_counted_over_the_roles_view_alone(client, monkeypatch):
     # AC-F5, N50: weights counted over the whole collection let ranks tell which words hidden text holds.
     sent = {}
-    real = client.query_points
-    monkeypatch.setattr(client, "query_points", lambda *args, **kwargs: sent.update(kwargs) or real(*args, **kwargs))
+    real = client.query_batch_points
+    monkeypatch.setattr(client, "query_batch_points", lambda *args, **kwargs: sent.update(kwargs) or real(*args, **kwargs))
     ask(client, question="settlement ceiling", role="sales")
-    sparse = sent["prefetch"][1].query
+    sparse = sent["requests"][1].query
     with frequencies.opened(COLLECTION) as db:
         assert sparse.values == pytest.approx(frequencies.weights(db, sparse.indices, ["general", "sales"]))
         assert sparse.values != pytest.approx(frequencies.weights(db, sparse.indices, ["general", "legal", "sales",
@@ -149,11 +148,11 @@ def test_the_dense_search_is_exact_unless_an_ef_asks_for_the_graph(client, monke
     # asked for int8 alone, it gave float32's ids and scores for 30 questions of 30 (tick 71). The filter bench names
     # an ef, and the graph's int8 codes are rescored.
     sent = []
-    real = client.query_points
-    monkeypatch.setattr(client, "query_points", lambda *args, **kwargs: sent.append(kwargs) or real(*args, **kwargs))
+    real = client.query_batch_points
+    monkeypatch.setattr(client, "query_batch_points", lambda *args, **kwargs: sent.append(kwargs) or real(*args, **kwargs))
     ask(client, role="sales")
     ask(client, role="sales", ef=128)
-    exact, graph = (next(p.params for p in kwargs["prefetch"] if p.using == DENSE) for kwargs in sent)
+    exact, graph = (next(r.params for r in kwargs["requests"] if r.using == DENSE) for kwargs in sent)
     assert exact.exact and exact.hnsw_ef is None and exact.quantization is None
     assert not graph.exact and graph.hnsw_ef == 128 and graph.quantization.rescore
 
@@ -215,7 +214,7 @@ def test_a_stopped_server_or_a_missing_gpu_is_one_line_not_a_traceback(client, m
     assert cli.cmd_search(question, client=client) == 1
     assert capsys.readouterr().out == "search: no CUDA device is visible to torch" + chr(10)
     monkeypatch.setattr(model, "encode", lambda texts: np.vstack([QUESTION] * len(texts)))
-    monkeypatch.setattr(client, "query_points", lambda *a, **k: (_ for _ in ()).throw(ConnectionError("refused")))
+    monkeypatch.setattr(client, "query_batch_points", lambda *a, **k: (_ for _ in ()).throw(ConnectionError("refused")))
     monkeypatch.setattr(cli.server, "running", lambda config: None)
     assert cli.cmd_search(question, client=client) == 1
     assert capsys.readouterr().out.startswith("search: the index's server is not running, so nothing reached it: ntk qdrant start")
@@ -283,25 +282,58 @@ def test_ntk_search_skips_a_hit_a_scan_dropped_between_the_search_and_its_printi
 
 
 def test_points_of_equal_score_come_back_in_one_order_whatever_order_the_engine_gives(client, monkeypatch):
-    # RS-F29: Qdrant returned tied fused scores in an order that changed from call to call, and the cut at the limit
-    # with them; ten runs of one question gave ten fused lists.
+    # RS-F29, AC-F20: Qdrant returned tied scores in an order of its own, which moved from call to call and with the
+    # index's layout, and the cut at the limit with it; ten runs of one question gave ten fused lists.
     from needtoknow.index import search as retrieval
-    real = client.query_points
+    real = client.query_batch_points
+    asked, results = [], []
 
-    returned, asked = [], []
+    def tied(order):
+        def batch(*args, **kwargs):
+            asked.append([request.limit for request in kwargs["requests"]])
+            answers = real(*args, **kwargs)
+            for answer in answers:
+                answer.points = order([models.ScoredPoint(id=p.id, version=0, score=0.5, payload=p.payload)
+                                       for p in answer.points])
+            return answers
+        return batch
 
-    def shuffled(*args, **kwargs):
-        asked.append(kwargs["limit"])
-        response = real(*args, **kwargs)
-        returned.extend(p.payload["unit_id"] for p in response.points)
-        tied = [models.ScoredPoint(id=p.id, version=0, score=0.5, payload=p.payload) for p in response.points]
-        response.points = list(reversed(tied))
-        return response
+    for order in (list, lambda points: list(reversed(points))):
+        monkeypatch.setattr(client, "query_batch_points", tied(order))
+        results.append([hit["unit_id"] for hit in ask(client, role="admin", limit=3, sides=("dense",))])
+    assert asked[0] == [3 + retrieval.TIES]  # asked past the limit, so a tie at the cut is seen whole
+    assert results[0] == results[1] == sorted(unit for unit, *_ in UNITS)[:3]  # by unit id among equal scores, then cut
 
-    monkeypatch.setattr(client, "query_points", shuffled)
-    first = [hit["unit_id"] for hit in ask(client, role="admin", limit=3)]
-    assert asked == [3 + retrieval.TIES] and len(returned) > 3  # asked past the limit, so a tie at the cut is whole
-    assert first == sorted(returned)[:3]  # by unit id among equal scores, then cut
+
+def test_a_group_of_equal_scores_across_the_cut_is_fetched_whole_before_the_cut(monkeypatch, tmp_path):
+    # AC-F20: thirty units of one text and one vector tie in both searches, more than the first window holds, and the
+    # engine hands the last stored back first; each window is doubled until the group ends inside it, so the three a
+    # role gets are the three first by id.
+    from needtoknow.index import search as retrieval
+    client = indexed(monkeypatch, tmp_path, [(f"tie{n:02}", ["sales"], "The settlement ceiling for sales claims.",
+                                              near(5, 0.5)) for n in range(30)])
+    real = client.query_batch_points
+    asked, first = [], []
+
+    def spy(*args, **kwargs):
+        answers = real(*args, **kwargs)
+        asked.append([request.limit for request in kwargs["requests"]])
+        first.append([point.payload["unit_id"] for point in answers[0].points])
+        return answers
+
+    monkeypatch.setattr(client, "query_batch_points", spy)
+    assert [hit["unit_id"] for hit in ask(client, limit=3)] == ["tie00", "tie01", "tie02"]
+    window = 3 + retrieval.TIES
+    assert asked == [[window, window], [2 * window], [2 * window]]  # each side asked again, its window doubled
+    assert "tie00" not in first[0], "the engine's first window holds the first id, so this test cannot tell"
+
+
+def test_units_of_equal_fused_score_go_in_the_order_of_their_ids_whichever_search_comes_first():
+    # Each first in one search and second in the other, so each is fused to 1 / 61 + 1 / 62 (AC-F20).
+    from needtoknow.index.search import fuse
+    dense, sparse = [("b", 0.9), ("a", 0.8)], [("a", 7.0), ("b", 6.0)]
+    tie = pytest.approx(1 / (RRF_K + 1) + 1 / (RRF_K + 2))
+    assert fuse([dense, sparse], 2) == fuse([sparse, dense], 2) == [("a", tie), ("b", tie)]
 
 
 def test_the_reranker_breaks_a_tie_by_unit_id_not_by_the_order_it_was_given(monkeypatch):

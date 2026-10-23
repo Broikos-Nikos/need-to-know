@@ -1,5 +1,5 @@
 command: uv run python bench/permission_suite.py
-recorded 2026-10-22 21:12 from the log permission-t238.log, written 2026-10-22 20:52
+recorded 2026-10-23 04:15 from the log permission-t243.log, written 2026-10-23 04:13
 ---
 
 501031 units; 120 probes, dev probes' questions, over 9 labels; 12 cases, each asked 3 ways 100 deep and once as ask asks
@@ -16,4 +16,4 @@ recorded 2026-10-22 21:12 from the log permission-t238.log, written 2026-10-22 2
   sales and hr             foreign units: dense 0, sparse 0, fused 0, excerpts 0; canaries in the prompt 0; a gold unit in the fused top 10 for 28 of 42, top 100 for 41, the excerpts for 40
   general alone            foreign units: dense 0, sparse 0, fused 0, excerpts 0; canaries in the prompt 0; a gold unit in the fused top 10 for 2 of 4, top 100 for 4, the excerpts for 4
   sales, returns removed   foreign units: dense 0, sparse 0, fused 0, excerpts 0; canaries in the prompt 0; a gold unit in the fused top 10 for 12 of 24, top 100 for 23, the excerpts for 22
-5760 searches in 1476 s; foreign units and canaries in all: 0
+5760 searches in 1411 s; foreign units and canaries in all: 0

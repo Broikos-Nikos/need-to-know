@@ -313,12 +313,16 @@ uv run python bench/baseline.py eval/runs/baseline
 Whether retrieval is repeatable on one build, which the release's parity rule needs: every
 dev item searched as its role, as `ask` searches, several times in one process, and the
 excerpts the prompt would hold compared run by run; it names the items shown different
-excerpts and whether their candidates differed too, and exits 1 on any. It needs the
+excerpts and whether their candidates differed too, and exits 1 on any. With `--against`, a
+recorded run of dev, it is the release's parity check: each item's excerpts against those
+the run recorded in every repeat, naming the items shown others, those whose repeats
+disagreed there and those it did not ask; it exits 1 on any shown others. It needs the
 manifest, the index on the running server, the `embed` extra and the GPU, and asks the
-protocol first.
+protocol first, for development, or for parity with `--against`.
 
 ```
 uv run python bench/repeatability.py --runs 3
+uv run python bench/repeatability.py --against eval/runs/baseline/dev.jsonl
 ```
 
 ## null_runs.py
@@ -435,8 +439,8 @@ session for each role and the first `20` dev probes asked through `POST /search`
 narrowest reader, `--questions` to change how many, a probe whose gold unit the manifest
 lacks set apart and named. It prints the models' load, the first
 search's seconds and the median and 95th percentile of the rest, what the trace's own
-queries took, and the fusion check: the engine's fused scores against reciprocal rank
-fusion of the two searches as the trace shows them (N64). It asks the protocol first, dev
+queries took, and the fusion check: the fused scores served against reciprocal rank fusion
+of the two searches as the trace shows them (N64, AC-F20). It asks the protocol first, dev
 for development, and needs the manifest, the index on the running server, the `embed`
 extra and the GPU.
 
@@ -446,15 +450,15 @@ uv run python bench/served.py
 
 ## ties.py
 
-Ties on the index's server (AC-F12): a collection the bench names, `ties_bench`, made as the
-index's own is made, holds `30000` filler units of every label and `150` units of sales that
-tie in both searches. Units of legal that would tie with them are written into it, deleted
-again, and then written in bulk, half as many as the filler, and in each state the role's
-searches are asked as the served query asks them, `3` times, which must agree. It prints
-whether the role's dense, lexical and fused lists are the ones it had alone, then whether a
-build again of the same units in the same order gives the role the same order. It needs the
-running server alone: the vectors are made here, and the index's own collection is never
-asked anything.
+Ties on the index's server (AC-F12, AC-F20): a collection the bench names, `ties_bench`, made
+by the function that makes the index's own, holds `30000` filler units of every label and
+`150` units of sales that tie in both searches. Units of legal that would tie with them are
+written into it, deleted again, and then written in bulk, half as many as the filler, and in
+each state the role's searches are asked in the engine's own order and as the served query
+asks them, `3` times, which must agree. It prints whether the engine's two lists and the
+role's served dense, lexical and fused lists are the ones it had alone, then the same for a
+build again of the same units in the same order. It needs the running server alone: the
+vectors are made here, and the index's own collection is never asked anything.
 
 ```
 uv run python bench/ties.py

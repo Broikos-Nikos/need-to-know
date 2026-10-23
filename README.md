@@ -79,7 +79,7 @@ named, real or invented: the documents call it "the Company".
   the part that holds most of a file still cuts all of that part:
   `uv run python bench/parts_check.py`.
 * A role's question is searched inside that role's filter, on the dense and the lexical
-  side alike, and fused in the engine: no unit a role may not read came back in 5,760
+  side alike, and the two fused here: no unit a role may not read came back in 5,760
   searches, nor reached the excerpts a prompt would hold, every role, sales and hr held
   together, general alone, and sales with returns removed, asking up to 20 dev probes a
   label:
@@ -91,6 +91,15 @@ named, real or invented: the documents call it "the Company".
   the spend log names, and no trace the page replays, read for the role it was asked as,
   carries a canary of a label that role may not read, written in any case or spacing:
   `uv run ntk eval canaries`.
+* The order of units of exactly equal score is the role's own: each search fetches whole a
+  group of equal scores that crosses its limit and orders it by unit id, and the two lists
+  are fused here, where the engine's fusion ranked ties in its index's layout, which units
+  a role may not read help shape (N50). In a collection made as the index's is, 150 units
+  of sales tied in both searches, among 30,000 units of all 10 labels: once 15,000 more of
+  legal were written and the optimizer settled, and in a build again of the same units,
+  the engine's own order moved in both searches, while the role's served lists and their
+  fusion stayed as it had them alone in 3 of 3 states and in the build again:
+  `uv run python bench/ties.py`.
 * A role's question is answered by DeepSeek from the excerpts the role may read, its
   citations able to name only what it was shown, each excerpt quoted to the model as a
   document's text. Two instructions planted in a permitted excerpt, one to answer a
@@ -129,11 +138,11 @@ named, real or invented: the documents call it "the Company".
     shows only for the units it added that the role may read, keyed by the time it
     finished, and a change to text the role may not read shows as nothing, not even its
     time (N66).
-* The server loads the models as it starts, 33.4 s here with the processor 57 percent busy
-  with other programs, so its first search took 3.13 s and the rest a median of 1.20 s and
-  3.21 s at the 95th percentile, the trace's own queries 0.184 s of it at the median; over
-  2,000 fused units the engine's scores match reciprocal rank fusion of the two searches as
-  traced within 2.3e-09: `uv run python bench/served.py`.
+* The server loads the models as it starts, 37.8 s here with the processor 71 percent busy
+  with other programs, so its first search took 2.13 s and the rest a median of 1.15 s and
+  1.63 s at the 95th percentile, the trace's own queries 0.169 s of it at the median; over
+  2,000 fused units the scores served are reciprocal rank fusion of the two searches as
+  traced, to the last bit: `uv run python bench/served.py`.
 * The evaluation's fact families are split into test and dev by a seed registered before
   any question was written, with every draw that failed the balance check recorded:
   `uv run ntk eval split --check`.
@@ -214,13 +223,6 @@ named, real or invented: the documents call it "the Company".
   own view (N50), where the gap falls to 51 of 88 (Wilson 0.48 to 0.68), inside what a
   matched pair cannot tell from how words sit in the role's own text:
   `uv run python bench/idf_attack.py` and `uv run python bench/idf_attack.py --global-idf`.
-* The order of units of exactly equal score is the engine's, set by the index's layout,
-  which units a role may not read help shape. In a collection made as the index's is, 150
-  units of sales tied in both searches, among 30,000 units of all 10 labels, kept their
-  order while 150 units of legal were written and deleted again, and moved in each search
-  and in the fusion once 15,000 more of legal were written and the optimizer settled a
-  collection of that size; the fusion ranks tied units by that order, so their fused scores
-  moved with it (N50): `uv run python bench/ties.py`.
 
 ## Run it
 

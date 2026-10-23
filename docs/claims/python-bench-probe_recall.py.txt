@@ -1,5 +1,5 @@
 command: uv run python bench/probe_recall.py
-recorded 2026-10-21 13:50, run at 54c3732
+recorded 2026-10-23 03:50, run at 63e54ae, with changes to bench/README.md, bench/controls.toml, bench/repeatability.py, bench/served.py, bench/ties.py, src/needtoknow/eval/protocol.py, src/needtoknow/index/collection.py, src/needtoknow/index/search.py
 ---
 dev, each probe once, as its selective reader: 194 probes; recall@1 0.773, @5 0.933, @10 0.964; MRR 0.849; in the shown excerpts 0.954
   table units 13.1% of the top 10 and 15.8% of the shown excerpts' units; set aside, recall@1 0.773 and @10 0.969
@@ -25,6 +25,6 @@ as sales: 38 probes; recall@1 0.737, @5 0.895, @10 0.947; MRR 0.822; in the show
   table units 20.3% of the top 10 and 27.5% of the shown excerpts' units; set aside, recall@1 0.737 and @10 0.947
 dev answerable golden items, originals, each asked as its role: 101 items; a unit holding every fact they need within the first 1 for 84, 5 for 94, 10 for 99 (recall@10 0.980); in the shown excerpts 97
   not within the first 10: D019 (C, rank 33), D099 (F, rank None)
-529 searches in 536 s
+529 searches in 508 s
 
 

@@ -139,3 +139,24 @@ def test_the_collection_is_made_with_the_indexing_threshold_a_bulk_load_puts_bac
     monkeypatch.setattr(client, "create_collection", lambda *a, **k: made.update(k) or real(*a, **k))
     ensure(client, lambda: iter(PASSAGES))
     assert made["optimizers_config"].indexing_threshold == collection.INDEXING_THRESHOLD
+
+
+def test_the_ties_bench_makes_its_collection_as_the_index_makes_its_own(client, monkeypatch):
+    # MA-F30: the bench made its collection with a copy of the index's create call, which T7.5's threshold never reached.
+    import sys
+
+    from needtoknow.settings import repo_root
+    sys.path.insert(0, str(repo_root() / "bench"))
+    import ties
+    made = []
+
+    def spied(method):
+        real = getattr(client, method)
+        return lambda name, *args, **kwargs: made.append((name, method, args, kwargs)) or real(name, *args, **kwargs)
+
+    for method in ("create_collection", "create_payload_index"):
+        monkeypatch.setattr(client, method, spied(method))
+    ensure(client, lambda: iter(PASSAGES))
+    ties.made(client)
+    index, bench = ([call[1:] for call in made if call[0] == name] for name in (COLLECTION, ties.NAME))
+    assert index and index == bench

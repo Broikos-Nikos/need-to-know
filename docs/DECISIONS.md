@@ -261,6 +261,15 @@ not read help shape, and the fusion ranks tied units by it; asked again on one b
 nothing written, it holds. What the test above holds, it holds for every unit whose score no
 other shares; What fails in the README says the rest.
 
+*Amended 2026-10-23, tick 243 (AC-F20):* the fusion left the engine. Each search is asked on
+its own past its limit, a group of equal scores that crosses the cut is fetched whole and put
+in the order of its units' ids, and the two lists are fused in the process by the same
+reciprocal rank. In the same collection, once the 15,000 of legal were written and the
+optimizer settled, and in the build again, the engine's own order moved in both searches,
+and the role's served lists and their fusion held in 3 of 3 states and in the build again
+(`uv run python bench/ties.py`). The test above leaves the engine's sort as it is now, and
+holds tied units as it holds the rest.
+
 ## N51. Every role's dense search is exact
 
 *Decided 2026-10-12, at tick 69.*
@@ -550,6 +559,12 @@ of the two searches as traced within 2.3e-09 over 2,000 fused units on the runni
 **Reverses if.** The noninterference test fails on the trace; an attack on the side scores
 separates words frequent in hidden text from the null; or a deployment signs its users in
 through an identity provider, which replaces the sign in and keeps the rest.
+
+*Amended 2026-10-23, tick 243 (AC-F20):* each search is now asked once, on its own, and the
+two are fused in the process, so the trace shows the very lists the fusion read, asked of
+the engine no second time, their tied units in the order of their ids as the fusion takes
+them. Over 2,000 fused units on the running index the scores served are reciprocal rank
+fusion of the lists as traced, to the last bit (`uv run python bench/served.py`).
 
 ## N65. A document is shown by its id, which names its owner and its kind
 

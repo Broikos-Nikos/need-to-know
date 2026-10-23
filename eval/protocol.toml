@@ -8,7 +8,7 @@
 # newest hash in eval/protocol_history.toml, so a change is a new dated entry there
 # with its reason, never a quiet edit.
 
-version = 8
+version = 9
 registered = 2026-10-12
 
 [splits]
@@ -171,14 +171,20 @@ headline = "all test items, and beside it the family items alone"
 defaults = "the closed book run's hits on deliberate defaults reported apart"
 
 [release]
-# Before each test run, a parity check on the exact build that will run it: the
-# retrieved unit ids and scores for every dev item equal those of the last dev run
-# of the same configuration hash. The test result never chooses, reverts or tunes
-# anything. A defect found after a test run, and visible without looking at any
-# outcome, allows one rerun per test set, with both runs published and the defect
-# named; a second such defect costs a new test set, written from test families that
-# no published test item has used, or a release without a test number, saying why.
-parity = "retrieval for every dev item equals the last dev run of the same configuration"
+# Before each test run, a parity check on the exact build that will run it: every
+# dev item shown the excerpts the last dev run of its configuration recorded for it,
+# in every repeat, as bench/repeatability.py --against compares them. A run records
+# the units it showed, not their scores, and no configuration hash exists, which
+# version 8's rule named. A change after a dev run that shows any dev item other
+# excerpts makes a new configuration, and its own dev run is asked before any test
+# run and before any experiment takes it as the incumbent (RS-F32). The test result
+# never chooses, reverts or tunes anything. A defect found after a test run, and
+# visible without looking at any outcome, allows one rerun per test set, with both
+# runs published and the defect named; a second such defect costs a new test set,
+# written from test families that no published test item has used, or a release
+# without a test number, saying why.
+parity = "every dev item shown the excerpts the last dev run of its configuration recorded, in every repeat: bench/repeatability.py --against"
+new_configuration = "a change after a dev run that shows any dev item other excerpts; its own dev run comes before any test run or experiment"
 reruns_per_test_set = 1
 published = "the latest release, with every release listed"
 

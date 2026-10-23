@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**258 findings, 251 closed, 7 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
+**261 findings, 254 closed, 7 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -44,7 +44,7 @@ An audit pass that tried to break a first run. 27 findings, 27 closed.
 
 ## `RS`, the retrieval scientist
 
-An audit pass on whether the evaluation can fail and its statistics are honest. 31 findings, 31 closed.
+An audit pass on whether the evaluation can fail and its statistics are honest. 32 findings, 31 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -79,6 +79,7 @@ An audit pass on whether the evaluation can fail and its statistics are honest. 
 | `RS-F29` | medium | fixed, tick 141 | Retrieval is not repeatable on one build: D012 and D013 were each shown a different excerpt in one of three repeats at 778fc1d, a near tie at the edge of the top eight reordered between GPU calls, so the release's parity rule, every dev item's retrieved ids and scores equal to the last dev run of the same configuration, fails on noise: make the order of near equal scores deterministic, or state the parity with a tolerance the baseline measures Measured by bench/baseline.py eval/runs/baseline, its parity line. |
 | `RS-F30` | medium | fixed, tick 157 | The registered decision can no longer adopt a change for being better: the sign flip test over families sees only the families that change, the baseline left 4 of the 80 dev families below a perfect score, so the best experiment possible gets p 0.125, too small to tell, and the probe arm's misses sit in 5 families, p 0.0625 at best; only the cost arm can adopt: print the best p the dev units allow beside every decision, then grow dev where the baseline misses as a dated protocol version before any experiment, or register that P8 adopts on cost alone and say so |
 | `RS-F31` | low | fixed, tick 158 | A table row item is judged by its section, and its section is a whole register of up to 13,977 units: a hit or an excerpt on another row counts as the row found and shown, though none does today: judge shown and found by the units holding the row or the fact, keeping the section for citations |
+| `RS-F32` | medium | open | The baseline's dev run no longer describes this build's retrieval: bench/repeatability.py --against eval/runs/baseline/dev.jsonl shows 24 of the 153 dev items other excerpts than it recorded in every repeat, 22 of them alike with 63e54ae's fusion and T8.2's (a scratch diagnostic), from changes after the baseline that move retrieval, each made without a parity run, RS-F29's tie order at the cut and T7.5's analyser with the statistics its fresh build froze among them; and version 8's parity rule named scores and a configuration hash that no run records: parity by that command, protocol version 9, and T8.1's incumbent run the configuration's own dev run, which the release and every experiment compare with |
 
 ## `DR`, the deep reviewer
 
@@ -144,7 +145,7 @@ An audit pass that killed the pipeline mid build and mid change. 7 findings, 7 c
 
 ## `MA`, the measurement auditor
 
-An audit pass on whether every number can be produced again. 32 findings, 31 closed.
+An audit pass on whether every number can be produced again. 34 findings, 33 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -177,9 +178,11 @@ An audit pass on whether every number can be produced again. 32 findings, 31 clo
 | `MA-F27` | low | fixed, tick 229 | The README's What fails bullet on ties and N50's amendment leave out the 30,000 filler units the move was measured among, the condition that decided it: at 3,000 a bulk of 1,500 moved nothing: name the 30,000 beside the 15,000 |
 | `MA-F28` | low | fixed, tick 241 | The README's freshness gives the largest of one run of five edits, 3.8 s, which a run the next day missed by 0.4 s, its median holding at 3.7: the median and that every edit met the 5 s objective, never one run's largest alone |
 | `MA-F29` | low | fixed, tick 241 | Records made before their code was committed name the commit before it: ntk-stats and the page's scale.json say run at 0a52bf1, whose code gives an index of 3,948,042,658 bytes, not 3,773,074,626; a record from a tree holding changes names that tree too, and the two are made again at a commit |
-| `MA-F30` | low | open | bench/ties.py makes its collection with a copy of the index's create call, which T7.5's named indexing threshold did not reach, equal tonight only as the engine's default: one function makes both, with a test that their configurations agree |
+| `MA-F30` | low | fixed, tick 243 | bench/ties.py makes its collection with a copy of the index's create call, which T7.5's named indexing threshold did not reach, equal tonight only as the engine's default: one function makes both, with a test that their configurations agree |
 | `MA-F31` | low | fixed, tick 241 | e2f1eff's message gives a before run, the sync 1346 s, its CPU 680 s and the data directory's peak 20.19 GB, that no record in the repository holds, its log on the build's machine alone; the record of the build before is dcd5cd0's: keep the message and name it in the errata, as a wrong message is |
 | `MA-F32` | low | fixed, tick 242 | bench/freshness.py says its first edit measures the embedding, but every run edits the fact to the same value, so the vector cache holds that passage from an earlier run and no edit of any run embeds: every recorded freshness figure is the scan and the sync alone; each run's edit a value no run wrote before |
+| `MA-F33` | low | open | Six records taken from a log name no code, this tick's permission suite among them: their benches print no commit line and a log's record head names only the log, so the code behind those figures is on record nowhere; MA-F29's sweep looked only at benches that print one. Each bench a log records prints machine.commit() first, and bench/claims.py record --log refuses a log without that line |
+| `MA-F34` | medium | fixed, tick 243 | ntk eval split --check, which the README names, exited 1 from 54c3732 to tick 243: that commit wrote planted sentences anew and moved two families' salience, eval/families.json kept the draw before, and no test drew the split again, so nothing failed; the same draw from the registered seed, 0 families changing split |
 
 ## `MT`, the maintainer in six months
 
@@ -248,7 +251,7 @@ An audit pass of three minutes, on whether the author ships, measures and says s
 
 ## `AC`, the access control red team
 
-An audit pass that tried to make restricted text readable by the wrong role. 20 findings, 19 closed.
+An audit pass that tried to make restricted text readable by the wrong role. 20 findings, 20 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -271,7 +274,7 @@ An audit pass that tried to make restricted text readable by the wrong role. 20 
 | `AC-F17` | low | fixed, tick 173 | A role's view of a document counts the sections it may not read by their numbers: returns reads SAL_CIR_017's sections 1, 8, 10 and 12, the corpus numbering sections across audiences: record it as the documents' own text, as N65 records the ids, in N65 and the README |
 | `AC-F18` | medium | fixed, tick 211 | The document view's time counts the units a role may not read: outline reads every unit of the document before dropping the segments the role may not, so as hr the time follows the units kept back, 7.55 us each, and estimates them to within 380 at the median: read only the role's segments |
 | `AC-F19` | high | fixed, tick 211 | The change feed's time tells a role when a scan it cannot see finished: scanned reads every scan after the place before dropping those the role cannot see, so hr, every reply empty, found scan 172's finish to the second in 16 probes, against the README's not even its time (N66): read only the scans the role can see |
-| `AC-F20` | medium | open | On the server a role's exactly tied units keep the index layout's order, which a bulk write of units it may not read moved once the optimizer settled, and the fusion ranks ties by it: each search's whole tie group fetched across the cut, ordered by unit id, and fused in the process, under a new protocol version |
+| `AC-F20` | medium | fixed, tick 243 | On the server a role's exactly tied units keep the index layout's order, which a bulk write of units it may not read moved once the optimizer settled, and the fusion ranks ties by it: each search's whole tie group fetched across the cut, ordered by unit id, and fused in the process, under a new protocol version |
 
 ## `RC`, the recruiter
 
