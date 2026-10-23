@@ -2,7 +2,7 @@
 
 Commit messages and code comments cite identifiers like `OP-F1`. This is what they refer to.
 
-**267 findings, 264 closed, 3 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
+**268 findings, 265 closed, 3 open**, from 17 reviews. Each audit pass took one perspective and nothing else.
 
 Written from the loop's own queue by its `tools/audits_md.py`, and held to that queue by the workspace gate `tools/check-audit-status.mjs`, which fails if a row says anything the queue does not.
 
@@ -188,7 +188,7 @@ An audit pass on whether every number can be produced again. 34 findings, 33 clo
 
 ## `MT`, the maintainer in six months
 
-An audit pass on whether a fresh clone can be rebuilt and changed safely. 37 findings, 37 closed.
+An audit pass on whether a fresh clone can be rebuilt and changed safely. 38 findings, 38 closed.
 
 | id | severity | status | finding |
 |---|---|---|---|
@@ -229,6 +229,7 @@ An audit pass on whether a fresh clone can be rebuilt and changed safely. 37 fin
 | `MT-F35` | low | fixed, tick 249 | Two docstrings describe what their code did before this run: bench/baseline.py's still requires both splits and both closed runs, and tools/check-page.mjs's header lists checks 0 to 8 without the design check every trace now runs |
 | `MT-F36` | low | fixed, tick 249 | The README's recording is framed by numbers nothing checks: tools/capture.mjs scrolls to 300 and 940 against card rows measured by hand, so a row a design change pushes past the crop leaves the picture and the capture succeeds; measure the rows before recording |
 | `MT-F37` | low | fixed, tick 249 | Two controls quote figures that every re-record moves, the served bullet's latencies and the capture's hold, stale three times in this run, each found by the suite and fixed by hand; each quotes the stable part of its text |
+| `MT-F38` | low | fixed, tick 250 | Four more controls quote figures a re-record moves, found by tick 249's search of every control for the records' numbers: the freshness headline's 3.2, the attack's 72 of 88, the relabel's 1.5 and 1.7 and the injection bench's 42; each goes stale when its bench is recorded again, as MT-F37's two did; each breaks stable text instead |
 
 ## `SC`, the supply chain auditor
 

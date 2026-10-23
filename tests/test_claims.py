@@ -103,3 +103,25 @@ def test_a_record_from_a_tree_holding_changes_names_the_code_that_differs():
     assert tool.changes(status) == ", with changes to bench/parts_check.py, src/needtoknow/index/collection.py"
     assert tool.changes(" M README.md\n") == ", the tree holding changes to no code"
     assert tool.changes("") == ""
+
+
+def test_a_record_from_a_log_that_names_no_code_is_refused(tmp_path, monkeypatch):
+    # MA-F33: six records taken from logs named no code, their benches printing no commit line, so the code behind those
+    # figures was on record nowhere; a log must hold the line machine.commit() prints.
+    import sys
+
+    import pytest
+    gate = claims()
+    monkeypatch.setenv("NTK_DATA_DIR", str(tmp_path))
+    (tmp_path / "logs").mkdir()
+    (tmp_path / "logs" / "bare.log").write_text("5760 searches in 1411 s\n", encoding="utf-8")
+    (tmp_path / "logs" / "named.log").write_text("at 1bfd224, with changes to bench/x.py\n5760 searches\n",
+                                                 encoding="utf-8")
+    monkeypatch.setattr(gate, "RECORDS", tmp_path / "claims")
+    monkeypatch.setattr(gate, "REPO", tmp_path)  # a log's head asks git nothing
+    command = "uv run python bench/permission_suite.py"
+    monkeypatch.setattr(sys, "argv", ["claims.py", "record", command, "--log", "bare.log"])
+    with pytest.raises(SystemExit, match="names no code"):
+        gate.main()
+    monkeypatch.setattr(sys, "argv", ["claims.py", "record", command, "--log", "named.log"])
+    assert gate.main() == 0 and (tmp_path / "claims" / "python-bench-permission_suite.py.txt").is_file()

@@ -262,8 +262,8 @@ name = "the README's freshness figures of tick 241, its edits never embedded"
 test = "tests/test_claims.py"
 [[control.change]]
 file = "README.md"
-old = '''`ntk ingest watch` in 3.2 s at the median over five edits'''
-new = '''`ntk ingest watch` in 1.9 s at the median over five edits'''
+old = '''`ntk ingest watch` in '''
+new = '''`ntk ingest watch` in 1.37 s, then '''
 
 [[control]]
 name = "a saved run named whatever its arguments"
@@ -347,8 +347,8 @@ name = "a failure's figure no record prints"
 test = "tests/test_claims.py"
 [[control.change]]
 file = "README.md"
-old = '''unit lower in 72 of 88 matched pairs'''
-new = '''unit lower in 73 of 88 matched pairs'''
+old = '''leak when they are counted over the whole collection:'''
+new = '''leak when they are counted over the whole collection, 4.73 times as often:'''
 
 [[control]]
 name = "the README without its failures"
@@ -373,11 +373,8 @@ name = "the relabel's narrowing left out again"
 test = "tests/test_readme.py::test_the_readme_gives_the_relabel_in_both_directions"
 [[control.change]]
 file = "README.md"
-old = '''over ten runs, the largest deciding, and narrowed back, it leaves that
-  reader in 1.5 s at the median and 1.7 s at most, inside the 5 s objective, with the
-  processor'''
-new = '''over ten runs, the largest deciding, inside the 5 s objective, with the
-  processor'''
+old = '''s at most, inside the 5 s objective'''
+new = '''s at its slowest, inside the 5 s objective'''
 
 [[control]]
 name = "the recorder keeping more rows than the page draws"
@@ -424,9 +421,8 @@ name = "the README saying a planted instruction is quoted without how often it h
 test = "tests/test_readme.py::test_the_readme_says_what_the_injection_bench_tried_and_how_often_it_held"
 [[control.change]]
 file = "README.md"
-old = '''at temperature 0, moved the answer in 0 of 42
-  asks,'''
-new = '''at temperature 0, were quoted rather than followed,'''
+old = '''moved the answer in '''
+new = '''moved the answer, by the bench's count, in '''
 
 [[control]]
 name = "the before recipe copying today's bench into its parent"
@@ -1092,6 +1088,16 @@ file = "web/src/main.ts"
 old = '''    ['The index on disk', size(figures.disk.index), exact(figures.disk.index)],
 '''
 new = '''    ['The index on disk', number(figures.disk.index), exact(figures.disk.index)],
+'''
+
+[[control]]
+name = "a log that names no code taken as a record"
+test = "tests/test_claims.py::test_a_record_from_a_log_that_names_no_code_is_refused"
+[[control.change]]
+file = "bench/claims.py"
+old = '''        if not CODE_LINE.search(output):
+'''
+new = '''        if False:
 '''
 
 [[control]]

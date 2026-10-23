@@ -36,6 +36,8 @@ REPO = Path(__file__).resolve().parents[1]
 RECORDS = REPO / "docs" / "claims"
 NUMBER = re.compile(r"(?<![\w.@])[-+]?\d[\d,]*(?:\.\d+)?(?![\w])")
 PARAMETER = re.compile(r"(?:\btop|\bup to)\s+$")
+# The line machine.commit() prints first, at a commit and the files a run changed beyond it (MA-F29, MA-F33).
+CODE_LINE = re.compile(r"^at [0-9a-f]{7,40}\b", re.M)
 COMMAND = re.compile(r"`((?:uv run )?(?:ntk|python bench/)[^`]*)`")
 
 
@@ -221,6 +223,10 @@ def main() -> int:
         from needtoknow.settings import data_dir
         log = data_dir() / "logs" / args.log
         output = log.read_text(encoding="utf-8", errors="replace")
+        # A log's record names its code through the log alone: six records taken from logs named none (MA-F33).
+        if not CODE_LINE.search(output):
+            raise SystemExit(f"{args.log} names no code: its bench prints machine.commit() first, at a commit and the "
+                             "files it changed, and a log of a run of it now holds that line (MA-F33)")
     else:
         output = run(args.command)
     output = written(output)

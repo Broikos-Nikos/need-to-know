@@ -238,6 +238,7 @@ def main() -> int:
     if args.run:
         return run_and_report(json.loads(args.run), Path(args.report))
     data, config = data_dir(), server.load_config()
+    print(machine.commit(), flush=True)  # the code the run used, for a record taken from its log (MA-F33)
     if args.serving:
         return serving(args.serving, config)
     started = time.strftime("%Y-%m-%d %H:%M:%S")

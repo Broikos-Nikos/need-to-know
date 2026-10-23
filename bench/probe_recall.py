@@ -36,7 +36,7 @@ import sys
 import time
 from collections import defaultdict
 
-from machine import named
+from machine import commit, named
 
 from needtoknow.eval.probes import load, lost
 from needtoknow.eval.protocol import check_use
@@ -166,6 +166,7 @@ def main(argv: list[str] | None = None) -> int:
     saved_name = named(f"probe_recall_{args.split}", parser, args, ("selective_only",))
     if args.report:
         return report(args.split, saved_name)
+    print(commit(), flush=True)  # the code the run used, for a record taken from its log (MA-F33)
     from needtoknow.index import server
     from needtoknow.index.expand import excerpts
     from needtoknow.index.search import search

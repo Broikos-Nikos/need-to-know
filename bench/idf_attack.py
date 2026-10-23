@@ -35,7 +35,7 @@ import sqlite3
 import sys
 from collections import defaultdict
 
-from machine import named
+from machine import commit, named
 
 from needtoknow import lexical
 from needtoknow.index import server
@@ -57,6 +57,7 @@ def main() -> int:
     parser.add_argument("--global-idf", action="store_true",
                         help="weights over the whole collection, as before N50, to show the attack the view stops")
     args = parser.parse_args()
+    print(commit(), flush=True)  # the code the run used, for a record taken from its log (MA-F33)
     if args.global_idf:  # every label set, whatever the role reads: what the IDF modifier did before N50
         from needtoknow.index import frequencies
         real = frequencies.weights

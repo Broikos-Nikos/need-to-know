@@ -22,6 +22,8 @@ import time
 import tracemalloc
 from collections import Counter
 
+from machine import commit
+
 from needtoknow.corpus.mutate import corpus_files
 from needtoknow.ingest.decode import load
 from needtoknow.ingest.parse import parse
@@ -36,6 +38,7 @@ STEPS = ("decode", "parse", "structure", "segments", "units")
 
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8")
+    print(commit(), flush=True)  # the code the run used, for a record taken from its log (MA-F33)
     full = data_dir() / "corpus" / "full"
     found = corpus_files(full)
     if not found:

@@ -29,6 +29,8 @@ import sys
 import time
 from collections import defaultdict
 
+from machine import commit
+
 from needtoknow import canaries
 from needtoknow.answer.prompt import build, reader_mark
 from needtoknow.embed import model
@@ -49,6 +51,7 @@ def main() -> int:
     parser.add_argument("--prefixes", action="store_true", help="units' first 30 words for probes, as at tick 75")
     args = parser.parse_args()
     sys.stdout.reconfigure(encoding="utf-8")
+    print(commit(), flush=True)  # the code the run used, for a record taken from its log (MA-F33)
     began = time.perf_counter()
     rng = random.Random(args.seed)
     with opened() as db:
